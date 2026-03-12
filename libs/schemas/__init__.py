@@ -26,12 +26,15 @@ class MarketStatus(str, Enum):
 class Market(BaseModel):
     """市场信息"""
     market_id: str
+    gamma_market_id: str
     slug: str
     question: str
     category: Optional[str] = None
     status: MarketStatus
     end_time: Optional[datetime] = None
     liquidity_score: float = 0.0
+    clob_token_ids: list[str] = Field(default_factory=list)
+    primary_asset_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -39,6 +42,7 @@ class Market(BaseModel):
 class OrderbookTick(BaseModel):
     """订单簿快照"""
     market_id: str
+    asset_id: Optional[str] = None
     timestamp: datetime
     bid_price: float
     ask_price: float
@@ -51,10 +55,11 @@ class OrderbookTick(BaseModel):
 class TradeTick(BaseModel):
     """成交记录"""
     market_id: str
+    asset_id: Optional[str] = None
     timestamp: datetime
     price: float
     size: float
-    side: Side
+    side: str
 
 
 class Signal(BaseModel):

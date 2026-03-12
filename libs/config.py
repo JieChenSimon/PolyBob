@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # Monitoring
     prometheus_port: int = 9090
     log_level: str = "INFO"
+    log_format: str = "auto"
+    api_reload: bool = False
 
     # AI
     anthropic_api_key: str = ""

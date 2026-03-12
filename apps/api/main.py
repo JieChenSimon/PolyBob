@@ -2,7 +2,10 @@
 PolyBob Main Application
 """
 import asyncio
+from datetime import datetime
+import logging
 import signal
+import sys
 import structlog
 from contextlib import asynccontextmanager
 
@@ -14,14 +17,41 @@ from services.market_discovery import MarketDiscoveryService
 from services.realtime_ingestor import RealtimeIngestorService
 from services.feature_engine import FeatureEngineService
 
-# 配置日志
-structlog.configure(
-    processors=[
-        structlog.processors.TimeStamper(fmt="iso"),
+
+def configure_logging():
+    """配置 structlog 输出和级别过滤"""
+    settings = get_settings()
+    log_level_name = settings.log_level.upper()
+    numeric_level = getattr(logging, log_level_name, logging.INFO)
+
+    log_format = settings.log_format.lower()
+    if log_format == "auto":
+        log_format = "console" if sys.stderr.isatty() else "json"
+
+    shared_processors = [
         structlog.processors.add_log_level,
-        structlog.processors.JSONRenderer(),
-    ],
-)
+        structlog.processors.TimeStamper(fmt="iso"),
+    ]
+
+    if log_format == "json":
+        renderer = structlog.processors.JSONRenderer()
+    else:
+        renderer = structlog.dev.ConsoleRenderer()
+
+    structlog.configure(
+        processors=[
+            *shared_processors,
+            structlog.processors.StackInfoRenderer(),
+            structlog.dev.set_exc_info,
+            renderer,
+        ],
+        wrapper_class=structlog.make_filtering_bound_logger(numeric_level),
+        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+        cache_logger_on_first_use=True,
+    )
+
+
+configure_logging()
 
 logger = structlog.get_logger()
 
@@ -122,6 +152,27 @@ async def get_market_features(market_id: str):
     return features.to_dict()
 
 
+@app.get("/api/dashboard/markets")
+async def get_dashboard_markets():
+    """返回 dashboard 聚合数据"""
+    if not market_discovery or not feature_engine:
+        return {"error": "service not ready"}
+
+    markets = await market_discovery.get_markets(limit=36)
+    items = []
+    for market in markets:
+        features = feature_engine.get_features(market.market_id)
+        item = market.model_dump(mode="json")
+        item["features"] = features.to_dict() if features else None
+        items.append(item)
+
+    return {
+        "markets": items,
+        "count": len(items),
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
 
@@ -131,6 +182,6 @@ if __name__ == "__main__":
         "apps.api.main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=settings.api_reload,
         log_level=settings.log_level.lower(),
     )

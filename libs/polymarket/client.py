@@ -25,16 +25,21 @@ class PolymarketClient:
         limit: int = 100,
         offset: int = 0,
         active: bool = True,
+        closed: bool | None = None,
     ) -> list[dict[str, Any]]:
         """获取市场列表"""
         try:
+            params = {
+                "limit": limit,
+                "offset": offset,
+                "active": str(active).lower(),
+            }
+            if closed is not None:
+                params["closed"] = str(closed).lower()
+
             response = await self.client.get(
                 "/markets",
-                params={
-                    "limit": limit,
-                    "offset": offset,
-                    "active": str(active).lower(),
-                },
+                params=params,
             )
             response.raise_for_status()
             data = response.json()
@@ -62,14 +67,17 @@ class PolymarketClient:
             logger.error("failed_to_fetch_market", market_id=market_id, error=str(e))
             raise
 
-    async def get_orderbook(self, market_id: str) -> dict[str, Any]:
+    async def get_orderbook(self, token_id: str) -> dict[str, Any]:
         """获取订单簿快照"""
         try:
-            response = await self.client.get(f"/orderbook/{market_id}")
+            response = await self.client.get(
+                "/book",
+                params={"token_id": token_id},
+            )
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            logger.error("failed_to_fetch_orderbook", market_id=market_id, error=str(e))
+            logger.error("failed_to_fetch_orderbook", token_id=token_id, error=str(e))
             raise
 
     async def get_trades(

@@ -6,7 +6,7 @@ import json
 import websockets
 import structlog
 from datetime import datetime
-from typing import Callable, Set
+from typing import Callable, Iterable, Set
 
 logger = structlog.get_logger()
 
@@ -64,42 +64,49 @@ class PolymarketWebSocket:
 
                 await asyncio.sleep(self.reconnect_interval)
 
-    async def subscribe(self, market_id: str):
-        """订阅市场"""
-        self.subscriptions.add(market_id)
+    async def subscribe(self, asset_ids: str | Iterable[str]):
+        """订阅资产"""
+        normalized = self._normalize_asset_ids(asset_ids)
+        self.subscriptions.update(normalized)
 
-        if self.ws:
-            await self._send_subscribe(market_id)
+        if self.ws and normalized:
+            await self._send_subscription(normalized, operation="subscribe")
 
-    async def unsubscribe(self, market_id: str):
-        """取消订阅市场"""
-        self.subscriptions.discard(market_id)
+    async def unsubscribe(self, asset_ids: str | Iterable[str]):
+        """取消订阅资产"""
+        normalized = self._normalize_asset_ids(asset_ids)
+        for asset_id in normalized:
+            self.subscriptions.discard(asset_id)
 
-        if self.ws:
-            await self._send_unsubscribe(market_id)
+        if self.ws and normalized:
+            await self._send_subscription(normalized, operation="unsubscribe")
 
     async def _resubscribe(self):
         """重新订阅所有市场"""
-        for market_id in self.subscriptions:
-            await self._send_subscribe(market_id)
+        if self.subscriptions:
+            await self._send_subscription(sorted(self.subscriptions))
 
-    async def _send_subscribe(self, market_id: str):
-        """发送订阅消息"""
+    async def _send_subscription(
+        self,
+        asset_ids: list[str],
+        operation: str | None = None,
+    ):
+        """发送订阅或取消订阅消息"""
         message = {
-            "type": "subscribe",
-            "market_id": market_id,
+            "assets_ids": asset_ids,
+            "type": "market",
+            "custom_feature_enabled": True,
         }
-        await self.ws.send(json.dumps(message))
-        logger.info("subscribed_to_market", market_id=market_id)
+        if operation:
+            message["operation"] = operation
 
-    async def _send_unsubscribe(self, market_id: str):
-        """发送取消订阅消息"""
-        message = {
-            "type": "unsubscribe",
-            "market_id": market_id,
-        }
         await self.ws.send(json.dumps(message))
-        logger.info("unsubscribed_from_market", market_id=market_id)
+        logger.info(
+            "market_subscription_updated",
+            operation=operation or "subscribe",
+            asset_count=len(asset_ids),
+            asset_ids=asset_ids[:3],
+        )
 
     async def _receive_loop(self):
         """接收消息循环"""
@@ -107,10 +114,26 @@ class PolymarketWebSocket:
             self.last_message_time = datetime.utcnow()
 
             try:
+                if isinstance(message, bytes):
+                    message = message.decode("utf-8", errors="ignore")
+
+                message = message.strip()
+                if not message:
+                    continue
+
                 data = json.loads(message)
-                await self._handle_message(data)
+                if isinstance(data, list):
+                    for item in data:
+                        await self._handle_message(item)
+                else:
+                    await self._handle_message(data)
             except Exception as e:
-                logger.error("failed_to_handle_message", error=str(e), exc_info=True)
+                logger.error(
+                    "failed_to_handle_message",
+                    error=str(e),
+                    raw_message_preview=message[:200] if isinstance(message, str) else None,
+                    exc_info=True,
+                )
 
     async def _handle_message(self, data: dict):
         """处理消息"""
@@ -129,3 +152,9 @@ class PolymarketWebSocket:
         if self.ws:
             await self.ws.close()
             logger.info("websocket_closed")
+
+    def _normalize_asset_ids(self, asset_ids: str | Iterable[str]) -> list[str]:
+        """标准化 asset ids"""
+        if isinstance(asset_ids, str):
+            return [asset_ids]
+        return [asset_id for asset_id in asset_ids if asset_id]

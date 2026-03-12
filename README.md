@@ -57,7 +57,27 @@ python -m apps.api.main
 
 服务将在 http://localhost:8000 启动
 
-### 4. 访问 API 文档
+### 4. 启动界面（可选）
+
+#### Web Dashboard（推荐）
+
+```bash
+cd apps/dashboard
+npm install
+npm run dev
+```
+
+访问 http://localhost:3001
+
+#### TUI（终端界面）
+
+```bash
+python -m apps.tui
+```
+
+详见 [界面使用指南](docs/UI_GUIDE.md)
+
+### 5. 访问 API 文档
 
 打开浏览器访问：
 - Swagger UI: http://localhost:8000/docs
@@ -74,6 +94,8 @@ python -m apps.api.main
 - ✅ 实时数据采集服务
 - ✅ 特征引擎服务
 - ✅ 基础 API 接口
+- ✅ **Web Dashboard**（赛博朋克终端风格）
+- ✅ **TUI 终端界面**
 
 ### Phase 1: 待完成
 

@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-stone-200;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(238, 184, 120, 0.22), transparent 32%),
+      radial-gradient(circle at top right, rgba(132, 183, 170, 0.18), transparent 28%),
+      linear-gradient(180deg, #fcfaf6 0%, #f3eee5 100%);
+    color: #1f1c18;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-[28px] border border-stone-200/80 bg-white/80 shadow-[0_20px_60px_rgba(73,52,27,0.08)] backdrop-blur;
+  }
+
+  .metric-panel {
+    @apply rounded-[22px] border border-stone-200/80 bg-white/90 px-5 py-4 shadow-[0_10px_30px_rgba(73,52,27,0.06)];
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-full border border-amber-200 bg-amber-100/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-800;
+  }
+
+  .mono {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(120, 98, 72, 0.08);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 98, 72, 0.26);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 98, 72, 0.4);
+}
+
+::selection {
+  background: rgba(177, 77, 31, 0.18);
+  color: #1f1c18;
+}
