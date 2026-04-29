@@ -1,0 +1,15 @@
+strategy_id: spread_arbitrage_v1
+name: Spread Arbitrage Strategy V1
+description: 最小跨交易所 spread 套利策略 - 由 pair snapshot 生成多腿 trade intent
+
+parameters:
+  min_net_edge_bps: 12.0
+  min_abs_spread_bps: 8.0
+  min_confidence: 0.55
+  order_quantity: 0.01
+  cooldown_seconds: 30
+
+risk_limits:
+  max_position_size: 0.05
+  max_open_intents: 3
+  max_leverage: 1.0

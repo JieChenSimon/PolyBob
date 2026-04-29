@@ -1,0 +1,42 @@
+[
+  {
+    "market_id": "market_test_1",
+    "timestamp": "2024-03-01T10:00:00",
+    "bid_price": 0.48,
+    "ask_price": 0.52,
+    "bid_size": 100.0,
+    "ask_size": 80.0
+  },
+  {
+    "market_id": "market_test_1",
+    "timestamp": "2024-03-01T10:01:00",
+    "bid_price": 0.47,
+    "ask_price": 0.53,
+    "bid_size": 120.0,
+    "ask_size": 90.0
+  },
+  {
+    "market_id": "market_test_1",
+    "timestamp": "2024-03-01T10:02:00",
+    "bid_price": 0.49,
+    "ask_price": 0.51,
+    "bid_size": 110.0,
+    "ask_size": 85.0
+  },
+  {
+    "market_id": "market_test_1",
+    "timestamp": "2024-03-01T10:03:00",
+    "bid_price": 0.50,
+    "ask_price": 0.54,
+    "bid_size": 95.0,
+    "ask_size": 100.0
+  },
+  {
+    "market_id": "market_test_1",
+    "timestamp": "2024-03-01T10:04:00",
+    "bid_price": 0.51,
+    "ask_price": 0.53,
+    "bid_size": 105.0,
+    "ask_size": 95.0
+  }
+]

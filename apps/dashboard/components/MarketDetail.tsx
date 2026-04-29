@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { DashboardMarket } from '@/app/page';
+import { DashboardMarket } from '@/lib/types';
 
 interface MarketDetailProps {
   market: DashboardMarket | null;

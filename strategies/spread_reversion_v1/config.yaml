@@ -1,0 +1,13 @@
+strategy_id: spread_reversion_v1
+name: Spread Reversion Strategy V1
+description: 价差回归策略 - 基于买卖价差的均值回归
+
+parameters:
+  spread_threshold_bps: 150.0  # 价差阈值(基点)
+  reversion_confidence: 0.7    # 回归置信度
+  min_depth_ratio: 0.3         # 最小深度比率
+  signal_ttl_seconds: 180      # 信号有效期(秒)
+
+risk_limits:
+  max_position_size: 300.0
+  max_leverage: 1.0

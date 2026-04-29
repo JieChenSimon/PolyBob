@@ -1,65 +1,40 @@
 # PolyBob
 
-Polymarket 实时分析与交易自动化系统
+PolyBob 是一个个人市场研究与 paper execution 工作台，面向 Polymarket 与相关 crypto / onchain 信号的日常观察、策略实验、风险复核和复盘。
 
-## 项目结构
+它不是对外 SaaS，也不默认承诺全自动交易。默认运行路径只启动核心工作台能力；BTC demo auto trader、RL optimizer 等实验能力归入 lab，需要显式开启。
 
-```
-polybob/
-├── apps/                    # 应用层
-│   ├── api/                # FastAPI 服务
-│   ├── dashboard/          # 前端看板
-│   └── worker/             # 后台任务
-├── services/               # 核心服务
-│   ├── market_discovery/   # 市场发现
-│   ├── realtime_ingestor/  # 实时数据采集
-│   ├── feature_engine/     # 特征引擎
-│   ├── strategy_engine/    # 策略引擎
-│   ├── risk_manager/       # 风控管理
-│   ├── execution_engine/   # 执行引擎
-│   └── ai_orchestrator/    # AI 编排
-├── strategies/             # 策略实现
-├── libs/                   # 共享库
-│   ├── polymarket/         # Polymarket 客户端
-│   ├── events/             # 事件总线
-│   ├── db/                 # 数据库
-│   ├── schemas/            # 数据模型
-│   └── config.py           # 配置管理
-├── infra/                  # 基础设施
-└── docs/                   # 文档
-```
+## Operating Model
 
-## 快速开始
+PolyBob 按三层维护：
 
-### 1. 安装依赖
+- **core**：每天可以稳定打开使用的能力，包括市场发现、实时采集、特征聚合、策略目录、intent、paper basket、风险摘要和 dashboard。
+- **lab**：实验模块，可以快速试想法，但不进入默认启动路径。当前包括 BTC auto trader、RL optimizer、旧 API server 等。
+- **archive**：历史方案、报告和草稿，保留上下文，但不作为当前运行路径。
+
+## Quick Start
+
+默认 Python 环境是 conda 中的 `polybob`。
 
 ```bash
-# 使用 conda 创建环境
 conda env create -f environment.yml
-
-# 激活环境
 conda activate polybob
+python -m pip install -e '.[dev]'
 ```
 
-### 2. 配置环境变量
+配置环境变量：
 
 ```bash
 cp .env.example .env
-# 编辑 .env 文件，填入必要的配置
 ```
 
-### 3. 启动服务
+启动 API：
 
 ```bash
-# 启动 API 服务
 python -m apps.api.main
 ```
 
-服务将在 http://localhost:8000 启动
-
-### 4. 启动界面（可选）
-
-#### Web Dashboard（推荐）
+启动 dashboard：
 
 ```bash
 cd apps/dashboard
@@ -67,101 +42,76 @@ npm install
 npm run dev
 ```
 
-访问 http://localhost:3001
+默认地址：
 
-#### TUI（终端界面）
+- API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
+- Dashboard: http://localhost:3001
 
-```bash
-python -m apps.tui
-```
+## Core Path
 
-详见 [界面使用指南](docs/UI_GUIDE.md)
+当前核心路径：
 
-### 5. 访问 API 文档
+1. `MarketDiscoveryService` 扫描 Polymarket 市场并维护 watchlist。
+2. `RealtimeIngestorService` 订阅 CLOB 数据并发布 orderbook / trade 事件。
+3. `FeatureEngineService` 聚合 mid price、spread、depth imbalance、volume、price jump。
+4. `StrategyManagerService` 加载策略模板与实例。
+5. `IntentExecutionService` 将策略或手动判断转成 trade intent。
+6. `BasketExecutor` 维护多腿 paper basket。
+7. `Risk & Ops` 汇总风险、onchain 告警和服务状态。
 
-打开浏览器访问：
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+Dashboard 首页是 Daily Brief：先回答今天该看什么、哪些信号需要复核、风险有没有异常。
 
-## 当前实现状态
+## Lab Modules
 
-### Phase 1: 数据底座（已完成）
-
-- ✅ 项目骨架和配置管理
-- ✅ 事件总线系统
-- ✅ Polymarket 客户端（REST + WebSocket）
-- ✅ 市场发现服务
-- ✅ 实时数据采集服务
-- ✅ 特征引擎服务
-- ✅ 基础 API 接口
-- ✅ **Web Dashboard**（赛博朋克终端风格）
-- ✅ **TUI 终端界面**
-
-### Phase 1: 待完成
-
-- ⏳ 数据库集成（Postgres + TimescaleDB）
-- ⏳ 监控看板前端
-- ⏳ 告警系统
-- ⏳ 日志和指标收集
-
-### Phase 2: 策略与半自动交易（计划中）
-
-- ⏳ 策略引擎
-- ⏳ 风控引擎
-- ⏳ 执行引擎
-- ⏳ AI 协作层
-
-## API 端点
-
-### 健康检查
-```
-GET /
-```
-
-### 获取 Watchlist
-```
-GET /markets/watchlist
-```
-
-### 获取市场特征
-```
-GET /markets/{market_id}/features
-```
-
-## 架构设计
-
-系统采用六层架构：
-
-1. **数据层**：市场发现、实时采集、状态存储
-2. **信号层**：特征引擎、策略引擎
-3. **执行层**：订单执行、状态管理
-4. **风控层**：风险检查、熔断控制
-5. **AI 协作层**：研究、复盘、代码生成
-6. **运维层**：监控、告警、部署
-
-详细设计文档见 `docs/` 目录。
-
-## 开发指南
-
-### 运行测试
+BTC demo auto trader 默认关闭。需要实验时显式开启：
 
 ```bash
-pytest
+ENABLE_LAB_AUTO_TRADER=true python -m apps.api.main
 ```
 
-### 代码格式化
+关闭时：
+
+- `/api/trading/status` 返回 lab disabled 状态；
+- `/api/trading/start` 返回 403；
+- overview / risk 不会初始化 demo 引擎，也不会为 demo 拉取 Binance 报价。
+
+## Project Structure
+
+```text
+apps/
+  api/                  FastAPI core entrypoint
+  dashboard/            Next.js personal workbench
+services/
+  market_discovery/     Polymarket market discovery
+  realtime_ingestor/    CLOB realtime ingestion
+  feature_engine/       Market feature aggregation
+  strategy_manager/     Strategy templates and instances
+  execution_engine/     Intent and basket execution skeleton
+  risk_manager/         Risk checks
+  onchain_monitor/      Normalized onchain event monitor
+  auto_trader/          Lab BTC demo path
+  rl_optimizer/         Lab RL optimizer path
+libs/
+  polymarket/           Polymarket REST / WebSocket clients
+  crypto/               Binance / Hyperliquid clients
+  events/               In-memory event bus
+  schemas/              Shared pydantic models
+  backtest/             Backtest utilities
+strategies/             Strategy implementations and configs
+config/                 Pair universe and onchain watchlists
+.ai/memory/             Project memory and product positioning
+```
+
+## Validation
 
 ```bash
-black .
-ruff check .
+conda run -n polybob python -m pytest -q
+cd apps/dashboard && npm run build
 ```
 
-### 类型检查
+Current expected result:
 
-```bash
-mypy .
+```text
+84 passed
 ```
-
-## 许可证
-
-MIT

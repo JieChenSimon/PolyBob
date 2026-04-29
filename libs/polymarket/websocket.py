@@ -8,6 +8,8 @@ import structlog
 from datetime import datetime
 from typing import Callable, Iterable, Set
 
+from libs.terminal_status import render_status
+
 logger = structlog.get_logger()
 
 
@@ -101,11 +103,14 @@ class PolymarketWebSocket:
             message["operation"] = operation
 
         await self.ws.send(json.dumps(message))
-        logger.info(
+        logger.debug(
             "market_subscription_updated",
             operation=operation or "subscribe",
             asset_count=len(asset_ids),
             asset_ids=asset_ids[:3],
+        )
+        render_status(
+            f"subscriptions {operation or 'subscribe'}: {len(self.subscriptions)} assets"
         )
 
     async def _receive_loop(self):

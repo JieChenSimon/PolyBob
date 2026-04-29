@@ -1,0 +1,12 @@
+strategy_id: ai_enhanced_prediction_v1
+name: AI Enhanced Prediction Strategy V1
+description: AI 增强预测策略 - 使用 Claude API 进行市场分析
+
+parameters:
+  min_confidence: 0.6              # 最小置信度阈值
+  signal_ttl_seconds: 600          # 信号有效期(秒)
+  analysis_interval_seconds: 60    # AI 分析间隔(秒)
+
+risk_limits:
+  max_position_size: 500.0
+  max_leverage: 1.0

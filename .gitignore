@@ -31,6 +31,7 @@ ENV/
 # IDE
 .vscode/
 .idea/
+.claude/settings.local.json
 *.swp
 *.swo
 *~
@@ -44,6 +45,11 @@ ENV/
 .coverage
 htmlcov/
 
+# JavaScript
+node_modules/
+.next/
+apps/dashboard/.next/
+
 # Logs
 *.log
 logs/
@@ -51,6 +57,13 @@ logs/
 # Database
 *.db
 *.sqlite
+
+# Runtime data
+data/active_markets.json
+data/fusion_backtest_result.json
+data/polymarket_historical.json
+data/polymarket_realtime.json
+data/polymarket_snapshot.json
 
 # OS
 .DS_Store

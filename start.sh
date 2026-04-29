@@ -14,16 +14,19 @@ if ! command -v conda &> /dev/null; then
     exit 1
 fi
 
+CONDA_ENV_NAME="${CONDA_ENV_NAME:-${CONDA_DEFAULT_ENV:-polybob}}"
+
 # 检查 conda 环境是否存在
-if ! conda env list | grep -q "^polybob "; then
-    echo "Creating conda environment 'polybob'..."
-    conda env create -f environment.yml
+if ! conda env list | grep -q "^${CONDA_ENV_NAME} "; then
+    echo "Error: conda environment '${CONDA_ENV_NAME}' not found"
+    echo "Set CONDA_ENV_NAME to an existing environment or create it first"
+    exit 1
 fi
 
 # 激活 conda 环境
-echo "Activating conda environment 'polybob'..."
+echo "Activating conda environment '${CONDA_ENV_NAME}'..."
 eval "$(conda shell.bash hook)"
-conda activate polybob
+conda activate "$CONDA_ENV_NAME"
 
 # 检查 .env 文件
 if [ ! -f ".env" ]; then
@@ -34,5 +37,9 @@ if [ ! -f ".env" ]; then
 fi
 
 # 启动服务
+echo "🧹 Cleaning up port 8000..."
+lsof -ti:8000 | xargs -r kill -9 2>/dev/null || true
+sleep 1
+
 echo "Starting API server..."
 python -m apps.api.main

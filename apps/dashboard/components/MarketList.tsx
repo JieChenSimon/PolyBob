@@ -1,6 +1,6 @@
 'use client';
 
-import { DashboardMarket } from '@/app/page';
+import { DashboardMarket } from '@/lib/types';
 
 interface MarketListProps {
   markets: DashboardMarket[];

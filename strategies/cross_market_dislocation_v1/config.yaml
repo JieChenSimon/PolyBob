@@ -1,0 +1,13 @@
+strategy_id: cross_market_dislocation_v1
+name: Cross Market Dislocation Strategy V1
+description: 跨市场错位套利 - 统计套利策略
+
+parameters:
+  z_score_threshold: 2.0  # Z-score 阈值
+  min_spread_bps: 50.0    # 最小价差(基点)
+  lookback_window: 100    # 回看窗口
+  signal_ttl_seconds: 300 # 信号有效期(秒)
+
+risk_limits:
+  max_position_size: 500.0
+  max_leverage: 1.0

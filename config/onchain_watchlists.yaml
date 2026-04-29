@@ -1,0 +1,43 @@
+cluster_window_minutes: 90
+
+tokens:
+  - token_symbol: RAVE
+    chain: ethereum
+    contract_address: "0x1111111111111111111111111111111111111111"
+    thresholds:
+      sell_threshold_usd: 30000
+      cex_transfer_threshold_usd: 50000
+      staging_transfer_threshold_usd: 40000
+    watch_addresses:
+      - watch_id: "rave_deployer"
+        label: "RAVE deployer"
+        address: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        entity_type: deployer
+        tags: ["deployment", "high_priority"]
+      - watch_id: "rave_treasury"
+        label: "RAVE treasury"
+        address: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        entity_type: treasury
+        tags: ["treasury"]
+
+  - token_symbol: ARIA
+    chain: base
+    contract_address: "0x2222222222222222222222222222222222222222"
+    thresholds:
+      sell_threshold_usd: 25000
+      cex_transfer_threshold_usd: 45000
+      staging_transfer_threshold_usd: 35000
+    watch_addresses:
+      - watch_id: "aria_team"
+        label: "ARIA team multisig"
+        address: "0xcccccccccccccccccccccccccccccccccccccccc"
+        entity_type: team
+        tags: ["team", "multisig"]
+
+cex_addresses:
+  - exchange: "binance"
+    label: "binance_hot_wallet_sample"
+    address: "0xdddddddddddddddddddddddddddddddddddddddd"
+  - exchange: "okx"
+    label: "okx_deposit_wallet_sample"
+    address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"

@@ -4,6 +4,34 @@
 
 set -e
 
+API_PID=""
+DASHBOARD_PID=""
+
+# 设置信号处理
+cleanup() {
+    local exit_code=$?
+    echo ""
+    echo "🛑 Stopping all services..."
+
+    # 先发送 SIGTERM，让进程优雅退出
+    [ -n "$API_PID" ] && kill -TERM "$API_PID" 2>/dev/null
+    [ -n "$DASHBOARD_PID" ] && kill -TERM "$DASHBOARD_PID" 2>/dev/null
+
+    # 等待进程退出
+    [ -n "$API_PID" ] && wait "$API_PID" 2>/dev/null
+    [ -n "$DASHBOARD_PID" ] && wait "$DASHBOARD_PID" 2>/dev/null
+
+    # 强制清理残留
+    lsof -ti:8000 | xargs -r kill -9 2>/dev/null
+    lsof -ti:3001 | xargs -r kill -9 2>/dev/null
+
+    echo "✅ All services stopped"
+    exit $exit_code
+}
+
+trap cleanup EXIT
+trap 'exit 130' INT
+
 echo "╔═══════════════════════════════════════╗"
 echo "║     POLYBOB COMPLETE STARTUP          ║"
 echo "╚═══════════════════════════════════════╝"
@@ -15,10 +43,16 @@ if ! command -v conda &> /dev/null; then
     exit 1
 fi
 
+CONDA_ENV_NAME="${CONDA_ENV_NAME:-${CONDA_DEFAULT_ENV:-}}"
+
 # 激活 conda 环境
-echo "🔧 Activating conda environment..."
 eval "$(conda shell.bash hook)"
-conda activate polybob
+if [ -n "$CONDA_ENV_NAME" ]; then
+    echo "🔧 Activating conda environment: $CONDA_ENV_NAME"
+    conda activate "$CONDA_ENV_NAME"
+else
+    echo "🔧 Using current shell environment"
+fi
 
 # 检查 .env
 if [ ! -f ".env" ]; then
@@ -26,10 +60,16 @@ if [ ! -f ".env" ]; then
     cp .env.example .env
 fi
 
-# 启动 API
+# 清理可能占用的端口
+echo "🧹 Cleaning up ports 8000 and 3001..."
+lsof -ti:8000 | xargs -r kill -9 2>/dev/null || true
+lsof -ti:3001 | xargs -r kill -9 2>/dev/null || true
+sleep 1
+
+# 启动 API (禁用输出缓冲)
 echo ""
 echo "🚀 Starting API server..."
-python -m apps.api.main &
+stdbuf -oL -eL python -m apps.api.main &
 API_PID=$!
 echo "   API PID: $API_PID"
 
@@ -60,12 +100,12 @@ fi
 
 if [ "$DASHBOARD_MODE" = "dev" ]; then
     echo "🧪 Running dashboard in development mode..."
-    npm run dev &
+    PORT=3001 npm run dev &
 else
     echo "🏗️  Building dashboard for production mode..."
     npm run build
     echo "✨ Running dashboard in production mode..."
-    npm run start &
+    PORT=3001 npm run start &
 fi
 
 DASHBOARD_PID=$!
@@ -86,7 +126,8 @@ echo "╚═══════════════════════�
 echo ""
 
 # 等待用户中断
-trap "echo ''; echo '🛑 Stopping all services...'; kill $API_PID $DASHBOARD_PID 2>/dev/null; exit 0" INT
+trap 'exit 130' INT
+trap cleanup EXIT
 
 # 保持脚本运行
 wait

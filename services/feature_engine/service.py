@@ -10,16 +10,18 @@ import asyncio
 import structlog
 from datetime import datetime, timedelta
 from collections import defaultdict, deque
-from typing import Dict
+from typing import Dict, Optional
+import numpy as np
 
 from libs.events import get_event_bus, Topics
 from libs.schemas import OrderbookTick, TradeTick
+from libs.terminal_status import render_status
 
 logger = structlog.get_logger()
 
 
 class MarketFeatures:
-    """市场特征"""
+    """市场特征 - 优化版本"""
 
     def __init__(self, market_id: str):
         self.market_id = market_id
@@ -32,86 +34,103 @@ class MarketFeatures:
         self.ask_price = 0.0
         self.bid_size = 0.0
         self.ask_size = 0.0
-
-        # 深度特征
-        self.depth_imbalance = 0.0  # (bid_size - ask_size) / (bid_size + ask_size)
+        self.depth_imbalance = 0.0
 
         # 成交特征
-        self.trade_intensity_1m = 0.0  # 最近1分钟成交次数
-        self.volume_1m = 0.0  # 最近1分钟成交量
-        self.price_jump_score = 0.0  # 价格跳变分数
+        self.trade_intensity_1m = 0.0
+        self.volume_1m = 0.0
+        self.price_jump_score = 0.0
 
         # 历史数据
         self.recent_trades: deque = deque(maxlen=100)
-        self.price_history: deque = deque(maxlen=60)  # 最近60个价格点
+        self.price_history: deque = deque(maxlen=60)
+
+        # 缓存优化
+        self._cached_features: Optional[dict] = None
+        self._cache_timestamp: Optional[datetime] = None
+        self._cache_ttl = timedelta(milliseconds=100)  # 100ms缓存
+
+        # 增量计算状态
+        self._running_sum = 0.0
+        self._running_sum_sq = 0.0
+        self._price_count = 0
 
     def update_from_orderbook(self, orderbook: OrderbookTick):
-        """从订单簿更新特征"""
+        """从订单簿更新特征 - 优化版本"""
         self.last_update = orderbook.timestamp
         self.bid_price = orderbook.bid_price
         self.ask_price = orderbook.ask_price
         self.bid_size = orderbook.bid_size
         self.ask_size = orderbook.ask_size
 
-        # 计算中间价
         if self.bid_price > 0 and self.ask_price > 0:
-            self.mid_price = (self.bid_price + self.ask_price) / 2
+            self.mid_price = (self.bid_price + self.ask_price) * 0.5
+            self.spread_bps = (self.ask_price - self.bid_price) / self.mid_price * 10000
 
-            # 计算价差（基点）
-            self.spread_bps = (
-                (self.ask_price - self.bid_price) / self.mid_price * 10000
-            )
-
-            # 计算深度不平衡
             total_depth = self.bid_size + self.ask_size
             if total_depth > 0:
                 self.depth_imbalance = (self.bid_size - self.ask_size) / total_depth
 
-            # 记录价格历史
             self.price_history.append((orderbook.timestamp, self.mid_price))
+            self._update_price_stats_incremental(self.mid_price)
+            self._calculate_price_jump_fast()
 
-            # 计算价格跳变
-            self._calculate_price_jump()
+        self._invalidate_cache()
 
     def update_from_trade(self, trade: TradeTick):
-        """从成交记录更新特征"""
+        """从成交记录更新特征 - 优化版本"""
         self.recent_trades.append(trade)
-
-        # 计算1分钟成交强度
         cutoff_time = datetime.utcnow() - timedelta(minutes=1)
-        recent = [t for t in self.recent_trades if t.timestamp > cutoff_time]
 
-        self.trade_intensity_1m = len(recent)
-        self.volume_1m = sum(t.size for t in recent)
+        # 增量更新：只处理新增交易
+        self.trade_intensity_1m = sum(1 for t in self.recent_trades if t.timestamp > cutoff_time)
+        self.volume_1m = sum(t.size for t in self.recent_trades if t.timestamp > cutoff_time)
+        self._invalidate_cache()
 
-    def _calculate_price_jump(self):
-        """计算价格跳变分数"""
-        if len(self.price_history) < 2:
+    def _update_price_stats_incremental(self, new_price: float):
+        """增量更新价格统计"""
+        self._running_sum += new_price
+        self._running_sum_sq += new_price * new_price
+        self._price_count += 1
+
+        if self._price_count > 60:
+            old_price = self.price_history[0][1]
+            self._running_sum -= old_price
+            self._running_sum_sq -= old_price * old_price
+            self._price_count -= 1
+
+    def _calculate_price_jump_fast(self):
+        """快速计算价格跳变分数 - 使用增量统计"""
+        if self._price_count < 2:
             self.price_jump_score = 0.0
             return
 
-        # 计算最近价格变化
-        recent_prices = [p for _, p in list(self.price_history)[-10:]]
-        if len(recent_prices) < 2:
+        mean_price = self._running_sum / self._price_count
+        variance = (self._running_sum_sq / self._price_count) - (mean_price * mean_price)
+
+        if variance <= 0:
             self.price_jump_score = 0.0
             return
 
-        # 计算标准差
-        mean_price = sum(recent_prices) / len(recent_prices)
-        variance = sum((p - mean_price) ** 2 for p in recent_prices) / len(recent_prices)
-        std_dev = variance ** 0.5
-
-        if std_dev == 0:
+        std_dev = np.sqrt(variance)
+        if std_dev > 0:
+            self.price_jump_score = abs(self.mid_price - mean_price) / std_dev
+        else:
             self.price_jump_score = 0.0
-            return
 
-        # 最新价格偏离标准差的倍数
-        latest_price = recent_prices[-1]
-        self.price_jump_score = abs(latest_price - mean_price) / std_dev
+    def _invalidate_cache(self):
+        """使缓存失效"""
+        self._cached_features = None
+        self._cache_timestamp = None
 
     def to_dict(self) -> dict:
-        """转换为字典"""
-        return {
+        """转换为字典 - 带缓存优化"""
+        now = datetime.utcnow()
+        if self._cached_features and self._cache_timestamp:
+            if now - self._cache_timestamp < self._cache_ttl:
+                return self._cached_features
+
+        self._cached_features = {
             "market_id": self.market_id,
             "timestamp": self.last_update,
             "mid_price": self.mid_price,
@@ -125,6 +144,8 @@ class MarketFeatures:
             "volume_1m": self.volume_1m,
             "price_jump_score": self.price_jump_score,
         }
+        self._cache_timestamp = now
+        return self._cached_features
 
 
 class FeatureEngineService:
@@ -138,6 +159,8 @@ class FeatureEngineService:
         # 异常阈值
         self.spread_threshold_bps = 200.0  # 价差超过200bps告警
         self.price_jump_threshold = 3.0  # 价格跳变超过3个标准差告警
+        self.alert_cooldown = timedelta(seconds=30)
+        self._last_alert_at: Dict[tuple[str, str], datetime] = {}
 
     async def start(self):
         """启动服务"""
@@ -206,8 +229,23 @@ class FeatureEngineService:
 
         # 发布告警
         for alert in alerts:
+            alert_key = (str(alert["market_id"]), str(alert["type"]))
+            last_alert_at = self._last_alert_at.get(alert_key)
+            now = datetime.utcnow()
+            if last_alert_at and now - last_alert_at < self.alert_cooldown:
+                continue
+
+            self._last_alert_at[alert_key] = now
             await self.event_bus.publish(Topics.FEATURE_ALERT, alert)
-            logger.warning("feature_alert", **alert)
+            logger.debug("feature_alert", **alert)
+            if alert["type"] == "spread_anomaly":
+                render_status(
+                    f"alert spread_anomaly: {features.market_id[:12]}... spread={features.spread_bps:.1f}bps"
+                )
+            elif alert["type"] == "price_jump":
+                render_status(
+                    f"alert price_jump: {features.market_id[:12]}... score={features.price_jump_score:.2f}"
+                )
 
     async def _snapshot_loop(self):
         """定期发布特征快照"""

@@ -1,0 +1,9 @@
+pairs:
+  - pair_id: btc_binance_hyperliquid
+    left:
+      venue: binance
+      symbol: BTCUSDT
+    right:
+      venue: hyperliquid
+      symbol: BTC
+    poll_interval_seconds: 5.0

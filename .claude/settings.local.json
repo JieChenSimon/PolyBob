@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(cd /Users/SimonChen/PolyBob && mkdir -p apps/dashboard)",
-      "Bash(chmod +x /Users/SimonChen/PolyBob/start-all.sh)"
-    ]
-  }
-}

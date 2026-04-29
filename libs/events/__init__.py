@@ -82,18 +82,32 @@ class Topics:
     # 特征
     FEATURE_SNAPSHOT = "features.snapshots"
     FEATURE_ALERT = "features.alert"
+    PAIR_SNAPSHOT = "features.pairs.snapshots"
+    PAIR_ALERT = "features.pairs.alert"
+    ONCHAIN_TRANSFER_INGESTED = "features.onchain.transfer_ingested"
+    ONCHAIN_DISTRIBUTION_ALERT = "features.onchain.distribution_alert"
 
     # 信号
     SIGNAL_GENERATED = "signals.generated"
+    STRATEGY_INSTANCE_CREATED = "strategies.instances.created"
+    STRATEGY_INSTANCE_STARTED = "strategies.instances.started"
+    STRATEGY_INSTANCE_STOPPED = "strategies.instances.stopped"
+    STRATEGY_INSTANCE_DELETED = "strategies.instances.deleted"
+    STRATEGY_INTENT_CREATED = "strategies.intents.created"
 
     # 风控
     RISK_DECISION = "risk.decisions"
     RISK_ALERT = "risk.alerts"
+    RISK_INTENT_CHECKED = "risk.intents.checked"
+    RISK_KILL_SWITCH_TRIGGERED = "risk.kill_switch.triggered"
 
     # 订单
     ORDER_REQUEST = "orders.requests"
     ORDER_UPDATE = "orders.updates"
     FILL_UPDATE = "orders.fills"
+    ORDER_BASKET_SUBMITTED = "orders.baskets.submitted"
+    ORDER_LEG_UPDATED = "orders.legs.updated"
+    PORTFOLIO_EXPOSURE_CHANGED = "portfolio.exposure.changed"
 
     # AI
     AI_NOTE = "ai.notes"

@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     log_format: str = "auto"
     api_reload: bool = False
 
+    # Product operating mode
+    product_mode: str = "personal_workbench"
+    enable_lab_auto_trader: bool = False
+
     # AI
     anthropic_api_key: str = ""
 
