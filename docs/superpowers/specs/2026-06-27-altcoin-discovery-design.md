@@ -26,7 +26,7 @@ The universe is recalculated from live provider responses. An asset is eligible 
 - the Alpha token and futures base asset can be mapped uniquely;
 - the token is not blacklisted by the Binance Web3 metadata response.
 
-Exact case-insensitive symbol matches are accepted. Contract multiplier symbols such as `1000*`, `1000000*`, and `1M*` are accepted only through an explicit normalizer and only when one Alpha token maps to one futures symbol. Duplicate symbols, multiple chain contracts, or multiple possible futures matches remain visible as `mapping_ambiguous` and are ineligible for a trade plan until disambiguated.
+Exact case-insensitive symbol matches are accepted. Symbol normalization uses Unicode NFC plus case folding; it never drops non-ASCII characters, and an empty normalized key is rejected. Contract multiplier symbols such as `1000*`, `1000000*`, and `1M*` are accepted only through an explicit normalizer and only when one Alpha token maps to one futures symbol. Duplicate symbols, multiple chain contracts, or multiple possible futures matches remain visible as `mapping_ambiguous` and are ineligible for a trade plan until disambiguated.
 
 The current Binance Web3 Alpha provider supports Ethereum (`1`), BNB Chain (`56`), Base (`8453`), and Solana (`CT_501`). These are the complete first-release chain set. Chain coverage is provider-driven so a newly announced Alpha chain can be added as an adapter without changing the scoring domain.
 
@@ -224,6 +224,7 @@ Backend tests follow TDD and cover:
 
 - Alpha pagination across all four current chains;
 - exact, multiplier, duplicate, and ambiguous futures mappings;
+- Unicode symbols, empty normalized keys, and non-ASCII futures symbols;
 - missing evidence and coverage renormalization;
 - 7-day, 30-day, and 90-day weight selection;
 - concentration increasing both potential and risk through separate paths;
