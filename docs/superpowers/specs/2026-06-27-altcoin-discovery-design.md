@@ -77,6 +77,8 @@ The primary sources are:
 
 Every observation includes `provider`, `field`, `observed_at`, `received_at`, `freshness`, `status`, and the original value. Derived evidence also records its input observation IDs.
 
+Provider capabilities are enforced per chain rather than inferred from a successful undocumented request. The current official Binance Skills Hub client allows smart-money inflow on BNB Chain, Base, and Solana, but not Ethereum. An Ethereum response observed by calling the upstream route directly is not used as authoritative evidence until the official client capability matrix includes that chain. The missing Ethereum feature reduces evidence coverage and is visible in source health.
+
 Binance Web3 and standard Binance hosts are not directly reachable on the current machine without the configured macOS proxy, while `data-api.binance.vision` is reachable directly. `libs/networking.py` therefore resolves outbound proxy settings in this order:
 
 1. `POLYBOB_OUTBOUND_PROXY`;
