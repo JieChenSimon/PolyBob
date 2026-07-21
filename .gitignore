@@ -10,7 +10,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+/lib/
 lib64/
 parts/
 sdist/
@@ -50,6 +50,10 @@ node_modules/
 .next/
 apps/dashboard/.next/
 
+# Rust
+target/
+rust/**/target/
+
 # Logs
 *.log
 logs/
@@ -57,6 +61,8 @@ logs/
 # Database
 *.db
 *.sqlite
+*.sqlite3
+.polybob/
 
 # Runtime data
 data/active_markets.json

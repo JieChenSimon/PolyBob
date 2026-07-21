@@ -6,14 +6,27 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     """应用配置"""
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    # Local service ports
+    polybob_api_port: int = 18000
+    polybob_dashboard_port: int = 13001
+    polybob_postgres_port: int = 15432
+    polybob_redis_port: int = 16379
+    polybob_prometheus_port: int = 19090
+    polybob_grafana_port: int = 13000
 
     # Database
-    database_url: str = "postgresql+asyncpg://user:password@localhost:5432/polybob"
-    timescale_url: str = "postgresql+asyncpg://user:password@localhost:5432/polybob_timeseries"
+    database_url: str = "postgresql+asyncpg://user:password@localhost:15432/polybob"
+    timescale_url: str = "postgresql+asyncpg://user:password@localhost:15432/polybob_timeseries"
+    polybob_db_path: str = "./.polybob/polybob.sqlite3"
 
     # Redis
-    redis_url: str = "redis://localhost:6379/0"
+    redis_url: str = "redis://localhost:16379/0"
 
     # Polymarket API
     polymarket_api_key: str = ""
@@ -21,13 +34,17 @@ class Settings(BaseSettings):
     polymarket_clob_ws_url: str = "wss://ws-subscriptions-clob.polymarket.com/ws/market"
     polymarket_clob_rest_url: str = "https://clob.polymarket.com"
 
+    # Raw order-book event log (append-only, for deterministic replay).
+    # Off by default: raw event capture grows disk usage steadily.
+    polybob_book_log_enabled: bool = False
+
     # Risk Management
     max_position_size: float = 1000.0
     max_daily_loss: float = 500.0
     max_slippage_bps: float = 40.0
 
     # Monitoring
-    prometheus_port: int = 9090
+    prometheus_port: int = 19090
     log_level: str = "INFO"
     log_format: str = "auto"
     api_reload: bool = False
@@ -35,6 +52,39 @@ class Settings(BaseSettings):
     # Product operating mode
     product_mode: str = "personal_workbench"
     enable_lab_auto_trader: bool = False
+    enable_lab_backtest: bool = False
+
+    # Compute backend
+    polybob_compute_backend: str = "python"
+    polybob_rust_fallback_enabled: bool = True
+
+    # Crypto discovery providers
+    polybob_outbound_proxy: str = ""
+    binance_alpha_api_url: str = "https://web3.binance.com"
+    binance_futures_api_url: str = "https://fapi.binance.com"
+    binance_futures_ws_api_url: str = "wss://ws-fapi.binance.com/ws-fapi/v1"
+    binance_alpha_market_api_url: str = "https://www.binance.com"
+    dex_screener_api_url: str = "https://api.dexscreener.com"
+    discovery_request_timeout_seconds: float = 10.0
+    discovery_min_coverage: float = 0.70
+    discovery_max_cashout_risk: float = 45.0
+    discovery_min_pump_potential: float = 70.0
+    discovery_min_liquidity_usd: float = 500_000.0
+    discovery_min_volume_24h_usd: float = 1_000_000.0
+
+    # Research knowledge ingestion
+    knowledge_ingestion_enabled: bool = False
+    statementdog_crawl_authorized: bool = False
+    statementdog_crawl_interval_seconds: float = 3600.0
+    statementdog_crawl_concurrency: int = 3
+    statementdog_lookback_months: int = 6
+
+    # Market news terminal (市场观察 real-time feed)
+    finnhub_api_key: str = ""
+    market_news_enabled: bool = True
+    market_news_interval_seconds: float = 90.0
+    market_news_categories: str = "general,crypto,forex"
+    market_news_max_items_per_category: int = 60
 
     # AI
     anthropic_api_key: str = ""
