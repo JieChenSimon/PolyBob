@@ -51,6 +51,7 @@ from libs.crypto.discovery.models import DiscoverySnapshot
 from libs.crypto.discovery.service import AltcoinDiscoveryService
 from libs.crypto.hyperliquid_client import HyperliquidClient
 from libs.knowledge.impact import ASSET_CLASSES
+from libs.quant.promotion import PromotionGate
 from libs.knowledge.models import KnowledgeSearchResult, SourceRunStatus
 from libs.knowledge.sources.finnhub_news import FinnhubNewsSource
 from libs.knowledge.sources.statementdog import StatementDogSource
@@ -2144,6 +2145,50 @@ async def get_simulation_run(run_id: str):
     if detail is None:
         raise HTTPException(status_code=404, detail=f"Unknown simulation run: {run_id}")
     return detail
+
+
+@app.get("/api/simulation/runs/{run_id}/promotion")
+async def get_simulation_run_promotion(
+    run_id: str,
+    n_trials: int = 1,
+    min_observations: int = 30,
+    min_dsr: float = 0.95,
+):
+    """能否把这个模拟盘 run 提升为可信策略？
+
+    用 Deflated Sharpe Ratio（多重检验校正）+ 最小样本量对 run 的资金曲线
+    做门禁判定。``n_trials`` 应填此前尝试过的策略配置数量——试得越多，
+    通过门槛越高。样本不足或 DSR 不达标都会明确拒绝（fail-closed）。
+    """
+    service = require_simulation_service()
+
+    def load() -> dict | None:
+        record = service.store.get_run(run_id)
+        if record is None:
+            return None
+        points = service.store.list_equity_points(run_id)
+        returns: list[float] = []
+        for previous, current in zip(points, points[1:]):
+            if previous.equity > 0:
+                returns.append(current.equity / previous.equity - 1.0)
+        gate = PromotionGate(
+            n_trials=max(1, n_trials),
+            min_dsr=min_dsr,
+            min_observations=max(1, min_observations),
+        )
+        decision = gate.evaluate(returns)
+        return {
+            "run_id": run_id,
+            "n_returns": len(returns),
+            "n_trials": max(1, n_trials),
+            "decision": decision.to_dict(),
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+    result = await asyncio.to_thread(load)
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Unknown simulation run: {run_id}")
+    return result
 
 
 async def _simulation_transition(run_id: str, action: str) -> dict:

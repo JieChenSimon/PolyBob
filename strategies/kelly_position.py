@@ -9,10 +9,15 @@ Kelly Criterion: f* = (p*b - q) / b
 - q = 1-p (败率)
 - b = 赔率 (盈利/亏损比)
 
-应用:
-- 根据市场特征估计胜率和赔率
-- 计算最优仓位大小
-- 使用 fractional Kelly (如 0.25x) 降低风险
+应用与稳健化 (grounded in fractional-Kelly best practice):
+- **fractional Kelly (0.25x–0.5x)**: 全 Kelly 长期增长最优但回撤惊人 (常见 60%+);
+  半 Kelly 保留 ~75% 增长却把波动/回撤砍掉约一半。默认用 1/4 Kelly。
+- **hard cap on f***: 输入 (胜率/赔率) 都是噪声估计,对最优比例本身设上限,避免
+  过度下注 (overbetting 会导致必然破产,而 underbetting 是安全的)。
+- **volatility scaling**: 仓位与波动率成反比——高波动标的自动获得更小仓位。
+- **drawdown throttle**: 处于回撤中时线性缩减仓位,控制连亏放大。
+- **negative-edge rejection**: f* <= 0 表示负期望,直接不交易 (这是策略问题,不是
+  仓位问题)。
 """
 from typing import Optional
 import math
@@ -32,6 +37,32 @@ class KellyPositionStrategy(Strategy):
         self.min_edge_bps = self.config.get("min_edge_bps", 30.0)
         self.max_position_size = self.config.get("max_position_size", 100.0)
         self.depth_imbalance_threshold = self.config.get("depth_imbalance_threshold", 0.3)
+        # 对"最优 Kelly 比例"本身设上限,防止噪声输入导致过度下注。
+        self.max_kelly_fraction = self.config.get("max_kelly_fraction", 0.5)
+        # 波动率归一化的参考值 (bps);实际波动越高,仓位越小。
+        self.target_volatility_bps = self.config.get("target_volatility_bps", 100.0)
+
+        # 回撤节流:跟踪权益峰值,回撤时缩减仓位。
+        self.equity_peak: Optional[float] = None
+        self.max_drawdown_throttle = self.config.get("max_drawdown_throttle", 0.5)
+
+    def update_equity(self, equity: float) -> float:
+        """更新权益峰值,返回当前回撤比例 (0=在峰值)。外部可选调用。"""
+        if self.equity_peak is None or equity > self.equity_peak:
+            self.equity_peak = equity
+        if not self.equity_peak:
+            return 0.0
+        return max(0.0, (self.equity_peak - equity) / self.equity_peak)
+
+    def _drawdown_scale(self, features: dict) -> float:
+        """回撤越深,仓位缩放系数越小 (线性),下限由 throttle 控制。"""
+        equity = features.get("equity")
+        if equity is not None:
+            drawdown = self.update_equity(float(equity))
+        else:
+            drawdown = float(features.get("current_drawdown", 0.0) or 0.0)
+        drawdown = max(0.0, min(1.0, drawdown))
+        return max(1.0 - self.max_drawdown_throttle, 1.0 - drawdown)
 
     async def generate_signal(self, features: dict) -> Optional[StrategySignal]:
         """生成信号"""
@@ -63,9 +94,24 @@ class KellyPositionStrategy(Strategy):
         if kelly_fraction_optimal <= 0:
             return None
 
+        # 对最优比例设硬上限,避免噪声输入导致过度下注。
+        kelly_capped = min(kelly_fraction_optimal, self.max_kelly_fraction)
+
         # 使用 fractional Kelly
-        position_fraction = kelly_fraction_optimal * self.kelly_fraction
-        position_size = min(position_fraction * self.max_position_size, self.max_position_size)
+        position_fraction = kelly_capped * self.kelly_fraction
+
+        # 波动率归一化:实际波动 (优先用显式 volatility_bps,退化为 spread_bps)
+        # 高于参考值时按比例缩减仓位。
+        realized_vol = float(features.get("volatility_bps", spread_bps) or 0.0)
+        vol_scale = 1.0
+        if realized_vol > 0:
+            vol_scale = min(1.0, self.target_volatility_bps / realized_vol)
+
+        # 回撤节流
+        dd_scale = self._drawdown_scale(features)
+
+        position_size = position_fraction * self.max_position_size * vol_scale * dd_scale
+        position_size = min(position_size, self.max_position_size)
 
         if position_size < 1.0:
             return None
@@ -89,5 +135,8 @@ class KellyPositionStrategy(Strategy):
             size=position_size,
             confidence=confidence,
             expected_edge_bps=expected_edge_bps,
-            reason=f"kelly:imb={depth_imbalance:.2f},p={win_prob:.2f},kelly={kelly_fraction_optimal:.3f}"
+            reason=(
+                f"kelly:imb={depth_imbalance:.2f},p={win_prob:.2f},"
+                f"kelly={kelly_fraction_optimal:.3f},vol={vol_scale:.2f},dd={dd_scale:.2f}"
+            ),
         )

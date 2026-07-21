@@ -2,6 +2,7 @@
 
 from datetime import UTC, datetime, timedelta
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
@@ -93,6 +94,59 @@ def test_run_detail_envelope_and_downsampled_curve(sim_api):
     assert curve[0]["equity"] == 5_000.0
     assert curve[-1]["equity"] == 5_699.0
     assert body["metrics"]["total_return"] == pytest.approx(699.0 / 5_000.0)
+
+
+def _seed_equity(service, run_id, returns, start=5_000.0):
+    """Append an equity curve whose per-point returns match ``returns``."""
+    base = datetime(2026, 7, 1, tzinfo=UTC)
+    equity = start
+    service.store.append_equity_point(
+        run_id, equity=equity, cash=equity, gross_exposure=0.0, ts=base.isoformat()
+    )
+    for i, r in enumerate(returns, start=1):
+        equity *= 1.0 + r
+        service.store.append_equity_point(
+            run_id,
+            equity=equity,
+            cash=equity,
+            gross_exposure=0.0,
+            ts=(base + timedelta(minutes=i)).isoformat(),
+        )
+
+
+def test_promotion_endpoint_rejects_short_sample(sim_api):
+    client, service = sim_api
+    run_id = create_run(client)
+    _seed_equity(service, run_id, [0.001, 0.002, -0.001])  # only 3 returns
+
+    response = client.get(f"/api/simulation/runs/{run_id}/promotion?min_observations=30")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["decision"]["approved"] is False
+    names = {c["name"]: c["passed"] for c in body["decision"]["checks"]}
+    assert names["min_observations"] is False
+
+
+def test_promotion_endpoint_rejects_under_many_trials(sim_api):
+    client, service = sim_api
+    run_id = create_run(client)
+    rng = np.random.default_rng(0)
+    _seed_equity(service, run_id, rng.normal(0.0006, 0.006, 400))
+
+    # With 1000 trials the deflated-Sharpe bar is high -> not approved.
+    response = client.get(
+        f"/api/simulation/runs/{run_id}/promotion?n_trials=1000&min_observations=100"
+    )
+    body = response.json()
+    assert body["n_returns"] == 400
+    assert body["decision"]["approved"] is False
+    names = {c["name"]: c["passed"] for c in body["decision"]["checks"]}
+    assert names["deflated_sharpe"] is False
+
+
+def test_promotion_endpoint_unknown_run_404(sim_api):
+    client, _ = sim_api
+    assert client.get("/api/simulation/runs/sim_nope/promotion").status_code == 404
 
 
 def test_unknown_run_returns_404(sim_api):
