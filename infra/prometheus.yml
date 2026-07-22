@@ -5,4 +5,4 @@ global:
 scrape_configs:
   - job_name: 'polybob'
     static_configs:
-      - targets: ['api:8000']
+      - targets: ['api:18000']

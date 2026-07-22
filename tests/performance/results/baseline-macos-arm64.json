@@ -1,0 +1,84 @@
+{
+  "configuration": {
+    "numba_warmup_ms": 280.925,
+    "repeats": 7,
+    "scale": "standard",
+    "warmups": 2
+  },
+  "metadata": {
+    "machine": "arm64",
+    "numba": "0.65.0",
+    "numpy": "2.4.4",
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "python": "3.11.15 (main, Mar 11 2026, 17:14:47) [Clang 20.1.8 ]",
+    "scipy": "1.17.1"
+  },
+  "results": [
+    {
+      "checksum": 10019758.52216092,
+      "description": "execute_signal + update_equity + get_results over a multi-market event stream",
+      "durations_ms": [
+        71.299,
+        67.269,
+        69.588,
+        65.682,
+        69.664,
+        71.001,
+        69.445
+      ],
+      "median_ms": 69.588,
+      "min_ms": 65.682,
+      "module": "libs/backtest",
+      "name": "backtest_event_loop",
+      "operations": 20000,
+      "p95_ms": 71.299,
+      "repeats": 7,
+      "throughput_per_second": 287407.08,
+      "unit": "events"
+    },
+    {
+      "checksum": -53.54443188,
+      "description": "Engle-Granger + Kalman hedge ratio + rolling spread Z-score",
+      "durations_ms": [
+        191.948,
+        141.052,
+        124.522,
+        114.662,
+        97.414,
+        88.552,
+        110.945
+      ],
+      "median_ms": 114.662,
+      "min_ms": 88.552,
+      "module": "libs/quant",
+      "name": "quant_pair_pipeline",
+      "operations": 20000,
+      "p95_ms": 191.948,
+      "repeats": 7,
+      "throughput_per_second": 174426.46,
+      "unit": "points"
+    },
+    {
+      "checksum": 1117.33825164,
+      "description": "orderbook and trade updates through MarketFeatures, including rolling statistics",
+      "durations_ms": [
+        143.72,
+        164.422,
+        147.741,
+        162.251,
+        163.117,
+        170.269,
+        103.073
+      ],
+      "median_ms": 162.251,
+      "min_ms": 103.073,
+      "module": "services/feature_engine",
+      "name": "feature_stream_updates",
+      "operations": 50000,
+      "p95_ms": 170.269,
+      "repeats": 7,
+      "throughput_per_second": 308164.67,
+      "unit": "updates"
+    }
+  ]
+}

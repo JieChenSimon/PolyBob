@@ -22,6 +22,7 @@ from typing import Optional
 import math
 
 from services.strategy_engine.base import Strategy, StrategySignal
+from strategies.signal_core import SpreadReversionParams, spread_reversion_entry
 from libs.schemas import Side
 
 
@@ -65,24 +66,21 @@ class SpreadReversionStrategy(Strategy):
         history = self.spread_history[market_id]
         history.append(spread_bps)
 
-        # 需要足够历史数据
-        if len(history) < self.min_samples:
+        # 进场判定走共享因果核心 (strategies/signal_core)，research 与 live 使用
+        # 完全相同的一段代码，从架构上保证 research == live 且无未来函数 (P7)。
+        params = SpreadReversionParams(
+            entry_threshold_std=self.entry_threshold_std,
+            min_spread_bps=self.min_spread_bps,
+            zscore_stop_std=self.zscore_stop_std,
+            min_samples=self.min_samples,
+            lookback_window=self.lookback_window,
+        )
+        decision = spread_reversion_entry(list(history), params)
+        if not decision.enter:
             return None
-
-        mean_spread, std_spread = self._mean_std(history)
-        if std_spread == 0:
-            return None
-
-        # 计算 z-score (仅使用当前及过去数据,天然因果)。
-        z_score = (spread_bps - mean_spread) / std_spread
-
-        # 结构性走阔:z 过大时价差可能不再回归,放弃进场。
-        if z_score >= self.zscore_stop_std:
-            return None
-
-        # 需满足:价差异常扩大 + 绝对价差达标 + 连续确认。
-        if not (z_score > self.entry_threshold_std and spread_bps > self.min_spread_bps):
-            return None
+        mean_spread, std_spread = decision.mean, decision.std
+        z_score = decision.z_score
+        # 额外的 live-only 过滤：连续 confirm_bars 根确认，过滤单根尖刺。
         if not self._confirmed(history, mean_spread, std_spread):
             return None
 

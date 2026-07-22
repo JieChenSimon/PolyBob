@@ -4,11 +4,21 @@ from libs.crypto.base_client import CryptoExchangeClient
 from .order_manager import OrderManager, OrderStatus
 
 class ContractExecutor:
-    def __init__(self, exchange_client: CryptoExchangeClient, paper_trading: bool = True, venue: str = "unknown"):
+    def __init__(
+        self,
+        exchange_client: CryptoExchangeClient,
+        paper_trading: bool = True,
+        venue: str = "unknown",
+        available: bool = True,
+    ):
         self.client = exchange_client
         self.order_manager = OrderManager()
         self.paper_trading = paper_trading
         self.venue = venue
+        # When False, this venue is a non-functional stub (e.g. an unsigned
+        # client). BasketExecutor must not route orders here or report fills —
+        # a no-op is never an execution.
+        self.available = available
 
     def execute_trade(self, symbol: str, side: str, price: float, size: float,
                      order_type: str = "LIMIT") -> str:

@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable
 from urllib.parse import urlparse
 
-from fastapi import FastAPI, HTTPException, WebSocket
+from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -33,7 +33,7 @@ from libs.polymarket.btc_five_minute import (
     map_outcome_tokens,
     normalize_book,
 )
-from services.risk_manager.risk_checker import RiskChecker
+from services.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
 from services.market_discovery import MarketDiscoveryService
 from services.realtime_ingestor import RealtimeIngestorService
 from services.feature_engine import FeatureEngineService
@@ -411,6 +411,51 @@ def require_strategy_manager() -> StrategyManagerService:
     return strategy_manager
 
 
+# Live risk limits (quote-currency notional). Deliberately tighter than the
+# generous PortfolioRiskChecker defaults so the live path enforces real caps.
+LIVE_RISK_LIMITS = RiskLimits(
+    max_gross_notional=250_000.0,
+    max_market_notional=100_000.0,
+    max_order_notional=50_000.0,
+    max_basket_legs=8,
+)
+
+
+def live_position_notionals() -> dict[str, float] | None:
+    """Per-market notional exposure from live (submitted/filled) basket legs.
+
+    This is the only in-process record of what the live path has actually
+    routed, so it is used as the position snapshot for pre-trade risk. It is
+    fail-closed: if the executor state cannot be read, or a live leg carries no
+    price to value it, this returns ``None`` and the PortfolioRiskChecker
+    rejects the intent (unknown != safe). An empty dict means a flat book.
+    """
+    executor = basket_executor
+    if executor is None:
+        return None
+    try:
+        notionals: dict[str, float] = {}
+        for basket in executor.baskets.values():
+            for leg in basket.legs:
+                status = str(getattr(leg.status, "value", leg.status)).lower()
+                if "submit" not in status and "fill" not in status:
+                    continue
+                price = leg.limit_price
+                if price is None:
+                    # A live leg we can't value → exposure is unknown → fail closed.
+                    return None
+                notionals[leg.symbol] = (
+                    notionals.get(leg.symbol, 0.0) + abs(leg.quantity) * abs(price)
+                )
+        return notionals
+    except Exception as exc:
+        logger.warning(
+            "live_position_provider_failed",
+            error=str(exc) or exc.__class__.__name__,
+        )
+        return None
+
+
 def require_basket_executor() -> BasketExecutor:
     if basket_executor is None:
         raise RuntimeError("basket executor not ready")
@@ -577,6 +622,7 @@ async def lifespan(app: FastAPI):
     intent_repository: IntentRepository | None = None
     basket_repository: BasketRepository | None = None
     decision_repository: DecisionRepository | None = None
+    db_path = None
     try:
         db_path = fact_store.bootstrap(settings.polybob_db_path)
         intent_repository = IntentRepository(db_path)
@@ -598,16 +644,27 @@ async def lifespan(app: FastAPI):
                 paper_trading=True,
                 venue=ExecutionVenue.BINANCE.value,
             ),
+            # Hyperliquid execution is an unsigned stub (no real order path).
+            # Marked unavailable so legs are never falsely reported as fills.
             ExecutionVenue.HYPERLIQUID: ContractExecutor(
                 HyperliquidClient(),
                 paper_trading=True,
                 venue=ExecutionVenue.HYPERLIQUID.value,
+                available=False,
             ),
         }
     )
+    # Live pre-trade risk: the rigorous, fail-closed, notional-based portfolio
+    # checker (same class the simulation service uses), with a real position
+    # provider and audit logging. Missing/unvaluable positions -> reject.
+    live_risk_checker = PortfolioRiskChecker(
+        limits=LIVE_RISK_LIMITS,
+        audit_db_path=db_path,
+    )
     intent_execution_service = IntentExecutionService(
         basket_executor,
-        risk_checker=RiskChecker(max_position=3, max_order_size=0.05),
+        risk_checker=live_risk_checker,
+        position_provider=live_position_notionals,
         max_open_intents=3,
         dedupe_window_seconds=30.0,
         intent_repository=intent_repository,
@@ -2236,6 +2293,37 @@ async def apply_simulation_feedback(run_id: str):
     return {"run_id": run_id, **result}
 
 
+@app.get("/api/research/experiments")
+async def list_research_experiments(experiment: str | None = None, limit: int = 50):
+    """列出实验注册表中的最近 run（可复现研究记录：参数 + 指标 + 版本）。
+
+    每条记录携带 data/model/code 版本，使任一结论都能追溯到产生它的确切输入
+    (P8b, satisfies the roadmap's "Traceable output" gate)。
+    """
+    service = require_simulation_service()
+
+    def load() -> list[dict]:
+        records = service.registry.list_runs(experiment, limit=max(1, min(limit, 500)))
+        return [record.to_dict() for record in records]
+
+    return {"experiments": await asyncio.to_thread(load)}
+
+
+@app.get("/api/monitoring/drift")
+async def get_drift_status():
+    """概念漂移熔断器状态 (P8c)。
+
+    比较各市场近端 mid 分布与其固定参考窗 (PSI + KS)；任一市场显著漂移
+    (PSI >= 0.25) 时 ``halted`` 置真，下游可据此暂停或降险。样本不足的市场
+    不参与判定 (fail-safe: 不因缺数据误熔断)。
+    """
+    if feature_engine is None:
+        return {"available": False, "halted": False, "reason": "feature_engine not started"}
+    monitor = feature_engine.drift_monitor
+    status = monitor.status()
+    return {"available": True, "should_halt": monitor.should_halt(), **status}
+
+
 @app.get("/api/risk/summary")
 async def get_risk_summary():
     """风险与运维页基础摘要。"""
@@ -2436,30 +2524,6 @@ async def get_trading_status():
 async def get_trading_performance():
     """返回模拟交易绩效。"""
     return get_lab_trading_performance()
-
-
-@app.websocket("/ws/market")
-async def websocket_market(websocket: WebSocket):
-    """向 dashboard 推送 BTC 实时价格。"""
-    await websocket.accept()
-    try:
-        client = get_shared_http_client()
-        while True:
-            reference = await _fetch_btc_reference_aggregate_safe(client)
-
-            await websocket.send_json(
-                {
-                    "price": reference.get("price"),
-                    "source": reference.get("source"),
-                    "staleness_ms": reference.get("staleness_ms"),
-                    "round_trip_ms": reference.get("round_trip_ms"),
-                    "timestamp": reference.get("timestamp") or datetime.now().isoformat(),
-                    "sources": reference.get("sources", []),
-                }
-            )
-            await asyncio.sleep(2)
-    except Exception:
-        return
 
 
 if __name__ == "__main__":

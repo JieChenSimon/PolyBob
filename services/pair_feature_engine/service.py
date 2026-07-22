@@ -16,6 +16,7 @@ from libs.schemas import ExecutionVenue, InstrumentRef, SpreadPairSnapshot
 logger = structlog.get_logger()
 
 QuoteFetcher = Callable[[], Awaitable[dict]]
+SyncQuoteFetcher = Callable[[], dict]
 
 
 @dataclass
@@ -23,14 +24,22 @@ class PairDefinition:
     pair_id: str
     left: InstrumentRef
     right: InstrumentRef
-    fetch_quotes: QuoteFetcher
+    fetch_quotes: QuoteFetcher | None = None
+    fetch_left_quote: SyncQuoteFetcher | None = None
+    fetch_right_quote: SyncQuoteFetcher | None = None
 
 
 class PairFeatureEngineService:
-    def __init__(self, pair_definitions: list[PairDefinition], poll_interval_seconds: float = 5.0):
+    def __init__(
+        self,
+        pair_definitions: list[PairDefinition],
+        poll_interval_seconds: float = 5.0,
+        max_concurrent_pairs: int = 8,
+    ):
         self.event_bus = get_event_bus()
         self.pair_definitions = pair_definitions
         self.poll_interval_seconds = poll_interval_seconds
+        self.max_concurrent_pairs = max_concurrent_pairs
         self._running = False
         self._task: asyncio.Task | None = None
         self.snapshots: dict[str, SpreadPairSnapshot] = {}
@@ -70,21 +79,37 @@ class PairFeatureEngineService:
         return snapshot.model_dump(mode="json") if snapshot else None
 
     async def _poll_loop(self):
-        while self._running:
-            try:
-                for pair in self.pair_definitions:
+        semaphore = asyncio.Semaphore(self.max_concurrent_pairs)
+
+        async def process_pair(pair: PairDefinition):
+            async with semaphore:
+                try:
                     snapshot = await self._build_snapshot(pair)
                     if snapshot is None:
-                        continue
+                        return
                     self.snapshots[pair.pair_id] = snapshot
                     await self.event_bus.publish(Topics.PAIR_SNAPSHOT, snapshot.model_dump(mode="json"))
-            except Exception as exc:
+                except Exception as exc:
+                    logger.error(
+                        "pair_feature_engine_error",
+                        pair_id=pair.pair_id,
+                        error=str(exc),
+                        exc_info=True,
+                    )
+
+        while self._running:
+            try:
+                # 所有 pair 并发处理，信号量限制在途请求数。
+                await asyncio.gather(
+                    *(process_pair(pair) for pair in self.pair_definitions)
+                )
+            except Exception as exc:  # pragma: no cover - process_pair 已自捕获
                 logger.error("pair_feature_engine_error", error=str(exc), exc_info=True)
 
             await asyncio.sleep(self.poll_interval_seconds)
 
     async def _build_snapshot(self, pair: PairDefinition) -> SpreadPairSnapshot | None:
-        quotes = await pair.fetch_quotes()
+        quotes = await self._fetch_quotes(pair)
         left = quotes.get("left", {})
         right = quotes.get("right", {})
 
@@ -144,3 +169,18 @@ class PairFeatureEngineService:
             net_edge_bps=net_edge_bps,
             opportunity_side=opportunity_side,
         )
+
+    async def _fetch_quotes(self, pair: PairDefinition) -> dict:
+        if pair.fetch_left_quote is not None and pair.fetch_right_quote is not None:
+            left, right = await asyncio.gather(
+                asyncio.to_thread(pair.fetch_left_quote),
+                asyncio.to_thread(pair.fetch_right_quote),
+            )
+            return {"left": left or {}, "right": right or {}}
+
+        if pair.fetch_quotes is not None:
+            # 直接在当前事件循环 await 异步 fetcher；不再嵌套创建事件循环。
+            # fetcher 自身负责非阻塞（内部同步工作应使用 asyncio.to_thread）。
+            return await pair.fetch_quotes()
+
+        return {}

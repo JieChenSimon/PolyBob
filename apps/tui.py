@@ -4,6 +4,7 @@ PolyBob TUI - Terminal User Interface
 A real-time terminal dashboard for monitoring Polymarket markets.
 """
 import asyncio
+import os
 import httpx
 from datetime import datetime
 from rich.console import Console
@@ -14,11 +15,25 @@ from rich.panel import Panel
 from rich.text import Text
 from rich import box
 
-API_BASE = "http://localhost:8000"
+API_BASE = os.getenv("POLYBOB_API_BASE_URL", "http://localhost:18000")
 
 
 class PolyBobTUI:
     """Terminal UI for PolyBob"""
+
+    # Fields a feature dict must provide for the display code below.
+    REQUIRED_FEATURE_FIELDS = (
+        "mid_price",
+        "spread_bps",
+        "bid_price",
+        "ask_price",
+        "bid_size",
+        "ask_size",
+        "depth_imbalance",
+        "trade_intensity_1m",
+        "volume_1m",
+        "price_jump_score",
+    )
 
     def __init__(self):
         self.console = Console()
@@ -27,33 +42,77 @@ class PolyBobTUI:
         self.selected_index = 0
         self.is_connected = False
         self.last_update = None
+        self._client: httpx.AsyncClient | None = None
+
+    def _feature_complete(self, feature) -> bool:
+        return isinstance(feature, dict) and all(
+            field in feature for field in self.REQUIRED_FEATURE_FIELDS
+        )
+
+    async def _fetch_market_features(self, client: httpx.AsyncClient, market_id: str):
+        """Fetch features for one market (fallback path)."""
+        try:
+            response = await client.get(
+                f"{API_BASE}/markets/{market_id}/features",
+                timeout=5.0,
+            )
+            feature = response.json()
+            if self._feature_complete(feature):
+                self.features[market_id] = feature
+        except Exception:
+            pass
 
     async def fetch_data(self):
-        """Fetch data from API"""
-        async with httpx.AsyncClient() as client:
+        """Fetch data from API (shared client, aggregated endpoint)."""
+        client = self._client
+        if client is None or client.is_closed:
+            client = self._client = httpx.AsyncClient()
+        try:
+            # Fetch watchlist
+            response = await client.get(f"{API_BASE}/markets/watchlist", timeout=5.0)
+            data = response.json()
+            self.watchlist = data.get("watchlist", [])
+            self.is_connected = True
+
+            # Prefer one aggregated call over N per-market feature calls.
+            aggregated: dict[str, dict] = {}
             try:
-                # Fetch watchlist
-                response = await client.get(f"{API_BASE}/markets/watchlist", timeout=5.0)
-                data = response.json()
-                self.watchlist = data.get("watchlist", [])
-                self.is_connected = True
+                response = await client.get(
+                    f"{API_BASE}/api/dashboard/markets",
+                    timeout=5.0,
+                )
+                for item in response.json().get("markets", []):
+                    market_id = item.get("market_id")
+                    feature = item.get("features")
+                    if market_id and self._feature_complete(feature):
+                        aggregated[market_id] = feature
+            except Exception:
+                pass
 
-                # Fetch features for all markets
-                for market_id in self.watchlist:
-                    try:
-                        response = await client.get(
-                            f"{API_BASE}/markets/{market_id}/features",
-                            timeout=5.0,
-                        )
-                        self.features[market_id] = response.json()
-                    except Exception:
-                        pass
+            missing = []
+            for market_id in self.watchlist:
+                if market_id in aggregated:
+                    self.features[market_id] = aggregated[market_id]
+                else:
+                    missing.append(market_id)
 
-                self.last_update = datetime.now()
+            # Fallback: fetch any missing markets concurrently.
+            if missing:
+                await asyncio.gather(
+                    *(self._fetch_market_features(client, market_id) for market_id in missing)
+                )
 
-            except Exception as e:
-                self.is_connected = False
-                self.console.print(f"[red]Error fetching data: {e}[/red]")
+            self.last_update = datetime.now()
+
+        except Exception as e:
+            self.is_connected = False
+            self.console.print(f"[red]Error fetching data: {e}[/red]")
+
+    async def close(self):
+        """Close the shared HTTP client."""
+        if self._client is not None and not self._client.is_closed:
+            await self._client.aclose()
+        self._client = None
 
     def create_header(self) -> Panel:
         """Create header panel"""
@@ -214,29 +273,34 @@ class PolyBobTUI:
         self.console.clear()
         self.console.print("[bold green]Starting PolyBob TUI...[/bold green]")
 
-        # Initial data fetch
-        await self.fetch_data()
+        # One shared HTTP client for all refresh cycles.
+        self._client = httpx.AsyncClient()
+        try:
+            # Initial data fetch
+            await self.fetch_data()
 
-        with Live(
-            self.create_layout(),
-            console=self.console,
-            refresh_per_second=1,
-            screen=True,
-        ) as live:
-            while True:
-                try:
-                    # Update display
-                    live.update(self.create_layout())
+            with Live(
+                self.create_layout(),
+                console=self.console,
+                refresh_per_second=1,
+                screen=True,
+            ) as live:
+                while True:
+                    try:
+                        # Update display
+                        live.update(self.create_layout())
 
-                    # Fetch new data every 5 seconds
-                    await asyncio.sleep(5)
-                    await self.fetch_data()
+                        # Fetch new data every 5 seconds
+                        await asyncio.sleep(5)
+                        await self.fetch_data()
 
-                except KeyboardInterrupt:
-                    break
-                except Exception as e:
-                    self.console.print(f"[red]Error: {e}[/red]")
-                    await asyncio.sleep(1)
+                    except KeyboardInterrupt:
+                        break
+                    except Exception as e:
+                        self.console.print(f"[red]Error: {e}[/red]")
+                        await asyncio.sleep(1)
+        finally:
+            await self.close()
 
 
 async def main():

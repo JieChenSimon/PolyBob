@@ -1,0 +1,46 @@
+{
+  "_fixture_meta": {
+    "source": "https://fapi.binance.com/fapi/v1/exchangeInfo",
+    "captured_at": "2026-06-27T15:18:00Z"
+  },
+  "timezone": "UTC",
+  "serverTime": 1782561618110,
+  "symbols": [
+    {
+      "symbol": "VELVETUSDT",
+      "pair": "VELVETUSDT",
+      "contractType": "PERPETUAL",
+      "status": "TRADING",
+      "baseAsset": "VELVET",
+      "quoteAsset": "USDT",
+      "pricePrecision": 7,
+      "quantityPrecision": 0,
+      "filters": [
+        {
+          "filterType": "LOT_SIZE",
+          "minQty": "1",
+          "maxQty": "10000000",
+          "stepSize": "1"
+        }
+      ]
+    },
+    {
+      "symbol": "OLDUSDT",
+      "pair": "OLDUSDT",
+      "contractType": "PERPETUAL",
+      "status": "SETTLING",
+      "baseAsset": "OLD",
+      "quoteAsset": "USDT",
+      "filters": []
+    },
+    {
+      "symbol": "ETHUSD_PERP",
+      "pair": "ETHUSD",
+      "contractType": "PERPETUAL",
+      "status": "TRADING",
+      "baseAsset": "ETH",
+      "quoteAsset": "USD",
+      "filters": []
+    }
+  ]
+}

@@ -20,10 +20,12 @@ class PolymarketWebSocket:
         self,
         url: str,
         reconnect_interval: int = 5,
+        max_reconnect_interval: int = 60,
         max_reconnect_attempts: int | None = None,
     ):
         self.url = url
         self.reconnect_interval = reconnect_interval
+        self.max_reconnect_interval = max_reconnect_interval
         self.max_reconnect_attempts = max_reconnect_attempts
         self.ws = None
         self.subscriptions: Set[str] = set()
@@ -44,6 +46,7 @@ class PolymarketWebSocket:
             try:
                 self.ws = await websockets.connect(self.url)
                 logger.info("websocket_connected", url=self.url)
+                attempt = 0
 
                 # 重新订阅
                 await self._resubscribe()
@@ -53,18 +56,33 @@ class PolymarketWebSocket:
 
             except Exception as e:
                 attempt += 1
-                logger.error(
-                    "websocket_error",
-                    url=self.url,
-                    attempt=attempt,
-                    error=str(e),
-                )
+                error_category = classify_websocket_error(e)
 
                 if self.max_reconnect_attempts and attempt >= self.max_reconnect_attempts:
-                    logger.error("max_reconnect_attempts_reached")
+                    logger.error(
+                        "websocket_reconnect_exhausted",
+                        url=self.url,
+                        attempt=attempt,
+                        category=error_category,
+                        error=str(e),
+                    )
                     raise
 
-                await asyncio.sleep(self.reconnect_interval)
+                sleep_seconds = min(
+                    self.max_reconnect_interval,
+                    self.reconnect_interval * (2 ** min(attempt - 1, 4)),
+                )
+                if should_log_reconnect_attempt(attempt):
+                    logger.warning(
+                        "websocket_reconnect_scheduled",
+                        url=self.url,
+                        attempt=attempt,
+                        category=error_category,
+                        retry_after_seconds=sleep_seconds,
+                        error=str(e),
+                    )
+
+                await asyncio.sleep(sleep_seconds)
 
     async def subscribe(self, asset_ids: str | Iterable[str]):
         """订阅资产"""
@@ -163,3 +181,18 @@ class PolymarketWebSocket:
         if isinstance(asset_ids, str):
             return [asset_ids]
         return [asset_id for asset_id in asset_ids if asset_id]
+
+
+def classify_websocket_error(exc: Exception) -> str:
+    message = str(exc).lower()
+    if "503" in message or "service unavailable" in message:
+        return "provider_or_proxy_503"
+    if "proxy" in message:
+        return "proxy_rejected"
+    if "timed out" in message or "timeout" in message:
+        return "network_timeout"
+    return exc.__class__.__name__
+
+
+def should_log_reconnect_attempt(attempt: int) -> bool:
+    return attempt <= 3 or attempt in {5, 10, 20, 40, 80, 160, 320}

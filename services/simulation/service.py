@@ -57,6 +57,7 @@ from libs.db import fact_store
 from libs.db.simulation_store import SimRunRecord, SimulationStore
 from libs.db.strategy_state import StrategyStateStore
 from libs.events import Topics, get_event_bus
+from libs.research.registry import ExperimentRegistry
 from services.risk_manager.risk_checker import PortfolioRiskChecker
 from services.simulation import metrics as sim_metrics
 from services.simulation.sources import (
@@ -171,12 +172,17 @@ class SimulationService:
         risk_checker: PortfolioRiskChecker | None = None,
         source_factories: dict[str, SourceFactory] | None = None,
         equity_poll_seconds: float = 30.0,
+        registry: ExperimentRegistry | None = None,
     ):
         self.store = SimulationStore(db_path)
         self.event_bus = get_event_bus()
         self.risk_checker = risk_checker or PortfolioRiskChecker(
             audit_db_path=self.store.db_path
         )
+        # Experiment registry (P8b): every run's params + versions are logged at
+        # creation and its metrics at finalize, so a paper result is reproducible
+        # and queryable rather than a transient in the sim store only.
+        self.registry = registry or ExperimentRegistry(self.store.db_path)
         self.source_factories = source_factories or _default_source_factories()
         self.equity_poll_seconds = equity_poll_seconds
         self._active: dict[str, _ActiveRun] = {}
@@ -274,6 +280,7 @@ class SimulationService:
             "universe": record.universe,
             "initial_capital": record.initial_capital,
         })
+        await self._log_experiment(record, phase="created")
         return record.to_dict()
 
     async def start_run(self, run_id: str) -> dict[str, Any]:
@@ -289,6 +296,9 @@ class SimulationService:
         active = self._active.pop(run_id, None)
         if active is not None:
             await self._record_equity(active)
+        record = active.record if active else await asyncio.to_thread(self.store.get_run, run_id)
+        if record is not None:
+            await self._log_experiment(record, phase="final")
         return result
 
     async def _transition(
@@ -618,6 +628,51 @@ class SimulationService:
                 logger.error("sim_equity_loop_error", error=str(exc), exc_info=True)
 
     # ------------------------------------------------------------------ misc
+
+    async def _log_experiment(self, record: SimRunRecord, *, phase: str) -> None:
+        """Log a run to the experiment registry (P8b).
+
+        ``phase="created"`` records params + versions with empty metrics; a later
+        ``phase="final"`` records the computed metrics so the result is
+        reproducible. Registry ``run_id`` is the sim run id suffixed by phase so
+        both phases coexist under the append-only store and stay queryable by run.
+        Never allowed to break the run lifecycle.
+        """
+        try:
+            metrics: dict[str, float] = {}
+            if phase == "final":
+                raw = await asyncio.to_thread(sim_metrics.compute_run_metrics, self.store, record.run_id)
+                metrics = {
+                    key: float(value)
+                    for key, value in raw.items()
+                    if isinstance(value, (int, float)) and not isinstance(value, bool)
+                }
+            params: dict[str, Any] = {
+                "strategy_id": record.strategy_id,
+                "universe": list(record.universe),
+                "initial_capital": record.initial_capital,
+                "config": dict(record.config),
+            }
+            # A content hash of the inputs doubles as a lightweight data version.
+            data_version = f"{record.strategy_id}:{len(record.universe)}insts"
+            await asyncio.to_thread(
+                self.registry.log_run,
+                "simulation",
+                params=params,
+                metrics=metrics,
+                data_version=data_version,
+                model_version=record.strategy_id,
+                tags=[phase, record.strategy_id],
+                notes=f"sim run {record.run_id} ({record.name}) phase={phase}",
+                run_id=f"{record.run_id}:{phase}",
+            )
+        except Exception as exc:  # experiment logging must never break a run
+            logger.warning(
+                "sim_experiment_log_failed",
+                run_id=record.run_id,
+                phase=phase,
+                error=str(exc) or exc.__class__.__name__,
+            )
 
     async def _audit(self, event_type: str, run_id: str, payload: dict[str, Any]) -> None:
         try:

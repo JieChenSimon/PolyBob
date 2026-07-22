@@ -8,6 +8,7 @@ Market Discovery Service - 市场发现服务
 """
 import asyncio
 import json
+import httpx
 import structlog
 from datetime import datetime
 from typing import Dict, Set
@@ -54,7 +55,16 @@ class MarketDiscoveryService:
             try:
                 await self._scan_markets()
             except Exception as e:
-                logger.error("market_scan_error", error=str(e), exc_info=True)
+                error_category = classify_market_scan_error(e)
+                if error_category:
+                    logger.warning(
+                        "market_scan_external_unavailable",
+                        category=error_category,
+                        error=str(e) or e.__class__.__name__,
+                        retry_after_seconds=300,
+                    )
+                else:
+                    logger.error("market_scan_error", error=str(e), exc_info=True)
 
             # 每5分钟扫描一次
             await asyncio.sleep(300)
@@ -226,3 +236,25 @@ class MarketDiscoveryService:
         """从 watchlist 移除"""
         self.watchlist.discard(market_id)
         logger.debug("removed_from_watchlist", market_id=market_id)
+
+
+def classify_market_scan_error(exc: Exception) -> str | None:
+    message = str(exc).lower()
+    if isinstance(exc, httpx.ProxyError) or "proxy" in message:
+        if "503" in message or "service unavailable" in message:
+            return "proxy_503"
+        return "proxy_error"
+    if isinstance(exc, httpx.TimeoutException):
+        return "network_timeout"
+    if isinstance(exc, httpx.HTTPStatusError):
+        status_code = exc.response.status_code
+        if status_code == 429:
+            return "provider_rate_limit"
+        if status_code >= 500:
+            return "provider_5xx"
+        return None
+    if isinstance(exc, httpx.TransportError):
+        return "network_transport"
+    if "503" in message or "service unavailable" in message:
+        return "provider_or_proxy_503"
+    return None

@@ -1,0 +1,23 @@
+{
+  "_fixture_meta": {
+    "source": "https://web3.binance.com/bapi/defi/v1/public/wallet-direct/tracker/wallet/token/inflow/rank/query/ai",
+    "captured_at": "2026-06-27T15:26:00Z",
+    "chain_id": "56"
+  },
+  "code": "000000",
+  "success": true,
+  "data": [
+    {
+      "tokenName": "SKYAI",
+      "ca": "0x92aa03137385f18539301349dcfc9ebc923ffb10",
+      "price": "0.320976302622526207711018121522019614",
+      "marketCap": "320457639.514144186268816885385170919139888457519699909013913638",
+      "liquidity": "12787793.63471081479263930016494335905211",
+      "holdersTop10Percent": "62.3791983900318374",
+      "holders": "60816",
+      "inflow": 82.2889464775926,
+      "traders": 2,
+      "tokenRiskLevel": 1
+    }
+  ]
+}

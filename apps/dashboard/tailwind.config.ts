@@ -1,5 +1,13 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * PolyBob design tokens (light theme).
+ *
+ * Palette restraint: one accent (sky), three semantic tones
+ * (emerald=positive, rose=negative, amber=warning/stale) and the warm
+ * stone gray ramp for everything else. Components should not introduce
+ * colors outside this set.
+ */
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,45 +17,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        terminal: {
-          bg: '#0a0e14',
-          surface: '#0f1419',
-          border: '#1a1f26',
-          text: '#e6e6e6',
-          dim: '#6c7a89',
-          green: '#00ff41',
-          cyan: '#00ffff',
-          red: '#ff0055',
-          yellow: '#ffff00',
-        }
+        // Page canvas: near-white with a warm tint.
+        canvas: "#FAFAF8",
+        accent: {
+          DEFAULT: "#0284c7", // sky-600
+          soft: "#f0f9ff", // sky-50
+          border: "#bae6fd", // sky-200
+          strong: "#0369a1", // sky-700
+        },
+        positive: {
+          DEFAULT: "#059669", // emerald-600
+          soft: "#ecfdf5",
+          border: "#a7f3d0",
+        },
+        negative: {
+          DEFAULT: "#e11d48", // rose-600
+          soft: "#fff1f2",
+          border: "#fecdd3",
+        },
+        warning: {
+          DEFAULT: "#d97706", // amber-600
+          soft: "#fffbeb",
+          border: "#fde68a",
+        },
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+        mono: [
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Consolas",
+          "monospace",
+        ],
       },
-      animation: {
-        'scanline': 'scanline 8s linear infinite',
-        'glitch': 'glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite',
-        'blink': 'blink 1s step-end infinite',
-        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-      },
-      keyframes: {
-        scanline: {
-          '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(100vh)' },
-        },
-        glitch: {
-          '0%, 100%': { transform: 'translate(0)' },
-          '33%': { transform: 'translate(-2px, 2px)' },
-          '66%': { transform: 'translate(2px, -2px)' },
-        },
-        blink: {
-          '0%, 50%': { opacity: '1' },
-          '51%, 100%': { opacity: '0' },
-        },
-        'pulse-glow': {
-          '0%, 100%': { boxShadow: '0 0 5px currentColor, 0 0 10px currentColor' },
-          '50%': { boxShadow: '0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor' },
-        },
+      maxWidth: {
+        shell: "1380px",
       },
     },
   },

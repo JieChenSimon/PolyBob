@@ -1,0 +1,20 @@
+[build-system]
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "polybob-core"
+version = "0.1.0"
+description = "CPU-intensive quantitative kernels for PolyBob"
+requires-python = ">=3.11"
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Rust",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+module-name = "polybob_core"
+strip = true

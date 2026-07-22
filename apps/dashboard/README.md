@@ -16,16 +16,19 @@ npm install
 npm run dev
 ```
 
-The dashboard is available at http://localhost:3000 unless Next.js selects another free port.
+The dashboard is available at http://localhost:13001 by default.
+Override it with `POLYBOB_DASHBOARD_PORT`.
 
 ## Configuration
 
 The dashboard reads the API base URL from `NEXT_PUBLIC_API_BASE_URL`.
-When unset, it uses `http://localhost:8000`.
+`NEXT_PUBLIC_API_BASE` is still accepted for older local setups.
+When unset, it uses `http://localhost:18000`.
 
 ## Validation
 
 ```bash
+npm test
 npm run build
 ```
 

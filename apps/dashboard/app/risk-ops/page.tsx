@@ -5,12 +5,15 @@ export default function RiskOpsPage() {
   return (
     <>
       <SectionIntro
-        eyebrow="Risk & Ops"
-        title="Risk And Operations"
-        description="这里先建立风险和系统运营的独立页面，为后续的组合风控、告警、日志和服务健康留出位置。"
+        eyebrow={{ zh: '核心路径', en: 'Core Path' }}
+        title={{ zh: '风险运营', en: 'Risk Ops' }}
+        description={{
+          zh: '查看组合风险、链上告警、服务健康和运行备注。',
+          en: 'Portfolio risk, onchain alerts, service health, and operating notes.',
+        }}
       />
 
-      <main className="mx-auto mt-6 w-full max-w-[1380px] px-5 pb-10 md:mt-8 md:px-8">
+      <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
         <RiskOpsOverview />
       </main>
     </>

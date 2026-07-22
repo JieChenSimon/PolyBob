@@ -14,10 +14,13 @@ class PolymarketClient:
     def __init__(self, base_url: str, api_key: str = ""):
         self.base_url = base_url
         self.api_key = api_key
+        headers = {"User-Agent": "PolyBob/0.1"}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
         self.client = httpx.AsyncClient(
             base_url=base_url,
-            timeout=30.0,
-            headers={"Authorization": f"Bearer {api_key}"} if api_key else {},
+            timeout=httpx.Timeout(8.0, connect=3.0),
+            headers=headers,
         )
 
     async def get_markets(
@@ -54,7 +57,7 @@ class PolymarketClient:
             logger.info("fetched_markets", count=len(markets))
             return markets
         except Exception as e:
-            logger.error("failed_to_fetch_markets", error=str(e))
+            logger.debug("failed_to_fetch_markets", error=str(e) or e.__class__.__name__)
             raise
 
     async def get_market(self, market_id: str) -> dict[str, Any]:

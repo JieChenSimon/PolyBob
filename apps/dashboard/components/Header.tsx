@@ -24,9 +24,9 @@ export default function Header({
   };
 
   return (
-    <header className="mx-auto w-full max-w-[1380px] px-5 pt-5 md:px-8 md:pt-8">
+    <header className="mx-auto w-full max-w-shell px-5 pt-5 md:px-8 md:pt-8">
       <div className="panel overflow-hidden">
-        <div className="grid gap-6 px-6 py-6 md:grid-cols-[1.4fr,0.8fr] md:px-8 md:py-8">
+        <div className="grid gap-6 px-6 py-6 md:grid-cols-[minmax(0,1.4fr),minmax(0,0.8fr)] md:px-8 md:py-8">
           <div>
             <span className="eyebrow">Realtime Market Desk</span>
             <h1 className="mt-4 text-4xl font-bold tracking-[-0.06em] text-stone-900 md:text-6xl">

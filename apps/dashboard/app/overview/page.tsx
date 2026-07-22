@@ -1,27 +1,20 @@
-import BacktestResults from '@/components/BacktestResults';
-import OverviewSummary from '@/components/OverviewSummary';
-import PersonalBrief from '@/components/PersonalBrief';
+import OverviewWorkspace from '@/components/OverviewWorkspace';
 import SectionIntro from '@/components/SectionIntro';
 
 export default function OverviewPage() {
   return (
     <>
       <SectionIntro
-        eyebrow="Personal Desk"
-        title="Daily Brief"
-        description="这是个人研究交易工作台的入口：优先回答今天该看什么、哪些信号需要复核、风险有没有异常。实验功能不会默认占用首页判断流。"
+        eyebrow={{ zh: '核心路径', en: 'Core Path' }}
+        title={{ zh: '每日简报', en: 'Daily Brief' }}
+        description={{
+          zh: '先看今日市场、待复核信号和异常风险；实验模块不占用首页判断流。',
+          en: 'Review today’s markets, signals that need confirmation, and abnormal risk first.',
+        }}
       />
 
-      <main className="mx-auto mt-6 w-full max-w-[1380px] px-5 pb-10 md:mt-8 md:px-8">
-        <PersonalBrief />
-
-        <div className="mt-6">
-          <OverviewSummary />
-        </div>
-
-        <div className="mt-6">
-          <BacktestResults />
-        </div>
+      <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
+        <OverviewWorkspace />
       </main>
     </>
   );

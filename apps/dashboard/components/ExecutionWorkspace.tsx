@@ -1,7 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { API_BASE } from '@/lib/config';
+import ErrorState from '@/components/ui/ErrorState';
+import { useLanguage } from '@/lib/i18n';
+import { requireSuccessfulMutation } from '@/lib/mutationResponse';
+import { formatNumber, formatSigned } from '@/lib/format';
 
 interface ExecutionStatus {
   status: {
@@ -48,33 +53,34 @@ interface ExecutionStatus {
 }
 
 export default function ExecutionWorkspace() {
-  const [data, setData] = useState<ExecutionStatus | null>(null);
+  const { language } = useLanguage();
+  const zh = language === 'zh';
   const [submitting, setSubmitting] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
-  const fetchExecution = async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/execution/status`);
-      const payload = await response.json();
-      setData(payload);
-    } catch (error) {
-      console.error('Failed to fetch execution status:', error);
-    }
-  };
+  const executionQuery = useQuery<ExecutionStatus>({
+    queryKey: ['execution', 'status'],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`${API_BASE}/api/execution/status`, { signal });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.json();
+    },
+    refetchInterval: 10_000,
+    staleTime: 8_000,
+  });
+  const data = executionQuery.data ?? null;
 
-  useEffect(() => {
-    fetchExecution();
-    const interval = window.setInterval(fetchExecution, 5000);
-    return () => window.clearInterval(interval);
-  }, []);
-
-  const submitDemoBasket = async () => {
+  const submitLabBasket = async () => {
     setSubmitting(true);
+    setMutationError(null);
     try {
-      await fetch(`${API_BASE}/api/execution/baskets`, {
+      await requireSuccessfulMutation(fetch(`${API_BASE}/api/execution/baskets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          parent_intent_id: 'manual_demo_spread',
+          parent_intent_id: 'manual_lab_spread_check',
           legs: [
             {
               venue: 'binance',
@@ -92,78 +98,117 @@ export default function ExecutionWorkspace() {
             },
           ],
         }),
-      });
-      await fetchExecution();
+      }));
+      await executionQuery.refetch();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : 'unknown error');
     } finally {
       setSubmitting(false);
     }
   };
 
   const cancelBasket = async (basketId: string) => {
-    await fetch(`${API_BASE}/api/execution/baskets/${basketId}/cancel`, {
-      method: 'POST',
-    });
-    await fetchExecution();
+    setMutationError(null);
+    try {
+      await requireSuccessfulMutation(fetch(`${API_BASE}/api/execution/baskets/${basketId}/cancel`, {
+        method: 'POST',
+      }));
+      await executionQuery.refetch();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : 'unknown error');
+    }
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+    <>
+    {executionQuery.isError ? (
+      <ErrorState
+        className="mb-5"
+        title={zh ? '执行数据加载失败' : 'Failed to load execution state'}
+        message={zh ? '无法连接 PolyBob API，以下为占位数值。' : 'Cannot reach the PolyBob API; placeholders are shown below.'}
+        onRetry={() => void executionQuery.refetch()}
+        retryLabel={zh ? '重试' : 'Retry'}
+      />
+    ) : null}
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr),minmax(0,1.05fr)]">
       <div className="grid gap-6">
         <div className="panel p-6">
           <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-            Execution Desk
+            {zh ? '执行台' : 'Execution Desk'}
           </div>
           <p className="mt-2 text-sm leading-6 text-stone-500">
-            核心执行路径是 intent、risk check、basket 和 paper 记录。BTC demo auto trader 属于 lab，
-            默认关闭，需要 ENABLE_LAB_AUTO_TRADER=true 才会启动。
+            {zh
+              ? '核心路径只展示策略意图、风险检查、basket 状态和 paper 执行记录。实验性手动样例被单独隔离，不参与默认判断。'
+              : 'The core path focuses on strategy intents, risk checks, basket state, and paper execution records. Experimental manual samples are isolated from the default decision flow.'}
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <Metric
-              title="Lab Auto Trader"
-              value={data?.status.enabled === false ? 'Disabled' : data?.status.running ? 'Running' : 'Stopped'}
-            />
-            <Metric title="Position" value={`${data?.status.position?.toFixed(4) || '0.0000'} BTC`} />
-            <Metric title="Total Value" value={`$${data?.status.total_value?.toFixed(2) || '0.00'}`} />
-            <Metric title="PnL" value={`${data?.status.pnl?.toFixed(2) || '0.00'} (${data?.status.pnl_pct?.toFixed(2) || '0.00'}%)`} />
-          </div>
-          <div className="mt-5 flex justify-end">
-            <button
-              onClick={submitDemoBasket}
-              disabled={submitting}
-              className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-            >
-              Submit Paper Basket
-            </button>
+            <Metric title={zh ? '执行模式' : 'Execution Mode'} value={formatMode(data?.status.mode, zh)} />
+            <Metric title={zh ? '持仓' : 'Position'} value={`${formatNumber(data?.status.position, 4)} BTC`} />
+            <Metric title={zh ? '总资产' : 'Total Value'} value={data?.status ? `$${formatNumber(data.status.total_value, 2)}` : '--'} />
+            <Metric title={zh ? '盈亏' : 'PnL'} value={data?.status ? `${formatSigned(data.status.pnl, 2)} (${formatNumber(data.status.pnl_pct, 2)}%)` : '--'} />
           </div>
         </div>
 
         <div className="panel p-6">
           <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-            Basket Summary
+            {zh ? 'Basket 汇总' : 'Basket Summary'}
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <Metric title="Intent Count" value={String(data?.intents.length || 0)} />
-            <Metric title="Basket Count" value={String(data?.baskets.length || 0)} />
+            <Metric title={zh ? '意图数量' : 'Intent Count'} value={String(data?.intents.length || 0)} />
+            <Metric title={zh ? 'Basket 数量' : 'Basket Count'} value={String(data?.baskets.length || 0)} />
             <Metric
-              title="Residual Legs"
+              title={zh ? '残余腿' : 'Residual Legs'}
               value={String(data?.baskets.reduce((sum, basket) => sum + basket.metrics.residual_legs, 0) || 0)}
             />
+            <Metric
+              title={zh ? '拒绝腿' : 'Rejected Legs'}
+              value={String(data?.baskets.reduce((sum, basket) => sum + basket.metrics.rejected_legs, 0) || 0)}
+            />
           </div>
+        </div>
+
+        <div className="panel p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
+                {zh ? '实验区：手动 Paper Basket' : 'Lab: Manual Paper Basket'}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-stone-500">
+                {zh
+                  ? '这里只用于验证 basket executor 和取消链路。它不是策略建议，也不会作为核心结论展示。'
+                  : 'This only validates basket executor and cancel flow. It is not a strategy recommendation and is excluded from the core conclusion.'}
+              </p>
+            </div>
+            <button
+              onClick={submitLabBasket}
+              disabled={submitting}
+              className="rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            >
+              {submitting ? (zh ? '提交中' : 'Submitting') : (zh ? '提交实验 Basket' : 'Submit Lab Basket')}
+            </button>
+          </div>
+          {mutationError ? (
+            <div className="mt-4 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {zh ? '操作失败，请重试。' : 'Action failed. Try again.'} {mutationError}
+            </div>
+          ) : null}
         </div>
       </div>
 
       <div className="grid gap-6">
         <div className="panel p-6">
           <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-            Intent Queue
+            {zh ? '意图队列' : 'Intent Queue'}
           </div>
           <p className="mt-2 text-sm text-stone-500">
-            这一层用来解释 basket 从哪里来。后续真实套利策略会先写 intent，再交给执行编排器。
+            {zh
+              ? '这一层解释 basket 从哪里来：策略先生成 intent，再由执行编排器提交并记录结果。'
+              : 'This layer shows where baskets come from: strategies create intents, then the executor submits and records them.'}
           </p>
           <div className="mt-5 space-y-3">
             {data?.intents?.length ? (
               data.intents.map((intent) => (
-                <div key={intent.intent_id} className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3">
+                <div key={intent.intent_id} className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="mono text-sm text-stone-900">{intent.intent_id}</div>
@@ -175,12 +220,12 @@ export default function ExecutionWorkspace() {
                       {intent.status}
                     </span>
                   </div>
-                  <div className="mt-2 text-xs text-stone-500">basket: {intent.basket_id || '--'}</div>
+                  <div className="mt-2 text-xs text-stone-500">{zh ? 'basket' : 'basket'}: {intent.basket_id || '--'}</div>
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
-                No intents yet.
+              <div className="rounded-lg border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
+                {zh ? '暂无意图。' : 'No intents yet.'}
               </div>
             )}
           </div>
@@ -188,15 +233,17 @@ export default function ExecutionWorkspace() {
 
         <div className="panel p-6">
           <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-            Basket Execution
+            {zh ? 'Basket 执行' : 'Basket Execution'}
           </div>
           <p className="mt-2 text-sm text-stone-500">
-            多腿执行已经有了最小骨架。后续这里会补 ack、fill、补腿和净敞口回放。
+            {zh
+              ? '多腿执行状态在这里复核：提交、拒绝、取消和残余腿都应能追踪。'
+              : 'Review multi-leg execution here: submitted, rejected, cancelled, and residual legs must stay traceable.'}
           </p>
           <div className="mt-5 space-y-3">
             {data?.baskets?.length ? (
               data.baskets.map((basket) => (
-                <div key={basket.basket_id} className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4">
+                <div key={basket.basket_id} className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="mono text-sm text-stone-900">{basket.basket_id}</div>
@@ -206,15 +253,15 @@ export default function ExecutionWorkspace() {
                       onClick={() => cancelBasket(basket.basket_id)}
                       className="rounded-full bg-amber-600 px-3 py-1.5 text-xs font-medium text-white"
                     >
-                      Cancel
+                      {zh ? '取消' : 'Cancel'}
                     </button>
                   </div>
 
                   <div className="mt-3 grid gap-2 text-sm text-stone-600 sm:grid-cols-2">
-                    <div>submitted: {basket.metrics.submitted_legs}</div>
-                    <div>rejected: {basket.metrics.rejected_legs}</div>
-                    <div>cancelled: {basket.metrics.cancelled_legs}</div>
-                    <div>residual: {basket.metrics.residual_legs}</div>
+                    <div>{zh ? '已提交' : 'submitted'}: {basket.metrics.submitted_legs}</div>
+                    <div>{zh ? '已拒绝' : 'rejected'}: {basket.metrics.rejected_legs}</div>
+                    <div>{zh ? '已取消' : 'cancelled'}: {basket.metrics.cancelled_legs}</div>
+                    <div>{zh ? '残余' : 'residual'}: {basket.metrics.residual_legs}</div>
                   </div>
 
                   <div className="mt-4 space-y-2">
@@ -227,8 +274,8 @@ export default function ExecutionWorkspace() {
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
-                No baskets yet.
+              <div className="rounded-lg border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
+                {zh ? '暂无 basket。' : 'No baskets yet.'}
               </div>
             )}
           </div>
@@ -236,24 +283,25 @@ export default function ExecutionWorkspace() {
 
         <div className="panel p-6">
           <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-            Recent Trades
+            {zh ? '最近成交' : 'Recent Trades'}
           </div>
           <div className="mt-5 space-y-3">
             {data?.performance.trades?.length ? (
               data.performance.trades.map((trade, index) => (
-                <div key={index} className="rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
+                <div key={index} className="rounded-lg border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700">
                   {JSON.stringify(trade)}
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
-                No trades yet.
+              <div className="rounded-lg border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
+                {zh ? '暂无成交。' : 'No trades yet.'}
               </div>
             )}
           </div>
         </div>
       </div>
     </div>
+    </>
   );
 }
 
@@ -264,4 +312,16 @@ function Metric({ title, value }: { title: string; value: string }) {
       <div className="mt-2 text-xl font-bold tracking-[-0.04em] text-stone-900">{value}</div>
     </div>
   );
+}
+
+function formatMode(mode: string | undefined, zh: boolean) {
+  if (!mode) {
+    return zh ? '未知' : 'unknown';
+  }
+
+  if (mode === 'paper') {
+    return zh ? 'Paper 模拟' : 'paper';
+  }
+
+  return mode;
 }

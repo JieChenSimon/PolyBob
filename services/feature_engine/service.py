@@ -14,10 +14,27 @@ from typing import Dict, Optional
 import numpy as np
 
 from libs.events import get_event_bus, Topics
+from libs.quant.data_quality import FreshnessPolicy, validate_record
 from libs.schemas import OrderbookTick, TradeTick
 from libs.terminal_status import render_status
+from services.monitoring.drift_monitor import DriftMonitor
 
 logger = structlog.get_logger()
+
+# Data-quality gate for feature snapshots (P8a). A snapshot is the strategy
+# input layer, so a stale or malformed one must not silently drive a signal:
+# blocked snapshots are skipped, degraded ones are published with a marker.
+# Snapshots refresh every ~5s, so a market that has gone quiet for minutes is
+# treated as stale.
+FEATURE_SNAPSHOT_FRESHNESS = FreshnessPolicy(
+    warn_after=timedelta(seconds=30),
+    block_after=timedelta(seconds=300),
+)
+FEATURE_SNAPSHOT_SCHEMA = {
+    "market_id": str,
+    "mid_price": (int, float),
+    "spread_bps": (int, float),
+}
 
 
 class MarketFeatures:
@@ -54,6 +71,7 @@ class MarketFeatures:
         self._running_sum = 0.0
         self._running_sum_sq = 0.0
         self._price_count = 0
+        self._trade_volume_1m = 0.0
 
     def update_from_orderbook(self, orderbook: OrderbookTick):
         """从订单簿更新特征 - 优化版本"""
@@ -71,33 +89,40 @@ class MarketFeatures:
             if total_depth > 0:
                 self.depth_imbalance = (self.bid_size - self.ask_size) / total_depth
 
-            self.price_history.append((orderbook.timestamp, self.mid_price))
-            self._update_price_stats_incremental(self.mid_price)
+            self._append_price(orderbook.timestamp, self.mid_price)
             self._calculate_price_jump_fast()
 
         self._invalidate_cache()
 
     def update_from_trade(self, trade: TradeTick):
         """从成交记录更新特征 - 优化版本"""
-        self.recent_trades.append(trade)
-        cutoff_time = datetime.utcnow() - timedelta(minutes=1)
+        cutoff_time = trade.timestamp - timedelta(minutes=1)
+        while self.recent_trades and self.recent_trades[0].timestamp <= cutoff_time:
+            expired = self.recent_trades.popleft()
+            self._trade_volume_1m -= expired.size
 
-        # 增量更新：只处理新增交易
-        self.trade_intensity_1m = sum(1 for t in self.recent_trades if t.timestamp > cutoff_time)
-        self.volume_1m = sum(t.size for t in self.recent_trades if t.timestamp > cutoff_time)
+        if self.recent_trades.maxlen and len(self.recent_trades) >= self.recent_trades.maxlen:
+            evicted = self.recent_trades.popleft()
+            self._trade_volume_1m -= evicted.size
+
+        self.recent_trades.append(trade)
+        self._trade_volume_1m += trade.size
+        self.trade_intensity_1m = float(len(self.recent_trades))
+        self.volume_1m = self._trade_volume_1m
         self._invalidate_cache()
 
-    def _update_price_stats_incremental(self, new_price: float):
-        """增量更新价格统计"""
-        self._running_sum += new_price
-        self._running_sum_sq += new_price * new_price
-        self._price_count += 1
-
-        if self._price_count > 60:
-            old_price = self.price_history[0][1]
+    def _append_price(self, timestamp: datetime, new_price: float):
+        """追加价格并维护固定窗口统计。"""
+        if self.price_history.maxlen and len(self.price_history) >= self.price_history.maxlen:
+            _, old_price = self.price_history.popleft()
             self._running_sum -= old_price
             self._running_sum_sq -= old_price * old_price
             self._price_count -= 1
+
+        self.price_history.append((timestamp, new_price))
+        self._running_sum += new_price
+        self._running_sum_sq += new_price * new_price
+        self._price_count += 1
 
     def _calculate_price_jump_fast(self):
         """快速计算价格跳变分数 - 使用增量统计"""
@@ -161,6 +186,16 @@ class FeatureEngineService:
         self.price_jump_threshold = 3.0  # 价格跳变超过3个标准差告警
         self.alert_cooldown = timedelta(seconds=30)
         self._last_alert_at: Dict[tuple[str, str], datetime] = {}
+
+        # 概念漂移熔断器 (P8c): feed live mid-prices per market into a drift
+        # monitor. The first ``drift_reference_size`` mids seen for a market
+        # become its fixed reference window; subsequent mids form the rolling
+        # current window compared against it via PSI + KS.
+        self.drift_reference_size = 60
+        self.drift_monitor = DriftMonitor(
+            window=200, min_samples=self.drift_reference_size
+        )
+        self._drift_seed: Dict[str, list[float]] = defaultdict(list)
 
     async def start(self):
         """启动服务"""
@@ -251,20 +286,76 @@ class FeatureEngineService:
         """定期发布特征快照"""
         while self._running:
             try:
-                # 发布所有市场的特征快照
+                # 发布所有市场的特征快照 (先过数据质量闸门)
+                published = 0
+                blocked = 0
                 for features in self.features.values():
-                    await self.event_bus.publish(
-                        Topics.FEATURE_SNAPSHOT,
-                        features.to_dict(),
-                    )
+                    snapshot = self._gate_snapshot(features.to_dict())
+                    if snapshot is None:
+                        blocked += 1
+                        continue
+                    self._feed_drift(snapshot)
+                    await self.event_bus.publish(Topics.FEATURE_SNAPSHOT, snapshot)
+                    published += 1
 
-                logger.debug("published_feature_snapshots", count=len(self.features))
+                # Latch the breaker if any market's mid distribution has drifted.
+                self.drift_monitor.check()
+
+                logger.debug(
+                    "published_feature_snapshots", count=published, blocked=blocked
+                )
 
             except Exception as e:
                 logger.error("snapshot_loop_error", error=str(e), exc_info=True)
 
             # 每5秒发布一次
             await asyncio.sleep(5)
+
+    def _gate_snapshot(self, snapshot: dict) -> dict | None:
+        """Run the ingestion data-quality gate over one feature snapshot.
+
+        Returns the snapshot to publish (annotated with ``data_quality`` when
+        not OK) or ``None`` when it is BLOCKED and must be dropped. ``timestamp``
+        is a naive UTC ``datetime`` (``last_update``), so ``now`` is naive too.
+        """
+        report = validate_record(
+            snapshot,
+            now=datetime.utcnow(),
+            source_time_field="timestamp",
+            freshness=FEATURE_SNAPSHOT_FRESHNESS,
+            required_fields=("market_id", "mid_price"),
+            schema=FEATURE_SNAPSHOT_SCHEMA,
+        )
+        if report.blocked:
+            logger.warning(
+                "feature_snapshot_blocked",
+                market_id=snapshot.get("market_id"),
+                reasons=report.reasons,
+            )
+            return None
+        if not report.ok:
+            # Copy so we never poison MarketFeatures' cached dict.
+            return {**snapshot, "data_quality": report.to_dict()}
+        return snapshot
+
+    def _feed_drift(self, snapshot: dict) -> None:
+        """Feed one snapshot's mid price into the drift monitor (P8c).
+
+        The first ``drift_reference_size`` mids for a market seed its fixed
+        reference window; everything after streams into the rolling current
+        window that PSI/KS compare against that baseline.
+        """
+        market_id = snapshot.get("market_id")
+        mid = snapshot.get("mid_price")
+        if not market_id or not isinstance(mid, (int, float)) or mid <= 0:
+            return
+        seed = self._drift_seed[market_id]
+        if len(seed) < self.drift_reference_size:
+            seed.append(float(mid))
+            if len(seed) == self.drift_reference_size:
+                self.drift_monitor.set_reference(market_id, seed)
+            return
+        self.drift_monitor.observe(market_id, float(mid))
 
     def get_features(self, market_id: str) -> MarketFeatures | None:
         """获取市场特征"""

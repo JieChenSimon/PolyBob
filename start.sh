@@ -15,6 +15,7 @@ if ! command -v conda &> /dev/null; then
 fi
 
 CONDA_ENV_NAME="${CONDA_ENV_NAME:-${CONDA_DEFAULT_ENV:-polybob}}"
+API_PORT="${POLYBOB_API_PORT:-}"
 
 # 检查 conda 环境是否存在
 if ! conda env list | grep -q "^${CONDA_ENV_NAME} "; then
@@ -36,10 +37,18 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-# 启动服务
-echo "🧹 Cleaning up port 8000..."
-lsof -ti:8000 | xargs -r kill -9 2>/dev/null || true
-sleep 1
+if [ -z "$API_PORT" ]; then
+    API_PORT="$(sed -n 's/^POLYBOB_API_PORT=//p' .env | tail -n 1)"
+fi
+API_PORT="${API_PORT:-18000}"
 
-echo "Starting API server..."
-python -m apps.api.main
+# 启动服务
+if lsof -nP -iTCP:"$API_PORT" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "Error: API port $API_PORT is already in use:"
+    lsof -nP -iTCP:"$API_PORT" -sTCP:LISTEN
+    echo "Set POLYBOB_API_PORT to a free port."
+    exit 1
+fi
+
+echo "Starting API server at http://localhost:$API_PORT..."
+POLYBOB_API_PORT="$API_PORT" python -m apps.api.main

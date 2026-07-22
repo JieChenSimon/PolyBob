@@ -3,6 +3,7 @@
 """
 import asyncio
 import math
+import random
 from dataclasses import dataclass
 from typing import Optional
 from datetime import datetime
@@ -16,12 +17,20 @@ logger = structlog.get_logger()
 
 @dataclass
 class ExecutionConfig:
-    """执行配置"""
+    """执行配置
+
+    ``seed`` controls the latency RNG so backtest runs are reproducible.
+    The default (42) makes every default-configured run deterministic;
+    set ``seed=None`` explicitly to opt into nondeterministic latencies.
+    A dedicated ``random.Random`` instance is always used — the global
+    ``random`` module state is never touched.
+    """
     base_latency_ms: float = 50.0
     latency_std_ms: float = 20.0
     slippage_model: str = "sqrt"  # "linear", "sqrt", "almgren_chriss"
     impact_coefficient: float = 0.1
     permanent_impact_factor: float = 0.5  # 永久冲击占比
+    seed: int | None = 42  # None = nondeterministic latency
 
 
 @dataclass
@@ -44,6 +53,7 @@ class Execution:
     size: float
     timestamp: datetime
     slippage: float
+    latency_ms: float = 0.0
 
 
 class SlippageModel:
@@ -83,6 +93,9 @@ class SimulatedExecutor:
 
     def __init__(self, config: ExecutionConfig = None):
         self.config = config or ExecutionConfig()
+        # Dedicated RNG instance: reproducible when seeded, and immune to
+        # anything else in the process reseeding the global random module.
+        self._rng = random.Random(self.config.seed)
 
     async def execute_order(
         self,
@@ -96,8 +109,7 @@ class SimulatedExecutor:
         """模拟订单执行"""
 
         # 1. 模拟延迟
-        import random
-        latency = max(0, random.gauss(
+        latency = max(0, self._rng.gauss(
             self.config.base_latency_ms,
             self.config.latency_std_ms
         )) / 1000.0
@@ -139,7 +151,8 @@ class SimulatedExecutor:
             price=execution_price,
             size=size,
             timestamp=datetime.utcnow(),
-            slippage=slippage
+            slippage=slippage,
+            latency_ms=latency * 1000.0,
         )
 
         logger.info("order_executed",

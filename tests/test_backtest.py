@@ -93,3 +93,59 @@ def test_backtest_results():
     assert "total_return" in results
     assert "max_drawdown" in results
     assert results["num_trades"] == 1
+
+
+class _RecordingBus:
+    def __init__(self):
+        self.published = []
+
+    async def publish(self, topic, data):
+        self.published.append((topic, data))
+
+
+def _make_replayer(timestamps):
+    from libs.backtest.replay import HistoricalDataReplayer
+
+    start = min(timestamps) if timestamps else datetime.utcnow()
+    end = max(timestamps) if timestamps else datetime.utcnow()
+    replayer = HistoricalDataReplayer("test", start, end)
+    replayer.events = [
+        {"timestamp": ts, "topic": "t", "data": {"i": i}}
+        for i, ts in enumerate(timestamps)
+    ]
+    return replayer
+
+
+@pytest.mark.asyncio
+async def test_replay_publishes_events_in_timestamp_order():
+    base = datetime(2025, 1, 1)
+    timestamps = [base + timedelta(seconds=2), base, base + timedelta(seconds=1)]
+    replayer = _make_replayer(timestamps)
+    bus = _RecordingBus()
+
+    await replayer.replay(bus, speed_multiplier=1e9)
+
+    published_indices = [data["i"] for _, data in bus.published]
+    assert published_indices == [1, 2, 0]  # sorted by timestamp
+    assert replayer.current_time == base + timedelta(seconds=2)
+
+
+@pytest.mark.asyncio
+async def test_replay_sorted_input_avoids_copy_and_unsorted_uses_cache():
+    base = datetime(2025, 1, 1)
+    sorted_ts = [base + timedelta(seconds=i) for i in range(5)]
+    replayer = _make_replayer(sorted_ts)
+
+    # Fast path: already-sorted events are iterated in place, no copy.
+    assert replayer._get_sorted_events() is replayer.events
+
+    # Unsorted: sorted once, cached for repeated replays.
+    unsorted = _make_replayer([sorted_ts[2], sorted_ts[0], sorted_ts[1]])
+    first = unsorted._get_sorted_events()
+    second = unsorted._get_sorted_events()
+    assert first is second
+    assert [e["timestamp"] for e in first] == sorted_ts[:3]
+
+    bus = _RecordingBus()
+    await unsorted.replay(bus, speed_multiplier=1e9)
+    assert [data["i"] for _, data in bus.published] == [1, 2, 0]

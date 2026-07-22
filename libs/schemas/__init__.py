@@ -58,6 +58,16 @@ class OrderbookTick(BaseModel):
     ask_size: float
     bids: list[tuple[float, float]] = Field(default_factory=list)
     asks: list[tuple[float, float]] = Field(default_factory=list)
+    # Order-book platform extensions (optional, backward compatible).
+    # source_ts: provider/exchange timestamp; None when the feed omitted it
+    # (never silently replaced by local time — check `quality`).
+    source_ts: Optional[datetime] = None
+    # receive_ts: local UTC receive time, always set by the ingestor.
+    receive_ts: Optional[datetime] = None
+    # quality: ok | stale | degraded | no_timestamp
+    quality: str = "ok"
+    # Polymarket CLOB exposes no monotonic sequence number.
+    sequence_status: str = "no_sequence_available"
 
 
 class TradeTick(BaseModel):

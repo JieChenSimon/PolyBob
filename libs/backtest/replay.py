@@ -18,6 +18,8 @@ class HistoricalDataReplayer:
         self.end_date = end_date
         self.current_time = start_date
         self.events: List[Dict[str, Any]] = []
+        self._sorted_events_cache: List[Dict[str, Any]] | None = None
+        self._sorted_cache_key: tuple | None = None
 
     def load_data(self):
         """从数据源加载历史数据"""
@@ -31,6 +33,26 @@ class HistoricalDataReplayer:
                    end=self.end_date)
         pass
 
+    def _get_sorted_events(self) -> List[Dict[str, Any]]:
+        """Return events ordered by timestamp without copying when possible.
+
+        Fast path: a single O(n) pass detects an already-sorted list, which is
+        then iterated in place. Otherwise the sorted copy is built once and
+        cached so repeated replays do not re-sort.
+        """
+        events = self.events
+        if all(
+            events[i]["timestamp"] <= events[i + 1]["timestamp"]
+            for i in range(len(events) - 1)
+        ):
+            return events
+
+        cache_key = (id(events), len(events))
+        if self._sorted_events_cache is None or self._sorted_cache_key != cache_key:
+            self._sorted_events_cache = sorted(events, key=lambda e: e["timestamp"])
+            self._sorted_cache_key = cache_key
+        return self._sorted_events_cache
+
     async def replay(self, event_bus, speed_multiplier: float = 1.0):
         """按时间顺序回放历史事件
 
@@ -40,8 +62,8 @@ class HistoricalDataReplayer:
         """
         logger.info("starting_replay", speed=speed_multiplier)
 
-        # 按时间戳排序事件
-        sorted_events = sorted(self.events, key=lambda e: e["timestamp"])
+        # 按时间戳排序事件 (已排序时零拷贝, 否则排序一次并缓存)
+        sorted_events = self._get_sorted_events()
 
         prev_time = None
         for event in sorted_events:

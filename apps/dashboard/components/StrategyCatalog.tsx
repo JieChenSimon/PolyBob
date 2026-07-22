@@ -1,65 +1,80 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 import { API_BASE } from '@/lib/config';
+import ErrorState from '@/components/ui/ErrorState';
+import { useLanguage } from '@/lib/i18n';
+import { requireSuccessfulMutation } from '@/lib/mutationResponse';
 import { StrategyInstance, StrategyIntent, StrategyTemplate } from '@/lib/types';
 
+interface PairSnapshot {
+  pair_id: string;
+  spread_bps: number;
+  net_edge_bps: number | null;
+  opportunity_side: string | null;
+}
+
+interface PairUniverseEntry {
+  pair_id: string;
+  left: { venue: string; symbol: string };
+  right: { venue: string; symbol: string };
+}
+
+const STRATEGY_QUERY_PREFIX = ['strategies', 'catalog-workspace'] as const;
+const STRATEGY_REFETCH_MS = 15_000;
+const STRATEGY_STALE_MS = 12_000;
+
+async function fetchList<T>(path: string, listKey: string, signal: AbortSignal | undefined): Promise<T[]> {
+  const response = await fetch(`${API_BASE}${path}`, { signal });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  const payload = await response.json();
+  return Array.isArray(payload[listKey]) ? payload[listKey] : [];
+}
+
+function useStrategyQuery<T>(key: string, path: string, listKey: string) {
+  return useQuery<T[]>({
+    queryKey: [...STRATEGY_QUERY_PREFIX, key],
+    queryFn: ({ signal }) => fetchList<T>(path, listKey, signal),
+    refetchInterval: STRATEGY_REFETCH_MS,
+    staleTime: STRATEGY_STALE_MS,
+  });
+}
+
 export default function StrategyCatalog() {
-  const [strategies, setStrategies] = useState<StrategyTemplate[]>([]);
-  const [instances, setInstances] = useState<StrategyInstance[]>([]);
-  const [intents, setIntents] = useState<StrategyIntent[]>([]);
-  const [pairSnapshots, setPairSnapshots] = useState<Array<{
-    pair_id: string;
-    spread_bps: number;
-    net_edge_bps: number | null;
-    opportunity_side: string | null;
-  }>>([]);
-  const [pairUniverse, setPairUniverse] = useState<Array<{
-    pair_id: string;
-    left: { venue: string; symbol: string };
-    right: { venue: string; symbol: string };
-  }>>([]);
+  const { language } = useLanguage();
+  const zh = language === 'zh';
+  const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const catalogQuery = useStrategyQuery<StrategyTemplate>('catalog', '/api/strategies/catalog', 'strategies');
+  const instancesQuery = useStrategyQuery<StrategyInstance>('instances', '/api/strategies/instances', 'instances');
+  const intentsQuery = useStrategyQuery<StrategyIntent>('intents', '/api/strategies/intents', 'intents');
+  const pairSnapshotsQuery = useStrategyQuery<PairSnapshot>('pair-snapshots', '/api/pairs/snapshots', 'snapshots');
+  const pairUniverseQuery = useStrategyQuery<PairUniverseEntry>('pair-universe', '/api/pairs/universe', 'pairs');
+  const strategies = catalogQuery.data ?? [];
+  const instances = instancesQuery.data ?? [];
+  const intents = intentsQuery.data ?? [];
+  const pairSnapshots = pairSnapshotsQuery.data ?? [];
+  const pairUniverse = pairUniverseQuery.data ?? [];
 
-  const refresh = async () => {
-    try {
-      const [catalogResponse, instancesResponse, pairResponse, universeResponse] = await Promise.all([
-        fetch(`${API_BASE}/api/strategies/catalog`),
-        fetch(`${API_BASE}/api/strategies/instances`),
-        fetch(`${API_BASE}/api/pairs/snapshots`),
-        fetch(`${API_BASE}/api/pairs/universe`),
-      ]);
-      const intentsResponse = await fetch(`${API_BASE}/api/strategies/intents`);
-
-      const catalogPayload = await catalogResponse.json();
-      const instancesPayload = await instancesResponse.json();
-      const pairPayload = await pairResponse.json();
-      const universePayload = await universeResponse.json();
-      const intentsPayload = await intentsResponse.json();
-
-      setStrategies(Array.isArray(catalogPayload.strategies) ? catalogPayload.strategies : []);
-      setInstances(Array.isArray(instancesPayload.instances) ? instancesPayload.instances : []);
-      setIntents(Array.isArray(intentsPayload.intents) ? intentsPayload.intents : []);
-      setPairSnapshots(Array.isArray(pairPayload.snapshots) ? pairPayload.snapshots : []);
-      setPairUniverse(Array.isArray(universePayload.pairs) ? universePayload.pairs : []);
-    } catch (error) {
-      console.error('Failed to fetch strategies:', error);
-    }
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
+  const refetchStrategyState = () =>
+    queryClient.invalidateQueries({ queryKey: STRATEGY_QUERY_PREFIX });
 
   const createInstance = async (strategyId: string) => {
     setBusyId(strategyId);
+    setMutationError(null);
     try {
-      await fetch(`${API_BASE}/api/strategies/instances`, {
+      await requireSuccessfulMutation(fetch(`${API_BASE}/api/strategies/instances`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ strategy_id: strategyId, environment: 'paper' }),
-      });
-      await refresh();
+      }));
+      await refetchStrategyState();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : 'unknown error');
     } finally {
       setBusyId(null);
     }
@@ -70,31 +85,34 @@ export default function StrategyCatalog() {
     action: 'start' | 'stop' | 'delete',
   ) => {
     setBusyId(instanceId);
+    setMutationError(null);
     try {
-      if (action === 'delete') {
-        await fetch(`${API_BASE}/api/strategies/instances/${instanceId}`, {
+      const request = action === 'delete'
+        ? fetch(`${API_BASE}/api/strategies/instances/${instanceId}`, {
           method: 'DELETE',
-        });
-      } else {
-        await fetch(`${API_BASE}/api/strategies/instances/${instanceId}/${action}`, {
+        })
+        : fetch(`${API_BASE}/api/strategies/instances/${instanceId}/${action}`, {
           method: 'POST',
         });
-      }
-      await refresh();
+      await requireSuccessfulMutation(request);
+      await refetchStrategyState();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : 'unknown error');
     } finally {
       setBusyId(null);
     }
   };
 
-  const createDemoIntent = async () => {
-    setBusyId('demo-intent');
+  const createLabIntent = async () => {
+    setBusyId('lab-intent');
+    setMutationError(null);
     try {
-      await fetch(`${API_BASE}/api/strategies/intents`, {
+      await requireSuccessfulMutation(fetch(`${API_BASE}/api/strategies/intents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           strategy_id: 'spread_arbitrage_v1',
-          rationale: 'manual cross-exchange spread',
+          rationale: 'manual lab cross-exchange spread check',
           expected_edge_bps: 18,
           confidence: 0.72,
           metadata: {
@@ -119,8 +137,10 @@ export default function StrategyCatalog() {
             },
           ],
         }),
-      });
-      await refresh();
+      }));
+      await refetchStrategyState();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : 'unknown error');
     } finally {
       setBusyId(null);
     }
@@ -128,34 +148,54 @@ export default function StrategyCatalog() {
 
   const submitIntent = async (intentId: string) => {
     setBusyId(intentId);
+    setMutationError(null);
     try {
-      await fetch(`${API_BASE}/api/strategies/intents/${intentId}/submit`, {
+      await requireSuccessfulMutation(fetch(`${API_BASE}/api/strategies/intents/${intentId}/submit`, {
         method: 'POST',
-      });
-      await refresh();
+      }));
+      await refetchStrategyState();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : 'unknown error');
     } finally {
       setBusyId(null);
     }
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.2fr,0.8fr]">
+    <>
+    {catalogQuery.isError ? (
+      <ErrorState
+        className="mb-5"
+        title={zh ? '策略目录加载失败' : 'Failed to load the strategy catalog'}
+        message={zh ? '无法连接 PolyBob API，模板与实例暂时为空。' : 'Cannot reach the PolyBob API; templates and instances are empty for now.'}
+        onRetry={() => void catalogQuery.refetch()}
+        retryLabel={zh ? '重试' : 'Retry'}
+      />
+    ) : null}
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr),minmax(0,0.8fr)]">
       <div className="space-y-6">
         <div className="panel overflow-hidden">
-          <div className="border-b border-stone-200/80 px-6 py-5 md:px-8">
+          <div className="border-b border-stone-200 px-6 py-5 md:px-8">
             <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-              Strategy Templates
+              {zh ? '策略模板' : 'Strategy Templates'}
             </div>
             <p className="mt-1 text-sm text-stone-500">
-              模板负责定义能力边界和参数基线，实例负责运行时状态和环境。
+              {zh
+                ? '模板定义能力边界、参数基线和风险限制；实例负责运行时状态和 paper 环境。'
+                : 'Templates define capability boundaries, parameter baselines, and risk limits; instances own runtime state and paper environment.'}
             </p>
           </div>
+          {mutationError ? (
+            <div className="border-b border-rose-100 bg-rose-50 px-6 py-2 text-xs text-rose-700">
+              {zh ? '操作失败，请重试。' : 'Action failed. Try again.'} {mutationError}
+            </div>
+          ) : null}
 
           <div className="space-y-4 px-4 py-4 md:px-6">
             {strategies.map((strategy) => (
               <div
                 key={strategy.strategy_id}
-                className="rounded-[24px] border border-stone-200 bg-white/80 p-5"
+                className="rounded-lg border border-stone-200 bg-white p-5"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -168,13 +208,13 @@ export default function StrategyCatalog() {
                 </div>
 
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <InfoBlock label="Status" value={strategy.status} />
-                  <InfoBlock label="Runtime Mode" value={strategy.runtime_mode} />
+                  <InfoBlock label={zh ? '状态' : 'Status'} value={strategy.status} />
+                  <InfoBlock label={zh ? '运行模式' : 'Runtime Mode'} value={strategy.runtime_mode} />
                 </div>
 
                 <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                  <KeyValuePanel title="Parameters" values={strategy.parameters} />
-                  <KeyValuePanel title="Risk Limits" values={strategy.risk_limits} />
+                  <KeyValuePanel title={zh ? '参数' : 'Parameters'} values={strategy.parameters} />
+                  <KeyValuePanel title={zh ? '风险限制' : 'Risk Limits'} values={strategy.risk_limits} />
                 </div>
 
                 <div className="mt-5 flex justify-end">
@@ -183,7 +223,7 @@ export default function StrategyCatalog() {
                     disabled={busyId === strategy.strategy_id}
                     className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700 disabled:opacity-50"
                   >
-                    Create Paper Instance
+                    {zh ? '创建 Paper 实例' : 'Create Paper Instance'}
                   </button>
                 </div>
               </div>
@@ -194,12 +234,14 @@ export default function StrategyCatalog() {
 
       <div className="space-y-6">
         <div className="panel overflow-hidden">
-          <div className="border-b border-stone-200/80 px-6 py-5">
+          <div className="border-b border-stone-200 px-6 py-5">
             <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-              Strategy Instances
+              {zh ? '策略实例' : 'Strategy Instances'}
             </div>
             <p className="mt-1 text-sm text-stone-500">
-              这里已经是控制面，不再只看模板。后续会继续补版本、回测绑定和实例级性能。
+              {zh
+                ? '这里是策略运行控制面：实例能启动、停止、删除，并与 intent 队列衔接。'
+                : 'This is the strategy runtime control plane: instances can start, stop, delete, and feed the intent queue.'}
             </p>
           </div>
 
@@ -207,7 +249,7 @@ export default function StrategyCatalog() {
             {instances.map((instance) => (
               <div
                 key={instance.instance_id}
-                className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-4"
+                className="rounded-lg border border-stone-200 bg-stone-50 p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -227,7 +269,7 @@ export default function StrategyCatalog() {
                     <span className="mono text-right text-stone-800">{instance.instance_id}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <span>Updated</span>
+                    <span>{zh ? '更新时间' : 'Updated'}</span>
                     <span>{new Date(instance.updated_at).toLocaleString()}</span>
                   </div>
                 </div>
@@ -238,21 +280,21 @@ export default function StrategyCatalog() {
                     disabled={instance.status === 'running' || busyId === instance.instance_id}
                     className="rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
-                    Start
+                    {zh ? '启动' : 'Start'}
                   </button>
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'stop')}
                     disabled={instance.status !== 'running' || busyId === instance.instance_id}
                     className="rounded-full bg-amber-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
-                    Stop
+                    {zh ? '停止' : 'Stop'}
                   </button>
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'delete')}
                     disabled={busyId === instance.instance_id}
                     className="rounded-full bg-rose-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
-                    Delete
+                    {zh ? '删除' : 'Delete'}
                   </button>
                 </div>
               </div>
@@ -262,28 +304,33 @@ export default function StrategyCatalog() {
 
         <div className="metric-panel">
           <div className="text-xs font-medium uppercase tracking-[0.14em] text-stone-500">
-            Strategy Center Direction
+            {zh ? '策略中心定位' : 'Strategy Center Role'}
           </div>
           <div className="mt-4 space-y-3 text-sm leading-6 text-stone-600">
-            <p>现在模板和实例已经分开，后续才能继续接参数版本、回测结果和执行结果。</p>
-            <p>套利家族会建立在这个控制面上，而不是继续绕过 manager 直接 hardcode 到 API。</p>
+            <p>
+              {zh
+                ? '这里负责把模板、实例、信号输入、intent 和执行结果串起来，避免策略逻辑绕过控制面。'
+                : 'This page connects templates, instances, signal inputs, intents, and execution outcomes so strategy logic does not bypass the control plane.'}
+            </p>
           </div>
         </div>
 
         <div className="panel overflow-hidden">
-          <div className="border-b border-stone-200/80 px-6 py-5">
+          <div className="border-b border-stone-200 px-6 py-5">
             <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-              Pair Universe
+              {zh ? '交易对宇宙' : 'Pair Universe'}
             </div>
             <p className="mt-1 text-sm text-stone-500">
-              当前自动套利策略加载的 pair universe。新增标的对优先改配置，不再改业务代码。
+              {zh
+                ? '当前策略实例可读取的交易对配置。新增标的对优先改配置，不改业务代码。'
+                : 'Pair configuration available to strategy instances. Add pairs through config instead of business code.'}
             </p>
           </div>
 
           <div className="space-y-3 px-4 py-4">
             {pairUniverse.length ? (
               pairUniverse.map((pair) => (
-                <div key={pair.pair_id} className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-4">
+                <div key={pair.pair_id} className="rounded-lg border border-stone-200 bg-stone-50 p-4">
                   <div className="mono text-sm text-stone-900">{pair.pair_id}</div>
                   <div className="mt-2 text-sm text-stone-600">
                     {pair.left.venue}:{pair.left.symbol} ↔ {pair.right.venue}:{pair.right.symbol}
@@ -291,73 +338,70 @@ export default function StrategyCatalog() {
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
-                No pair universe loaded.
+              <div className="rounded-lg border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
+                {zh ? '暂无交易对配置。' : 'No pair universe loaded.'}
               </div>
             )}
           </div>
         </div>
 
         <div className="panel overflow-hidden">
-          <div className="border-b border-stone-200/80 px-6 py-5">
+          <div className="border-b border-stone-200 px-6 py-5">
             <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-              Pair Snapshots
+              {zh ? '交易对快照' : 'Pair Snapshots'}
             </div>
             <p className="mt-1 text-sm text-stone-500">
-              这是自动套利策略的输入层。启动 `spread_arbitrage_v1` 实例后，它会监听这里的 pair snapshot。
+              {zh
+                ? '这是策略的信号输入层。运行中的实例会读取这里的价差、净边际和机会方向。'
+                : 'This is the strategy signal input layer. Running instances read spread, net edge, and opportunity side here.'}
             </p>
           </div>
 
           <div className="space-y-3 px-4 py-4">
             {pairSnapshots.length ? (
               pairSnapshots.map((snapshot) => (
-                <div key={snapshot.pair_id} className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-4">
+                <div key={snapshot.pair_id} className="rounded-lg border border-stone-200 bg-stone-50 p-4">
                   <div className="mono text-sm text-stone-900">{snapshot.pair_id}</div>
                   <div className="mt-2 grid gap-2 text-sm text-stone-600">
-                    <div>spread: {snapshot.spread_bps?.toFixed?.(2) ?? snapshot.spread_bps} bps</div>
-                    <div>net edge: {snapshot.net_edge_bps?.toFixed?.(2) ?? snapshot.net_edge_bps} bps</div>
-                    <div>side: {snapshot.opportunity_side || '--'}</div>
+                    <div>{zh ? '价差' : 'spread'}: {snapshot.spread_bps?.toFixed?.(2) ?? snapshot.spread_bps} bps</div>
+                    <div>{zh ? '净边际' : 'net edge'}: {snapshot.net_edge_bps?.toFixed?.(2) ?? snapshot.net_edge_bps} bps</div>
+                    <div>{zh ? '方向' : 'side'}: {snapshot.opportunity_side || '--'}</div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
-                No pair snapshots yet.
+              <div className="rounded-lg border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
+                {zh ? '暂无交易对快照。' : 'No pair snapshots yet.'}
               </div>
             )}
           </div>
         </div>
 
         <div className="panel overflow-hidden">
-          <div className="border-b border-stone-200/80 px-6 py-5">
+          <div className="border-b border-stone-200 px-6 py-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
-                  Trade Intents
+                  {zh ? '交易意图' : 'Trade Intents'}
                 </div>
                 <p className="mt-1 text-sm text-stone-500">
-                  intent 是策略和执行之间的桥。先创建，再提交到 basket executor。
+                  {zh
+                    ? 'intent 是策略和执行之间的桥。策略生成后再提交到 basket executor。'
+                    : 'Intents bridge strategy and execution. Strategies create them before submission to the basket executor.'}
                 </p>
               </div>
-              <button
-                onClick={createDemoIntent}
-                disabled={busyId === 'demo-intent'}
-                className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-              >
-                Create Demo Intent
-              </button>
             </div>
           </div>
 
           <div className="space-y-3 px-4 py-4">
             {intents.length ? (
               intents.map((intent) => (
-                <div key={intent.intent_id} className="rounded-[24px] border border-stone-200 bg-stone-50/80 p-4">
+                <div key={intent.intent_id} className="rounded-lg border border-stone-200 bg-stone-50 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="mono text-sm text-stone-900">{intent.intent_id}</div>
                       <div className="mt-1 text-xs text-stone-500">
-                        {intent.strategy_id} / edge {intent.expected_edge_bps}bps / confidence {intent.confidence}
+                        {intent.strategy_id} / {zh ? '边际' : 'edge'} {intent.expected_edge_bps}bps / {zh ? '置信度' : 'confidence'} {intent.confidence}
                       </div>
                     </div>
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-700">
@@ -385,26 +429,51 @@ export default function StrategyCatalog() {
                       disabled={intent.status === 'submitted' || busyId === intent.intent_id}
                       className="rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                     >
-                      Submit To Execution
+                      {zh ? '提交到执行' : 'Submit To Execution'}
                     </button>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
-                No intents yet.
+              <div className="rounded-lg border border-dashed border-stone-200 bg-stone-50 px-4 py-8 text-sm text-stone-500">
+                {zh ? '暂无交易意图。' : 'No intents yet.'}
               </div>
             )}
           </div>
         </div>
+
+        <div className="panel overflow-hidden">
+          <div className="border-b border-stone-200 px-6 py-5">
+            <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
+              {zh ? '实验区：手动 Intent' : 'Lab: Manual Intent'}
+            </div>
+            <p className="mt-1 text-sm text-stone-500">
+              {zh
+                ? '仅用于验证 intent 到 basket 的链路，不代表真实策略信号，也不进入默认核心结论。'
+                : 'Only validates the intent-to-basket path. It is not a live strategy signal and is excluded from the default core conclusion.'}
+            </p>
+          </div>
+          <div className="px-4 py-4">
+            <button
+              onClick={createLabIntent}
+              disabled={busyId === 'lab-intent'}
+              className="rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            >
+              {busyId === 'lab-intent'
+                ? (zh ? '创建中' : 'Creating')
+                : (zh ? '创建实验 Intent' : 'Create Lab Intent')}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+    </>
   );
 }
 
 function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-stone-50 px-4 py-3">
+    <div className="rounded-lg bg-stone-50 px-4 py-3">
       <div className="text-xs uppercase tracking-[0.12em] text-stone-500">{label}</div>
       <div className="mt-2 text-sm font-semibold text-stone-900">{value}</div>
     </div>
@@ -419,7 +488,7 @@ function KeyValuePanel({
   values: Record<string, number | string | boolean | null>;
 }) {
   return (
-    <div className="rounded-2xl border border-stone-200 bg-stone-50/70 p-4">
+    <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
       <div className="text-xs font-medium uppercase tracking-[0.12em] text-stone-500">
         {title}
       </div>

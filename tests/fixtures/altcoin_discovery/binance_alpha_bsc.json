@@ -1,0 +1,66 @@
+{
+  "_fixture_meta": {
+    "source": "https://web3.binance.com/bapi/defi/v1/public/wallet-direct/buw/wallet/market/token/pulse/unified/rank/list/ai",
+    "captured_at": "2026-06-27T15:18:00Z",
+    "chain_id": "56"
+  },
+  "code": "000000",
+  "success": true,
+  "data": {
+    "page": 1,
+    "size": 100,
+    "total": 1,
+    "tokens": [
+      {
+        "chainId": "56",
+        "contractAddress": "0x8b194370825e37b33373e74a41009161808c1488",
+        "symbol": "VELVET",
+        "price": "1.451862131633403",
+        "marketCap": "1451862114.2305446",
+        "liquidity": "6232200.771194006",
+        "holders": "15278",
+        "holdersTop10Percent": "89.51263228445335",
+        "volume24h": "6124792.810375549",
+        "volume24hBuy": "3100633.7889022552",
+        "volume24hSell": "3024159.021473294",
+        "launchTime": "1752050469250",
+        "auditInfo": {
+          "riskLevel": 1,
+          "riskCodes": [],
+          "riskNum": 0,
+          "cautionNum": 0
+        },
+        "tokenTag": {
+          "Community Recognition Level": [
+            {
+              "tagName": "Alpha",
+              "languageKey": "wmp-label-title-alpha"
+            }
+          ],
+          "Sensitive Events": [
+            {
+              "tagName": "Smart Money Add Holdings",
+              "languageKey": "wmp-label-title-smart-money-add-position"
+            }
+          ]
+        },
+        "alphaInfo": {
+          "period": 267,
+          "tagList": [
+            {
+              "tag": "wmp-ft-tag-bsc",
+              "tagEnName": "BSC",
+              "tagCnName": "BSC"
+            }
+          ]
+        },
+        "metaInfo": {
+          "name": "Velvet",
+          "decimals": 18,
+          "blacklist": false,
+          "creatorAddress": "0x579d36cce78af5664e26d6b858119625e1b9116a"
+        }
+      }
+    ]
+  }
+}

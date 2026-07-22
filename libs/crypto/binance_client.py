@@ -4,7 +4,7 @@ import hmac
 import time
 import httpx
 from typing import Dict, Optional
-from .base_client import CryptoExchangeClient
+from .base_client import CryptoExchangeClient, get_shared_async_http_client
 
 class BinanceClient(CryptoExchangeClient):
     def __init__(self, api_key: str = None, api_secret: str = None, paper_trading: bool = True):
@@ -40,6 +40,18 @@ class BinanceClient(CryptoExchangeClient):
             r.raise_for_status()
             return r.json()
         except:
+            return None
+
+    async def get_orderbook_async(self, symbol: str) -> Optional[Dict]:
+        """获取订单簿（异步版；共享连接池，不阻塞事件循环）"""
+        try:
+            client = get_shared_async_http_client()
+            url = f"{self.base_url}/fapi/v1/depth"
+            params = {"symbol": symbol, "limit": 20}
+            r = await client.get(url, params=params, timeout=10)
+            r.raise_for_status()
+            return r.json()
+        except Exception:
             return None
 
     def place_order(self, symbol: str, side: str, price: float, size: float, order_type: str = "LIMIT") -> str:

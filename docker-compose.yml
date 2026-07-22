@@ -5,11 +5,12 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "${POLYBOB_API_PORT:-18000}:18000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://polybob:polybob@postgres:5432/polybob
       - REDIS_URL=redis://redis:6379/0
       - LOG_LEVEL=INFO
+      - POLYBOB_API_PORT=18000
     depends_on:
       - postgres
       - redis
@@ -25,7 +26,7 @@ services:
       - POSTGRES_PASSWORD=polybob
       - POSTGRES_DB=polybob
     ports:
-      - "5432:5432"
+      - "${POLYBOB_POSTGRES_PORT:-15432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -33,7 +34,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "${POLYBOB_REDIS_PORT:-16379}:6379"
     volumes:
       - redis_data:/data
 
@@ -41,7 +42,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - "${POLYBOB_PROMETHEUS_PORT:-19090}:9090"
     volumes:
       - ./infra/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
@@ -52,7 +53,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - "${POLYBOB_GRAFANA_PORT:-13000}:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:

@@ -198,16 +198,32 @@ def calculate_spread_zscore(
     Returns:
         Z-score 序列
     """
-    spread = y - hedge_ratio * x
+    spread = np.asarray(y - hedge_ratio * x, dtype=np.float64)
     n = len(spread)
     zscores = np.zeros(n)
 
-    for i in range(lookback, n):
-        window = spread[i-lookback:i]
-        mean = window.mean()
-        std = window.std()
+    if n <= lookback:
+        return zscores
 
-        if std > 0:
-            zscores[i] = (spread[i] - mean) / std
+    # O(n) rolling mean/std via cumulative sums. Center the series first so a
+    # constant spread yields an exact zero variance and cancellation error in
+    # (sumsq - sum^2/L) stays small.
+    centered = spread - spread.mean()
+    cumsum = np.concatenate(([0.0], np.cumsum(centered)))
+    cumsq = np.concatenate(([0.0], np.cumsum(centered * centered)))
+
+    # Window for output index i is spread[i-lookback:i], i.e. it excludes i.
+    window_sum = cumsum[lookback:n] - cumsum[:n - lookback]
+    window_sumsq = cumsq[lookback:n] - cumsq[:n - lookback]
+
+    mean = window_sum / lookback
+    variance = (window_sumsq - window_sum * window_sum / lookback) / lookback
+    np.maximum(variance, 0.0, out=variance)  # guard tiny negative round-off
+    std = np.sqrt(variance)
+
+    valid = std > 0
+    result = np.zeros(n - lookback)
+    np.divide(centered[lookback:] - mean, std, out=result, where=valid)
+    zscores[lookback:] = result
 
     return zscores

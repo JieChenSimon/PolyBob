@@ -115,7 +115,10 @@ export default function MarketNewsTerminal() {
   const assetClasses = payload?.asset_classes ?? Object.keys(ASSET_LABELS);
 
   return (
-    <section className="panel mb-6 flex flex-col overflow-hidden">
+    <section
+      aria-label={zh ? '实时市场消息' : 'Market wire'}
+      className="panel mb-6 flex flex-col overflow-hidden"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 px-5 py-4">
         <div>
           <div className="eyebrow">{zh ? '实时市场消息' : 'Market Wire'}</div>
@@ -124,8 +127,15 @@ export default function MarketNewsTerminal() {
           </h2>
         </div>
         <div className="flex items-center gap-2 text-[11px] text-stone-500">
-          <span className={`inline-block h-2 w-2 rounded-full ${newsQuery.isFetching ? 'bg-emerald-400' : 'bg-stone-300'}`} />
-          {zh ? '每 20 秒刷新' : 'refreshes every 20s'}
+          <span
+            aria-hidden
+            className={`inline-block h-2 w-2 rounded-full ${newsQuery.isFetching ? 'animate-pulse bg-emerald-400' : 'bg-stone-300'}`}
+          />
+          <span aria-live="polite">
+            {newsQuery.isFetching
+              ? zh ? '刷新中…' : 'refreshing…'
+              : zh ? '每 20 秒刷新' : 'refreshes every 20s'}
+          </span>
         </div>
       </div>
 
@@ -159,7 +169,7 @@ export default function MarketNewsTerminal() {
       ) : null}
 
       {!newsQuery.isError && items.length === 0 ? (
-        <div className="px-5 py-10 text-center text-sm text-stone-400">
+        <div className="px-5 py-10 text-center text-sm text-stone-400" aria-live="polite">
           {newsQuery.isLoading
             ? zh
               ? '加载市场消息中…'
@@ -170,7 +180,10 @@ export default function MarketNewsTerminal() {
         </div>
       ) : null}
 
-      <ul className="max-h-[720px] divide-y divide-stone-100 overflow-y-auto">
+      <ul
+        aria-label={zh ? '新闻列表' : 'News items'}
+        className="max-h-[720px] divide-y divide-stone-100 overflow-y-auto"
+      >
         {items.map((item) => (
           <li key={item.document_id} className="px-5 py-3.5 transition hover:bg-stone-50/70">
             <div className="flex items-center gap-2 text-[11px] uppercase tracking-wide text-stone-400">
@@ -229,6 +242,7 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
         active
           ? 'border-sky-500 bg-sky-50 text-sky-700'

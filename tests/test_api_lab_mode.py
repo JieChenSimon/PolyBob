@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import apps.api.main as api
 
 
-def test_lab_auto_trader_disabled_does_not_initialize_engine(monkeypatch):
+async def test_lab_auto_trader_disabled_does_not_initialize_engine(monkeypatch):
     monkeypatch.setattr(
         api,
         "get_settings",
@@ -11,7 +11,7 @@ def test_lab_auto_trader_disabled_does_not_initialize_engine(monkeypatch):
     )
     api.trading_engine = None
 
-    status = api.get_lab_trading_status()
+    status = await api.get_lab_trading_status()
 
     assert status["enabled"] is False
     assert status["mode"] == "lab_disabled"
@@ -33,3 +33,23 @@ def test_service_health_marks_auto_trader_as_lab_disabled(monkeypatch):
     assert auto_trader["tier"] == "lab"
     assert auto_trader["status"] == "disabled"
     assert api.trading_engine is None
+
+
+def test_portfolio_risk_snapshot_does_not_substitute_zeroes():
+    snapshot = api.get_portfolio_risk_snapshot()
+
+    assert snapshot["portfolio_status"] == "not_configured"
+    assert snapshot["net_exposure"] is None
+    assert snapshot["estimated_leverage"] is None
+    assert snapshot["total_value"] is None
+    assert snapshot["pnl"] is None
+    assert snapshot["pnl_pct"] is None
+    assert "not configured" in snapshot["notes"][0]
+
+
+def test_not_configured_portfolio_alert_is_not_nominal():
+    snapshot = api.get_portfolio_risk_snapshot()
+
+    alert_level = api.get_portfolio_alert_level(snapshot, critical_alerts=0, watch_condition=False)
+
+    assert alert_level == "not_configured"

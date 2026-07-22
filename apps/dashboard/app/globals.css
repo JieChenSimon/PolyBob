@@ -1,8 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * PolyBob light theme.
+ *
+ * Tokens (see tailwind.config.ts):
+ *   canvas   #FAFAF8   page background
+ *   card     #FFFFFF   panels, bordered with stone-200, no heavy shadows
+ *   text     stone-900 / stone-600 / stone-500 (title / body / caption)
+ *   accent   sky-600   links, active states, primary series
+ *   positive emerald-600 · negative rose-600 · warning amber-600
+ *
+ * Spacing: 4/8 scale. Card padding is p-5 (20px), grid gaps are gap-4/gap-5.
+ * All numerals render tabular so table columns and tickers do not jitter.
+ */
 
 @layer base {
   * {
@@ -13,32 +25,164 @@
     @apply scroll-smooth;
   }
 
+  /*
+   * Keyboard focus: a single, consistent sky ring on any focusable element
+   * that is reached via the keyboard. Mouse clicks stay ring-free. Several
+   * terminal controls set `outline-none`, so this restores an accessible
+   * focus indicator without a per-component override.
+   */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #fafaf8, 0 0 0 4px rgba(2, 132, 199, 0.65);
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  /* Skip link: visually hidden until focused, then pinned top-left. */
+  .skip-link {
+    @apply sr-only;
+  }
+
+  .skip-link:focus {
+    @apply not-sr-only fixed left-4 top-3 z-50 rounded-md border border-sky-300 bg-white px-4 py-2 text-sm font-semibold text-sky-700 shadow;
+  }
+
   body {
-    font-family: 'Space Grotesk', sans-serif;
-    background:
-      radial-gradient(circle at top left, rgba(238, 184, 120, 0.22), transparent 32%),
-      radial-gradient(circle at top right, rgba(132, 183, 170, 0.18), transparent 28%),
-      linear-gradient(180deg, #fcfaf6 0%, #f3eee5 100%);
-    color: #1f1c18;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+      "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #fafaf8;
+    color: #1c1917;
     min-height: 100vh;
+    overflow-x: hidden;
+    font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
+  /* Card primitives ------------------------------------------------- */
   .panel {
-    @apply rounded-[28px] border border-stone-200/80 bg-white/80 shadow-[0_20px_60px_rgba(73,52,27,0.08)] backdrop-blur;
+    @apply min-w-0 rounded-xl border border-stone-200 bg-white shadow-[0_1px_2px_rgba(28,25,23,0.04)];
   }
 
   .metric-panel {
-    @apply rounded-[22px] border border-stone-200/80 bg-white/90 px-5 py-4 shadow-[0_10px_30px_rgba(73,52,27,0.06)];
+    @apply min-w-0 rounded-lg border border-stone-200 bg-white px-4 py-3 shadow-[0_1px_2px_rgba(28,25,23,0.04)];
   }
 
   .eyebrow {
-    @apply inline-flex items-center rounded-full border border-amber-200 bg-amber-100/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-800;
+    @apply inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-700;
   }
 
   .mono {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  /* Terminal controls (Altcoin Discovery / equity advisor), restyled
+     for the light theme. Class names are kept so component markup does
+     not need to change. -------------------------------------------- */
+  .terminal-button,
+  .terminal-select,
+  .terminal-input {
+    @apply rounded-md border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-700 outline-none transition;
+  }
+
+  .terminal-button:hover,
+  .terminal-select:hover,
+  .terminal-input:focus {
+    @apply border-sky-500 text-stone-900;
+  }
+
+  .terminal-icon-button {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-stone-300 bg-white text-base text-stone-600 transition hover:border-sky-500 hover:text-sky-700;
+  }
+
+  .terminal-segment {
+    @apply h-8 min-w-11 border-r border-stone-200 px-2 text-xs text-stone-500 transition last:border-r-0 hover:text-stone-900;
+  }
+
+  .terminal-segment.active {
+    @apply bg-sky-50 font-semibold text-sky-700;
+  }
+
+  .status-chip,
+  .candidate-status,
+  .health-dot {
+    @apply inline-flex items-center rounded px-2 py-1 text-[10px] font-semibold uppercase;
+  }
+
+  .status-chip.ok,
+  .health-dot.ok,
+  .candidate-status.trade_eligible {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+
+  .status-chip.warning,
+  .health-dot.degraded,
+  .health-dot.stale,
+  .candidate-status.watch,
+  .candidate-status.data_insufficient {
+    @apply bg-amber-50 text-amber-700;
+  }
+
+  .health-dot.unavailable,
+  .candidate-status.vetoed {
+    @apply bg-rose-50 text-rose-700;
+  }
+
+  .terminal-section-title {
+    @apply flex h-9 items-center justify-between gap-3 border-b border-stone-200 bg-stone-50 px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-stone-500;
+  }
+
+  .terminal-table {
+    @apply w-full min-w-[780px] border-collapse text-left text-xs;
+  }
+
+  .terminal-table.compact {
+    @apply min-w-[620px];
+  }
+
+  .terminal-table th {
+    @apply sticky top-0 z-[1] border-b border-stone-200 bg-stone-50 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.06em] text-stone-500;
+  }
+
+  .terminal-table td {
+    @apply border-b border-stone-100 px-3 py-2 text-stone-700;
+  }
+
+  .terminal-table tbody tr {
+    @apply cursor-pointer transition hover:bg-stone-50;
+  }
+
+  .terminal-table tbody tr.selected {
+    @apply bg-sky-50 shadow-[inset_3px_0_0_#0284c7];
+  }
+
+  .terminal-table td small {
+    @apply mt-0.5 block max-w-32 truncate font-mono text-[9px] text-stone-400;
+  }
+
+  .terminal-table .risk-value {
+    @apply text-rose-600;
+  }
+
+  .mobile-view-button {
+    @apply h-9 flex-1 bg-stone-50 text-xs text-stone-500;
+  }
+
+  .mobile-view-button.active {
+    @apply border-b-2 border-sky-600 bg-white font-semibold text-sky-700;
   }
 }
 
@@ -48,19 +192,19 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(120, 98, 72, 0.08);
+  background: rgba(28, 25, 23, 0.04);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(120, 98, 72, 0.26);
+  background: rgba(28, 25, 23, 0.18);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(120, 98, 72, 0.4);
+  background: rgba(28, 25, 23, 0.3);
 }
 
 ::selection {
-  background: rgba(177, 77, 31, 0.18);
-  color: #1f1c18;
+  background: rgba(2, 132, 199, 0.16);
+  color: #1c1917;
 }

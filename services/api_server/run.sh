@@ -1,3 +1,7 @@
 #!/bin/bash
-cd "$(dirname "$0")"
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+set -e
+
+echo "services/api_server is archived and no longer starts the trading API."
+echo "Use the current core API entrypoint instead:"
+echo "  python -m apps.api.main"
+exit 1

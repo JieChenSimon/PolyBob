@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import PrimaryNav from "@/components/PrimaryNav";
+import NavigationPerformanceMonitor from "@/components/NavigationPerformanceMonitor";
+import { WorkbenchQueryProvider } from "@/lib/queryProvider";
 
 export const metadata: Metadata = {
   title: "PolyBob Workbench",
@@ -15,8 +17,16 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body>
-        <PrimaryNav />
-        {children}
+        <a href="#main-content" className="skip-link">
+          跳转到主内容 / Skip to content
+        </a>
+        <WorkbenchQueryProvider>
+          <NavigationPerformanceMonitor />
+          <PrimaryNav />
+          <div id="main-content" tabIndex={-1} className="outline-none">
+            {children}
+          </div>
+        </WorkbenchQueryProvider>
       </body>
     </html>
   );
