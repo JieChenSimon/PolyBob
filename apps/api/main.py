@@ -24,6 +24,7 @@ import numpy as np
 import yaml
 
 from libs.config import get_settings
+from libs import metrics as ops_metrics
 from libs.db import fact_store
 from libs.db.repositories import BasketRepository, DecisionRepository, IntentRepository
 from libs.polymarket.btc_five_minute import (
@@ -821,6 +822,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Prometheus 可观测性中间件（每路由时延直方图 + 在途请求 + 事件循环滞后）。
+if ops_metrics.PrometheusMiddleware is not None:
+    app.add_middleware(ops_metrics.PrometheusMiddleware)
+
+
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus 文本格式指标（路由时延、provider 调用、缓存命中、事件循环滞后、
+    事件总线队列深度/丢弃/合并计数）。"""
+    from fastapi.responses import Response
+
+    return Response(
+        content=ops_metrics.render_latest(),
+        media_type=ops_metrics.CONTENT_TYPE,
+    )
 
 
 @app.get("/")

@@ -1,14 +1,27 @@
 """Backend selection for CPU-heavy numerical kernels.
 
 The default remains the existing Python/NumPy implementation so a missing local
-Rust extension cannot break startup. Set POLYBOB_COMPUTE_BACKEND=rust to use
-the Rust extension when it is installed, or verify to compare both paths.
+Rust extension cannot break startup. Backends (``POLYBOB_COMPUTE_BACKEND``):
+
+* ``python`` (default) — the pure Python/NumPy path.
+* ``rust`` — the ``polybob_core`` native extension; falls back to Python when the
+  extension is absent unless ``POLYBOB_RUST_FALLBACK_ENABLED=false``.
+* ``auto`` — the native extension *when it is actually built and importable*,
+  otherwise Python. This is the honest "use native if present" switch.
+* ``verify`` — run both and assert they agree (regression guard).
+
+The native core is scaffolded in ``rust/polybob-core`` and must be built with
+maturin/cargo to exist at runtime (see ``rust/polybob-core/BUILD.md``). Nothing
+here pretends the native path is active when it is not: :func:`native_core_status`
+reports the real state, and the benchmark in :func:`benchmark_rolling_zscore`
+only compares against Rust when the extension is importable.
 """
 
 from __future__ import annotations
 
 import importlib
 import os
+import time
 from functools import lru_cache
 from typing import Any, Literal
 
@@ -20,7 +33,7 @@ from libs.quant.risk_metrics import RiskMetrics
 from libs.quant.risk_metrics import calculate_all_metrics as _python_risk_metrics
 from libs.quant.risk_metrics import calculate_max_drawdown as _python_max_drawdown
 
-BackendName = Literal["python", "rust", "verify"]
+BackendName = Literal["python", "rust", "verify", "auto"]
 
 
 class ComputeBackendError(RuntimeError):
@@ -35,13 +48,47 @@ def _rust_core() -> Any | None:
         return None
 
 
-def _selected_backend(backend: str | None = None) -> BackendName:
-    selected = (backend or os.getenv("POLYBOB_COMPUTE_BACKEND", "python")).strip().lower()
-    if selected not in {"python", "rust", "verify"}:
-        raise ComputeBackendError(
-            "POLYBOB_COMPUTE_BACKEND must be one of: python, rust, verify"
+def native_core_available() -> bool:
+    """True only when the compiled ``polybob_core`` extension is importable."""
+    return _rust_core() is not None
+
+
+def native_core_status() -> dict[str, Any]:
+    """Report the real state of the native core so nothing overstates it.
+
+    Returns a dict describing whether the extension is built/importable, where it
+    loaded from, which backend the current configuration resolves to, and what
+    ``auto`` would pick. Intended for a startup/health log line and diagnostics.
+    """
+    module = _rust_core()
+    available = module is not None
+    configured = (os.getenv("POLYBOB_COMPUTE_BACKEND", "python")).strip().lower()
+    return {
+        "native_core_built": available,
+        "status": "native core built" if available else "native core not built",
+        "module_path": getattr(module, "__file__", None) if available else None,
+        "configured_backend": configured,
+        "resolved_backend": _selected_backend(),
+        "auto_would_use": "rust" if available else "python",
+        "fallback_enabled": _fallback_enabled(),
+        "exported_functions": sorted(
+            name for name in dir(module) if not name.startswith("_")
         )
-    return selected  # type: ignore[return-value]
+        if available
+        else [],
+    }
+
+
+def _selected_backend(backend: str | None = None) -> str:
+    selected = (backend or os.getenv("POLYBOB_COMPUTE_BACKEND", "python")).strip().lower()
+    if selected not in {"python", "rust", "verify", "auto"}:
+        raise ComputeBackendError(
+            "POLYBOB_COMPUTE_BACKEND must be one of: python, rust, verify, auto"
+        )
+    if selected == "auto":
+        # Resolve honestly: native only when it is actually importable.
+        return "rust" if _rust_core() is not None else "python"
+    return selected
 
 
 def _fallback_enabled() -> bool:
@@ -222,3 +269,67 @@ def slippage_batch(
             raise ComputeBackendError("slippage_batch mismatch between Rust and Python")
         return python_result
     return rust_result
+
+
+def _time_call(fn, repeats: int) -> float:
+    """Return the best (min) wall-clock time in milliseconds over ``repeats``."""
+    best = float("inf")
+    for _ in range(max(1, repeats)):
+        start = time.perf_counter()
+        fn()
+        best = min(best, (time.perf_counter() - start) * 1000.0)
+    return best
+
+
+def benchmark_rolling_zscore(
+    points: int = 50_000,
+    lookback: int = 60,
+    *,
+    repeats: int = 3,
+) -> dict[str, Any]:
+    """Benchmark the rolling-zscore hot loop: Python vs native Rust core.
+
+    Times the Python path always and the Rust path when the extension is built,
+    verifies the two agree numerically, and reports the speedup. When the native
+    core is not built, ``rust_ms``/``speedup`` are ``None`` and ``backends`` lists
+    only ``python`` — an honest result rather than a fabricated comparison.
+    """
+    rng = np.random.default_rng(20260722)
+    x = 100.0 + np.cumsum(rng.normal(0.0, 0.35, points))
+    y = 1.25 * x + rng.normal(0.0, 0.2, points)
+
+    python_ms = _time_call(
+        lambda: rolling_zscore(y, x, 1.25, lookback=lookback, backend="python"), repeats
+    )
+
+    report: dict[str, Any] = {
+        "points": points,
+        "lookback": lookback,
+        "repeats": repeats,
+        "native_core_built": native_core_available(),
+        "python_ms": round(python_ms, 4),
+        "rust_ms": None,
+        "speedup": None,
+        "results_match": None,
+        "backends": ["python"],
+    }
+
+    if not native_core_available():
+        return report
+
+    rust_ms = _time_call(
+        lambda: rolling_zscore(y, x, 1.25, lookback=lookback, backend="rust"), repeats
+    )
+    python_result = rolling_zscore(y, x, 1.25, lookback=lookback, backend="python")
+    rust_result = rolling_zscore(y, x, 1.25, lookback=lookback, backend="rust")
+    report.update(
+        {
+            "rust_ms": round(rust_ms, 4),
+            "speedup": round(python_ms / rust_ms, 3) if rust_ms > 0 else None,
+            "results_match": bool(
+                np.allclose(python_result, rust_result, rtol=1e-10, atol=1e-12)
+            ),
+            "backends": ["python", "rust"],
+        }
+    )
+    return report
