@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { providerFetch } from '../../../../lib/providerFetch';
+import { inferChinaExchange } from '../../../../domain/equities/orderBook';
+
+// Nasdaq's quote API keys results by asset class; a stock code returns nothing
+// under assetclass=etf and vice-versa, so an ETF (e.g. QQQ) looks "missing"
+// when only 'stocks' is queried. Try the common classes in order.
+const US_ASSET_CLASSES = ['stocks', 'etf'] as const;
 
 export const dynamic = 'force-dynamic';
 
@@ -186,56 +192,74 @@ async function buildUsChart(symbol: string, mode: ChartMode): Promise<ChartPaylo
 }
 
 async function fetchNasdaqIntraday(symbol: string): Promise<{ asOf: string | null; points: ChartPoint[] }> {
-  const url = `https://api.nasdaq.com/api/quote/${encodeURIComponent(symbol)}/chart?assetclass=stocks`;
-  const response = await providerFetch(url, {
-    headers: nasdaqHeaders,
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Nasdaq chart HTTP ${response.status}`);
-  }
-
-  const payload = (await response.json()) as NasdaqChartPayload;
-  const points = (payload.data?.chart || [])
-    .map((item): ChartPoint | null => {
-      const timestamp = typeof item.x === 'number' ? item.x : null;
-      const price = typeof item.y === 'number' ? item.y : parseMoney(item.z?.value);
-      if (!timestamp || price === null) {
-        return null;
+  let lastError: Error | null = null;
+  for (const assetclass of US_ASSET_CLASSES) {
+    const url = `https://api.nasdaq.com/api/quote/${encodeURIComponent(symbol)}/chart?assetclass=${assetclass}`;
+    try {
+      const response = await providerFetch(url, { headers: nasdaqHeaders, cache: 'no-store' });
+      if (!response.ok) {
+        lastError = new Error(`Nasdaq chart HTTP ${response.status}`);
+        continue;
       }
-      return {
-        timestamp,
-        label: item.z?.dateTime || formatEtTime(timestamp),
-        price,
-        volume: null,
-        session: classifyUsSession(item.z?.dateTime, timestamp),
-      };
-    })
-    .filter((point): point is ChartPoint => point !== null);
-
-  return {
-    asOf: payload.data?.timeAsOf || null,
-    points,
-  };
+      const payload = (await response.json()) as NasdaqChartPayload;
+      const points = (payload.data?.chart || [])
+        .map((item): ChartPoint | null => {
+          const timestamp = typeof item.x === 'number' ? item.x : null;
+          const price = typeof item.y === 'number' ? item.y : parseMoney(item.z?.value);
+          if (!timestamp || price === null) {
+            return null;
+          }
+          return {
+            timestamp,
+            label: item.z?.dateTime || formatEtTime(timestamp),
+            price,
+            volume: null,
+            session: classifyUsSession(item.z?.dateTime, timestamp),
+          };
+        })
+        .filter((point): point is ChartPoint => point !== null);
+      if (points.length > 0) {
+        return { asOf: payload.data?.timeAsOf || null, points };
+      }
+    } catch (error) {
+      lastError = error as Error;
+    }
+  }
+  if (lastError) {
+    throw lastError;
+  }
+  return { asOf: null, points: [] };
 }
 
 async function fetchNasdaqDailyBars(symbol: string, lookbackDays: number): Promise<DailyBar[]> {
   const toDate = new Date();
   const fromDate = new Date(toDate);
   fromDate.setDate(fromDate.getDate() - lookbackDays);
-  const url = `https://api.nasdaq.com/api/quote/${encodeURIComponent(symbol)}/historical?assetclass=stocks&fromdate=${formatDate(fromDate)}&todate=${formatDate(toDate)}&limit=9999`;
-
-  const response = await providerFetch(url, {
-    headers: nasdaqHeaders,
-    cache: 'no-store',
-  });
-
-  if (!response.ok) {
-    throw new Error(`Nasdaq historical HTTP ${response.status}`);
+  let lastError: Error | null = null;
+  for (const assetclass of US_ASSET_CLASSES) {
+    const url = `https://api.nasdaq.com/api/quote/${encodeURIComponent(symbol)}/historical?assetclass=${assetclass}&fromdate=${formatDate(fromDate)}&todate=${formatDate(toDate)}&limit=9999`;
+    try {
+      const response = await providerFetch(url, { headers: nasdaqHeaders, cache: 'no-store' });
+      if (!response.ok) {
+        lastError = new Error(`Nasdaq historical HTTP ${response.status}`);
+        continue;
+      }
+      const payload = (await response.json()) as NasdaqHistoricalPayload;
+      const bars = nasdaqHistoricalRows(payload);
+      if (bars.length > 0) {
+        return bars;
+      }
+    } catch (error) {
+      lastError = error as Error;
+    }
   }
+  if (lastError) {
+    throw lastError;
+  }
+  return [];
+}
 
-  const payload = (await response.json()) as NasdaqHistoricalPayload;
+function nasdaqHistoricalRows(payload: NasdaqHistoricalPayload): DailyBar[] {
   return (payload.data?.tradesTable?.rows || [])
     .map((row) => ({
       date: normalizeNasdaqDate(row.date),
@@ -599,14 +623,17 @@ function parseVolume(value: string | undefined) {
 }
 
 function isChinaSymbol(symbol: string) {
-  return symbol.endsWith('.SH') || symbol.endsWith('.SZ') || symbol.endsWith('.BJ');
+  const s = symbol.trim().toUpperCase();
+  // Explicit suffix, or a bare 6-digit numeric code (US tickers are alphabetic).
+  return s.endsWith('.SH') || s.endsWith('.SZ') || s.endsWith('.BJ') || /^\d{6}$/.test(s);
 }
 
 function toTencentSymbol(symbol: string) {
-  const [code, suffix] = symbol.split('.');
-  if (!code || !suffix) {
+  const [code, rawSuffix] = symbol.trim().toUpperCase().split('.');
+  if (!/^\d{6}$/.test(code || '')) {
     return null;
   }
+  const suffix = rawSuffix || inferChinaExchange(code);
   if (suffix === 'SH') {
     return `sh${code}`;
   }
@@ -614,7 +641,7 @@ function toTencentSymbol(symbol: string) {
     return `sz${code}`;
   }
   if (suffix === 'BJ') {
-    return null;
+    return `bj${code}`; // Tencent gtimg supports the bj prefix for BSE names
   }
   return null;
 }

@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     polymarket_clob_ws_url: str = "wss://ws-subscriptions-clob.polymarket.com/ws/market"
     polymarket_clob_rest_url: str = "https://clob.polymarket.com"
 
+    # BTC 5-minute workbench refresh cadence (seconds). Backend cache TTL is
+    # this + 1s; keep it aligned with the dashboard poll interval so the live
+    # window stays near-real-time without hammering upstream every request.
+    polybob_btc_5m_poll_seconds: float = 1.5
+
     # Raw order-book event log (append-only, for deterministic replay).
     # Off by default: raw event capture grows disk usage steadily.
     polybob_book_log_enabled: bool = False

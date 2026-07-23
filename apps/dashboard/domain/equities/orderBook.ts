@@ -34,12 +34,42 @@ export interface EastmoneyPush2Payload {
   data?: Record<string, unknown> | null;
 }
 
+/**
+ * Infer the A-share exchange for a bare 6-digit code (no explicit suffix).
+ *
+ * Users routinely enter just the numeric code (e.g. `159558`) without a
+ * `.SH/.SZ/.BJ` suffix. The exchange is derivable from the code prefix:
+ *  - Shanghai: 60xxxx/68xxxx (stocks/STAR), 5xxxxx (ETF/LOF), 9xxxxx (B)
+ *  - Shenzhen: 00xxxx/30xxxx (stocks/ChiNext), 1(5/6/8)xxxx (ETF/LOF), 2xxxxx (B)
+ *  - Beijing:  43/83/87/920xxx
+ */
+export function inferChinaExchange(code: string): 'SH' | 'SZ' | 'BJ' | null {
+  if (!/^\d{6}$/.test(code)) {
+    return null;
+  }
+  if (code.startsWith('920')) {
+    return 'BJ'; // Beijing Stock Exchange (disambiguate from SH 90xxxx B-shares)
+  }
+  const head = code[0];
+  if (head === '6' || head === '5' || head === '9') {
+    return 'SH';
+  }
+  if (head === '0' || head === '3' || head === '1' || head === '2') {
+    return 'SZ';
+  }
+  if (head === '4' || head === '8') {
+    return 'BJ';
+  }
+  return null;
+}
+
 export function toEastmoneySecId(symbol: string): string | null {
   const normalized = symbol.trim().toUpperCase();
-  const [code, suffix] = normalized.split('.');
+  const [code, rawSuffix] = normalized.split('.');
   if (!/^\d{6}$/.test(code || '')) {
     return null;
   }
+  const suffix = rawSuffix || inferChinaExchange(code);
   if (suffix === 'SH') {
     return `1.${code}`;
   }

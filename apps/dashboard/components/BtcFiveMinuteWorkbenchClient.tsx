@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import BtcFiveMinuteMarketTerminal, { type TerminalPoint } from '@/components/BtcFiveMinuteMarketTerminal';
 import BtcFiveMinuteWorkspace from '@/components/BtcFiveMinuteWorkspace';
 import {
@@ -27,8 +27,11 @@ export default function BtcFiveMinuteWorkbenchClient({
     },
     initialData: initialWorkbench,
     initialDataUpdatedAt: initialUpdatedAt ? Date.parse(initialUpdatedAt) : undefined,
-    refetchInterval: 3_000,
-    staleTime: 2_000,
+    // Near-real-time: poll faster and refetch on focus so the 5-minute window
+    // (where the last seconds matter) stays live.
+    refetchInterval: 1_500,
+    staleTime: 1_000,
+    refetchOnWindowFocus: true,
   });
   const [history, setHistory] = useState<TerminalPoint[]>(() => {
     if (initialWorkbench === undefined) {
@@ -63,10 +66,31 @@ export default function BtcFiveMinuteWorkbenchClient({
     ? new Date(query.dataUpdatedAt).toLocaleTimeString()
     : formatInitialUpdatedAt(initialUpdatedAt);
 
+  // 1s wall-clock tick used only to smooth the expiry countdown between polls.
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Tick the expiry countdown down locally each second from the last server
+  // snapshot, so it reads as live instead of stepping by the poll interval.
+  const smoothedWorkbench = useMemo(() => {
+    if (!workbench || typeof workbench.seconds_to_expiry !== 'number' || query.dataUpdatedAt <= 0) {
+      return workbench;
+    }
+    const elapsed = Math.max(0, (nowMs - query.dataUpdatedAt) / 1000);
+    const remaining = Math.max(0, Math.round(workbench.seconds_to_expiry - elapsed));
+    if (remaining === workbench.seconds_to_expiry) {
+      return workbench;
+    }
+    return { ...workbench, seconds_to_expiry: remaining };
+  }, [workbench, query.dataUpdatedAt, nowMs]);
+
   return (
     <>
-      <BtcFiveMinuteMarketTerminal workbench={workbench} history={history} />
-      <BtcFiveMinuteWorkspace workbench={workbench} lastUpdated={lastUpdated} />
+      <BtcFiveMinuteMarketTerminal workbench={smoothedWorkbench} history={history} />
+      <BtcFiveMinuteWorkspace workbench={smoothedWorkbench} lastUpdated={lastUpdated} />
     </>
   );
 }

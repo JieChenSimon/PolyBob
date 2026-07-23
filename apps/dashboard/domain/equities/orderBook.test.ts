@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildUnavailableOrderBook,
+  inferChinaExchange,
   parseEastmoneyBidAskItems,
   parseEastmoneyPush2FiveLevel,
   resolveOrderBookCapability,
@@ -12,6 +13,20 @@ describe('equity order book domain', () => {
     expect(toEastmoneySecId('000001.SZ')).toBe('0.000001');
     expect(toEastmoneySecId('600519.SH')).toBe('1.600519');
     expect(toEastmoneySecId('835185.BJ')).toBe('0.835185');
+  });
+
+  it('infers the exchange for bare 6-digit codes (no suffix)', () => {
+    // The reported bug: 159558 (a Shenzhen ETF) had no suffix and resolved to null.
+    expect(inferChinaExchange('159558')).toBe('SZ');
+    expect(toEastmoneySecId('159558')).toBe('0.159558');
+    // Coverage across boards.
+    expect(toEastmoneySecId('600519')).toBe('1.600519'); // SH stock
+    expect(toEastmoneySecId('510300')).toBe('1.510300'); // SH ETF
+    expect(toEastmoneySecId('000001')).toBe('0.000001'); // SZ stock
+    expect(toEastmoneySecId('300750')).toBe('0.300750'); // ChiNext
+    expect(toEastmoneySecId('920819')).toBe('0.920819'); // Beijing
+    // A US ticker is not a 6-digit code, so it stays null (routes elsewhere).
+    expect(toEastmoneySecId('QQQ')).toBeNull();
   });
 
   it('parses Eastmoney/AkShare-style five-level bid and ask items', () => {
