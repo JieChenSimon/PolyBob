@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-07-27T08:54:40.375345+00:00",
+  "real_data_only": true,
+  "hold_days": 5,
+  "results": [
+    {
+      "strategy": "内部人卖出集群(≥3人同日)",
+      "n": 36,
+      "note": "sample too small — not tested"
+    },
+    {
+      "strategy": "对照:单人卖出",
+      "n": 100,
+      "mean_excess_pct": -0.124,
+      "median_excess_pct": -0.259,
+      "win_rate": 0.47,
+      "t_stat": -0.27,
+      "t_hurdle": 3.57,
+      "significant": false
+    },
+    {
+      "strategy": "散户极度做多后(预期跌)",
+      "n": 343,
+      "mean_excess_pct": -2.045,
+      "median_excess_pct": -1.221,
+      "win_rate": 0.3878,
+      "t_stat": -5.48,
+      "t_hurdle": 3.57,
+      "significant": true
+    },
+    {
+      "strategy": "散户极度做空后(预期涨)",
+      "n": 286,
+      "mean_excess_pct": -0.814,
+      "median_excess_pct": -0.643,
+      "win_rate": 0.4441,
+      "t_stat": -2.47,
+      "t_hurdle": 3.57,
+      "significant": false
+    }
+  ]
+}

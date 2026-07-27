@@ -287,6 +287,38 @@
         "registered_at": "2026-07-27T08:46:58.867779+00:00"
       },
       "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "insider_sell_cluster",
+        "claim": "Stocks where several insiders file open-market sales within days underperform.",
+        "rationale": "behavioural",
+        "mechanism": "A single insider sale is diversification noise, but several insiders selling together is costly to fake and plausibly reflects shared private information the market has not priced.",
+        "literature": "Insider trading is informative; clustered trades are the subset with the strongest documented predictive content.",
+        "direction": "short_or_avoid_after_cluster",
+        "universe": "US large caps",
+        "horizon_days": 5,
+        "cost_bps": 5.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:53:07.047851+00:00"
+      },
+      "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "altcoin_retail_crowding",
+        "claim": "Altcoins where retail accounts are extremely long underperform over the next week.",
+        "rationale": "structural",
+        "mechanism": "Retail perp accounts are levered; crowding on one side creates forced liquidations on adverse moves, so extremes revert.",
+        "literature": "Crowded positioning and funding extremes precede squeezes in perps.",
+        "direction": "short_when_retail_crowded_long",
+        "universe": "OKX altcoin perps",
+        "horizon_days": 5,
+        "cost_bps": 10.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:53:07.048282+00:00"
+      },
+      "result": null
     }
   ]
 }
