@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-07-27T08:37:13.195248+00:00",
+  "real_data_only": true,
+  "n_trials": 6,
+  "results": [
+    {
+      "hypothesis": "ts_momentum@altcoin",
+      "best_lookback": 120,
+      "sharpe": -0.49,
+      "win_rate": 0.439,
+      "total_return": -0.0329,
+      "t_stat": -0.41,
+      "t_hurdle": 3.39,
+      "dsr": 0.0509,
+      "pbo": 0.2261904761904762,
+      "pbo_verdict": "acceptable",
+      "approved": false,
+      "n": 255
+    },
+    {
+      "hypothesis": "xs_momentum@altcoin",
+      "best_lookback": 60,
+      "sharpe": -1.08,
+      "win_rate": 0.4727,
+      "total_return": -0.3335,
+      "t_stat": -0.73,
+      "t_hurdle": 3.39,
+      "dsr": 0.0195,
+      "pbo": 0.2619047619047619,
+      "pbo_verdict": "suspect",
+      "approved": false,
+      "n": 165
+    },
+    {
+      "hypothesis": "ts_momentum@a_share",
+      "best_lookback": 30,
+      "sharpe": 0.71,
+      "win_rate": 0.4667,
+      "total_return": 0.2853,
+      "t_stat": 1.15,
+      "t_hurdle": 3.39,
+      "dsr": 0.4374,
+      "pbo": 0.32142857142857145,
+      "pbo_verdict": "suspect",
+      "approved": false,
+      "n": 640
+    },
+    {
+      "hypothesis": "xs_momentum@a_share",
+      "best_lookback": 20,
+      "sharpe": 0.57,
+      "win_rate": 0.5036,
+      "total_return": 0.3868,
+      "t_stat": 0.85,
+      "t_hurdle": 3.39,
+      "dsr": 0.3247,
+      "pbo": 0.46825396825396826,
+      "pbo_verdict": "suspect",
+      "approved": false,
+      "n": 550
+    },
+    {
+      "hypothesis": "xs_momentum@us_equity",
+      "best_lookback": 90,
+      "sharpe": 0.44,
+      "win_rate": 0.5064,
+      "total_return": 0.58,
+      "t_stat": 0.95,
+      "t_hurdle": 3.39,
+      "dsr": 0.3643,
+      "pbo": 0.623015873015873,
+      "pbo_verdict": "overfit",
+      "approved": false,
+      "n": 1163
+    },
+    {
+      "hypothesis": "ts_momentum@us_equity",
+      "best_lookback": 60,
+      "sharpe": 1.09,
+      "win_rate": 0.5384,
+      "total_return": 1.1219,
+      "t_stat": 2.42,
+      "t_hurdle": 3.39,
+      "dsr": 0.8688,
+      "pbo": 0.7738095238095238,
+      "pbo_verdict": "overfit",
+      "approved": false,
+      "n": 1253
+    }
+  ]
+}

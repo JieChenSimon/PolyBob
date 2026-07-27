@@ -1,0 +1,178 @@
+{
+  "entries": [
+    {
+      "hypothesis": {
+        "hypothesis_id": "xs_momentum@altcoin",
+        "claim": "Recent winners keep outperforming recent losers over the next month.",
+        "rationale": "behavioural",
+        "mechanism": "Investors underreact to news, so prices adjust with a lag; the trade is hard to arbitrage away because it suffers long, career-threatening drawdowns.",
+        "literature": "Momentum replicates out-of-sample, internationally and across asset classes, and survives realistic trading costs at scale.",
+        "direction": "long_top_quintile_short_bottom",
+        "universe": "altcoin",
+        "horizon_days": 30,
+        "cost_bps": 10.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:37:10.004942+00:00"
+      },
+      "result": {
+        "hypothesis": "xs_momentum@altcoin",
+        "best_lookback": 60,
+        "sharpe": -1.08,
+        "win_rate": 0.4727,
+        "total_return": -0.3335,
+        "t_stat": -0.73,
+        "t_hurdle": 3.39,
+        "dsr": 0.0195,
+        "pbo": 0.2619047619047619,
+        "pbo_verdict": "suspect",
+        "approved": false,
+        "n": 165
+      }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "xs_momentum@us_equity",
+        "claim": "Recent winners keep outperforming recent losers over the next month.",
+        "rationale": "behavioural",
+        "mechanism": "Investors underreact to news, so prices adjust with a lag; the trade is hard to arbitrage away because it suffers long, career-threatening drawdowns.",
+        "literature": "Momentum replicates out-of-sample, internationally and across asset classes, and survives realistic trading costs at scale.",
+        "direction": "long_top_quintile_short_bottom",
+        "universe": "us_equity",
+        "horizon_days": 30,
+        "cost_bps": 5.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:37:10.005169+00:00"
+      },
+      "result": {
+        "hypothesis": "xs_momentum@us_equity",
+        "best_lookback": 90,
+        "sharpe": 0.44,
+        "win_rate": 0.5064,
+        "total_return": 0.58,
+        "t_stat": 0.95,
+        "t_hurdle": 3.39,
+        "dsr": 0.3643,
+        "pbo": 0.623015873015873,
+        "pbo_verdict": "overfit",
+        "approved": false,
+        "n": 1163
+      }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "xs_momentum@a_share",
+        "claim": "Recent winners keep outperforming recent losers over the next month.",
+        "rationale": "behavioural",
+        "mechanism": "Investors underreact to news, so prices adjust with a lag; the trade is hard to arbitrage away because it suffers long, career-threatening drawdowns.",
+        "literature": "Momentum replicates out-of-sample, internationally and across asset classes, and survives realistic trading costs at scale.",
+        "direction": "long_top_quintile_short_bottom",
+        "universe": "a_share",
+        "horizon_days": 30,
+        "cost_bps": 8.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:37:10.005464+00:00"
+      },
+      "result": {
+        "hypothesis": "xs_momentum@a_share",
+        "best_lookback": 20,
+        "sharpe": 0.57,
+        "win_rate": 0.5036,
+        "total_return": 0.3868,
+        "t_stat": 0.85,
+        "t_hurdle": 3.39,
+        "dsr": 0.3247,
+        "pbo": 0.46825396825396826,
+        "pbo_verdict": "suspect",
+        "approved": false,
+        "n": 550
+      }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "ts_momentum@altcoin",
+        "claim": "An asset that has risen over the past quarter keeps rising over the next month.",
+        "rationale": "behavioural",
+        "mechanism": "Gradual information diffusion plus flows from trend followers; limits to arbitrage keep the drift from being fully priced.",
+        "literature": "Time-series momentum documented across equities, bonds, commodities and currencies over decades.",
+        "direction": "long_if_positive_trailing_return",
+        "universe": "altcoin",
+        "horizon_days": 60,
+        "cost_bps": 10.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:37:10.005578+00:00"
+      },
+      "result": {
+        "hypothesis": "ts_momentum@altcoin",
+        "best_lookback": 120,
+        "sharpe": -0.49,
+        "win_rate": 0.439,
+        "total_return": -0.0329,
+        "t_stat": -0.41,
+        "t_hurdle": 3.39,
+        "dsr": 0.0509,
+        "pbo": 0.2261904761904762,
+        "pbo_verdict": "acceptable",
+        "approved": false,
+        "n": 255
+      }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "ts_momentum@us_equity",
+        "claim": "An asset that has risen over the past quarter keeps rising over the next month.",
+        "rationale": "behavioural",
+        "mechanism": "Gradual information diffusion plus flows from trend followers; limits to arbitrage keep the drift from being fully priced.",
+        "literature": "Time-series momentum documented across equities, bonds, commodities and currencies over decades.",
+        "direction": "long_if_positive_trailing_return",
+        "universe": "us_equity",
+        "horizon_days": 60,
+        "cost_bps": 5.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:37:10.005678+00:00"
+      },
+      "result": {
+        "hypothesis": "ts_momentum@us_equity",
+        "best_lookback": 60,
+        "sharpe": 1.09,
+        "win_rate": 0.5384,
+        "total_return": 1.1219,
+        "t_stat": 2.42,
+        "t_hurdle": 3.39,
+        "dsr": 0.8688,
+        "pbo": 0.7738095238095238,
+        "pbo_verdict": "overfit",
+        "approved": false,
+        "n": 1253
+      }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "ts_momentum@a_share",
+        "claim": "An asset that has risen over the past quarter keeps rising over the next month.",
+        "rationale": "behavioural",
+        "mechanism": "Gradual information diffusion plus flows from trend followers; limits to arbitrage keep the drift from being fully priced.",
+        "literature": "Time-series momentum documented across equities, bonds, commodities and currencies over decades.",
+        "direction": "long_if_positive_trailing_return",
+        "universe": "a_share",
+        "horizon_days": 60,
+        "cost_bps": 8.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:37:10.005769+00:00"
+      },
+      "result": {
+        "hypothesis": "ts_momentum@a_share",
+        "best_lookback": 30,
+        "sharpe": 0.71,
+        "win_rate": 0.4667,
+        "total_return": 0.2853,
+        "t_stat": 1.15,
+        "t_hurdle": 3.39,
+        "dsr": 0.4374,
+        "pbo": 0.32142857142857145,
+        "pbo_verdict": "suspect",
+        "approved": false,
+        "n": 640
+      }
+    }
+  ]
+}

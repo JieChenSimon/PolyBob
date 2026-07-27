@@ -1,0 +1,291 @@
+{
+  "generated_at": "2026-07-27T08:31:51.108469+00:00",
+  "real_data_only": true,
+  "n_trials": 18,
+  "universe_sizes": {
+    "altcoin": 46,
+    "us_equity": 10,
+    "a_share": 8
+  },
+  "board": [
+    {
+      "strategy": "range_fade",
+      "instrument": "US_EQUITY_x10",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": 0.37,
+      "win_rate": 0.2977,
+      "total_return": 0.1466,
+      "active_bars": 571,
+      "n": 1253,
+      "dsr": 0.0951,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "range_fade",
+      "instrument": "ALTCOIN_x46",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.34,
+      "win_rate": 0.4878,
+      "total_return": 0.0209,
+      "active_bars": 246,
+      "n": 255,
+      "dsr": 0.064,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "range_follow",
+      "instrument": "A_SHARE_x8",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.1,
+      "win_rate": 0.2626,
+      "total_return": -0.0265,
+      "active_bars": 297,
+      "n": 640,
+      "dsr": 0.0244,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "gap_fade",
+      "instrument": "US_EQUITY_x10",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.09,
+      "win_rate": 0.4028,
+      "total_return": -0.0926,
+      "active_bars": 1132,
+      "n": 1253,
+      "dsr": 0.0218,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "volume_trend_follow",
+      "instrument": "US_EQUITY_x10",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.08,
+      "win_rate": 0.4136,
+      "total_return": -0.078,
+      "active_bars": 1018,
+      "n": 1253,
+      "dsr": 0.0197,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "gap_fade",
+      "instrument": "A_SHARE_x8",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.19,
+      "win_rate": 0.3651,
+      "total_return": -0.0778,
+      "active_bars": 556,
+      "n": 640,
+      "dsr": 0.0164,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "volume_trend_follow",
+      "instrument": "A_SHARE_x8",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.19,
+      "win_rate": 0.3914,
+      "total_return": -0.0752,
+      "active_bars": 488,
+      "n": 640,
+      "dsr": 0.0161,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "volume_trend_fade",
+      "instrument": "ALTCOIN_x46",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.4,
+      "win_rate": 0.5333,
+      "total_return": -0.0496,
+      "active_bars": 255,
+      "n": 255,
+      "dsr": 0.0134,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "volume_trend_follow",
+      "instrument": "ALTCOIN_x46",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.61,
+      "win_rate": 0.3922,
+      "total_return": -0.0707,
+      "active_bars": 255,
+      "n": 255,
+      "dsr": 0.0103,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "volume_trend_fade",
+      "instrument": "US_EQUITY_x10",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.35,
+      "win_rate": 0.3959,
+      "total_return": -0.2122,
+      "active_bars": 1018,
+      "n": 1253,
+      "dsr": 0.0069,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "range_follow",
+      "instrument": "ALTCOIN_x46",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -1.21,
+      "win_rate": 0.374,
+      "total_return": -0.0872,
+      "active_bars": 246,
+      "n": 255,
+      "dsr": 0.0056,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "volume_trend_fade",
+      "instrument": "A_SHARE_x8",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.52,
+      "win_rate": 0.4078,
+      "total_return": -0.1671,
+      "active_bars": 488,
+      "n": 640,
+      "dsr": 0.0033,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "gap_follow",
+      "instrument": "ALTCOIN_x46",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -1.1,
+      "win_rate": 0.4471,
+      "total_return": -0.1034,
+      "active_bars": 255,
+      "n": 255,
+      "dsr": 0.0023,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "gap_fade",
+      "instrument": "ALTCOIN_x46",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -1.57,
+      "win_rate": 0.4392,
+      "total_return": -0.1415,
+      "active_bars": 255,
+      "n": 255,
+      "dsr": 0.0012,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "range_fade",
+      "instrument": "A_SHARE_x8",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.53,
+      "win_rate": 0.3266,
+      "total_return": -0.1047,
+      "active_bars": 297,
+      "n": 640,
+      "dsr": 0.0009,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "gap_follow",
+      "instrument": "A_SHARE_x8",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.98,
+      "win_rate": 0.3831,
+      "total_return": -0.287,
+      "active_bars": 556,
+      "n": 640,
+      "dsr": 0.0002,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "range_follow",
+      "instrument": "US_EQUITY_x10",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.7,
+      "win_rate": 0.303,
+      "total_return": -0.2654,
+      "active_bars": 571,
+      "n": 1253,
+      "dsr": 0.0,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "gap_follow",
+      "instrument": "US_EQUITY_x10",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.76,
+      "win_rate": 0.3728,
+      "total_return": -0.4154,
+      "active_bars": 1132,
+      "n": 1253,
+      "dsr": 0.0,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    }
+  ]
+}
