@@ -1,0 +1,39 @@
+{
+  "generated_at": "2026-07-27T08:47:10.505542+00:00",
+  "real_data_only": true,
+  "hold_days": 5,
+  "cost_bps": 30.0,
+  "n_events": 6446,
+  "results": [
+    {
+      "strategy": "H1 全部上榜(超额,净成本)",
+      "n": 6446,
+      "mean_excess_pct": -2.74,
+      "median_excess_pct": -3.93,
+      "win_rate": 0.3568,
+      "t_stat": -15.77,
+      "t_hurdle": 3.54,
+      "significant": true
+    },
+    {
+      "strategy": "H2 有机构买入",
+      "n": 2084,
+      "mean_excess_pct": -1.81,
+      "median_excess_pct": -2.961,
+      "win_rate": 0.3935,
+      "t_stat": -6.47,
+      "t_hurdle": 3.54,
+      "significant": true
+    },
+    {
+      "strategy": "H2 对照:无机构买入",
+      "n": 4362,
+      "mean_excess_pct": -3.184,
+      "median_excess_pct": -4.309,
+      "win_rate": 0.3393,
+      "t_stat": -14.54,
+      "t_hurdle": 3.54,
+      "significant": true
+    }
+  ]
+}

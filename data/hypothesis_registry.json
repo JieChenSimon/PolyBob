@@ -173,6 +173,120 @@
         "approved": false,
         "n": 640
       }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "billboard_attention_reversal",
+        "claim": "Stocks published on the dragon-tiger list underperform over the following week.",
+        "rationale": "behavioural",
+        "mechanism": "The after-close disclosure is an attention shock; retail buying pushes price beyond fair value. It is not arbitraged away because A-shares have T+1 settlement, daily price limits and costly shorting.",
+        "literature": "Attention-driven retail overreaction and short-horizon reversal are documented in retail-dominated markets.",
+        "direction": "short_or_avoid_listed_names",
+        "universe": "A-share dragon-tiger listings",
+        "horizon_days": 5,
+        "cost_bps": 30.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:45:43.330503+00:00"
+      },
+      "result": {
+        "strategy": "H1 全部上榜(超额,净成本)",
+        "n": 6446,
+        "mean_excess_pct": -2.74,
+        "median_excess_pct": -3.93,
+        "win_rate": 0.3568,
+        "t_stat": -15.77,
+        "t_hurdle": 3.54,
+        "significant": true
+      }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "billboard_institutional_flow",
+        "claim": "Listings where institutional seats are net buyers outperform listings where they are not.",
+        "rationale": "structural",
+        "mechanism": "The exchange reveals seat-level flow; institution-only seats proxy informed demand that the wider market has not yet priced.",
+        "literature": "Informed-flow disclosure predicts returns where the disclosure is mandatory and seat-level.",
+        "direction": "long_institutional_buy_listings",
+        "universe": "A-share dragon-tiger listings",
+        "horizon_days": 5,
+        "cost_bps": 30.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:45:43.330917+00:00"
+      },
+      "result": {
+        "strategy": "H2 对照:无机构买入",
+        "n": 4362,
+        "mean_excess_pct": -3.184,
+        "median_excess_pct": -4.309,
+        "win_rate": 0.3393,
+        "t_stat": -14.54,
+        "t_hurdle": 3.54,
+        "significant": true
+      }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "billboard_attention_reversal",
+        "claim": "Stocks published on the dragon-tiger list underperform over the following week.",
+        "rationale": "behavioural",
+        "mechanism": "The after-close disclosure is an attention shock; retail buying pushes price beyond fair value. It is not arbitraged away because A-shares have T+1 settlement, daily price limits and costly shorting.",
+        "literature": "Attention-driven retail overreaction and short-horizon reversal are documented in retail-dominated markets.",
+        "direction": "short_or_avoid_listed_names",
+        "universe": "A-share dragon-tiger listings",
+        "horizon_days": 5,
+        "cost_bps": 30.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:46:00.686265+00:00"
+      },
+      "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "billboard_institutional_flow",
+        "claim": "Listings where institutional seats are net buyers outperform listings where they are not.",
+        "rationale": "structural",
+        "mechanism": "The exchange reveals seat-level flow; institution-only seats proxy informed demand that the wider market has not yet priced.",
+        "literature": "Informed-flow disclosure predicts returns where the disclosure is mandatory and seat-level.",
+        "direction": "long_institutional_buy_listings",
+        "universe": "A-share dragon-tiger listings",
+        "horizon_days": 5,
+        "cost_bps": 30.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:46:00.686697+00:00"
+      },
+      "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "billboard_attention_reversal",
+        "claim": "Stocks published on the dragon-tiger list underperform over the following week.",
+        "rationale": "behavioural",
+        "mechanism": "The after-close disclosure is an attention shock; retail buying pushes price beyond fair value. It is not arbitraged away because A-shares have T+1 settlement, daily price limits and costly shorting.",
+        "literature": "Attention-driven retail overreaction and short-horizon reversal are documented in retail-dominated markets.",
+        "direction": "short_or_avoid_listed_names",
+        "universe": "A-share dragon-tiger listings",
+        "horizon_days": 5,
+        "cost_bps": 30.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:46:58.867387+00:00"
+      },
+      "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "billboard_institutional_flow",
+        "claim": "Listings where institutional seats are net buyers outperform listings where they are not.",
+        "rationale": "structural",
+        "mechanism": "The exchange reveals seat-level flow; institution-only seats proxy informed demand that the wider market has not yet priced.",
+        "literature": "Informed-flow disclosure predicts returns where the disclosure is mandatory and seat-level.",
+        "direction": "long_institutional_buy_listings",
+        "universe": "A-share dragon-tiger listings",
+        "horizon_days": 5,
+        "cost_bps": 30.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-27T08:46:58.867779+00:00"
+      },
+      "result": null
     }
   ]
 }
