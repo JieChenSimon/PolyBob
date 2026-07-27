@@ -4,12 +4,28 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import BtcFiveMinuteMarketTerminal, { type TerminalPoint } from '@/components/BtcFiveMinuteMarketTerminal';
 import BtcFiveMinuteWorkspace from '@/components/BtcFiveMinuteWorkspace';
+import BtcIndicatorSettings from '@/components/BtcIndicatorSettings';
 import {
   buildUnavailableBtcFiveMinuteWorkbench,
   parseBtcFiveMinuteWorkbench,
   type BtcFiveMinuteWorkbench,
 } from '@/domain/btcFiveMinute/workbench';
 import { API_BASE } from '@/lib/config';
+import { useLanguage } from '@/lib/i18n';
+
+const INDICATORS_STORAGE_KEY = 'btc5m.indicators';
+
+function loadStoredIndicators(): string[] | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(INDICATORS_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length ? parsed.map(String) : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function BtcFiveMinuteWorkbenchClient({
   initialPayload,
@@ -18,11 +34,17 @@ export default function BtcFiveMinuteWorkbenchClient({
   initialPayload?: unknown;
   initialUpdatedAt?: string | null;
 } = {}) {
+  const { language } = useLanguage();
+  const zh = language === 'zh';
+  const [indicators, setIndicators] = useState<string[] | null>(() => loadStoredIndicators());
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   const initialWorkbench = initialPayload === undefined ? undefined : parseBtcFiveMinuteWorkbench(initialPayload);
   const query = useQuery({
-    queryKey: ['polymarket', 'btc-5m', 'workbench'],
+    queryKey: ['polymarket', 'btc-5m', 'workbench', indicators?.join(',') ?? 'default'],
     queryFn: async ({ signal }) => {
-      const response = await fetch(`${API_BASE}/api/polymarket/btc-5m/workbench`, { signal });
+      const qs = indicators && indicators.length ? `?indicators=${encodeURIComponent(indicators.join(','))}` : '';
+      const response = await fetch(`${API_BASE}/api/polymarket/btc-5m/workbench${qs}`, { signal });
       return parseBtcFiveMinuteWorkbench(await response.json());
     },
     initialData: initialWorkbench,
@@ -87,10 +109,39 @@ export default function BtcFiveMinuteWorkbenchClient({
     return { ...workbench, seconds_to_expiry: remaining };
   }, [workbench, query.dataUpdatedAt, nowMs]);
 
+  const activeCount = indicators?.length ?? null;
+
   return (
     <>
+      <div className="mx-auto mb-3 flex w-full max-w-shell justify-end px-5 md:px-8">
+        <button
+          type="button"
+          onClick={() => setSettingsOpen(true)}
+          className="rounded-md border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition hover:border-sky-300 hover:text-sky-700"
+        >
+          {zh ? '⚙︎ 预测指标' : '⚙︎ Indicators'}
+          <span className="ml-1.5 text-stone-400">
+            {activeCount === null ? (zh ? '默认' : 'default') : `${activeCount}`}
+          </span>
+        </button>
+      </div>
       <BtcFiveMinuteMarketTerminal workbench={smoothedWorkbench} history={history} />
       <BtcFiveMinuteWorkspace workbench={smoothedWorkbench} lastUpdated={lastUpdated} />
+      <BtcIndicatorSettings
+        open={settingsOpen}
+        selected={indicators}
+        onClose={() => setSettingsOpen(false)}
+        onSave={(ids) => {
+          setIndicators(ids);
+          try {
+            if (ids) window.localStorage.setItem(INDICATORS_STORAGE_KEY, JSON.stringify(ids));
+            else window.localStorage.removeItem(INDICATORS_STORAGE_KEY);
+          } catch {
+            /* ignore storage errors */
+          }
+          setSettingsOpen(false);
+        }}
+      />
     </>
   );
 }

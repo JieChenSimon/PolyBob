@@ -91,6 +91,12 @@ class Settings(BaseSettings):
     market_news_categories: str = "general,crypto,forex"
     market_news_max_items_per_category: int = 60
 
+    # Strategy promotion gate: when on, only strategies that cleared
+    # PromotionGate on real history (data/promotion_board.json) may create live
+    # intents; everything else stays in lab. Fail-closed. Default off so paper
+    # flows are unaffected until you opt in.
+    require_strategy_promotion: bool = False
+
     # AI
     anthropic_api_key: str = ""
 

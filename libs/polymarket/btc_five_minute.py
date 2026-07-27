@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -128,6 +129,7 @@ def build_workbench_snapshot(
     btc_reference: dict[str, Any],
     now: datetime,
     config: BtcFiveMinuteConfig | None = None,
+    enabled_indicators: "list[str] | tuple[str, ...] | set[str] | None" = None,
 ) -> dict[str, Any]:
     config = config or BtcFiveMinuteConfig()
     now = _ensure_utc(now)
@@ -143,13 +145,20 @@ def build_workbench_snapshot(
         reason_codes.append("MISSING_BTC_REFERENCE")
     reason_codes = sorted(set(reason_codes))
 
-    up_probability = _win_probability_up(
+    # Real realized volatility (std of 1-minute BTC log returns), if the ingester
+    # attached it to the reference. Absent -> model falls back to old behaviour.
+    return_volatility = _reference_return_volatility(btc_reference)
+    momentum_1m = _reference_momentum(btc_reference)
+    up_probability, indicator_breakdown = blend_up_probability(
         up_book=up_book,
         down_book=down_book,
         btc_price=btc_price,
         target_price=target_price["price"] if target_price else None,
         seconds_to_expiry=seconds_to_expiry,
         config=config,
+        return_volatility=return_volatility,
+        momentum_1m=momentum_1m,
+        enabled_indicators=enabled_indicators,
     )
     down_probability = 1.0 - up_probability
     outcomes = {
@@ -186,6 +195,12 @@ def build_workbench_snapshot(
         "reason_codes": reason_codes,
         "entry_optimizer": entry_optimizer,
         "outcomes": outcomes,
+        "return_volatility": return_volatility,
+        "probability_model": "digital_option_realized_vol" if return_volatility else "legacy_scale",
+        "indicator_breakdown": indicator_breakdown,
+        "enabled_indicators": sorted(
+            set(enabled_indicators) if enabled_indicators is not None else set(DEFAULT_ENABLED_INDICATORS)
+        ),
     }
 
 
@@ -376,6 +391,31 @@ def _quality_reasons(
     return sorted(set(reasons))
 
 
+def _normal_cdf(value: float) -> float:
+    return 0.5 * (1.0 + math.erf(value / math.sqrt(2.0)))
+
+
+def _digital_up_probability(
+    btc_price: float, target_price: float, remaining_s: int, return_volatility: float
+) -> float | None:
+    """P(close > strike) as a digital option, using *real* realized volatility.
+
+    Over a 5-minute window drift is negligible, so with GBM the probability of
+    finishing above the strike given the current price is
+    ``Phi( ln(S/K) / (sigma_per_min * sqrt(remaining_minutes)) )`` where
+    ``sigma_per_min`` is the std of 1-minute BTC log returns. This replaces the
+    old hand-tuned ``scale`` guess; validated to be materially better calibrated
+    (see scripts/btc5m_calibration.py). Returns ``None`` if inputs are unusable
+    so the caller can fall back.
+    """
+    if return_volatility <= 0 or remaining_s <= 0 or target_price <= 0 or btc_price <= 0:
+        return None
+    denom = return_volatility * math.sqrt(remaining_s / 60.0)
+    if denom <= 0:
+        return None
+    return _normal_cdf(math.log(btc_price / target_price) / denom)
+
+
 def _win_probability_up(
     *,
     up_book: NormalizedBook,
@@ -384,19 +424,138 @@ def _win_probability_up(
     target_price: float | None,
     seconds_to_expiry: int | None,
     config: BtcFiveMinuteConfig,
+    return_volatility: float | None = None,
 ) -> float:
     market_probability = _market_implied_up_probability(up_book, down_book)
     if btc_price is None or target_price is None or target_price <= 0:
         return _clamp_probability(config.model_probability_up)
 
     remaining = max(1, seconds_to_expiry if seconds_to_expiry is not None else 300)
-    time_fraction = min(1.0, max(0.05, remaining / 300))
-    scale = target_price * (0.0008 + 0.0012 * (time_fraction ** 0.5))
-    distance_score = (btc_price - target_price) / max(1.0, scale)
-    price_probability = _sigmoid(distance_score)
+
+    # Preferred: calibrated digital-option probability from real realized vol.
+    price_probability = None
+    if return_volatility is not None:
+        price_probability = _digital_up_probability(
+            btc_price, target_price, remaining, return_volatility
+        )
+    # Fallback (no vol estimate available): the original hand-tuned model, so
+    # behaviour is unchanged when volatility isn't supplied.
+    if price_probability is None:
+        time_fraction = min(1.0, max(0.05, remaining / 300))
+        scale = target_price * (0.0008 + 0.0012 * (time_fraction ** 0.5))
+        price_probability = _sigmoid((btc_price - target_price) / max(1.0, scale))
+
     weight = min(1.0, max(0.0, config.price_probability_weight))
     blended = weight * price_probability + (1.0 - weight) * market_probability
     return _clamp_probability(blended)
+
+
+# --------------------------------------------------------------------------- #
+# Configurable indicator blend: each indicator estimates P(up) independently;
+# the user selects which to include and they are weight-blended (renormalised).
+# Defaults (market_implied + digital_option) reproduce the legacy model.
+# --------------------------------------------------------------------------- #
+BTC5M_INDICATORS: list[dict[str, Any]] = [
+    {
+        "id": "market_implied",
+        "name": {"zh": "盘口隐含概率", "en": "Market-implied"},
+        "description": {"zh": "Polymarket UP/DOWN 盘口价隐含的上涨概率（市场共识，短周期通常很准）。",
+                        "en": "Up probability implied by the Polymarket UP/DOWN book prices."},
+        "default": True, "weight": 0.30, "experimental": False,
+    },
+    {
+        "id": "digital_option",
+        "name": {"zh": "数字期权(现价/行权价+真实波动率)", "en": "Digital option (moneyness + realized vol)"},
+        "description": {"zh": "把 5 分钟涨跌当作数字期权：Φ(ln(现价/行权价)/(σ·√剩余时间))，σ 用真实实现波动率。已校准。",
+                        "en": "Digital-option P(up) from moneyness and realized volatility. Calibrated."},
+        "default": True, "weight": 0.70, "experimental": False,
+    },
+    {
+        "id": "momentum_1m",
+        "name": {"zh": "1分钟动量", "en": "1-min momentum"},
+        "description": {"zh": "近 1 分钟 BTC 收益方向的顺势推力。实验性——短周期动量多为噪声，请用门禁/校准检验。",
+                        "en": "Trend nudge from the last 1-minute BTC return. Experimental."},
+        "default": False, "weight": 0.15, "experimental": True,
+    },
+    {
+        "id": "book_imbalance",
+        "name": {"zh": "盘口买卖失衡", "en": "Order-book imbalance"},
+        "description": {"zh": "UP 盘口买/卖挂单量失衡带来的方向偏移。实验性。",
+                        "en": "Directional tilt from UP-book bid/ask depth imbalance. Experimental."},
+        "default": False, "weight": 0.15, "experimental": True,
+    },
+]
+_INDICATOR_WEIGHT = {i["id"]: i["weight"] for i in BTC5M_INDICATORS}
+DEFAULT_ENABLED_INDICATORS = tuple(i["id"] for i in BTC5M_INDICATORS if i["default"])
+
+
+def _momentum_probability(momentum_1m: float | None, return_volatility: float | None) -> float | None:
+    if momentum_1m is None:
+        return None
+    sigma = return_volatility if (return_volatility and return_volatility > 0) else 0.001
+    return _normal_cdf(momentum_1m / sigma)
+
+
+def _book_imbalance_probability(up_book: NormalizedBook) -> float | None:
+    if not up_book.is_complete:
+        return None
+    bid = up_book.bid_depth_top3
+    ask = up_book.ask_depth_top3
+    total = bid + ask
+    if total <= 0:
+        return None
+    imbalance = (bid - ask) / total  # more UP-bids -> up more likely
+    return _clamp_probability(0.5 + 0.4 * imbalance)
+
+
+def blend_up_probability(
+    *,
+    up_book: NormalizedBook,
+    down_book: NormalizedBook,
+    btc_price: float | None,
+    target_price: float | None,
+    seconds_to_expiry: int | None,
+    config: BtcFiveMinuteConfig,
+    return_volatility: float | None = None,
+    momentum_1m: float | None = None,
+    enabled_indicators: "list[str] | tuple[str, ...] | set[str] | None" = None,
+) -> tuple[float, list[dict[str, Any]]]:
+    """Blend the *enabled* indicator probabilities into one P(up) + a breakdown."""
+    enabled = set(enabled_indicators) if enabled_indicators is not None else set(DEFAULT_ENABLED_INDICATORS)
+
+    # Each indicator's independent P(up) (None if not computable).
+    probs: dict[str, float | None] = {"market_implied": _market_implied_up_probability(up_book, down_book)}
+    remaining = max(1, seconds_to_expiry if seconds_to_expiry is not None else 300)
+    digital = None
+    if btc_price is not None and target_price is not None and target_price > 0:
+        if return_volatility is not None:
+            digital = _digital_up_probability(btc_price, target_price, remaining, return_volatility)
+        if digital is None:  # fallback to legacy hand-tuned scale
+            tf = min(1.0, max(0.05, remaining / 300))
+            scale = target_price * (0.0008 + 0.0012 * (tf ** 0.5))
+            digital = _sigmoid((btc_price - target_price) / max(1.0, scale))
+    probs["digital_option"] = digital
+    probs["momentum_1m"] = _momentum_probability(momentum_1m, return_volatility)
+    probs["book_imbalance"] = _book_imbalance_probability(up_book)
+
+    breakdown: list[dict[str, Any]] = []
+    num = den = 0.0
+    for ind in BTC5M_INDICATORS:
+        iid = ind["id"]
+        p = probs.get(iid)
+        active = iid in enabled and p is not None
+        if active:
+            w = _INDICATOR_WEIGHT[iid]
+            num += w * p
+            den += w
+        breakdown.append({
+            "id": iid, "name": ind["name"], "enabled": iid in enabled,
+            "experimental": ind["experimental"], "weight": _INDICATOR_WEIGHT[iid],
+            "probability": round(p, 4) if p is not None else None, "used": active,
+        })
+
+    blended = _clamp_probability(num / den) if den > 0 else _clamp_probability(config.model_probability_up)
+    return blended, breakdown
 
 
 def _market_implied_up_probability(up_book: NormalizedBook, down_book: NormalizedBook) -> float:
@@ -431,6 +590,36 @@ def _btc_reference_price(btc_reference: dict[str, Any]) -> float | None:
     except (KeyError, TypeError, ValueError):
         return None
     return price if price > 0 else None
+
+
+def _reference_return_volatility(btc_reference: dict[str, Any]) -> float | None:
+    """Per-minute BTC log-return std, if the ingester supplied it (fail-soft)."""
+    if not isinstance(btc_reference, dict):
+        return None
+    for key in ("return_volatility", "realized_volatility_per_min", "sigma_per_min"):
+        raw = btc_reference.get(key)
+        if raw is None:
+            continue
+        try:
+            vol = float(raw)
+        except (TypeError, ValueError):
+            continue
+        if vol > 0:
+            return vol
+    return None
+
+
+def _reference_momentum(btc_reference: dict[str, Any]) -> float | None:
+    """Recent 1-minute BTC log return, if the ingester supplied it (fail-soft)."""
+    if not isinstance(btc_reference, dict):
+        return None
+    raw = btc_reference.get("momentum_1m")
+    if raw is None:
+        return None
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return None
 
 
 def _sigmoid(value: float) -> float:

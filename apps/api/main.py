@@ -53,6 +53,7 @@ from libs.crypto.discovery.service import AltcoinDiscoveryService
 from libs.crypto.hyperliquid_client import HyperliquidClient
 from libs.knowledge.impact import ASSET_CLASSES
 from libs.quant.promotion import PromotionGate
+from libs.quant.promotion_registry import get_registry as get_promotion_registry
 from libs.knowledge.models import KnowledgeSearchResult, SourceRunStatus
 from libs.knowledge.sources.finnhub_news import FinnhubNewsSource
 from libs.knowledge.sources.statementdog import StatementDogSource
@@ -974,17 +975,30 @@ async def get_markets_summary():
     return await cached_api_response("markets_summary", 5.0, load)
 
 
+@app.get("/api/polymarket/btc-5m/indicators")
+async def get_btc_five_minute_indicators():
+    """BTC 5m 涨跌预测可选指标目录（前端弹窗据此渲染勾选）。"""
+    from libs.polymarket.btc_five_minute import BTC5M_INDICATORS, DEFAULT_ENABLED_INDICATORS
+
+    return {"indicators": BTC5M_INDICATORS, "default_enabled": list(DEFAULT_ENABLED_INDICATORS)}
+
+
 @app.get("/api/polymarket/btc-5m/workbench")
-async def get_btc_five_minute_workbench(slug: str | None = None):
-    """BTC 5-minute Polymarket Up/Down 专用工作台。"""
+async def get_btc_five_minute_workbench(slug: str | None = None, indicators: str | None = None):
+    """BTC 5-minute Polymarket Up/Down 专用工作台。
+
+    ``indicators`` 逗号分隔的指标 id（如 ``market_implied,digital_option``）。
+    留空 = 默认指标；用于前端弹窗自定义预测。
+    """
     requested_slug = slug or build_btc_five_minute_slug(datetime.now().astimezone())
+    enabled = [s.strip() for s in indicators.split(",") if s.strip()] if indicators else None
 
     async def load() -> dict:
-        return await collect_btc_five_minute_workbench(slug=requested_slug)
+        return await collect_btc_five_minute_workbench(slug=requested_slug, enabled_indicators=enabled)
 
     try:
         return await cached_api_response(
-            f"btc_five_minute_workbench:{requested_slug}",
+            f"btc_five_minute_workbench:{requested_slug}:{','.join(enabled) if enabled else 'default'}",
             # TTL 略大于 dashboard 轮询间隔，避免稳定轮询每次都打冷缓存。
             float(getattr(get_settings(), "polybob_btc_5m_poll_seconds", 3)) + 1.0,
             load,
@@ -1216,7 +1230,9 @@ def _provider_from_endpoint(endpoint: str | None) -> str | None:
     return host or None
 
 
-async def collect_btc_five_minute_workbench(slug: str | None = None) -> dict:
+async def collect_btc_five_minute_workbench(
+    slug: str | None = None, enabled_indicators: list[str] | None = None
+) -> dict:
     """从 Gamma + CLOB + BTC reference 构建 BTC 5m 工作台快照。"""
     settings = get_settings()
     now = datetime.now().astimezone()
@@ -1238,7 +1254,7 @@ async def collect_btc_five_minute_workbench(slug: str | None = None) -> dict:
     )
     tokens = map_outcome_tokens(market)
 
-    up_response, down_response, btc_reference, page_target = await asyncio.gather(
+    up_response, down_response, btc_reference, page_target, micro = await asyncio.gather(
         client.get(
             f"{settings.polymarket_clob_rest_url}/book",
             params={"token_id": tokens["UP"]},
@@ -1251,9 +1267,16 @@ async def collect_btc_five_minute_workbench(slug: str | None = None) -> dict:
         ),
         _fetch_btc_reference_aggregate_safe(client),
         _fetch_btc_five_minute_page_target_price_safe(client, slug),
+        _fetch_btc_micro_features_safe(client),
     )
     up_response.raise_for_status()
     down_response.raise_for_status()
+
+    # Attach real realized volatility + momentum so the workbench uses the
+    # calibrated digital-option probability and optional momentum indicator
+    # instead of the hand-tuned scale (fail-soft).
+    if isinstance(btc_reference, dict) and isinstance(micro, dict):
+        btc_reference = {**btc_reference, **micro}
 
     received_at = datetime.now().astimezone()
     snapshot_market = dict(market)
@@ -1266,6 +1289,7 @@ async def collect_btc_five_minute_workbench(slug: str | None = None) -> dict:
         btc_reference=btc_reference,
         now=received_at,
         config=BtcFiveMinuteConfig(),
+        enabled_indicators=enabled_indicators,
     )
     snapshot["data_health"] = build_btc_five_minute_success_health(snapshot)
     return snapshot
@@ -1500,6 +1524,41 @@ async def fetch_btc_reference_aggregate(client: httpx.AsyncClient, *, now: datet
         "latency_quality": selected["latency_quality"],
         "sources": sources,
     }
+
+
+async def _fetch_btc_micro_features_safe(client: httpx.AsyncClient) -> dict | None:
+    """Recent 1-minute BTC micro features: realized vol + last-minute momentum.
+
+    Feeds the calibrated digital-option probability and the optional momentum
+    indicator in the BTC 5m workbench. Fail-soft: any error returns None so the
+    model falls back to legacy behaviour.
+    """
+    async def load() -> dict | None:
+        response = await client.get(
+            "https://api.binance.com/api/v3/klines",
+            params={"symbol": "BTCUSDT", "interval": "1m", "limit": 30},
+            timeout=httpx.Timeout(4.0, connect=2.0),
+        )
+        response.raise_for_status()
+        closes = [float(row[4]) for row in response.json()]
+        if len(closes) < 10:
+            return None
+        rets = [math.log(closes[i] / closes[i - 1]) for i in range(1, len(closes)) if closes[i - 1] > 0]
+        if len(rets) < 5:
+            return None
+        mean = sum(rets) / len(rets)
+        var = sum((r - mean) ** 2 for r in rets) / (len(rets) - 1)
+        vol = math.sqrt(var)
+        out: dict = {"momentum_1m": rets[-1]}
+        if vol > 0:
+            out["return_volatility"] = vol
+        return out
+
+    try:
+        return await cached_api_response("btc_micro_features_1m", 15.0, load)
+    except Exception as exc:
+        logger.info("btc_micro_features_unavailable", error=str(exc) or exc.__class__.__name__)
+        return None
 
 
 async def _fetch_btc_reference_aggregate_safe(client: httpx.AsyncClient) -> dict:
@@ -1972,12 +2031,40 @@ async def list_strategy_intents():
     }
 
 
+@app.get("/api/strategies/promotion-board")
+async def get_promotion_board():
+    """策略晋级红绿榜：哪些策略在真实历史上过了 PromotionGate，才准上执行台。"""
+    registry = get_promotion_registry()
+    registry.reload()
+    return {
+        "require_strategy_promotion": get_settings().require_strategy_promotion,
+        **registry.to_dict(),
+        "records": [
+            {"strategy": r.strategy, "instrument": r.instrument, "approved": r.approved,
+             "sharpe": r.sharpe, "dsr": r.dsr, "failed": r.failed}
+            for r in registry._records
+        ],
+    }
+
+
 @app.post("/api/strategies/intents")
 async def create_strategy_intent(payload: dict | None = None):
-    """创建一个手动交易意图。"""
+    """创建一个手动交易意图。
+
+    若开启 ``require_strategy_promotion``，只有过了 PromotionGate 的策略才能
+    创建实盘意图（fail-closed）；未达标的一律拒绝，留在 lab。
+    """
     payload = payload or {}
+    strategy_id = str(payload.get("strategy_id", "manual_spread_arbitrage"))
+    if get_settings().require_strategy_promotion:
+        registry = get_promotion_registry()
+        if not registry.is_promoted(strategy_id):
+            raise HTTPException(
+                status_code=403,
+                detail=f"策略 '{strategy_id}' 未过晋级门禁，留 lab：{registry.reason_blocked(strategy_id)}",
+            )
     result = await require_intent_execution_service().create_intent(
-        strategy_id=str(payload.get("strategy_id", "manual_spread_arbitrage")),
+        strategy_id=strategy_id,
         rationale=str(payload.get("rationale", "manual arbitrage intent")),
         expected_edge_bps=float(payload.get("expected_edge_bps", 0.0)),
         confidence=float(payload.get("confidence", 0.5)),

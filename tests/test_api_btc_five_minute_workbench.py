@@ -242,7 +242,7 @@ async def test_btc_reference_aggregator_keeps_failed_sources_and_rejects_outlier
 async def test_btc_five_minute_endpoint_returns_workbench_payload(monkeypatch):
     api.clear_api_response_cache()
 
-    async def fake_collect(slug=None):
+    async def fake_collect(slug=None, enabled_indicators=None):
         return {
             "source": "polymarket_clob",
             "action": "watch_up",
@@ -300,7 +300,7 @@ async def test_btc_five_minute_endpoint_cache_is_window_aware(monkeypatch):
     api.clear_api_response_cache()
     calls = 0
 
-    async def fake_collect(slug=None):
+    async def fake_collect(slug=None, enabled_indicators=None):
         nonlocal calls
         calls += 1
         return {
@@ -326,7 +326,7 @@ async def test_btc_five_minute_endpoint_cache_is_window_aware(monkeypatch):
 async def test_btc_five_minute_endpoint_fails_closed_without_fake_book(monkeypatch):
     api.clear_api_response_cache()
 
-    async def fake_collect(slug=None):
+    async def fake_collect(slug=None, enabled_indicators=None):
         raise RuntimeError("Gamma market unavailable")
 
     monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
@@ -352,7 +352,7 @@ async def test_btc_five_minute_endpoint_fails_closed_without_fake_book(monkeypat
 async def test_btc_five_minute_endpoint_reports_exception_class_when_message_empty(monkeypatch):
     api.clear_api_response_cache()
 
-    async def fake_collect(slug=None):
+    async def fake_collect(slug=None, enabled_indicators=None):
         raise TimeoutError()
 
     monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
@@ -499,7 +499,7 @@ async def test_btc_five_minute_endpoint_diagnoses_provider_503(monkeypatch):
     request = httpx.Request("GET", "https://gamma-api.polymarket.com/markets")
     response = httpx.Response(503, request=request, text="Service Unavailable")
 
-    async def fake_collect(slug=None):
+    async def fake_collect(slug=None, enabled_indicators=None):
         raise httpx.HTTPStatusError(
             "503 Service Unavailable",
             request=request,
@@ -523,7 +523,7 @@ async def test_btc_five_minute_endpoint_diagnoses_network_connection(monkeypatch
     api.clear_api_response_cache()
     request = httpx.Request("GET", "https://clob.polymarket.com/book")
 
-    async def fake_collect(slug=None):
+    async def fake_collect(slug=None, enabled_indicators=None):
         raise httpx.ConnectError("SSL handshake failed", request=request)
 
     monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
@@ -541,7 +541,7 @@ async def test_btc_five_minute_endpoint_diagnoses_503_inside_transport_error(mon
     api.clear_api_response_cache()
     request = httpx.Request("GET", "https://gamma-api.polymarket.com/markets")
 
-    async def fake_collect(slug=None):
+    async def fake_collect(slug=None, enabled_indicators=None):
         raise httpx.ConnectError("503 Service Unavailable", request=request)
 
     monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
