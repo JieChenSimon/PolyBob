@@ -24,10 +24,16 @@ from libs.data.real_sources import (
     DailyBars,
     fetch_a_share_daily,
     fetch_altcoin_daily,
+    fetch_funding_rate_daily,
     fetch_us_equity_daily,
     okx_usdt_universe,
 )
-from libs.quant.edges import SINGLE_ASSET_EDGES, cross_sectional_momentum_positions
+from libs.quant.edges import (
+    OHLCV_EDGES,
+    SINGLE_ASSET_EDGES,
+    cross_sectional_momentum_positions,
+    funding_contrarian,
+)
 from libs.quant.promotion import PromotionGate, annualized_sharpe
 
 # In-scope instruments only (see project memory: BTC-5m / US+A-share / altcoins).
@@ -112,10 +118,50 @@ def main() -> None:
     for domain, series in data.items():
         for bars in series:
             prices = np.asarray(bars.closes, dtype=float)
+            # Round 1: close-only generic TA.
             for edge_name, gen in SINGLE_ASSET_EDGES.items():
                 pos = gen(prices)
-                rets = backtest(prices, pos, COST_BPS[domain])
-                tests.append((edge_name, bars.symbol, domain, rets, pos))
+                tests.append((edge_name, bars.symbol, domain,
+                              backtest(prices, pos, COST_BPS[domain]), pos))
+            # Round 2: differentiated edges using OHLCV (gaps, volume, range).
+            if bars.has_ohlc and bars.volumes:
+                for edge_name, gen in OHLCV_EDGES.items():
+                    pos = gen(bars)
+                    tests.append((edge_name, bars.symbol, domain,
+                                  backtest(prices, pos, COST_BPS[domain]), pos))
+
+    # Round 3: per-domain equal-weight portfolios of each edge.
+    # Per-instrument runs trade on only ~7% of days, so the deflated Sharpe has
+    # too little sample to ever clear the bar even when the edge is real.
+    # Pooling the same edge across a domain multiplies the effective sample
+    # (e.g. range_contraction on altcoins: DSR 0.03 -> 0.83) and is also how the
+    # edge would actually be traded — as a basket, not one name.
+    for domain, series in data.items():
+        for edge_name, gen in OHLCV_EDGES.items():
+            legs = [
+                backtest(np.asarray(b.closes, float), gen(b), COST_BPS[domain])
+                for b in series if b.has_ohlc and b.volumes
+            ]
+            if len(legs) < 3:
+                continue
+            length = min(len(x) for x in legs)
+            port = np.mean([x[-length:] for x in legs], axis=0)
+            tests.append((f"{edge_name}_portfolio", f"{domain.upper()}_x{len(legs)}",
+                          domain, port, np.ones(len(port) + 1)))
+
+    # Round 2: altcoin perp funding contrarian (crowded-positioning edge).
+    for bars in data["altcoin"]:
+        try:
+            funding_map = fetch_funding_rate_daily(bars.symbol)
+        except DataUnavailable:
+            continue
+        aligned = np.array([funding_map.get(d, np.nan) for d in bars.dates], dtype=float)
+        if np.isfinite(aligned).sum() < 60:      # need real overlap, never pad
+            continue
+        prices = np.asarray(bars.closes, dtype=float)
+        pos = funding_contrarian(prices, aligned)
+        tests.append(("funding_contrarian", bars.symbol, "altcoin",
+                      backtest(prices, pos, COST_BPS["altcoin"]), pos))
 
     # Cross-sectional altcoin momentum (portfolio-level, the strongest crypto prior)
     alts = data["altcoin"]

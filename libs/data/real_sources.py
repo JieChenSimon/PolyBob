@@ -40,6 +40,10 @@ class DailyBars:
     dates: list[str]
     closes: list[float]
     source: str
+    opens: list[float] | None = None
+    highs: list[float] | None = None
+    lows: list[float] | None = None
+    volumes: list[float] | None = None
 
     def __len__(self) -> int:
         return len(self.closes)
@@ -47,6 +51,10 @@ class DailyBars:
     @property
     def is_usable(self) -> bool:
         return len(self.closes) >= 200
+
+    @property
+    def has_ohlc(self) -> bool:
+        return self.opens is not None and len(self.opens) == len(self.closes)
 
 
 def _http_get(url: str, timeout: float = 20.0) -> bytes:
@@ -121,10 +129,54 @@ def fetch_altcoin_daily(inst_id: str, days: int = 720) -> DailyBars:
     rows = _cached_json(f"okx_{inst_id}_{days}", load).get("rows", [])
     if not rows:
         raise DataUnavailable(f"OKX returned no candles for {inst_id}")
-    rows = sorted(rows, key=lambda r: int(r[0]))          # oldest first
+    rows = sorted(rows, key=lambda r: int(r[0]))[-days:]   # oldest first
     dates = [time.strftime("%Y-%m-%d", time.gmtime(int(r[0]) / 1000)) for r in rows]
-    closes = [float(r[4]) for r in rows]
-    return DailyBars(inst_id, "altcoin", dates[-days:], closes[-days:], "okx")
+    return DailyBars(
+        inst_id, "altcoin", dates, [float(r[4]) for r in rows], "okx",
+        opens=[float(r[1]) for r in rows], highs=[float(r[2]) for r in rows],
+        lows=[float(r[3]) for r in rows], volumes=[float(r[5]) for r in rows],
+    )
+
+
+def fetch_funding_rate_daily(inst_id: str, days: int = 400) -> dict[str, float]:
+    """Daily mean funding rate for an OKX perp swap (e.g. ``SOL-USDT-SWAP``).
+
+    Funding settles every 8h; we average per UTC day. Positive = longs pay
+    shorts (crowded longs). Returns ``{date: mean_rate}``.
+    """
+    swap_id = inst_id if inst_id.endswith("-SWAP") else f"{inst_id}-SWAP"
+
+    def load() -> dict:
+        rows: list[dict] = []
+        after = ""
+        while len(rows) < days * 3:
+            url = (
+                "https://www.okx.com/api/v5/public/funding-rate-history"
+                f"?instId={urllib.parse.quote(swap_id)}&limit=100"
+            )
+            if after:
+                url += f"&after={after}"
+            payload = json.loads(_http_get(url))
+            page = payload.get("data") or []
+            if not page:
+                break
+            rows.extend(page)
+            after = page[-1]["fundingTime"]
+            if len(page) < 100:
+                break
+        return {"rows": rows}
+
+    rows = _cached_json(f"okx_funding_{swap_id}_{days}", load).get("rows", [])
+    if not rows:
+        raise DataUnavailable(f"OKX returned no funding history for {swap_id}")
+    by_day: dict[str, list[float]] = {}
+    for row in rows:
+        day = time.strftime("%Y-%m-%d", time.gmtime(int(row["fundingTime"]) / 1000))
+        try:
+            by_day.setdefault(day, []).append(float(row["fundingRate"]))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return {day: sum(v) / len(v) for day, v in sorted(by_day.items())}
 
 
 # ------------------------------------------------------------------ us equity
@@ -145,16 +197,27 @@ def fetch_us_equity_daily(symbol: str, years: int = 5) -> DailyBars:
     except (KeyError, IndexError, TypeError) as exc:
         raise DataUnavailable(f"Yahoo payload unusable for {symbol}: {exc}") from exc
 
+    quote = result["indicators"]["quote"][0]
     dates: list[str] = []
     closes: list[float] = []
-    for stamp, close in zip(stamps, quote_closes):
-        if close is None:      # unfinished/halted session — never fabricate
+    opens: list[float] = []
+    highs: list[float] = []
+    lows: list[float] = []
+    volumes: list[float] = []
+    for i, (stamp, close) in enumerate(zip(stamps, quote_closes)):
+        o = quote.get("open", [None])[i] if i < len(quote.get("open", [])) else None
+        if close is None or o is None:   # unfinished/halted session — never fabricate
             continue
         dates.append(time.strftime("%Y-%m-%d", time.gmtime(stamp)))
         closes.append(float(close))
+        opens.append(float(o))
+        highs.append(float(quote["high"][i]) if quote.get("high") and quote["high"][i] is not None else float(close))
+        lows.append(float(quote["low"][i]) if quote.get("low") and quote["low"][i] is not None else float(close))
+        volumes.append(float(quote["volume"][i]) if quote.get("volume") and quote["volume"][i] is not None else 0.0)
     if not closes:
         raise DataUnavailable(f"Yahoo returned no usable closes for {symbol}")
-    return DailyBars(symbol.upper(), "us_equity", dates, closes, "yahoo")
+    return DailyBars(symbol.upper(), "us_equity", dates, closes, "yahoo",
+                     opens=opens, highs=highs, lows=lows, volumes=volumes)
 
 
 # --------------------------------------------------------------------- a-share
@@ -192,9 +255,12 @@ def fetch_a_share_daily(symbol: str, days: int = 1200) -> DailyBars:
     rows = node.get("qfqday") or node.get("day") or []
     if not rows:
         raise DataUnavailable(f"Tencent returned no bars for {symbol}")
-    dates = [r[0] for r in rows]
-    closes = [float(r[2]) for r in rows]   # [date, open, close, high, low, volume]
-    return DailyBars(tencent.upper(), "a_share", dates, closes, "tencent")
+    # row = [date, open, close, high, low, volume]
+    return DailyBars(
+        tencent.upper(), "a_share", [r[0] for r in rows], [float(r[2]) for r in rows], "tencent",
+        opens=[float(r[1]) for r in rows], highs=[float(r[3]) for r in rows],
+        lows=[float(r[4]) for r in rows], volumes=[float(r[5]) for r in rows],
+    )
 
 
 __all__ = [
@@ -202,6 +268,7 @@ __all__ = [
     "DataUnavailable",
     "fetch_a_share_daily",
     "fetch_altcoin_daily",
+    "fetch_funding_rate_daily",
     "fetch_us_equity_daily",
     "okx_usdt_universe",
 ]
