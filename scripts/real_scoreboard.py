@@ -1,0 +1,185 @@
+"""The scoreboard: win rate & return per (edge, instrument) on REAL data.
+
+This is the project's north-star instrument: it measures, on real history for
+the three in-scope domains (altcoins, US + A-shares, and separately BTC-5m),
+whether any edge hypothesis actually produces a win rate and return that
+survives costs and multiple-testing correction.
+
+Nothing here uses simulated data. Every bar comes from OKX / Yahoo / Tencent.
+Results are written to ``data/promotion_board.json`` so the promotion registry
+(and thus the live intent gate) only ever promotes what cleared the bar.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from datetime import UTC, datetime
+from pathlib import Path
+
+import numpy as np
+
+from libs.data.real_sources import (
+    DataUnavailable,
+    DailyBars,
+    fetch_a_share_daily,
+    fetch_altcoin_daily,
+    fetch_us_equity_daily,
+    okx_usdt_universe,
+)
+from libs.quant.edges import SINGLE_ASSET_EDGES, cross_sectional_momentum_positions
+from libs.quant.promotion import PromotionGate, annualized_sharpe
+
+# In-scope instruments only (see project memory: BTC-5m / US+A-share / altcoins).
+US_EQUITIES = ["AAPL", "NVDA", "TSLA", "MSFT", "SPY"]
+A_SHARES = ["600519", "000001", "300750", "601318", "000858"]
+ALTCOIN_FALLBACK = ["SOL-USDT", "DOGE-USDT", "AVAX-USDT", "LINK-USDT", "ADA-USDT"]
+
+COST_BPS = {"altcoin": 10.0, "us_equity": 5.0, "a_share": 8.0}
+PERIODS = {"altcoin": 365, "us_equity": 252, "a_share": 244}
+
+
+# ------------------------------------------------------------------ backtest
+def backtest(prices: np.ndarray, positions: np.ndarray, cost_bps: float) -> np.ndarray:
+    """Causal PnL: position at bar i earns the i -> i+1 return, minus turnover cost."""
+    rets = prices[1:] / prices[:-1] - 1.0
+    pos = positions[:-1]
+    prev = np.concatenate([[0.0], pos[:-1]])
+    turnover = np.abs(pos - prev)
+    return pos * rets - (cost_bps / 1e4) * turnover
+
+
+def trade_stats(strategy_rets: np.ndarray, positions: np.ndarray) -> dict:
+    """Win rate over *active* bars plus total/annual return — the headline numbers."""
+    active = positions[:-1] != 0
+    active_rets = strategy_rets[active]
+    wins = int((active_rets > 0).sum())
+    n = int(active.sum())
+    equity = float(np.prod(1.0 + strategy_rets))
+    return {
+        "win_rate": round(wins / n, 4) if n else None,
+        "active_bars": n,
+        "total_return": round(equity - 1.0, 4),
+    }
+
+
+def oos_stability(rets: np.ndarray, periods: int, folds: int = 4) -> float:
+    if len(rets) < folds * 40:
+        return 0.0
+    chunks = np.array_split(rets, folds)
+    return sum(1 for c in chunks if annualized_sharpe(c, periods) > 0) / folds
+
+
+# ---------------------------------------------------------------------- load
+def load_domain(domain: str, symbols: list[str], limit: int) -> list[DailyBars]:
+    out: list[DailyBars] = []
+    fetch = {
+        "altcoin": fetch_altcoin_daily,
+        "us_equity": fetch_us_equity_daily,
+        "a_share": fetch_a_share_daily,
+    }[domain]
+    for sym in symbols[:limit]:
+        try:
+            bars = fetch(sym)
+        except DataUnavailable as exc:
+            print(f"  ! {domain} {sym}: {exc}")
+            continue
+        if bars.is_usable:
+            out.append(bars)
+            print(f"  {domain:9} {bars.symbol:12} {len(bars):5} bars  {bars.dates[0]}..{bars.dates[-1]}")
+    return out
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--alt-universe", type=int, default=12, help="how many OKX pairs to test")
+    args = parser.parse_args()
+
+    print("Loading REAL history (OKX / Yahoo / Tencent)…")
+    try:
+        universe = [s for s in okx_usdt_universe() if s not in ("BTC-USDT", "ETH-USDT")]
+    except DataUnavailable:
+        universe = ALTCOIN_FALLBACK
+    alt_syms = universe[: args.alt_universe] or ALTCOIN_FALLBACK
+
+    data = {
+        "altcoin": load_domain("altcoin", alt_syms, args.alt_universe),
+        "us_equity": load_domain("us_equity", US_EQUITIES, len(US_EQUITIES)),
+        "a_share": load_domain("a_share", A_SHARES, len(A_SHARES)),
+    }
+
+    tests: list[tuple[str, str, str, np.ndarray, np.ndarray]] = []
+    for domain, series in data.items():
+        for bars in series:
+            prices = np.asarray(bars.closes, dtype=float)
+            for edge_name, gen in SINGLE_ASSET_EDGES.items():
+                pos = gen(prices)
+                rets = backtest(prices, pos, COST_BPS[domain])
+                tests.append((edge_name, bars.symbol, domain, rets, pos))
+
+    # Cross-sectional altcoin momentum (portfolio-level, the strongest crypto prior)
+    alts = data["altcoin"]
+    if len(alts) >= 4:
+        length = min(len(b) for b in alts)
+        matrix = np.array([b.closes[-length:] for b in alts], dtype=float)
+        pos_matrix = cross_sectional_momentum_positions(matrix)
+        rets_matrix = matrix[:, 1:] / matrix[:, :-1] - 1.0
+        pos = pos_matrix[:, :-1]
+        prev = np.concatenate([np.zeros((pos.shape[0], 1)), pos[:, :-1]], axis=1)
+        turnover = np.abs(pos - prev).sum(axis=0)
+        port = (pos * rets_matrix).sum(axis=0) - (COST_BPS["altcoin"] / 1e4) * turnover
+        tests.append(("xs_momentum_portfolio", f"ALT_x{len(alts)}", "altcoin", port,
+                      np.ones(len(port) + 1)))
+
+    n_trials = len(tests)
+    gate = PromotionGate(n_trials=n_trials, min_dsr=0.90, min_observations=200,
+                         min_oos_stability_rate=0.5, cost_min_sharpe=0.3)
+
+    board = []
+    for edge, symbol, domain, rets, pos in tests:
+        rets = np.asarray(rets, float)
+        rets = rets[np.isfinite(rets)]
+        if len(rets) < 50:
+            continue
+        periods = PERIODS[domain]
+        stats = trade_stats(rets, pos)
+        decision = gate.evaluate(rets, oos_stability_rate=oos_stability(rets, periods))
+        board.append({
+            "strategy": edge, "instrument": symbol, "domain": domain,
+            "approved": decision.approved,
+            "sharpe": round(annualized_sharpe(rets, periods), 2),
+            "win_rate": stats["win_rate"], "total_return": stats["total_return"],
+            "active_bars": stats["active_bars"], "n": len(rets),
+            "dsr": next((c.value for c in decision.checks if c.name == "deflated_sharpe"), None),
+            "failed": [c.name for c in decision.checks if not c.passed],
+        })
+
+    board.sort(key=lambda r: (-r["approved"], -(r["sharpe"] or 0)))
+    out = Path("data/promotion_board.json")
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(json.dumps({
+        "generated_at": datetime.now(UTC).isoformat(),
+        "data_sources": {"altcoin": "okx", "us_equity": "yahoo", "a_share": "tencent"},
+        "real_data_only": True, "n_trials": n_trials, "cost_bps": COST_BPS,
+        "board": board,
+    }, indent=2, ensure_ascii=False))
+
+    print(f"\n{'='*94}\nREAL-DATA SCOREBOARD  (n_trials={n_trials}, gate: DSR>=0.90)\n{'='*94}")
+    print(f"{'edge':24} {'instrument':12} {'domain':10} {'Sharpe':>7} {'win%':>6} {'return':>9}  verdict")
+    for r in board:
+        wr = f"{r['win_rate']*100:.1f}" if r["win_rate"] is not None else "  - "
+        v = "✅ PROMOTE" if r["approved"] else "🔒 lab"
+        print(f"{r['strategy']:24} {r['instrument']:12} {r['domain']:10} "
+              f"{r['sharpe']:7.2f} {wr:>6} {r['total_return']*100:8.1f}%  {v}")
+    ok = [r for r in board if r["approved"]]
+    print(f"\n{len(ok)}/{len(board)} 达标 -> 可上执行台;其余留 lab。写入 {out}")
+    for domain in ("altcoin", "us_equity", "a_share"):
+        rows = [r for r in board if r["domain"] == domain]
+        if rows:
+            best = max(rows, key=lambda r: r["sharpe"])
+            print(f"  {domain:10} 最佳: {best['strategy']} @ {best['instrument']} "
+                  f"Sharpe={best['sharpe']} win={best['win_rate']} ret={best['total_return']*100:.1f}%")
+
+
+if __name__ == "__main__":
+    main()

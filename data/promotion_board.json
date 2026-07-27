@@ -1,356 +1,952 @@
 {
-  "n_trials": 25,
-  "cost_bps": 10.0,
+  "generated_at": "2026-07-27T02:49:30.607405+00:00",
+  "data_sources": {
+    "altcoin": "okx",
+    "us_equity": "yahoo",
+    "a_share": "tencent"
+  },
+  "real_data_only": true,
+  "n_trials": 61,
+  "cost_bps": {
+    "altcoin": 10.0,
+    "us_equity": 5.0,
+    "a_share": 8.0
+  },
   "board": [
     {
-      "strategy": "tsmom",
-      "instrument": "SOLUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "A-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": 0.63,
-      "n": 1499,
-      "dsr": 0.2304,
-      "cost_stress": true,
-      "oos": true,
+      "sharpe": 2.07,
+      "win_rate": 0.5082,
+      "total_return": 2.2679,
+      "active_bars": 364,
+      "n": 424,
+      "dsr": 0.4458,
       "failed": [
         "deflated_sharpe"
       ]
     },
     {
-      "strategy": "signal_fusion",
-      "instrument": "BNBUSDT",
+      "strategy": "breakout",
+      "instrument": "A-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": 0.61,
-      "n": 1499,
-      "dsr": 0.2194,
-      "cost_stress": true,
-      "oos": true,
+      "sharpe": 1.96,
+      "win_rate": 0.5289,
+      "total_return": 2.4489,
+      "active_bars": 329,
+      "n": 424,
+      "dsr": 0.4005,
       "failed": [
         "deflated_sharpe"
       ]
     },
     {
-      "strategy": "ensemble",
-      "instrument": "SOLUSDT",
+      "strategy": "short_horizon_reversal",
+      "instrument": "ACE-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": 0.5,
-      "n": 1499,
-      "dsr": 0.1613,
-      "cost_stress": true,
-      "oos": true,
+      "sharpe": 0.93,
+      "win_rate": 0.5145,
+      "total_return": 1.5744,
+      "active_bars": 414,
+      "n": 719,
+      "dsr": 0.1191,
       "failed": [
         "deflated_sharpe"
       ]
     },
     {
-      "strategy": "tsmom",
-      "instrument": "ETHUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "ADA-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": 0.47,
-      "n": 1499,
-      "dsr": 0.1476,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": 0.92,
+      "win_rate": 0.5076,
+      "total_return": 1.2296,
+      "active_bars": 658,
+      "n": 719,
+      "dsr": 0.1375,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "AAVE-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.79,
+      "win_rate": 0.4901,
+      "total_return": 0.8478,
+      "active_bars": 659,
+      "n": 719,
+      "dsr": 0.1033,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "SH600519",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": 0.78,
+      "win_rate": 0.537,
+      "total_return": 0.4115,
+      "active_bars": 324,
+      "n": 640,
+      "dsr": 0.1346,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "AAVE-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.71,
+      "win_rate": 0.4913,
+      "total_return": 0.5913,
+      "active_bars": 631,
+      "n": 719,
+      "dsr": 0.0856,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "2Z-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.69,
+      "win_rate": 0.4874,
+      "total_return": 0.182,
+      "active_bars": 119,
+      "n": 255,
+      "dsr": 0.0372,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "NVDA",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": 0.69,
+      "win_rate": 0.4996,
+      "total_return": 1.6617,
+      "active_bars": 1193,
+      "n": 1253,
+      "dsr": 0.2034,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "ACT-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.66,
+      "win_rate": 0.5377,
+      "total_return": 0.3016,
+      "active_bars": 292,
+      "n": 620,
+      "dsr": 0.0639,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "ADA-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.62,
+      "win_rate": 0.5016,
+      "total_return": 0.3487,
+      "active_bars": 626,
+      "n": 719,
+      "dsr": 0.0688,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "NVDA",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": 0.56,
+      "win_rate": 0.5013,
+      "total_return": 1.1807,
+      "active_bars": 1189,
+      "n": 1253,
+      "dsr": 0.1346,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "AERGO-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.52,
+      "win_rate": 0.4932,
+      "total_return": -0.0072,
+      "active_bars": 659,
+      "n": 719,
+      "dsr": 0.0541,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "SZ000858",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": 0.49,
+      "win_rate": 0.5304,
+      "total_return": 0.2933,
+      "active_bars": 575,
+      "n": 640,
+      "dsr": 0.062,
       "failed": [
         "deflated_sharpe",
-        "cost_stress"
+        "oos_stability"
       ]
     },
     {
-      "strategy": "dual_ma",
-      "instrument": "SOLUSDT",
+      "strategy": "breakout",
+      "instrument": "AERGO-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": 0.4,
-      "n": 1499,
-      "dsr": 0.118,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": 0.45,
+      "win_rate": 0.4847,
+      "total_return": -0.4023,
+      "active_bars": 621,
+      "n": 719,
+      "dsr": 0.0434,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "signal_fusion",
-      "instrument": "BTCUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "SH601318",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": 0.43,
+      "win_rate": 0.4707,
+      "total_return": 0.21,
+      "active_bars": 580,
+      "n": 640,
+      "dsr": 0.0472,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "AERGO-USDT",
+      "domain": "altcoin",
       "approved": false,
       "sharpe": 0.37,
-      "n": 1499,
-      "dsr": 0.1076,
-      "cost_stress": false,
-      "oos": true,
+      "win_rate": 0.5168,
+      "total_return": -0.3072,
+      "active_bars": 387,
+      "n": 719,
+      "dsr": 0.0319,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "tsmom",
-      "instrument": "BTCUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "SZ300750",
+      "domain": "a_share",
       "approved": false,
-      "sharpe": 0.31,
-      "n": 1499,
-      "dsr": 0.086,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": 0.34,
+      "win_rate": 0.45,
+      "total_return": 0.1682,
+      "active_bars": 580,
+      "n": 640,
+      "dsr": 0.0337,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "tsmom",
-      "instrument": "BNBUSDT",
+      "strategy": "short_horizon_reversal",
+      "instrument": "ACH-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": 0.27,
+      "win_rate": 0.5266,
+      "total_return": -0.1306,
+      "active_bars": 414,
+      "n": 719,
+      "dsr": 0.0245,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "ACT-USDT",
+      "domain": "altcoin",
       "approved": false,
       "sharpe": 0.22,
-      "n": 1499,
-      "dsr": 0.0608,
-      "cost_stress": false,
-      "oos": true,
+      "win_rate": 0.5107,
+      "total_return": -0.6313,
+      "active_bars": 560,
+      "n": 620,
+      "dsr": 0.02,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "signal_fusion",
-      "instrument": "SOLUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "1INCH-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": 0.18,
-      "n": 1499,
-      "dsr": 0.0516,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": 0.21,
+      "win_rate": 0.5083,
+      "total_return": -0.0829,
+      "active_bars": 659,
+      "n": 719,
+      "dsr": 0.0197,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "signal_fusion",
-      "instrument": "ETHUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "SZ000858",
+      "domain": "a_share",
       "approved": false,
-      "sharpe": 0.09,
-      "n": 1499,
-      "dsr": 0.0345,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": 0.21,
+      "win_rate": 0.5172,
+      "total_return": 0.0607,
+      "active_bars": 580,
+      "n": 640,
+      "dsr": 0.0236,
       "failed": [
         "deflated_sharpe",
-        "cost_stress"
+        "oos_stability"
       ]
     },
     {
-      "strategy": "ensemble",
-      "instrument": "BTCUSDT",
+      "strategy": "short_horizon_reversal",
+      "instrument": "SPY",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": 0.12,
+      "win_rate": 0.4653,
+      "total_return": 0.0337,
+      "active_bars": 763,
+      "n": 1253,
+      "dsr": 0.0176,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "SZ000858",
+      "domain": "a_share",
       "approved": false,
       "sharpe": 0.07,
-      "n": 1499,
-      "dsr": 0.0313,
-      "cost_stress": false,
-      "oos": true,
+      "win_rate": 0.473,
+      "total_return": -0.0355,
+      "active_bars": 370,
+      "n": 640,
+      "dsr": 0.0126,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "dual_ma",
-      "instrument": "BTCUSDT",
+      "strategy": "short_horizon_reversal",
+      "instrument": "MSFT",
+      "domain": "us_equity",
       "approved": false,
-      "sharpe": 0.04,
-      "n": 1499,
-      "dsr": 0.0278,
-      "cost_stress": false,
-      "oos": false,
+      "sharpe": 0.05,
+      "win_rate": 0.4972,
+      "total_return": -0.052,
+      "active_bars": 722,
+      "n": 1253,
+      "dsr": 0.0127,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress",
-        "oos_stability"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "dual_ma",
-      "instrument": "ETHUSDT",
+      "strategy": "breakout",
+      "instrument": "1INCH-USDT",
+      "domain": "altcoin",
       "approved": false,
       "sharpe": 0.02,
-      "n": 1499,
-      "dsr": 0.0249,
-      "cost_stress": false,
-      "oos": true,
+      "win_rate": 0.5103,
+      "total_return": -0.4467,
+      "active_bars": 631,
+      "n": 719,
+      "dsr": 0.0101,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "short_reversal",
-      "instrument": "ETHUSDT",
+      "strategy": "breakout",
+      "instrument": "MSFT",
+      "domain": "us_equity",
       "approved": false,
-      "sharpe": 0.0,
-      "n": 1499,
-      "dsr": 0.023,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": -0.02,
+      "win_rate": 0.4958,
+      "total_return": -0.1862,
+      "active_bars": 1194,
+      "n": 1253,
+      "dsr": 0.0083,
       "failed": [
         "deflated_sharpe",
-        "cost_stress"
+        "oos_stability"
       ]
     },
     {
-      "strategy": "ensemble",
-      "instrument": "ETHUSDT",
+      "strategy": "short_horizon_reversal",
+      "instrument": "SZ000001",
+      "domain": "a_share",
       "approved": false,
-      "sharpe": -0.12,
-      "n": 1499,
-      "dsr": 0.0124,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": -0.02,
+      "win_rate": 0.5118,
+      "total_return": -0.0549,
+      "active_bars": 338,
+      "n": 640,
+      "dsr": 0.0087,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "ensemble",
-      "instrument": "BNBUSDT",
+      "strategy": "breakout",
+      "instrument": "SZ300750",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.02,
+      "win_rate": 0.4462,
+      "total_return": -0.1987,
+      "active_bars": 576,
+      "n": 640,
+      "dsr": 0.0085,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "SPY",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.03,
+      "win_rate": 0.5264,
+      "total_return": -0.0953,
+      "active_bars": 1191,
+      "n": 1253,
+      "dsr": 0.0076,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "AAPL",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.05,
+      "win_rate": 0.4929,
+      "total_return": -0.1435,
+      "active_bars": 1193,
+      "n": 1253,
+      "dsr": 0.0068,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "AEVO-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.09,
+      "win_rate": 0.478,
+      "total_return": -0.4117,
+      "active_bars": 659,
+      "n": 719,
+      "dsr": 0.0066,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "NVDA",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.09,
+      "win_rate": 0.5098,
+      "total_return": -0.463,
+      "active_bars": 765,
+      "n": 1253,
+      "dsr": 0.0052,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "ACE-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.11,
+      "win_rate": 0.5083,
+      "total_return": -0.7238,
+      "active_bars": 659,
+      "n": 719,
+      "dsr": 0.0052,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "AAPL",
+      "domain": "us_equity",
       "approved": false,
       "sharpe": -0.13,
-      "n": 1499,
-      "dsr": 0.012,
-      "cost_stress": false,
-      "oos": true,
+      "win_rate": 0.4842,
+      "total_return": -0.3052,
+      "active_bars": 1171,
+      "n": 1253,
+      "dsr": 0.0041,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "short_reversal",
-      "instrument": "BTCUSDT",
+      "strategy": "short_horizon_reversal",
+      "instrument": "AAVE-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": -0.16,
-      "n": 1499,
-      "dsr": 0.0099,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": -0.14,
+      "win_rate": 0.5152,
+      "total_return": -0.5045,
+      "active_bars": 361,
+      "n": 719,
+      "dsr": 0.0053,
       "failed": [
-        "deflated_sharpe",
-        "cost_stress"
+        "deflated_sharpe"
       ]
     },
     {
-      "strategy": "stat_arb_pair",
-      "instrument": "ETH~BTC",
+      "strategy": "breakout",
+      "instrument": "TSLA",
+      "domain": "us_equity",
       "approved": false,
-      "sharpe": -0.17,
-      "n": 1499,
-      "dsr": 0.0093,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": -0.18,
+      "win_rate": 0.495,
+      "total_return": -0.7588,
+      "active_bars": 1198,
+      "n": 1253,
+      "dsr": 0.0029,
       "failed": [
         "deflated_sharpe",
-        "cost_stress"
+        "oos_stability"
       ]
     },
     {
-      "strategy": "mean_reversion",
-      "instrument": "SOLUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "TSLA",
+      "domain": "us_equity",
       "approved": false,
-      "sharpe": -0.26,
-      "n": 1499,
-      "dsr": 0.0057,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": -0.21,
+      "win_rate": 0.482,
+      "total_return": -0.6218,
+      "active_bars": 1193,
+      "n": 1253,
+      "dsr": 0.0024,
       "failed": [
         "deflated_sharpe",
-        "cost_stress"
+        "oos_stability"
       ]
     },
     {
-      "strategy": "dual_ma",
-      "instrument": "BNBUSDT",
+      "strategy": "breakout",
+      "instrument": "ACE-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": -0.35,
-      "n": 1499,
-      "dsr": 0.0035,
-      "cost_stress": false,
-      "oos": true,
+      "sharpe": -0.22,
+      "win_rate": 0.503,
+      "total_return": -0.8817,
+      "active_bars": 662,
+      "n": 719,
+      "dsr": 0.0034,
       "failed": [
         "deflated_sharpe",
-        "cost_stress"
+        "oos_stability"
       ]
     },
     {
-      "strategy": "mean_reversion",
-      "instrument": "BNBUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "SPY",
+      "domain": "us_equity",
       "approved": false,
-      "sharpe": -0.47,
-      "n": 1499,
+      "sharpe": -0.23,
+      "win_rate": 0.5348,
+      "total_return": -0.1636,
+      "active_bars": 1193,
+      "n": 1253,
+      "dsr": 0.0017,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "SZ000001",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.23,
+      "win_rate": 0.4425,
+      "total_return": -0.1138,
+      "active_bars": 574,
+      "n": 640,
+      "dsr": 0.0032,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "MSFT",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.24,
+      "win_rate": 0.4929,
+      "total_return": -0.2716,
+      "active_bars": 1193,
+      "n": 1253,
+      "dsr": 0.0019,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "ACT-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.36,
+      "win_rate": 0.5036,
+      "total_return": -0.7079,
+      "active_bars": 560,
+      "n": 620,
+      "dsr": 0.002,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "TSLA",
+      "domain": "us_equity",
+      "approved": false,
+      "sharpe": -0.37,
+      "win_rate": 0.4751,
+      "total_return": -0.7494,
+      "active_bars": 703,
+      "n": 1253,
+      "dsr": 0.0008,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "SH601318",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.37,
+      "win_rate": 0.5157,
+      "total_return": -0.2639,
+      "active_bars": 382,
+      "n": 640,
       "dsr": 0.0015,
-      "cost_stress": false,
-      "oos": true,
       "failed": [
         "deflated_sharpe",
-        "cost_stress"
-      ]
-    },
-    {
-      "strategy": "short_reversal",
-      "instrument": "SOLUSDT",
-      "approved": false,
-      "sharpe": -0.51,
-      "n": 1499,
-      "dsr": 0.0011,
-      "cost_stress": false,
-      "oos": false,
-      "failed": [
-        "deflated_sharpe",
-        "cost_stress",
         "oos_stability"
       ]
     },
     {
-      "strategy": "short_reversal",
-      "instrument": "BNBUSDT",
+      "strategy": "short_horizon_reversal",
+      "instrument": "AAPL",
+      "domain": "us_equity",
       "approved": false,
-      "sharpe": -0.69,
-      "n": 1499,
+      "sharpe": -0.38,
+      "win_rate": 0.4808,
+      "total_return": -0.4084,
+      "active_bars": 757,
+      "n": 1253,
+      "dsr": 0.0008,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "SH601318",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.38,
+      "win_rate": 0.4495,
+      "total_return": -0.3042,
+      "active_bars": 554,
+      "n": 640,
+      "dsr": 0.0016,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "ADA-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.42,
+      "win_rate": 0.5156,
+      "total_return": -0.7125,
+      "active_bars": 353,
+      "n": 719,
+      "dsr": 0.0015,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "1INCH-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.46,
+      "win_rate": 0.4792,
+      "total_return": -0.6435,
+      "active_bars": 384,
+      "n": 719,
+      "dsr": 0.0013,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "2Z-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.46,
+      "win_rate": 0.4919,
+      "total_return": -0.3636,
+      "active_bars": 185,
+      "n": 255,
+      "dsr": 0.0031,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "SZ300750",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.48,
+      "win_rate": 0.4954,
+      "total_return": -0.4246,
+      "active_bars": 323,
+      "n": 640,
+      "dsr": 0.0007,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "AEVO-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.56,
+      "win_rate": 0.514,
+      "total_return": -0.7783,
+      "active_bars": 430,
+      "n": 719,
+      "dsr": 0.0007,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "trend_vol_scaled",
+      "instrument": "SH600519",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.61,
+      "win_rate": 0.4707,
+      "total_return": -0.2494,
+      "active_bars": 580,
+      "n": 640,
+      "dsr": 0.0002,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "SH600519",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -0.63,
+      "win_rate": 0.473,
+      "total_return": -0.3666,
+      "active_bars": 575,
+      "n": 640,
       "dsr": 0.0003,
-      "cost_stress": false,
-      "oos": false,
       "failed": [
         "deflated_sharpe",
-        "cost_stress",
         "oos_stability"
       ]
     },
     {
-      "strategy": "mean_reversion",
-      "instrument": "ETHUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "2Z-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": -0.78,
-      "n": 1499,
-      "dsr": 0.0001,
-      "cost_stress": false,
-      "oos": false,
+      "sharpe": -0.65,
+      "win_rate": 0.4872,
+      "total_return": -0.2668,
+      "active_bars": 195,
+      "n": 255,
+      "dsr": 0.0019,
       "failed": [
         "deflated_sharpe",
-        "cost_stress",
         "oos_stability"
       ]
     },
     {
-      "strategy": "mean_reversion",
-      "instrument": "BTCUSDT",
+      "strategy": "trend_vol_scaled",
+      "instrument": "ACH-USDT",
+      "domain": "altcoin",
       "approved": false,
-      "sharpe": -0.89,
-      "n": 1499,
+      "sharpe": -0.87,
+      "win_rate": 0.4704,
+      "total_return": -0.7789,
+      "active_bars": 659,
+      "n": 719,
       "dsr": 0.0001,
-      "cost_stress": false,
-      "oos": false,
+      "failed": [
+        "deflated_sharpe"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "AEVO-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.87,
+      "win_rate": 0.4866,
+      "total_return": -0.9311,
+      "active_bars": 633,
+      "n": 719,
+      "dsr": 0.0002,
       "failed": [
         "deflated_sharpe",
-        "cost_stress",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "short_horizon_reversal",
+      "instrument": "A-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -0.99,
+      "win_rate": 0.4902,
+      "total_return": -0.5786,
+      "active_bars": 255,
+      "n": 424,
+      "dsr": 0.0002,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "SZ000001",
+      "domain": "a_share",
+      "approved": false,
+      "sharpe": -1.35,
+      "win_rate": 0.4134,
+      "total_return": -0.5176,
+      "active_bars": 537,
+      "n": 640,
+      "dsr": 0.0,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "breakout",
+      "instrument": "ACH-USDT",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -1.55,
+      "win_rate": 0.4612,
+      "total_return": -0.9896,
+      "active_bars": 631,
+      "n": 719,
+      "dsr": 0.0,
+      "failed": [
+        "deflated_sharpe",
+        "oos_stability"
+      ]
+    },
+    {
+      "strategy": "xs_momentum_portfolio",
+      "instrument": "ALT_x10",
+      "domain": "altcoin",
+      "approved": false,
+      "sharpe": -2.27,
+      "win_rate": 0.4039,
+      "total_return": -0.7087,
+      "active_bars": 255,
+      "n": 255,
+      "dsr": 0.0,
+      "failed": [
+        "deflated_sharpe",
         "oos_stability"
       ]
     }
