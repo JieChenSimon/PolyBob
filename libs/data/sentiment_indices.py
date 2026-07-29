@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import time
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -148,11 +149,56 @@ def fetch_vix() -> SentimentReading:
     return SentimentReading("vix", date, round(value, 2), _vix_label(value))
 
 
+def _yahoo_closes(symbol: str, years: int = 1) -> dict[str, float]:
+    def load() -> dict:
+        url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol)}"
+               f"?range={years}y&interval=1d")
+        return json.loads(_get(url))
+
+    payload = _cached(f"yq_{symbol.replace('=', '_')}_{years}", load)
+    try:
+        result = payload["chart"]["result"][0]
+        stamps = result["timestamp"]
+        closes = result["indicators"]["quote"][0]["close"]
+    except (KeyError, IndexError, TypeError) as exc:
+        raise SentimentIndexUnavailable(f"{symbol} payload unusable: {exc}") from exc
+    return {
+        time.strftime("%Y-%m-%d", time.gmtime(stamp)): float(close)
+        for stamp, close in zip(stamps, closes) if close is not None
+    }
+
+
+def _gold_oil_label(value: float) -> str:
+    """High ratios mean oil is cheap relative to gold — a classic stress read."""
+    if value >= 45:
+        return "stress"
+    if value >= 30:
+        return "elevated"
+    if value >= 20:
+        return "normal"
+    return "risk_on"
+
+
+def fetch_gold_oil_ratio() -> SentimentReading:
+    """Gold / WTI crude — a macro stress gauge (both legs from Yahoo futures)."""
+    gold = _yahoo_closes("GC=F")
+    oil = _yahoo_closes("CL=F")
+    shared = sorted(set(gold) & set(oil))
+    if not shared:
+        raise SentimentIndexUnavailable("no overlapping gold/oil sessions")
+    date = shared[-1]
+    if oil[date] <= 0:
+        raise SentimentIndexUnavailable("oil close is non-positive")
+    ratio = gold[date] / oil[date]
+    return SentimentReading("gold_oil_ratio", date, round(ratio, 2), _gold_oil_label(ratio))
+
+
 __all__ = [
     "SentimentIndexUnavailable",
     "SentimentReading",
     "fetch_crypto_fear_greed",
     "fetch_crypto_fear_greed_history",
+    "fetch_gold_oil_ratio",
     "fetch_vix",
     "fetch_vix_history",
 ]

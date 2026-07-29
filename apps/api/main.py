@@ -1888,7 +1888,8 @@ async def get_market_sentiment():
         # Crowd-emotion gauges — the ones that pair with the confirmed
         # crowd-behaviour edges. Each degrades independently.
         gauges: list[dict[str, Any]] = []
-        for fetch in (indices.fetch_crypto_fear_greed, indices.fetch_vix):
+        for fetch in (indices.fetch_crypto_fear_greed, indices.fetch_vix,
+                      indices.fetch_gold_oil_ratio):
             try:
                 gauges.append(fetch().to_dict())
             except indices.SentimentIndexUnavailable as exc:

@@ -38,6 +38,7 @@ interface SentimentPayload {
 const GAUGE_META: Record<string, { zh: string; en: string; max: number }> = {
   crypto_fear_greed: { zh: '加密恐惧贪婪', en: 'Crypto Fear & Greed', max: 100 },
   vix: { zh: 'VIX 恐慌指数', en: 'VIX', max: 50 },
+  gold_oil_ratio: { zh: '金油比', en: 'Gold/Oil Ratio', max: 60 },
 };
 
 const LABEL_TEXT: Record<string, { zh: string; en: string }> = {
@@ -50,6 +51,10 @@ const LABEL_TEXT: Record<string, { zh: string; en: string }> = {
   calm: { zh: '平静', en: 'calm' },
   elevated: { zh: '升高', en: 'elevated' },
   panic: { zh: '恐慌', en: 'panic' },
+  stress: { zh: '压力', en: 'stress' },
+  elevated_ratio: { zh: '偏高', en: 'elevated' },
+  normal: { zh: '正常', en: 'normal' },
+  risk_on: { zh: '风险偏好', en: 'risk-on' },
 };
 
 /** Fear reads cool (sky), greed/panic read hot (rose) — same scale both ways. */
@@ -63,6 +68,9 @@ const LABEL_STYLE: Record<string, string> = {
   calm: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   elevated: 'bg-amber-50 text-amber-700 border-amber-200',
   panic: 'bg-rose-50 text-rose-700 border-rose-200',
+  stress: 'bg-rose-50 text-rose-700 border-rose-200',
+  normal: 'bg-stone-100 text-stone-600 border-stone-200',
+  risk_on: 'bg-emerald-50 text-emerald-700 border-emerald-200',
 };
 
 const REGIME_STYLE: Record<string, string> = {
@@ -142,7 +150,7 @@ export default function GlobalSentimentPanel() {
       ) : null}
 
       {gauges.length > 0 ? (
-        <ul className="grid grid-cols-2 gap-3 border-b border-stone-200 px-5 py-4">
+        <ul className="grid grid-cols-2 gap-3 lg:grid-cols-3 border-b border-stone-200 px-5 py-4">
           {gauges.map((gauge) => {
             const meta = GAUGE_META[gauge.index];
             const pct = Math.min(100, Math.max(0, (gauge.value / (meta?.max ?? 100)) * 100));
@@ -153,7 +161,7 @@ export default function GlobalSentimentPanel() {
                     {meta ? (zh ? meta.zh : meta.en) : gauge.index}
                   </span>
                   <span className="font-mono text-lg font-bold text-stone-900">
-                    {gauge.value.toFixed(gauge.index === 'vix' ? 2 : 0)}
+                    {gauge.value.toFixed(gauge.index === 'crypto_fear_greed' ? 0 : 2)}
                   </span>
                 </div>
                 <div
