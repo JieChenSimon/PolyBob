@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-07-29T02:44:39.778288+00:00",
+  "real_data_only": true,
+  "n_windows": 152,
+  "edge_threshold": 0.1,
+  "fee": 0.02,
+  "result": {
+    "strategy": "btc5m_mispricing",
+    "n": 95,
+    "mean_pnl_per_contract": 0.1649,
+    "win_rate": 0.6737,
+    "t_stat": 3.45,
+    "t_hurdle": 3.6,
+    "significant": false,
+    "brier_model": 0.2221,
+    "brier_market": 0.2491
+  }
+}

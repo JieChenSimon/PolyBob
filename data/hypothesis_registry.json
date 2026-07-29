@@ -359,7 +359,17 @@
         "min_sharpe": 0.5,
         "registered_at": "2026-07-29T02:28:44.106860+00:00"
       },
-      "result": null
+      "result": {
+        "strategy": "btc5m_mispricing",
+        "n": 95,
+        "mean_pnl_per_contract": 0.1649,
+        "win_rate": 0.6737,
+        "t_stat": 3.45,
+        "t_hurdle": 3.6,
+        "significant": false,
+        "brier_model": 0.2221,
+        "brier_market": 0.2491
+      }
     }
   ]
 }
