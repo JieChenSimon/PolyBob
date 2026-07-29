@@ -74,3 +74,4 @@ data/polymarket_snapshot.json
 # OS
 .DS_Store
 Thumbs.db
+data/market_cache/
