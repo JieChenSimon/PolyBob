@@ -1873,6 +1873,40 @@ def serialize_market_news(result: KnowledgeSearchResult) -> dict[str, Any]:
     }
 
 
+@app.get("/api/market-sentiment")
+async def get_market_sentiment():
+    """全球指数 + A股风险偏好(涨停数)——市场情绪面板数据。
+
+    实证说明:涨停数分层对龙虎榜反转策略的效果差异**不显著**(p=0.30),
+    所以这里只作为环境展示,不作为策略开关——不夸大它的作用。
+    """
+    from libs.data import sentiment_sources as sentiment
+
+    def load() -> dict:
+        payload: dict[str, Any] = {"timestamp": datetime.utcnow().isoformat()}
+        try:
+            payload["global_indices"] = [
+                {"key": q.key, "name": q.name, "price": q.price,
+                 "change": q.change, "change_pct": q.change_pct}
+                for q in sentiment.fetch_global_indices()
+            ]
+        except sentiment.SentimentUnavailable as exc:
+            payload["global_indices"] = []
+            payload["global_error"] = str(exc)
+        try:
+            appetite = sentiment.fetch_limit_up_count()
+            payload["a_share_risk_appetite"] = {
+                "date": appetite.date, "limit_up_count": appetite.limit_up_count,
+                "regime": appetite.regime,
+            }
+        except sentiment.SentimentUnavailable as exc:
+            payload["a_share_risk_appetite"] = None
+            payload["a_share_error"] = str(exc)
+        return payload
+
+    return await cached_api_response("market_sentiment", 60.0, lambda: asyncio.to_thread(load))
+
+
 @app.get("/api/market-news")
 async def get_market_news(asset_class: str | None = None, limit: int = 40):
     """实时市场新闻流 + 跨资产影响分析（股市 / 加密 / 黄金 / 外汇 / 利率 / 原油）。

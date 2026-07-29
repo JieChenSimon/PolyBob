@@ -1,3 +1,4 @@
+import GlobalSentimentPanel from '@/components/GlobalSentimentPanel';
 import MarketNewsTerminal from '@/components/MarketNewsTerminal';
 import MarketsWorkspace from '@/components/MarketsWorkspace';
 import SectionIntro from '@/components/SectionIntro';
@@ -15,6 +16,7 @@ export default function MarketsPage() {
       />
 
       <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
+        <GlobalSentimentPanel />
         <MarketNewsTerminal />
         <MarketsWorkspace />
       </main>
