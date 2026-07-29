@@ -344,6 +344,22 @@
         "t_hurdle": 3.59,
         "significant": true
       }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "btc5m_model_vs_market",
+        "claim": "When the volatility-calibrated model disagrees strongly with the quoted price, the model predicts the settled outcome better.",
+        "rationale": "structural",
+        "mechanism": "Quotes in a 5-minute market are driven by order flow and cannot fully track realised volatility, so the fair value implied by current price distance and volatility can drift away from the quote.",
+        "literature": "Short-horizon prediction markets show flow-driven pricing; the honest prior is that fast bot-dominated markets are efficient.",
+        "direction": "buy_side_favoured_by_model_when_edge_exceeds_threshold",
+        "universe": "Polymarket btc-updown-5m",
+        "horizon_days": 1,
+        "cost_bps": 200.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-29T02:28:44.106860+00:00"
+      },
+      "result": null
     }
   ]
 }
