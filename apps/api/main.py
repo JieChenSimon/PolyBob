@@ -1880,10 +1880,20 @@ async def get_market_sentiment():
     实证说明:涨停数分层对龙虎榜反转策略的效果差异**不显著**(p=0.30),
     所以这里只作为环境展示,不作为策略开关——不夸大它的作用。
     """
+    from libs.data import sentiment_indices as indices
     from libs.data import sentiment_sources as sentiment
 
     def load() -> dict:
         payload: dict[str, Any] = {"timestamp": datetime.utcnow().isoformat()}
+        # Crowd-emotion gauges — the ones that pair with the confirmed
+        # crowd-behaviour edges. Each degrades independently.
+        gauges: list[dict[str, Any]] = []
+        for fetch in (indices.fetch_crypto_fear_greed, indices.fetch_vix):
+            try:
+                gauges.append(fetch().to_dict())
+            except indices.SentimentIndexUnavailable as exc:
+                logger.info("sentiment_gauge_unavailable", error=str(exc))
+        payload["gauges"] = gauges
         try:
             payload["global_indices"] = [
                 {"key": q.key, "name": q.name, "price": q.price,

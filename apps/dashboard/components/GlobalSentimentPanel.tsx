@@ -19,13 +19,51 @@ interface RiskAppetite {
   regime: 'hot' | 'warm' | 'cold';
 }
 
+interface Gauge {
+  index: string;
+  date: string;
+  value: number;
+  label: string;
+}
+
 interface SentimentPayload {
+  gauges: Gauge[];
   global_indices: IndexQuote[];
   a_share_risk_appetite: RiskAppetite | null;
   timestamp: string;
   global_error?: string;
   a_share_error?: string;
 }
+
+const GAUGE_META: Record<string, { zh: string; en: string; max: number }> = {
+  crypto_fear_greed: { zh: '加密恐惧贪婪', en: 'Crypto Fear & Greed', max: 100 },
+  vix: { zh: 'VIX 恐慌指数', en: 'VIX', max: 50 },
+};
+
+const LABEL_TEXT: Record<string, { zh: string; en: string }> = {
+  extreme_fear: { zh: '极度恐惧', en: 'extreme fear' },
+  fear: { zh: '恐惧', en: 'fear' },
+  neutral: { zh: '中性', en: 'neutral' },
+  greed: { zh: '贪婪', en: 'greed' },
+  extreme_greed: { zh: '极度贪婪', en: 'extreme greed' },
+  complacent: { zh: '自满', en: 'complacent' },
+  calm: { zh: '平静', en: 'calm' },
+  elevated: { zh: '升高', en: 'elevated' },
+  panic: { zh: '恐慌', en: 'panic' },
+};
+
+/** Fear reads cool (sky), greed/panic read hot (rose) — same scale both ways. */
+const LABEL_STYLE: Record<string, string> = {
+  extreme_fear: 'bg-sky-100 text-sky-800 border-sky-300',
+  fear: 'bg-sky-50 text-sky-700 border-sky-200',
+  neutral: 'bg-stone-100 text-stone-600 border-stone-200',
+  greed: 'bg-amber-50 text-amber-700 border-amber-200',
+  extreme_greed: 'bg-rose-50 text-rose-700 border-rose-200',
+  complacent: 'bg-sky-50 text-sky-700 border-sky-200',
+  calm: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  elevated: 'bg-amber-50 text-amber-700 border-amber-200',
+  panic: 'bg-rose-50 text-rose-700 border-rose-200',
+};
 
 const REGIME_STYLE: Record<string, string> = {
   hot: 'bg-rose-50 text-rose-700 border-rose-200',
@@ -65,6 +103,7 @@ export default function GlobalSentimentPanel() {
 
   const indices = query.data?.global_indices ?? [];
   const appetite = query.data?.a_share_risk_appetite ?? null;
+  const gauges = query.data?.gauges ?? [];
 
   return (
     <section
@@ -100,6 +139,44 @@ export default function GlobalSentimentPanel() {
           onRetry={() => void query.refetch()}
           retryLabel={zh ? '重试' : 'Retry'}
         />
+      ) : null}
+
+      {gauges.length > 0 ? (
+        <ul className="grid grid-cols-2 gap-3 border-b border-stone-200 px-5 py-4">
+          {gauges.map((gauge) => {
+            const meta = GAUGE_META[gauge.index];
+            const pct = Math.min(100, Math.max(0, (gauge.value / (meta?.max ?? 100)) * 100));
+            return (
+              <li key={gauge.index} className="rounded-lg border border-stone-200 p-3">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="text-xs font-medium text-stone-500">
+                    {meta ? (zh ? meta.zh : meta.en) : gauge.index}
+                  </span>
+                  <span className="font-mono text-lg font-bold text-stone-900">
+                    {gauge.value.toFixed(gauge.index === 'vix' ? 2 : 0)}
+                  </span>
+                </div>
+                <div
+                  className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100"
+                  role="img"
+                  aria-label={`${gauge.index} ${gauge.value}`}
+                >
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-sky-400 via-amber-400 to-rose-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span
+                  className={`mt-2 inline-block rounded border px-1.5 py-0.5 text-[10px] font-medium ${
+                    LABEL_STYLE[gauge.label] ?? LABEL_STYLE.neutral
+                  }`}
+                >
+                  {LABEL_TEXT[gauge.label] ? (zh ? LABEL_TEXT[gauge.label].zh : LABEL_TEXT[gauge.label].en) : gauge.label}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       ) : null}
 
       {!query.isError && indices.length === 0 ? (
