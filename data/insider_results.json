@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-07-29T02:26:53.716963+00:00",
+  "real_data_only": true,
+  "source": "SEC Form 345",
+  "quarters": [
+    [
+      2025,
+      3
+    ],
+    [
+      2025,
+      4
+    ],
+    [
+      2026,
+      1
+    ]
+  ],
+  "hold_days": 20,
+  "results": [
+    {
+      "strategy": "内部人集群买入(≥2人)",
+      "n": 667,
+      "mean_excess_pct": 5.108,
+      "median_excess_pct": 0.765,
+      "win_rate": 0.5322,
+      "t_stat": 5.03,
+      "t_hurdle": 3.59,
+      "significant": true
+    },
+    {
+      "strategy": "对照:单人买入",
+      "n": 922,
+      "mean_excess_pct": 1.908,
+      "median_excess_pct": 0.253,
+      "win_rate": 0.5098,
+      "t_stat": 3.24,
+      "t_hurdle": 3.59,
+      "significant": false
+    }
+  ]
+}

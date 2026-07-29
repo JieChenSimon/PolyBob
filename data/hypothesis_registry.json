@@ -319,6 +319,31 @@
         "registered_at": "2026-07-27T08:53:07.048282+00:00"
       },
       "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "insider_cluster_buy",
+        "claim": "Stocks where several insiders buy on the open market outperform over the next month.",
+        "rationale": "behavioural",
+        "mechanism": "Insiders hold private information about their own firm; an open-market purchase costs real money and is legally constrained, so clustered buying is expensive to fake. The market underreacts to the filing.",
+        "literature": "Insider purchases predict returns while sales are largely diversification noise; clustered trades carry the strongest signal.",
+        "direction": "long_after_cluster_buy_filing",
+        "universe": "All US issuers in SEC Form 345",
+        "horizon_days": 20,
+        "cost_bps": 10.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-29T02:21:39.756087+00:00"
+      },
+      "result": {
+        "strategy": "内部人集群买入(≥2人)",
+        "n": 667,
+        "mean_excess_pct": 5.108,
+        "median_excess_pct": 0.765,
+        "win_rate": 0.5322,
+        "t_stat": 5.03,
+        "t_hurdle": 3.59,
+        "significant": true
+      }
     }
   ]
 }
