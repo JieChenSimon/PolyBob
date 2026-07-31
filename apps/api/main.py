@@ -1878,7 +1878,7 @@ async def get_investment_verdict(symbol: str, domain: str = "auto"):
     """投资准则判定——一个标的当前该不该动手,以及依据是什么。
 
     汇总:真实数据可信度、该市场是否有通过门禁的优势、风险是否已定义、
-    是否正在犯本项目实测过的错误。默认结论是"等待"。
+    是否正在犯本项目实测过的错误、以及当前是顺势还是逆势。默认结论是"等待"。
     """
     from libs.quant.verdict import judge
 
@@ -1908,6 +1908,10 @@ async def get_investment_verdict(symbol: str, domain: str = "auto"):
         except Exception as exc:  # noqa: BLE001 - absence of data is not a trap
             logger.info("verdict_trap_check_unavailable", error=str(exc))
 
+    trend = await _fetch_trend_state(
+        signals_payload.get("symbol", symbol), resolved_domain
+    )
+
     report = judge(
         symbol=signals_payload.get("symbol", symbol),
         domain=resolved_domain,
@@ -1917,8 +1921,39 @@ async def get_investment_verdict(symbol: str, domain: str = "auto"):
         promoted_edges=promoted,
         signals=signals_payload.get("signals", []),
         trap_flags=trap_flags,
+        trend=trend,
     )
-    return report.to_dict()
+    payload = report.to_dict()
+    payload["trend"] = trend.to_dict()
+    return payload
+
+
+async def _fetch_trend_state(symbol: str, domain: str):
+    """Real daily bars -> trend classification, or an honest ``unknown``.
+
+    A provider outage must not silently become "no trend concern": the classifier
+    returns an ``unknown`` state, which the verdict engine treats as *not*
+    supporting ACT.
+    """
+    from libs.data.real_sources import (
+        fetch_a_share_daily, fetch_altcoin_daily, fetch_us_equity_daily,
+    )
+    from libs.quant.trend_state import classify_trend
+
+    fetchers = {"a_share": fetch_a_share_daily, "altcoin": fetch_altcoin_daily,
+                "us_equity": fetch_us_equity_daily}
+    fetcher = fetchers.get(domain)
+    if fetcher is None:
+        return classify_trend(None)
+    try:
+        bars = await cached_api_response(
+            f"trend_bars:{domain}:{symbol}", 300.0,
+            lambda: asyncio.to_thread(fetcher, symbol),
+        )
+    except Exception as exc:  # noqa: BLE001 - DataUnavailable et al; absence is not a trend
+        logger.info("verdict_trend_unavailable", symbol=symbol, error=str(exc))
+        return classify_trend(None)
+    return classify_trend(bars)
 
 
 def _promotion_domain(record) -> str:

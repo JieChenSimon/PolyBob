@@ -222,8 +222,14 @@ def fetch_us_equity_daily(symbol: str, years: int = 5) -> DailyBars:
 
 # --------------------------------------------------------------------- a-share
 def _tencent_code(symbol: str) -> str:
-    """`600519` / `600519.SH` -> `sh600519` (infers exchange from the code)."""
-    code = symbol.split(".")[0].strip()
+    """`600519` / `600519.SH` / `SH600519` -> `sh600519`.
+
+    Accepts an already-prefixed symbol because callers round-trip our own output
+    (e.g. the verdict endpoint re-fetches bars using the normalised ``SH600519``
+    it just returned); rejecting that would make the symbol non-idempotent.
+    """
+    raw = symbol.split(".")[0].strip().upper()
+    code = raw[2:] if raw[:2] in {"SH", "SZ", "BJ"} and raw[2:].isdigit() else raw
     if not code.isdigit() or len(code) != 6:
         raise DataUnavailable(f"invalid A-share code: {symbol}")
     if code.startswith("920"):

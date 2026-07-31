@@ -6,7 +6,7 @@ So this engine's job is not to predict prices — it is to answer, for one
 instrument, right now: **do I actually understand this, and am I about to make a
 mistake I already know about?**
 
-Five checks, in the order the book reasons:
+Six checks, in the order the book reasons:
 
 1. **看得懂吗 (Do I see it?)** — is the data real, fresh, and from a named source?
    A conclusion drawn on stale or missing data is a guess wearing a suit.
@@ -17,7 +17,12 @@ Five checks, in the order the book reasons:
 4. **是否在犯已知的错 (Known mistakes)** — the specific traps this project has
    *measured*: buying into a fresh dragon-tiger listing (-1.83% over 44,750
    events), buying when retail is crowded long (-2.04%), chasing a parabolic run.
-5. **结论 (Verdict)** — and when the checks disagree, the answer defaults to
+5. **顺势还是逆势 (With or against the trend?)** — the book's flattest rule is
+   directional: "绝不要在跌势时入市"，"最好在升势或突破阻力线时买入". A verdict that
+   ignores trend state can bless a purchase into a collapse, so a downtrend
+   blocks ACT outright and an unmeasurable trend cannot support one either.
+   See :mod:`libs.quant.trend_state` for how the classification is derived.
+6. **结论 (Verdict)** — and when the checks disagree, the answer defaults to
    waiting. "有疑问的时候，离场."
 
 The verdict is deliberately conservative and frequently "no action". That is the
@@ -31,6 +36,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
+
+from libs.quant.trend_state import TrendClass, TrendState
 
 
 class Verdict(str, Enum):
@@ -111,6 +118,43 @@ def _stale_days(as_of: str | None, now: datetime | None = None) -> int | None:
     return (( now or datetime.now(UTC)) - seen).days
 
 
+_TREND_Q_ZH = "顺势还是逆势？"
+_TREND_Q_EN = "With or against the trend?"
+
+
+def _trend_check(trend: TrendState | None) -> Check:
+    """Map a trend state onto the check semantics.
+
+    ``PASS`` only for a confirmed up-trend, ``FAIL`` for either downtrend grade,
+    ``WARN`` for a directionless market (a signal there is a coin flip, not an
+    edge), and ``UNKNOWN`` when history is too short to say — never a silent
+    ``PASS``, because "I could not measure it" and "it is fine" are different
+    claims and confusing them is exactly the error the book warns about.
+    """
+    if trend is None or trend.classification is TrendClass.UNKNOWN:
+        zh = trend.evidence_zh if trend else "没有足够的历史数据判断趋势——不猜方向"
+        en = (trend.evidence_en if trend else
+              "Not enough history to judge the trend — the direction is unknown")
+        return Check("trend", _TREND_Q_ZH, _TREND_Q_EN, CheckStatus.UNKNOWN, zh, en)
+
+    if trend.blocks_act:
+        return Check("trend", _TREND_Q_ZH, _TREND_Q_EN, CheckStatus.FAIL,
+                     f"逆势——{trend.evidence_zh}。书中：绝不要在跌势时入市",
+                     f"Against the trend — {trend.evidence_en}. "
+                     "The book: never enter during a downtrend")
+
+    if trend.supports_act:
+        return Check("trend", _TREND_Q_ZH, _TREND_Q_EN, CheckStatus.PASS,
+                     f"顺势——{trend.evidence_zh}。书中：最好在升势或突破阻力线时买入",
+                     f"With the trend — {trend.evidence_en}. "
+                     "The book: buy in an uptrend or on a break of resistance")
+
+    return Check("trend", _TREND_Q_ZH, _TREND_Q_EN, CheckStatus.WARN,
+                 f"无明确趋势——{trend.evidence_zh}。方向未确认，不构成买入理由",
+                 f"No clear trend — {trend.evidence_en}. "
+                 "Direction is unconfirmed, which is not a reason to buy")
+
+
 def judge(
     *,
     symbol: str,
@@ -121,9 +165,17 @@ def judge(
     promoted_edges: list[str] | None = None,
     signals: list[dict[str, Any]] | None = None,
     trap_flags: dict[str, bool] | None = None,
+    trend: TrendState | None = None,
     now: datetime | None = None,
 ) -> VerdictReport:
-    """Run the five checks and return an honest verdict with its evidence."""
+    """Run the six checks and return an honest verdict with its evidence.
+
+    ``trend`` is a :class:`libs.quant.trend_state.TrendState` from
+    :func:`libs.quant.trend_state.classify_trend`. Passing ``None`` (or an
+    ``unknown`` state) yields ``CheckStatus.UNKNOWN`` for the trend check, which
+    is *not* a pass: ACT requires a confirmed uptrend, because the book's rule
+    is a prohibition, and an unverified prohibition must be treated as binding.
+    """
     signals = signals or []
     promoted_edges = promoted_edges or []
     trap_flags = trap_flags or {}
@@ -212,7 +264,10 @@ def judge(
             CheckStatus.PASS if trap else CheckStatus.UNKNOWN, detail_zh, detail_en,
         ))
 
-    # 5) 结论 — conservative by construction.
+    # 5) 顺势还是逆势 — the book's directional prohibition.
+    checks.append(_trend_check(trend))
+
+    # 6) 结论 — conservative by construction.
     statuses = {c.key: c.status for c in checks}
     if statuses["known_mistake"] is CheckStatus.FAIL:
         verdict = Verdict.AVOID
@@ -222,14 +277,29 @@ def judge(
         verdict = Verdict.WAIT
         zh = "等待——没有可信数据就没有判断，别把猜测当结论"
         en = "Wait — without trustworthy data there is no judgement, only a guess"
+    elif statuses["trend"] is CheckStatus.FAIL:
+        # "绝不要在跌势时入市" — with a buy signal in hand this is an active
+        # mistake to avoid; with no signal there is simply nothing to do.
+        verdict = Verdict.AVOID if buys else Verdict.WAIT
+        zh = ("回避——标的处于跌势。书中：绝不要在跌势时入市" if buys
+              else "等待——标的处于跌势，不是入市的时候")
+        en = ("Avoid — this instrument is in a downtrend. The book: never enter during one"
+              if buys else "Wait — this instrument is in a downtrend; not a time to enter")
     elif statuses["risk"] is CheckStatus.FAIL:
         verdict = Verdict.WAIT
         zh = "等待——风险未定义。书中：选买点最重要的是选择止损点"
         en = "Wait — risk undefined. The book: choosing the stop matters most"
-    elif statuses["edge"] is CheckStatus.PASS and buys and statuses["risk"] is CheckStatus.PASS:
+    elif (statuses["edge"] is CheckStatus.PASS and buys
+          and statuses["risk"] is CheckStatus.PASS
+          and statuses["trend"] is CheckStatus.PASS):
         verdict = Verdict.ACT
-        zh = "可以行动——数据可信、有验证过的优势、风险已定义"
-        en = "Act — data is trustworthy, a validated edge exists, risk is defined"
+        zh = "可以行动——数据可信、有验证过的优势、风险已定义、且顺势而为"
+        en = ("Act — data is trustworthy, a validated edge exists, risk is defined, "
+              "and it is with the trend")
+    elif buys and statuses["edge"] is CheckStatus.PASS and statuses["trend"] is not CheckStatus.PASS:
+        verdict = Verdict.WATCH
+        zh = "观察——优势与风险都在位，但趋势没有站在你这边，等升势确认"
+        en = "Watch — edge and risk are in place, but the trend is not confirmed; wait for it"
     elif buys:
         verdict = Verdict.WATCH
         zh = "观察——有技术信号，但缺少经真实数据验证的优势支撑"
@@ -243,4 +313,5 @@ def judge(
                          headline_zh=zh, headline_en=en, checks=checks)
 
 
-__all__ = ["Check", "CheckStatus", "KNOWN_TRAPS", "Verdict", "VerdictReport", "judge"]
+__all__ = ["Check", "CheckStatus", "KNOWN_TRAPS", "TrendState", "Verdict",
+           "VerdictReport", "judge"]
