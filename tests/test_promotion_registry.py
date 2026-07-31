@@ -55,3 +55,16 @@ def test_all_lab_when_none_pass(tmp_path):
     reg = PromotionRegistry(p)
     assert reg.promoted_pairs() == []
     assert all(not reg.is_promoted(s) for s in ("tsmom", "dual_ma", "signal_fusion"))
+
+
+def test_promotion_gate_is_fail_closed_by_default():
+    """The safe state must be the default state.
+
+    An unvalidated strategy reaching the execution desk is the failure mode this
+    project exists to prevent, so ``require_strategy_promotion`` defaults to on.
+    Opening the gate has to be a deliberate act (``REQUIRE_STRATEGY_PROMOTION=false``),
+    not something a fresh checkout does silently.
+    """
+    from libs.config import Settings
+
+    assert Settings(_env_file=None).require_strategy_promotion is True

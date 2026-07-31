@@ -91,11 +91,13 @@ class Settings(BaseSettings):
     market_news_categories: str = "general,crypto,forex"
     market_news_max_items_per_category: int = 60
 
-    # Strategy promotion gate: when on, only strategies that cleared
-    # PromotionGate on real history (data/promotion_board.json) may create live
-    # intents; everything else stays in lab. Fail-closed. Default off so paper
-    # flows are unaffected until you opt in.
-    require_strategy_promotion: bool = False
+    # Strategy promotion gate: only strategies that cleared PromotionGate on
+    # real history (data/promotion_board.json) may create intents; everything
+    # else stays in lab. Fail-closed, and on by default — an unvalidated
+    # strategy reaching the execution desk is the failure mode this project
+    # exists to prevent, so the safe state is the default state. Set
+    # REQUIRE_STRATEGY_PROMOTION=false to deliberately open the gate.
+    require_strategy_promotion: bool = True
 
     # AI
     anthropic_api_key: str = ""
