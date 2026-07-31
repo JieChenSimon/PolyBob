@@ -1,4 +1,5 @@
 import OverviewWorkspace from '@/components/OverviewWorkspace';
+import EdgeScoreboard from '@/components/EdgeScoreboard';
 import SectionIntro from '@/components/SectionIntro';
 
 export default function OverviewPage() {
@@ -14,6 +15,7 @@ export default function OverviewPage() {
       />
 
       <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
+        <EdgeScoreboard />
         <OverviewWorkspace />
       </main>
     </>

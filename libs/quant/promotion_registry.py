@@ -48,7 +48,10 @@ class PromotionRegistry:
                     strategy=str(row.get("strategy", "")),
                     instrument=str(row.get("instrument", "")),
                     approved=bool(row.get("approved", False)),
-                    sharpe=float(row.get("sharpe", 0.0)),
+                    # Event-study edges (insider clusters, dragon-tiger) report a
+                    # mean excess return and t-stat rather than a Sharpe, so a
+                    # missing value is normal and must not break the registry.
+                    sharpe=float(row.get("sharpe") or 0.0),
                     dsr=row.get("dsr"),
                     failed=list(row.get("failed", [])),
                 )
