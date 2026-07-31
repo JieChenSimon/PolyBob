@@ -1,4 +1,5 @@
 import GlobalSentimentPanel from '@/components/GlobalSentimentPanel';
+import WisdomSignalPanel from '@/components/WisdomSignalPanel';
 import MarketNewsTerminal from '@/components/MarketNewsTerminal';
 import MarketsWorkspace from '@/components/MarketsWorkspace';
 import SectionIntro from '@/components/SectionIntro';
@@ -19,6 +20,7 @@ export default function MarketsPage() {
         <GlobalSentimentPanel />
         <MarketNewsTerminal />
         <MarketsWorkspace />
+        <WisdomSignalPanel symbol="600519" domain="a_share" />
       </main>
     </>
   );

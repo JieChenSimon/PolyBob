@@ -1,4 +1,5 @@
 import BtcFiveMinuteWorkbenchClient from '@/components/BtcFiveMinuteWorkbenchClient';
+import WisdomSignalPanel from '@/components/WisdomSignalPanel';
 import SectionIntro from '@/components/SectionIntro';
 
 export default function PolymarketPage() {
@@ -31,6 +32,7 @@ export default function PolymarketPage() {
         </section>
 
         <BtcFiveMinuteWorkbenchClient />
+        <WisdomSignalPanel symbol="BTC-USDT" domain="altcoin" />
       </main>
     </>
   );

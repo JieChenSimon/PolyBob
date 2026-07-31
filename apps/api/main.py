@@ -1873,6 +1873,71 @@ def serialize_market_news(result: KnowledgeSearchResult) -> dict[str, Any]:
     }
 
 
+@app.get("/api/wisdom/signals")
+async def get_wisdom_signals(symbol: str, domain: str = "auto"):
+    """《炒股的智慧》临界点信号——同一套方法接入任一标的。
+
+    ``domain`` 为 ``auto`` 时按代码推断:6位数字=A股,``X-USDT``=山寨币,
+    其余=美股。返回买卖信号、止损位与书中的仓位规则。
+    """
+    from libs.data.real_sources import (
+        DataUnavailable, fetch_a_share_daily, fetch_altcoin_daily, fetch_us_equity_daily,
+    )
+    from strategies import trading_wisdom as wisdom
+
+    clean = symbol.strip().upper()
+    if domain == "auto":
+        code = clean.split(".")[0]
+        if code.isdigit() and len(code) == 6:
+            domain = "a_share"
+        elif clean.endswith("-USDT") or clean.endswith("-USD"):
+            domain = "altcoin"
+        else:
+            domain = "us_equity"
+
+    fetchers = {"a_share": fetch_a_share_daily, "altcoin": fetch_altcoin_daily,
+                "us_equity": fetch_us_equity_daily}
+    if domain not in fetchers:
+        raise HTTPException(status_code=400, detail=f"unknown domain '{domain}'")
+
+    def load() -> dict:
+        try:
+            bars = fetchers[domain](clean)
+        except DataUnavailable as exc:
+            # Real data or nothing — never synthesise a price series to draw on.
+            raise HTTPException(status_code=502, detail=f"真实行情不可用: {exc}") from exc
+
+        series = wisdom.Bars(
+            closes=bars.closes, highs=bars.highs, lows=bars.lows,
+            opens=bars.opens, volumes=bars.volumes, dates=bars.dates,
+        )
+        signals = wisdom.detect_signals(series)
+        last_close = float(bars.closes[-1]) if bars.closes else 0.0
+        buys = [s for s in signals if s.direction is wisdom.Direction.BUY]
+        sizing = None
+        if buys and buys[0].stop_price:
+            sizing = wisdom.position_size(
+                capital=100_000.0, entry=buys[0].price, stop=buys[0].stop_price
+            )
+        return {
+            "symbol": bars.symbol, "domain": domain, "source": bars.source,
+            "as_of": bars.dates[-1] if bars.dates else None,
+            "last_close": last_close, "bars": len(bars),
+            "signals": [s.to_dict() for s in signals],
+            "position_sizing": sizing,
+            "rules": {
+                "stop_loss_max_pct": wisdom.MAX_STOP_PCT,
+                "capital_parts": wisdom.CAPITAL_PARTS,
+                "min_risk_reward": wisdom.MIN_RISK_REWARD,
+            },
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+    return await cached_api_response(
+        f"wisdom:{domain}:{clean}", 300.0, lambda: asyncio.to_thread(load)
+    )
+
+
 @app.get("/api/market-sentiment")
 async def get_market_sentiment():
     """全球指数 + A股风险偏好(涨停数)——市场情绪面板数据。

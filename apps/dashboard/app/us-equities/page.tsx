@@ -1,4 +1,5 @@
 import USEquityAdvisor from '@/components/USEquityAdvisor';
+import WisdomSignalPanel from '@/components/WisdomSignalPanel';
 import SectionIntro from '@/components/SectionIntro';
 
 export default function USEquitiesPage() {
@@ -15,6 +16,7 @@ export default function USEquitiesPage() {
 
       <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:px-8">
         <USEquityAdvisor />
+        <WisdomSignalPanel symbol="NVDA" domain="us_equity" />
       </main>
     </>
   );
