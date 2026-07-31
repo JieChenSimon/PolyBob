@@ -1908,9 +1908,10 @@ async def get_investment_verdict(symbol: str, domain: str = "auto"):
         except Exception as exc:  # noqa: BLE001 - absence of data is not a trap
             logger.info("verdict_trap_check_unavailable", error=str(exc))
 
-    trend = await _fetch_trend_state(
-        signals_payload.get("symbol", symbol), resolved_domain
-    )
+    resolved_symbol = signals_payload.get("symbol", symbol)
+    bars = await _fetch_verdict_bars(resolved_symbol, resolved_domain)
+    trend = _classify_trend_or_unknown(bars)
+    volume = _classify_volume_or_unknown(bars, resolved_domain)
 
     report = judge(
         symbol=signals_payload.get("symbol", symbol),
@@ -1922,38 +1923,71 @@ async def get_investment_verdict(symbol: str, domain: str = "auto"):
         signals=signals_payload.get("signals", []),
         trap_flags=trap_flags,
         trend=trend,
+        volume=volume,
     )
     payload = report.to_dict()
     payload["trend"] = trend.to_dict()
+    # ``null`` when the instrument has no volume concept at all. Polymarket
+    # BTC-5m publishes an order book, not traded-volume bars, and no volume
+    # number is fabricated from depth — see libs/quant/volume_state.py.
+    payload["volume"] = volume.to_dict() if volume is not None else None
     return payload
 
 
-async def _fetch_trend_state(symbol: str, domain: str):
-    """Real daily bars -> trend classification, or an honest ``unknown``.
+# Markets whose daily bars this endpoint can fetch. Anything else has no daily
+# volume concept here, and gets an honest ``null`` rather than an invented one.
+_VERDICT_VOLUME_DOMAINS = frozenset({"a_share", "altcoin", "us_equity"})
 
-    A provider outage must not silently become "no trend concern": the classifier
-    returns an ``unknown`` state, which the verdict engine treats as *not*
-    supporting ACT.
+
+async def _fetch_verdict_bars(symbol: str, domain: str):
+    """Real daily bars for the verdict checks, or ``None`` on any absence.
+
+    Shared by the trend and volume classifiers so one provider call serves both;
+    the cache key is unchanged so existing warm entries still hit.
     """
     from libs.data.real_sources import (
         fetch_a_share_daily, fetch_altcoin_daily, fetch_us_equity_daily,
     )
-    from libs.quant.trend_state import classify_trend
 
     fetchers = {"a_share": fetch_a_share_daily, "altcoin": fetch_altcoin_daily,
                 "us_equity": fetch_us_equity_daily}
     fetcher = fetchers.get(domain)
     if fetcher is None:
-        return classify_trend(None)
+        return None
     try:
-        bars = await cached_api_response(
+        return await cached_api_response(
             f"trend_bars:{domain}:{symbol}", 300.0,
             lambda: asyncio.to_thread(fetcher, symbol),
         )
-    except Exception as exc:  # noqa: BLE001 - DataUnavailable et al; absence is not a trend
-        logger.info("verdict_trend_unavailable", symbol=symbol, error=str(exc))
-        return classify_trend(None)
+    except Exception as exc:  # noqa: BLE001 - DataUnavailable et al; absence is not a signal
+        logger.info("verdict_bars_unavailable", symbol=symbol, error=str(exc))
+        return None
+
+
+def _classify_trend_or_unknown(bars):
+    """Bars -> trend classification, or an honest ``unknown``.
+
+    A provider outage must not silently become "no trend concern": the classifier
+    returns an ``unknown`` state, which the verdict engine treats as *not*
+    supporting ACT.
+    """
+    from libs.quant.trend_state import classify_trend
+
     return classify_trend(bars)
+
+
+def _classify_volume_or_unknown(bars, domain: str):
+    """Bars -> volume-price classification, ``None`` where volume does not exist.
+
+    ``None`` means "this instrument has no volume concept" (the frontend renders
+    nothing); an ``unavailable`` state means "it should have one but we could not
+    read it". Both map to ``UNKNOWN`` in the verdict, never to a silent pass.
+    """
+    from libs.quant.volume_state import classify_volume
+
+    if domain not in _VERDICT_VOLUME_DOMAINS:
+        return None
+    return classify_volume(bars)
 
 
 def _promotion_domain(record) -> str:

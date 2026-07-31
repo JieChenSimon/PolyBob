@@ -6,7 +6,7 @@ So this engine's job is not to predict prices — it is to answer, for one
 instrument, right now: **do I actually understand this, and am I about to make a
 mistake I already know about?**
 
-Six checks, in the order the book reasons:
+Seven checks, in the order the book reasons:
 
 1. **看得懂吗 (Do I see it?)** — is the data real, fresh, and from a named source?
    A conclusion drawn on stale or missing data is a guess wearing a suit.
@@ -22,7 +22,13 @@ Six checks, in the order the book reasons:
    ignores trend state can bless a purchase into a collapse, so a downtrend
    blocks ACT outright and an unmeasurable trend cannot support one either.
    See :mod:`libs.quant.trend_state` for how the classification is derived.
-6. **结论 (Verdict)** — and when the checks disagree, the answer defaults to
+6. **量价配合吗 (Does volume confirm the price?)** — price and volume are one
+   observation, not two: "价格的涨跌都肯定伴随着交易量的放大和减少". A breakout on
+   thin volume "并没有很大意义", and 量增价滞 — heavy volume that produces no price
+   progress — is the book's distribution warning. Check 5 answers *which way*;
+   this one answers *whether anyone is actually behind the move*. See
+   :mod:`libs.quant.volume_state` for the ratio-based derivation.
+7. **结论 (Verdict)** — and when the checks disagree, the answer defaults to
    waiting. "有疑问的时候，离场."
 
 The verdict is deliberately conservative and frequently "no action". That is the
@@ -38,6 +44,7 @@ from enum import Enum
 from typing import Any
 
 from libs.quant.trend_state import TrendClass, TrendState
+from libs.quant.volume_state import VolumeState
 
 
 class Verdict(str, Enum):
@@ -155,6 +162,46 @@ def _trend_check(trend: TrendState | None) -> Check:
                  "Direction is unconfirmed, which is not a reason to buy")
 
 
+_VOLUME_Q_ZH = "量价配合吗？"
+_VOLUME_Q_EN = "Does volume confirm the price?"
+
+
+def _volume_check(volume: VolumeState | None) -> Check:
+    """Map a volume state onto the check semantics.
+
+    ``PASS`` only when volume actively confirms an advance, ``FAIL`` for the two
+    states the book names as tops (量增价滞 distribution, and a volume climax),
+    ``WARN`` for divergence, a dry-up, or simply no confirmation — thin
+    participation makes a breakout "并没有很大意义" — and ``UNKNOWN`` when there
+    is no usable volume series at all (Polymarket BTC-5m has no bar volume and
+    none is invented for it). ``UNKNOWN`` is never a silent ``PASS``: "I could
+    not measure participation" and "participation is there" are different claims.
+    """
+    if volume is None or not volume.available:
+        zh = volume.evidence_zh if volume else "没有成交量数据——不猜量价关系，也不编造成交量"
+        en = (volume.evidence_en if volume else
+              "No volume data — the volume-price relationship is unknown, and no "
+              "volume figure is fabricated")
+        return Check("volume", _VOLUME_Q_ZH, _VOLUME_Q_EN, CheckStatus.UNKNOWN, zh, en)
+
+    if volume.blocks_act:
+        return Check("volume", _VOLUME_Q_ZH, _VOLUME_Q_EN, CheckStatus.FAIL,
+                     f"量价危险——{volume.evidence_zh}。书中：量增价滞是派发的信号",
+                     f"Dangerous volume — {volume.evidence_en}. The book: heavy "
+                     "volume with no price progress is distribution")
+
+    if volume.confirms:
+        return Check("volume", _VOLUME_Q_ZH, _VOLUME_Q_EN, CheckStatus.PASS,
+                     f"量价配合——{volume.evidence_zh}。书中：涨势需要成交量的确认",
+                     f"Volume confirms — {volume.evidence_en}. The book: an advance "
+                     "needs volume behind it")
+
+    return Check("volume", _VOLUME_Q_ZH, _VOLUME_Q_EN, CheckStatus.WARN,
+                 f"量价不配合——{volume.evidence_zh}。书中：没有成交量的突破并没有很大意义",
+                 f"Volume does not confirm — {volume.evidence_en}. The book: a "
+                 "breakout without volume does not mean much")
+
+
 def judge(
     *,
     symbol: str,
@@ -166,15 +213,22 @@ def judge(
     signals: list[dict[str, Any]] | None = None,
     trap_flags: dict[str, bool] | None = None,
     trend: TrendState | None = None,
+    volume: VolumeState | None = None,
     now: datetime | None = None,
 ) -> VerdictReport:
-    """Run the six checks and return an honest verdict with its evidence.
+    """Run the seven checks and return an honest verdict with its evidence.
 
     ``trend`` is a :class:`libs.quant.trend_state.TrendState` from
     :func:`libs.quant.trend_state.classify_trend`. Passing ``None`` (or an
     ``unknown`` state) yields ``CheckStatus.UNKNOWN`` for the trend check, which
     is *not* a pass: ACT requires a confirmed uptrend, because the book's rule
     is a prohibition, and an unverified prohibition must be treated as binding.
+
+    ``volume`` is a :class:`libs.quant.volume_state.VolumeState` from
+    :func:`libs.quant.volume_state.classify_volume`, and is treated the same
+    way: unmeasured participation cannot support ACT, and the two distribution
+    states block it outright. Price and volume are one observation — a rally
+    nobody is trading is not the same event as a rally everybody is.
     """
     signals = signals or []
     promoted_edges = promoted_edges or []
@@ -267,7 +321,10 @@ def judge(
     # 5) 顺势还是逆势 — the book's directional prohibition.
     checks.append(_trend_check(trend))
 
-    # 6) 结论 — conservative by construction.
+    # 6) 量价配合吗 — direction without participation is half an observation.
+    checks.append(_volume_check(volume))
+
+    # 7) 结论 — conservative by construction.
     statuses = {c.key: c.status for c in checks}
     if statuses["known_mistake"] is CheckStatus.FAIL:
         verdict = Verdict.AVOID
@@ -285,21 +342,36 @@ def judge(
               else "等待——标的处于跌势，不是入市的时候")
         en = ("Avoid — this instrument is in a downtrend. The book: never enter during one"
               if buys else "Wait — this instrument is in a downtrend; not a time to enter")
+    elif statuses["volume"] is CheckStatus.FAIL:
+        # 量增价滞 / 成交量高潮 — the book's two distribution patterns. As with the
+        # trend prohibition, it is an active mistake only if you were about to buy.
+        verdict = Verdict.AVOID if buys else Verdict.WAIT
+        zh = ("回避——量价形态是派发或衰竭。书中：量增价滞是见顶的信号" if buys
+              else "等待——量价形态是派发或衰竭，不是入市的时候")
+        en = ("Avoid — the volume pattern is distribution or exhaustion. The book: "
+              "heavy volume with no price progress marks a top" if buys else
+              "Wait — the volume pattern is distribution or exhaustion; not a time to enter")
     elif statuses["risk"] is CheckStatus.FAIL:
         verdict = Verdict.WAIT
         zh = "等待——风险未定义。书中：选买点最重要的是选择止损点"
         en = "Wait — risk undefined. The book: choosing the stop matters most"
     elif (statuses["edge"] is CheckStatus.PASS and buys
           and statuses["risk"] is CheckStatus.PASS
-          and statuses["trend"] is CheckStatus.PASS):
+          and statuses["trend"] is CheckStatus.PASS
+          and statuses["volume"] is CheckStatus.PASS):
         verdict = Verdict.ACT
-        zh = "可以行动——数据可信、有验证过的优势、风险已定义、且顺势而为"
+        zh = "可以行动——数据可信、有验证过的优势、风险已定义、顺势而为、且量价配合"
         en = ("Act — data is trustworthy, a validated edge exists, risk is defined, "
-              "and it is with the trend")
+              "it is with the trend, and volume confirms it")
     elif buys and statuses["edge"] is CheckStatus.PASS and statuses["trend"] is not CheckStatus.PASS:
         verdict = Verdict.WATCH
         zh = "观察——优势与风险都在位，但趋势没有站在你这边，等升势确认"
         en = "Watch — edge and risk are in place, but the trend is not confirmed; wait for it"
+    elif buys and statuses["edge"] is CheckStatus.PASS and statuses["volume"] is not CheckStatus.PASS:
+        verdict = Verdict.WATCH
+        zh = "观察——顺势且风险已定，但成交量没有确认这次上涨，等放量"
+        en = ("Watch — with the trend and risk defined, but volume does not confirm "
+              "the advance; wait for participation")
     elif buys:
         verdict = Verdict.WATCH
         zh = "观察——有技术信号，但缺少经真实数据验证的优势支撑"
@@ -314,4 +386,4 @@ def judge(
 
 
 __all__ = ["Check", "CheckStatus", "KNOWN_TRAPS", "TrendState", "Verdict",
-           "VerdictReport", "judge"]
+           "VerdictReport", "VolumeState", "judge"]

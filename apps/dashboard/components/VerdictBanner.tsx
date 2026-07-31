@@ -150,6 +150,91 @@ const RETURN_PERIODS: { key: string; zh: string; en: string }[] = [
 
 const MA_KEYS = ['ma20', 'ma50', 'ma200'] as const;
 
+/**
+ * Volume classification styling. Every entry pairs a colour with a distinct
+ * glyph so colour is never the sole carrier of meaning.
+ */
+const VOLUME_STYLE: Record<
+  string,
+  { zh: string; en: string; chip: string; glyph: string }
+> = {
+  confirming: {
+    zh: '量能确认',
+    en: 'CONFIRMING',
+    chip: 'border-emerald-300 bg-emerald-100 text-emerald-800',
+    glyph: '✓',
+  },
+  expanding: {
+    zh: '放量',
+    en: 'EXPANDING',
+    chip: 'border-sky-300 bg-sky-100 text-sky-800',
+    glyph: '▲',
+  },
+  drying_up: {
+    zh: '缩量',
+    en: 'DRYING UP',
+    chip: 'border-stone-300 bg-stone-100 text-stone-600',
+    glyph: '↓',
+  },
+  distribution: {
+    zh: '派发出货',
+    en: 'DISTRIBUTION',
+    chip: 'border-amber-300 bg-amber-100 text-amber-800',
+    glyph: '⚠',
+  },
+  climax: {
+    zh: '天量见顶',
+    en: 'CLIMAX',
+    chip: 'border-rose-300 bg-rose-100 text-rose-800',
+    glyph: '‼',
+  },
+  unavailable: {
+    zh: '无量能数据',
+    en: 'UNAVAILABLE',
+    chip: 'border-stone-300 bg-stone-100 text-stone-500',
+    glyph: '?',
+  },
+};
+
+const UNKNOWN_VOLUME = VOLUME_STYLE.unavailable;
+
+/** The volume ratio strip, shortest window first. */
+const VOLUME_PERIODS: { key: string; zh: string; en: string }[] = [
+  { key: '5d', zh: '5日', en: '5D' },
+  { key: '20d', zh: '20日', en: '20D' },
+  { key: '60d', zh: '60日', en: '60D' },
+];
+
+const AGREEMENT_STYLE: Record<
+  string,
+  { zh: string; en: string; chip: string; glyph: string }
+> = {
+  confirm: {
+    zh: '量价配合',
+    en: 'PRICE–VOLUME CONFIRM',
+    chip: 'border-emerald-200 bg-emerald-50 text-emerald-700',
+    glyph: '✓',
+  },
+  diverge: {
+    zh: '量价背离',
+    en: 'PRICE–VOLUME DIVERGE',
+    chip: 'border-rose-200 bg-rose-50 text-rose-700',
+    glyph: '✕',
+  },
+  neutral: {
+    zh: '中性',
+    en: 'NEUTRAL',
+    chip: 'border-stone-200 bg-stone-50 text-stone-500',
+    glyph: '·',
+  },
+};
+
+/** A volume ratio is "normal" inside this band; outside it, it means something. */
+const RATIO_HIGH = 1.15;
+const RATIO_LOW = 0.85;
+/** The ratio bar saturates here — 3× normal volume is already off the chart. */
+const RATIO_BAR_MAX = 3;
+
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
 }
@@ -161,6 +246,73 @@ function formatLevel(value: number): string {
   if (magnitude >= 10) return value.toFixed(2);
   if (magnitude >= 1) return value.toFixed(3);
   return value.toFixed(5);
+}
+
+/**
+ * Raw volume counts are unreadable digit strings, so compact them — and do it
+ * in the reader's own counting system: 万/亿 for Chinese, K/M/B for English.
+ */
+function formatVolume(value: number, zh: boolean): string {
+  const sign = value < 0 ? '-' : '';
+  const magnitude = Math.abs(value);
+  const scale = (divisor: number, unit: string) => {
+    const scaled = magnitude / divisor;
+    return `${sign}${scaled >= 100 ? scaled.toFixed(0) : scaled.toFixed(scaled >= 10 ? 1 : 2)}${unit}`;
+  };
+  if (zh) {
+    if (magnitude >= 1e8) return scale(1e8, '亿');
+    if (magnitude >= 1e4) return scale(1e4, '万');
+  } else {
+    if (magnitude >= 1e9) return scale(1e9, 'B');
+    if (magnitude >= 1e6) return scale(1e6, 'M');
+    if (magnitude >= 1e3) return scale(1e3, 'K');
+  }
+  return `${sign}${magnitude >= 10 ? magnitude.toFixed(0) : magnitude.toFixed(2)}`;
+}
+
+function formatRatio(value: number): string {
+  return `${value >= 10 ? value.toFixed(0) : value.toFixed(2)}×`;
+}
+
+/** Above/at/below the normal band — shared by the ratio cells and the big number. */
+function ratioTone(value: number): { tone: string; glyph: string } {
+  if (value >= RATIO_HIGH) return { tone: 'border-sky-200 bg-sky-50 text-sky-700', glyph: '▲' };
+  if (value <= RATIO_LOW) return { tone: 'border-stone-200 bg-stone-100 text-stone-500', glyph: '↓' };
+  return { tone: 'border-stone-200 bg-stone-50 text-stone-600', glyph: '·' };
+}
+
+/**
+ * One cell of the volume ratio strip — the sibling of {@link ReturnCell}, so the
+ * two strips read as one family. 1.00× is the neutral pivot rather than zero.
+ */
+function RatioCell({
+  label,
+  value,
+  ariaLabel,
+}: {
+  label: string;
+  value: number | null | undefined;
+  ariaLabel: string;
+}) {
+  const known = isFiniteNumber(value);
+  const { tone, glyph } = known
+    ? ratioTone(value)
+    : { tone: 'border-stone-200 bg-stone-50 text-stone-400', glyph: '·' };
+
+  return (
+    <div
+      className={`rounded-md border px-1.5 py-1 text-center ${tone}`}
+      aria-label={ariaLabel}
+      role="listitem"
+    >
+      <div className="text-[10px] font-semibold uppercase tracking-wide opacity-70">
+        {label}
+      </div>
+      <div className="mono mt-0.5 whitespace-nowrap text-[11px] font-bold leading-4 sm:text-xs">
+        <span aria-hidden="true">{glyph}</span> {known ? formatRatio(value) : '--'}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -333,6 +485,135 @@ function TrendSection({ trend, price, zh }: { trend: TrendBlock; price: number |
 }
 
 /**
+ * The volume block, sitting directly under the trend.
+ *
+ * Volume qualifies the trend rather than standing alone — the book is explicit
+ * that a breakout without volume "has no meaning" — so a reader who has just
+ * absorbed the return ladder immediately sees whether the money agreed.
+ */
+function VolumeSection({ volume, zh }: { volume: VolumeBlock; zh: boolean }) {
+  const style = VOLUME_STYLE[volume.classification] ?? UNKNOWN_VOLUME;
+  const ratios = volume.ratios ?? {};
+  const evidence = zh ? volume.evidence_zh : volume.evidence_en;
+  const headline = isFiniteNumber(volume.ratio_20d)
+    ? volume.ratio_20d
+    : isFiniteNumber(ratios['20d'])
+      ? ratios['20d']
+      : null;
+  const hasRatios = VOLUME_PERIODS.some((period) => isFiniteNumber(ratios[period.key]));
+  const agreementKey = volume.price_volume_agreement ?? '';
+  const agreement = AGREEMENT_STYLE[agreementKey] ?? null;
+
+  // The bar saturates at RATIO_BAR_MAX so a 12× spike does not flatten the scale.
+  const barPercent =
+    headline === null ? 0 : Math.min(Math.max(headline, 0), RATIO_BAR_MAX) / RATIO_BAR_MAX * 100;
+
+  return (
+    <div className="border-t border-stone-200/70 bg-white/60 px-5 py-3">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <span className="eyebrow">{zh ? '量能' : 'Volume'}</span>
+        <span
+          className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-bold ${style.chip}`}
+          aria-label={`${zh ? '量能分类' : 'Volume classification'}: ${zh ? style.zh : style.en}`}
+        >
+          <span aria-hidden="true">{style.glyph}</span>
+          {zh ? style.zh : style.en}
+        </span>
+        {isFiniteNumber(volume.score) ? (
+          <span className="mono text-[11px] text-stone-500">
+            {zh ? '强度' : 'Score'} {volume.score.toFixed(2)}
+          </span>
+        ) : null}
+        {agreement ? (
+          <span
+            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${agreement.chip}`}
+            aria-label={`${zh ? '量价关系' : 'Price-volume agreement'}: ${zh ? agreement.zh : agreement.en}`}
+          >
+            <span aria-hidden="true">{agreement.glyph}</span>
+            {zh ? agreement.zh : agreement.en}
+          </span>
+        ) : null}
+        {isFiniteNumber(volume.latest_volume) ? (
+          <span className="mono text-[11px] text-stone-500">
+            {zh ? '最新成交量' : 'Latest volume'} {formatVolume(volume.latest_volume, zh)}
+          </span>
+        ) : null}
+      </div>
+
+      {headline !== null ? (
+        <div className="mt-2.5">
+          <div className="flex items-baseline gap-2">
+            <span className="mono text-xl font-bold leading-none text-stone-800">
+              {formatRatio(headline)}
+            </span>
+            <span className="text-xs text-stone-500">{zh ? '20日均量' : '20d avg'}</span>
+          </div>
+          {/* 1× sits at a third of the track, so 0.5× and 2× are obviously different. */}
+          <div
+            className="relative mt-1.5 h-2 w-full max-w-xs overflow-hidden rounded-full bg-stone-200"
+            role="img"
+            aria-label={`${zh ? '成交量为20日均量的' : 'Volume is'} ${formatRatio(headline)}${zh ? '' : ' its 20-day average'}`}
+          >
+            <div
+              className={`h-full rounded-full ${
+                headline >= RATIO_HIGH
+                  ? 'bg-sky-500'
+                  : headline <= RATIO_LOW
+                    ? 'bg-stone-400'
+                    : 'bg-stone-500'
+              }`}
+              style={{ width: `${barPercent}%` }}
+            />
+            <div
+              className="absolute inset-y-0 w-px bg-stone-500/70"
+              style={{ left: `${(1 / RATIO_BAR_MAX) * 100}%` }}
+              aria-hidden="true"
+            />
+          </div>
+        </div>
+      ) : (
+        <p className="mt-2 text-xs text-stone-500">
+          {zh ? '20日均量比：数据不足' : '20-day average volume ratio: no data'}
+        </p>
+      )}
+
+      {hasRatios ? (
+        <div
+          className="mt-2 grid grid-cols-3 gap-1.5 sm:grid-cols-6"
+          role="list"
+          aria-label={zh ? '多周期量比' : 'Multi-window volume ratios'}
+        >
+          {VOLUME_PERIODS.map((period) => {
+            const value = ratios[period.key];
+            const readable = isFiniteNumber(value)
+              ? formatRatio(value)
+              : zh
+                ? '数据不足'
+                : 'no data';
+            return (
+              <RatioCell
+                key={period.key}
+                label={zh ? period.zh : period.en}
+                value={value}
+                ariaLabel={`${zh ? period.zh : period.en} ${zh ? '量比' : 'volume ratio'} ${readable}`}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <p className="mt-2 text-xs text-stone-500">
+          {zh ? '多周期量比：数据不足' : 'Multi-window volume ratios: no data'}
+        </p>
+      )}
+
+      {evidence ? (
+        <p className="mt-2 text-xs leading-5 text-stone-600">{evidence}</p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
  * The verdict banner that opens every instrument page.
  *
  * Its purpose is the book's warning — "犯错并不可怕，可怕的是不知自己犯了错" — so it
@@ -408,6 +689,22 @@ export default function VerdictBanner({
               {zh
                 ? '历史不足，无法给出多周期趋势与均线读数——不猜，就是不知道。'
                 : 'Insufficient history for multi-timeframe trend and moving averages — unknown, not guessed.'}
+            </p>
+          </div>
+        )
+      ) : null}
+
+      {data ? (
+        data.volume && data.volume.classification !== 'unavailable' ? (
+          <VolumeSection volume={data.volume} zh={zh} />
+        ) : (
+          <div className="border-t border-stone-200/70 bg-white/60 px-5 py-3">
+            <span className="eyebrow">{zh ? '量能' : 'Volume'}</span>
+            <p className="mt-1 text-xs leading-5 text-stone-500">
+              {(zh ? data.volume?.evidence_zh : data.volume?.evidence_en) ||
+                (zh
+                  ? '无成交量数据——该标的没有可用的日成交量口径，宁可留白也不编一个零。'
+                  : 'No volume data — this instrument has no usable daily volume series, and a blank is honest where a zero would be a lie.')}
             </p>
           </div>
         )
