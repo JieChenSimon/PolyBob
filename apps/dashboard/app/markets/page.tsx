@@ -1,4 +1,5 @@
 import GlobalSentimentPanel from '@/components/GlobalSentimentPanel';
+import VerdictBanner from '@/components/VerdictBanner';
 import WisdomSignalPanel from '@/components/WisdomSignalPanel';
 import MarketNewsTerminal from '@/components/MarketNewsTerminal';
 import MarketsWorkspace from '@/components/MarketsWorkspace';
@@ -17,6 +18,7 @@ export default function MarketsPage() {
       />
 
       <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
+        <VerdictBanner symbol="600519" domain="a_share" />
         <GlobalSentimentPanel />
         <MarketNewsTerminal />
         <MarketsWorkspace />

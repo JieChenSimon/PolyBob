@@ -1,4 +1,5 @@
 import BtcFiveMinuteWorkbenchClient from '@/components/BtcFiveMinuteWorkbenchClient';
+import VerdictBanner from '@/components/VerdictBanner';
 import WisdomSignalPanel from '@/components/WisdomSignalPanel';
 import SectionIntro from '@/components/SectionIntro';
 
@@ -15,6 +16,7 @@ export default function PolymarketPage() {
       />
 
       <main className="mx-auto mt-6 grid w-full max-w-shell gap-5 px-5 pb-10 md:mt-8 md:px-8">
+        <VerdictBanner symbol="BTC-USDT" domain="altcoin" />
         <section className="panel px-5 py-4">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>

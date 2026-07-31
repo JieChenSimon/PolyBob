@@ -1873,6 +1873,66 @@ def serialize_market_news(result: KnowledgeSearchResult) -> dict[str, Any]:
     }
 
 
+@app.get("/api/verdict")
+async def get_investment_verdict(symbol: str, domain: str = "auto"):
+    """投资准则判定——一个标的当前该不该动手,以及依据是什么。
+
+    汇总:真实数据可信度、该市场是否有通过门禁的优势、风险是否已定义、
+    是否正在犯本项目实测过的错误。默认结论是"等待"。
+    """
+    from libs.quant.verdict import judge
+
+    signals_payload = await get_wisdom_signals(symbol=symbol, domain=domain)
+    resolved_domain = signals_payload.get("domain", domain)
+
+    registry = get_promotion_registry()
+    registry.reload()
+    promoted = [
+        record.strategy for record in registry.promoted_pairs()
+        if _promotion_domain(record) == resolved_domain
+    ]
+
+    # Trap detection uses the same measured findings, evaluated on live data.
+    trap_flags: dict[str, bool] = {}
+    if resolved_domain == "altcoin":
+        try:
+            from libs.data.flow_signals import fetch_retail_positioning
+
+            points = await asyncio.to_thread(
+                fetch_retail_positioning, symbol.split("-")[0]
+            )
+            if len(points) >= 31:
+                recent = [p.long_short_ratio for p in points[-31:-1]]
+                threshold = sorted(recent)[int(len(recent) * 0.8)]
+                trap_flags["altcoin"] = points[-1].long_short_ratio > threshold
+        except Exception as exc:  # noqa: BLE001 - absence of data is not a trap
+            logger.info("verdict_trap_check_unavailable", error=str(exc))
+
+    report = judge(
+        symbol=signals_payload.get("symbol", symbol),
+        domain=resolved_domain,
+        data_source=signals_payload.get("source"),
+        as_of=signals_payload.get("as_of"),
+        bars=int(signals_payload.get("bars", 0)),
+        promoted_edges=promoted,
+        signals=signals_payload.get("signals", []),
+        trap_flags=trap_flags,
+    )
+    return report.to_dict()
+
+
+def _promotion_domain(record) -> str:
+    """Map a promoted record to its market, for verdict filtering."""
+    strategy = record.strategy
+    if "a_share" in strategy or "billboard" in strategy:
+        return "a_share"
+    if "altcoin" in strategy or "crowding" in strategy:
+        return "altcoin"
+    if "insider" in strategy or "us_" in strategy:
+        return "us_equity"
+    return "unknown"
+
+
 @app.get("/api/wisdom/signals")
 async def get_wisdom_signals(symbol: str, domain: str = "auto"):
     """《炒股的智慧》临界点信号——同一套方法接入任一标的。
