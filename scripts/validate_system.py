@@ -76,6 +76,8 @@ class TrialOutcome:
     t_iid: float
     passed_clustered: bool
     passed_iid: bool
+    wild_p: float | None = None
+    resolvable: bool = True
 
 
 @dataclass
@@ -103,6 +105,15 @@ class Experiment:
             "median_t_iid": (
                 None if not self.trials
                 else round(float(np.median([t.t_iid for t in self.trials])), 3)
+            ),
+            "pass_rate_wild": (
+                None if not self.trials else
+                sum(1 for t in self.trials
+                    if t.wild_p is not None and t.wild_p <= 0.05) / len(self.trials)
+            ),
+            "resolvable_share": (
+                None if not self.trials
+                else sum(t.resolvable for t in self.trials) / len(self.trials)
             ),
             "median_clusters": (
                 None if not self.trials
@@ -163,6 +174,8 @@ def _score_priced(priced, hurdle: float, *, drift: float = 0.0) -> TrialOutcome 
         passed_clustered=bool(inference.significant),
         # The old rule: |t_iid| >= hurdle. It had no cluster floor at all.
         passed_iid=bool(abs(inference.t_iid) >= hurdle),
+        wild_p=inference.wild_p,
+        resolvable=inference.resolvable,
     )
 
 
@@ -231,6 +244,9 @@ def main() -> None:
                    "假边:随机标的 + 随机日期(日期均匀分布)。构造上没有任何优势。"),
         Experiment("negative_bunched",
                    "假边:随机标的,但信号挤在少数几周里——真实事件边的形状。"),
+        Experiment("negative_few_clusters",
+                   "假边,且只落在 6-12 个独立单元里——CRVE 渐近失效的危险区,"
+                   "也是三条真边实际所处的区间。这一格是之前验证的盲区。"),
         Experiment("positive_control",
                    "真边:同样的随机信号,但注入 +1.5% 的已知漂移。门禁必须找到它。"),
     ]
@@ -246,6 +262,16 @@ def main() -> None:
         outcome = _score_priced(_price(bunched, as_of, hurdle), hurdle)
         if outcome:
             experiments[1].trials.append(outcome)
+
+        # The blind spot. Earlier runs had a median of 35 clusters — comfortably inside
+        # the range where CRVE's asymptotics hold. The real edges sit at 9, 14 and 2,
+        # where simulation shows the asymptotic test rejecting at 10-13% against a
+        # nominal 5%. Measuring the false-positive rate *there* is the point.
+        few = _random_events(rng, universe, calendars, args.events, bunch_weeks=3)
+        priced = _price(few, as_of, hurdle)
+        outcome = _score_priced(priced, hurdle)
+        if outcome and outcome.n_clusters <= 12:
+            experiments[2].trials.append(outcome)
 
         if (i + 1) % 25 == 0:
             print(f"  {i+1}/{args.trials} 轮…")
@@ -271,7 +297,7 @@ def main() -> None:
             detected += outcome.passed_clustered
             ts.append(outcome.t_clustered)
             if abs(drift - 0.015) < 1e-9:
-                experiments[2].trials.append(outcome)
+                experiments[3].trials.append(outcome)
         if not trials:
             continue
         rate = detected / trials
@@ -308,6 +334,9 @@ def main() -> None:
               f"中位 t = {s['median_t_clustered']:+.2f}")
         print(f"  旧 iid    通过率 {s['pass_rate_iid']*100:6.2f}%   "
               f"中位 t = {s['median_t_iid']:+.2f}")
+        if s.get("pass_rate_wild") is not None:
+            print(f"  wild boot 名义5%拒绝率 {s['pass_rate_wild']*100:6.2f}%   "
+                  f"可分辨比例 {s['resolvable_share']*100:5.1f}%")
 
     print(f"\n{'─'*82}\n4. 前视对照:store 的 as_of 是否真的挡住了未来\n{'─'*82}")
     lookahead = _lookahead_experiment(universe, calendars, as_of, hurdle, rng)
@@ -398,7 +427,9 @@ def _verdict(rows, lookahead, hurdle, power_curve, mde) -> None:
     by_name = {r["name"]: r for r in rows}
     problems: list[str] = []
 
-    for key, label in (("negative_uniform", "均匀假边"), ("negative_bunched", "扎堆假边")):
+    for key, label in (("negative_uniform", "均匀假边"),
+                       ("negative_bunched", "扎堆假边"),
+                       ("negative_few_clusters", "低簇假边(危险区)")):
         row = by_name.get(key) or {}
         clustered, iid = row.get("pass_rate_clustered"), row.get("pass_rate_iid")
         if clustered is None:
@@ -411,6 +442,15 @@ def _verdict(rows, lookahead, hurdle, power_curve, mde) -> None:
               f"{iid*100:.2f}%)")
         if clustered > 0.05:
             problems.append(f"{label}的误判率 {clustered*100:.2f}% 超过 5%")
+        row_wild = row.get("pass_rate_wild")
+        if row_wild is not None:
+            share = row.get("resolvable_share")
+            print(f"   wild bootstrap 名义5%拒绝率 {row_wild*100:.2f}%"
+                  + (f",其中 {share*100:.0f}% 的样本量能表达显著性" if share is not None else ""))
+            if row_wild > 0.10:
+                problems.append(
+                    f"{label}上 wild bootstrap 的拒绝率 {row_wild*100:.1f}% 偏高"
+                )
 
     # Power is not pass/fail, it is a size. Reporting "detection rate 0%" without
     # the effect size it was measured at is what makes a calibrated gate look broken.

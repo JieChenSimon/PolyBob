@@ -1,32 +1,48 @@
 {
-  "generated_at": "2026-08-09T11:18:07.028157+00:00",
+  "generated_at": "2026-08-09T17:11:16.325265+00:00",
   "real_data_only": true,
   "t_hurdle": 4.19,
   "min_clusters": 20,
   "universe_size": 1396,
   "real_bars": 773263,
-  "events_per_trial": 300,
+  "events_per_trial": 350,
   "seed": 20260809,
   "experiments": [
     {
       "name": "negative_uniform",
       "description": "假边:随机标的 + 随机日期(日期均匀分布)。构造上没有任何优势。",
-      "trials": 6,
+      "trials": 25,
       "pass_rate_clustered": 0.0,
       "pass_rate_iid": 0.0,
-      "median_t_clustered": -0.119,
-      "median_t_iid": -0.002,
+      "median_t_clustered": -0.251,
+      "median_t_iid": -0.274,
+      "pass_rate_wild": 0.04,
+      "resolvable_share": 1.0,
       "median_clusters": 35
     },
     {
       "name": "negative_bunched",
       "description": "假边:随机标的,但信号挤在少数几周里——真实事件边的形状。",
-      "trials": 3,
+      "trials": 22,
       "pass_rate_clustered": 0.0,
       "pass_rate_iid": 0.0,
-      "median_t_clustered": 0.239,
-      "median_t_iid": -1.136,
+      "median_t_clustered": -0.573,
+      "median_t_iid": -0.528,
+      "pass_rate_wild": 0.0,
+      "resolvable_share": 0.0,
       "median_clusters": 6
+    },
+    {
+      "name": "negative_few_clusters",
+      "description": "假边,且只落在 6-12 个独立单元里——CRVE 渐近失效的危险区,也是三条真边实际所处的区间。这一格是之前验证的盲区。",
+      "trials": 21,
+      "pass_rate_clustered": 0.0,
+      "pass_rate_iid": 0.047619047619047616,
+      "median_t_clustered": -1.264,
+      "median_t_iid": -0.575,
+      "pass_rate_wild": 0.0,
+      "resolvable_share": 0.0,
+      "median_clusters": 3
     },
     {
       "name": "positive_control",
@@ -34,9 +50,11 @@
       "trials": 20,
       "pass_rate_clustered": 0.0,
       "pass_rate_iid": 0.0,
-      "median_t_clustered": 0.596,
-      "median_t_iid": 0.686,
-      "median_clusters": 34
+      "median_t_clustered": 0.882,
+      "median_t_iid": 0.854,
+      "pass_rate_wild": 0.1,
+      "resolvable_share": 1.0,
+      "median_clusters": 35
     }
   ],
   "power_curve": [
@@ -44,50 +62,50 @@
       "drift_pct": 0.5,
       "trials": 20,
       "power": 0.0,
-      "median_t": -0.39
+      "median_t": -0.09
     },
     {
       "drift_pct": 1.0,
       "trials": 20,
       "power": 0.0,
-      "median_t": 0.09
+      "median_t": 0.39
     },
     {
       "drift_pct": 1.5,
       "trials": 20,
       "power": 0.0,
-      "median_t": 0.6
+      "median_t": 0.88
     },
     {
       "drift_pct": 2.5,
       "trials": 20,
-      "power": 0.05,
-      "median_t": 1.58
+      "power": 0.0,
+      "median_t": 1.67
     },
     {
       "drift_pct": 4.0,
       "trials": 20,
-      "power": 0.15,
-      "median_t": 2.94
+      "power": 0.1,
+      "median_t": 2.87
     },
     {
       "drift_pct": 6.0,
       "trials": 20,
-      "power": 0.9,
-      "median_t": 4.88
+      "power": 0.75,
+      "median_t": 4.79
     },
     {
       "drift_pct": 8.0,
       "trials": 20,
       "power": 0.95,
-      "median_t": 6.95
+      "median_t": 6.81
     }
   ],
-  "min_detectable_effect_pct": 6.0,
+  "min_detectable_effect_pct": 8.0,
   "lookahead": {
     "available": true,
     "cheat_n": 400,
-    "cheat_t_clustered": 8.147,
+    "cheat_t_clustered": 15.342,
     "cheat_mean_pct": 16.704,
     "cheat_passed": true,
     "as_of_blocked": 20,

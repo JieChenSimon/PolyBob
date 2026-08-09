@@ -87,6 +87,9 @@ class ClusteredResult:
     bootstrap_hi: float | None
     sign_test_p: float | None      # does the *median* beat zero?
     skew_ratio: float | None       # mean / median — how tail-driven the mean is
+    wild_p: float | None           # cluster bootstrap p — correctly sized at small G
+    p_floor: float | None          # finest p that G clusters can express: 1/2^(G-1)
+    resolvable: bool               # can this G express the required significance at all?
     cluster_by: str
     warnings: list[str] = field(default_factory=list)
 
@@ -106,6 +109,9 @@ class ClusteredResult:
                 else [round(self.bootstrap_lo * 100, 3), round(self.bootstrap_hi * 100, 3)]
             ),
             "sign_test_p": None if self.sign_test_p is None else round(self.sign_test_p, 4),
+            "wild_p": None if self.wild_p is None else round(self.wild_p, 5),
+            "p_floor": None if self.p_floor is None else float(f"{self.p_floor:.3g}"),
+            "resolvable": self.resolvable,
             "skew_ratio": None if self.skew_ratio is None else round(self.skew_ratio, 2),
             "cluster_by": self.cluster_by,
             "inference": "cluster_robust",
@@ -164,6 +170,74 @@ def _crve_t(buckets: dict[str, list[float]]) -> tuple[float, float]:
     return mean / se, se
 
 
+def _alpha_for_t(t_threshold: float) -> float:
+    """The two-sided normal alpha a |t| threshold corresponds to.
+
+    The board's hurdle is a heuristic (``3.0 + 0.5*log10(n_trials)``) rather than an
+    alpha, so this is what lets the bootstrap and the t-test be judged at one bar. At
+    237 trials the hurdle is 4.19, i.e. alpha = 2.8e-5 — which is *stricter* than
+    Bonferroni at the same trial count (0.05/237 = 2.1e-4, t = 3.71), and Bonferroni is
+    already the most conservative correction in standard use. Worth knowing before
+    concluding that an edge failed on its merits.
+    """
+    from scipy import stats
+
+    return float(2.0 * (1.0 - stats.norm.cdf(abs(t_threshold))))
+
+
+def wild_cluster_p(
+    buckets: dict[str, list[float]], *, draws: int = 3999, seed: int = 20260810
+) -> tuple[float, float]:
+    """Wild cluster bootstrap p-value for ``mean == 0``, and the finest p it can resolve.
+
+    The asymptotic CRVE t-statistic assumes the *number of clusters* grows large. It
+    does not here, and the consequence is measurable. Simulating from a process
+    calibrated to the real insider edge, the rejection rate at a nominal 5% comes out:
+
+        G=5   13.5%      G=14   5.8%
+        G=9   10.0%      G=20   5.8%
+
+    So at the sample sizes this project actually has, the asymptotic test manufactures
+    false positives — two to three times the nominal rate. Cameron, Gelbach & Miller's
+    (2008) wild cluster bootstrap fixes it by resampling whole clusters' signs:
+
+        G=5   1.7%       G=14   4.2%
+        G=9   5.2%       G=20   4.7%
+
+    Correctly sized from G≈9 upward, conservative below.
+
+    The second return value is the **information floor**: with G clusters there are only
+    ``2^(G-1)`` distinct sign assignments, so no p-value below ``1/2^(G-1)`` is
+    representable — however strong the effect. At G=9 that floor is 3.9e-3 while the
+    board's hurdle demands 2.8e-5. The insider edge is not *near* significance at 9
+    independent months; it is at a sample size where significance cannot be expressed.
+    That is a different statement, and it points at a different remedy.
+    """
+    groups = [np.asarray(v, dtype=float) for v in buckets.values()]
+    g = len(groups)
+    floor = 1.0 / (2 ** (g - 1)) if 1 <= g <= 60 else 0.0
+    if g < 2:
+        return 1.0, 1.0
+
+    t_observed = abs(_crve_t(buckets)[0])
+    if t_observed == 0.0:
+        return 1.0, floor
+
+    # Residuals under H0 (mean = 0) are the returns themselves, so imposing the null
+    # is just a sign flip per cluster — the Rademacher weights.
+    rng = np.random.default_rng(seed)
+    keys = list(buckets)
+    extreme = 0
+    for _ in range(draws):
+        signs = rng.choice((-1.0, 1.0), size=g)
+        flipped = {k: (groups[i] * signs[i]).tolist() for i, k in enumerate(keys)}
+        if abs(_crve_t(flipped)[0]) >= t_observed:
+            extreme += 1
+    # (extreme + 1) / (draws + 1) — the observed statistic is one of its own draws, so
+    # a p-value of exactly zero is not claimable.
+    return (extreme + 1) / (draws + 1), floor
+
+
 def _sign_test_p(returns: np.ndarray) -> float | None:
     """Two-sided binomial test that the median return is zero.
 
@@ -189,6 +263,7 @@ def analyse(
     hold_days: int,
     cluster_by: ClusterBy | None = None,
     bootstrap_draws: int = 5000,
+    wild_draws: int = 1999,
     seed: int = 20260807,
     min_clusters: int = 20,
 ) -> ClusteredResult:
@@ -210,7 +285,8 @@ def analyse(
     n, g = len(raw), len(buckets)
     if n == 0 or g == 0:
         return ClusteredResult(0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, t_hurdle, False,
-                               None, None, None, None, by, ["no usable returns"])
+                               None, None, None, None, None, None, False, by,
+                               ["no usable returns"])
 
     sd_iid = raw.std(ddof=1) if n > 1 else 0.0
     t_iid = float(raw.mean() / (sd_iid / np.sqrt(n))) if sd_iid > 0 else 0.0
@@ -254,15 +330,42 @@ def analyse(
         if lo <= 0 <= hi:
             warnings.append("the 95% bootstrap interval on the mean contains zero")
 
+    # Randomization inference, and the hard limit on what G clusters can express.
+    wild_p: float | None = None
+    p_floor: float | None = None
+    if g >= 2:
+        wild_p, p_floor = wild_cluster_p(buckets, draws=wild_draws, seed=seed)
+
+    # The alpha the hurdle implies, so the two tests are compared at one bar rather
+    # than at two unrelated ones.
+    required_alpha = _alpha_for_t(t_hurdle)
+    resolvable = bool(p_floor is not None and p_floor <= required_alpha)
+    if not resolvable and g >= 2:
+        warnings.append(
+            f"{g} 个独立单元最细只能表达 p={p_floor:.1e},而门槛 t={t_hurdle:.2f} "
+            f"要求 p≤{required_alpha:.1e} —— 在这个样本量上'显著'无法被表示,"
+            f"这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+        )
+
+    # Significance still needs the hurdle *and* the cluster floor. The bootstrap is
+    # reported rather than made decisive: below the floor it is conservative to the
+    # point of never rejecting, and above it the two agree — so making it the gate
+    # would change nothing except to hide the resolution problem behind a p-value.
+    significant = bool(abs(t_clustered) >= t_hurdle and g >= min_clusters)
+
     return ClusteredResult(
         n=n, n_clusters=g, mean=mean, median=median,
         win_rate=float((raw > 0).mean()),
         t_iid=t_iid, t_clustered=t_clustered, t_hurdle=t_hurdle,
-        significant=bool(abs(t_clustered) >= t_hurdle and g >= min_clusters),
+        significant=significant,
         bootstrap_lo=lo, bootstrap_hi=hi,
-        sign_test_p=_sign_test_p(raw), skew_ratio=skew_ratio,
-        cluster_by=by, warnings=warnings,
+        sign_test_p=_sign_test_p(raw),
+        wild_p=wild_p, p_floor=p_floor, resolvable=resolvable,
+        skew_ratio=skew_ratio, cluster_by=by, warnings=warnings,
     )
 
 
-__all__ = ["ClusterBy", "ClusteredResult", "analyse", "cluster_key", "recommended_cluster"]
+__all__ = [
+    "ClusterBy", "ClusteredResult", "analyse", "cluster_key", "recommended_cluster",
+    "wild_cluster_p",
+]

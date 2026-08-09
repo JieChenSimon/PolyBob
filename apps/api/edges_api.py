@@ -244,6 +244,13 @@ def _demoted_row(record) -> dict[str, Any]:
                 f"独立单元只有 {record.n_clusters} 个(需要 ≥{floor})——"
                 f"事件虽多但都挤在同一段行情里,{record.n} 这个数字不是有效样本量"
             )
+        elif code.startswith("unresolvable_at_"):
+            g = code.split("_")[2]
+            reasons_zh.append(
+                f"只有 {g} 个独立单元 —— 在这个样本量上'显著'根本无法被表示"
+                f"(能表达的最小 p 值就已经大于门槛要求的)。这不是差一点,"
+                f"是信息量不够;唯一的出路是更长的样本期,不是更宽的标准。"
+            )
         elif code.startswith("|t_clustered|<") or code.startswith("|t|<"):
             hurdle = code.split("<", 1)[1]
             gap = ""

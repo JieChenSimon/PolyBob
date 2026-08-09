@@ -48,6 +48,10 @@ interface DemotedEdge {
   t_stat: number | null;
   t_stat_iid: number | null;
   t_hurdle: number | null;
+  /** Finest p-value this many independent units can express: 1/2^(G-1). */
+  p_floor: number | null;
+  /** False when significance is unrepresentable at this sample size. */
+  resolvable: boolean | null;
   reasons_zh: string[];
   failed: string[];
 }
@@ -248,6 +252,19 @@ function NoTradableEdges({ demoted, zh }: { demoted: DemotedEdge[]; zh: boolean 
                   <span>
                     {zh ? '门槛 ' : 'hurdle '}
                     {edge.t_hurdle.toFixed(2)}
+                  </span>
+                ) : null}
+                {edge.resolvable === false && edge.p_floor !== null ? (
+                  <span
+                    className="font-semibold text-amber-800"
+                    title={
+                      zh
+                        ? '独立单元太少,随机化检验能表达的最小 p 值已大于门槛要求'
+                        : 'Too few independent units for a randomisation test to resolve the required p-value'
+                    }
+                  >
+                    {zh ? '最细可表达 p=' : 'finest p='}
+                    {edge.p_floor.toExponential(1)}
                   </span>
                 ) : null}
               </div>

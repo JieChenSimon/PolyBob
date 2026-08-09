@@ -265,3 +265,76 @@ def test_zero_variance_within_and_across_clusters_is_not_significant():
     result = analyse([0.02] * 400, _dates(400, weeks=40), t_hurdle=3.77, hold_days=5)
     assert result.t_clustered == 0.0
     assert result.significant is False
+
+
+# --------------------------------------- small-sample inference and its limits
+def test_the_wild_bootstrap_is_reported_alongside_the_asymptotic_t():
+    """CRVE's asymptotics assume many clusters; this project has 9, 14 and 2.
+
+    Simulated from a process calibrated to the real insider edge, the asymptotic test
+    rejects at 10-13% against a nominal 5% when G is 5-9 — it manufactures false
+    positives exactly where the real edges live. The wild cluster bootstrap
+    (Cameron, Gelbach & Miller 2008) restores correct size from G≈9 upward.
+    """
+    rets = _returns(600, 0.02, 0.03, weeks=30, shock=0.02)
+    result = analyse(rets, _dates(600, weeks=30), t_hurdle=3.77, hold_days=5)
+    assert result.wild_p is not None
+    assert 0.0 < result.wild_p <= 1.0
+
+
+def test_the_bootstrap_cannot_claim_a_p_value_of_zero():
+    """The observed statistic is one of its own draws, so p is never 0."""
+    rets = [0.05 + 0.001 * i for i in range(400)]
+    result = analyse(rets, _dates(400, weeks=40), t_hurdle=3.77, hold_days=5)
+    assert result.wild_p is not None and result.wild_p > 0.0
+
+
+def test_few_clusters_cannot_express_the_required_significance():
+    """The finding that reframes the whole board.
+
+    With G clusters there are only ``2^(G-1)`` sign assignments, so no p-value below
+    ``1/2^(G-1)`` is representable however strong the effect. At G=9 that floor is
+    3.9e-3 while a t-hurdle of 4.19 demands 2.8e-5 — 138 times smaller. The insider
+    edge is not *near* significance at 9 independent months; it is at a sample size
+    where significance cannot be expressed, and that calls for calendar rather than
+    another look at the numbers.
+    """
+    result = analyse(_returns(600, 0.03, 0.02, weeks=9, shock=0.01),
+                     _dates(600, weeks=9), t_hurdle=4.19, hold_days=5)
+    assert result.n_clusters == 9
+    assert result.p_floor == pytest.approx(1 / 2 ** 8)
+    assert result.resolvable is False
+    assert any("无法被表示" in w for w in result.warnings)
+
+
+def test_many_clusters_can_express_it():
+    """The A-share filter's actual position: 125 independent weeks, fully resolvable."""
+    result = analyse(_returns(3000, -0.02, 0.02, weeks=120, shock=0.005),
+                     _dates(3000, weeks=120), t_hurdle=4.19, hold_days=5)
+    assert result.resolvable is True
+    assert result.p_floor is not None and result.p_floor < 1e-9
+
+
+def test_the_resolution_floor_tightens_with_more_clusters():
+    floors = []
+    for weeks in (9, 14, 20, 30):
+        r = analyse(_returns(600, 0.02, 0.02, weeks=weeks, shock=0.01),
+                    _dates(600, weeks=weeks), t_hurdle=4.19, hold_days=5)
+        floors.append(r.p_floor)
+    assert floors == sorted(floors, reverse=True)
+
+
+def test_the_hurdle_is_stricter_than_bonferroni():
+    """Worth knowing before concluding an edge failed on its merits.
+
+    The board's hurdle is a heuristic, ``3.0 + 0.5*log10(n_trials)``. At 237 trials it
+    gives 4.19, i.e. alpha = 2.8e-5 — stricter than Bonferroni at the same count
+    (0.05/237 = 2.1e-4, t = 3.71), and Bonferroni is already the most conservative
+    correction in standard use.
+    """
+    from libs.quant.clustered_inference import _alpha_for_t
+    from libs.quant.pbo import deflated_t_stat_threshold
+
+    hurdle = deflated_t_stat_threshold(237)
+    assert hurdle == pytest.approx(4.19, abs=0.01)
+    assert _alpha_for_t(hurdle) < 0.05 / 237

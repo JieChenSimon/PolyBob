@@ -53,6 +53,9 @@ class PromotionRecord:
     n: int | None = None
     n_clusters: int | None = None          # independent units; the real sample size
     cluster_by: str = ""
+    wild_p: float | None = None          # correctly sized at small G
+    p_floor: float | None = None         # finest p this many clusters can express
+    resolvable: bool | None = None       # can this sample express significance at all?
     evidence_end: str | None = None        # last event observed, not last script run
     max_evidence_age_days: int | None = None
     implementation: str = ""
@@ -152,6 +155,9 @@ class PromotionRegistry:
                     n=row.get("n"),
                     n_clusters=row.get("n_clusters"),
                     cluster_by=str(row.get("cluster_by", "")),
+                    wild_p=row.get("wild_p"),
+                    p_floor=row.get("p_floor"),
+                    resolvable=row.get("resolvable"),
                     evidence_end=row.get("evidence_end"),
                     max_evidence_age_days=row.get("max_evidence_age_days"),
                     implementation=str(row.get("implementation", "")),

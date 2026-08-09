@@ -249,6 +249,9 @@ def evaluate_spec(
         "inference": "unverifiable",
         "bootstrap_ci_pct": None,
         "sign_test_p": None,
+        "wild_p": None,
+        "p_floor": None,
+        "resolvable": None,
         "inference_warnings": [],
         # ``evidence_end`` is a fact about the study and never changes.
         # The *age* deliberately is not stored: it changes every day, and a file
@@ -314,6 +317,13 @@ def evaluate_spec(
             else [round(inference.bootstrap_lo * 100, 3), round(inference.bootstrap_hi * 100, 3)]
         ),
         "sign_test_p": None if inference.sign_test_p is None else round(inference.sign_test_p, 4),
+        # The correctly-sized p (wild cluster bootstrap) and, crucially, the finest p
+        # this many clusters can express. Below that floor an edge is not "close to
+        # significant" — significance is unrepresentable, which calls for a longer
+        # sample rather than another look at the numbers.
+        "wild_p": None if inference.wild_p is None else round(inference.wild_p, 5),
+        "p_floor": None if inference.p_floor is None else float(f"{inference.p_floor:.3g}"),
+        "resolvable": inference.resolvable,
         "inference_warnings": inference.warnings,
     })
     mean_pct = row["mean_excess_pct"]
@@ -333,7 +343,16 @@ def evaluate_spec(
     if mean_pct * spec.expected_sign <= 0:
         failed.append("wrong_sign_vs_preregistration")
     if abs(inference.t_clustered) < hurdle:
-        failed.append(f"|t_clustered|<{hurdle:.2f}")
+        # Two different failures wearing one label. An edge whose cluster count cannot
+        # express the required p-value has not been weighed and found wanting; it has
+        # not been weighable. The remedy differs — wait for calendar, versus drop the
+        # hypothesis — so the board says which.
+        if not inference.resolvable:
+            failed.append(
+                f"unresolvable_at_{inference.n_clusters}_clusters"
+            )
+        else:
+            failed.append(f"|t_clustered|<{hurdle:.2f}")
 
     # Evidence expires — but expiry is not a property of the evidence, it is a
     # property of *when you ask*. So the board records the boundary of the study

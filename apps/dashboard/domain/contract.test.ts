@@ -51,6 +51,12 @@ describe('promotion board contract', () => {
     // hold a number that changes at midnight.
     'evidence_end',
     'max_evidence_age_days',
+    // Small-sample inference. `resolvable` is the field that separates "below the
+    // hurdle" from "this sample cannot express significance at all" — two failures
+    // with different remedies, and the UI must be able to tell them apart.
+    'wild_p',
+    'p_floor',
+    'resolvable',
     'n',
     'implementation',
     'evidence',

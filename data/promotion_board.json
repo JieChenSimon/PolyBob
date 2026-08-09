@@ -46,6 +46,9 @@
         -1.415
       ],
       "sign_test_p": 0.0,
+      "wild_p": 0.0005,
+      "p_floor": 0.0,
+      "resolvable": true,
       "inference_warnings": [],
       "evidence_end": "2026-07-31",
       "max_evidence_age_days": 90,
@@ -67,7 +70,7 @@
       "approved": false,
       "failed": [
         "independent_clusters<20",
-        "|t_clustered|<4.19"
+        "unresolvable_at_14_clusters"
       ],
       "notes": "做空腿单独计价并计入资金费,证据和实施方式必须是同一条腿。",
       "n": 248,
@@ -84,8 +87,12 @@
         6.282
       ],
       "sign_test_p": 0.0,
+      "wild_p": 0.071,
+      "p_floor": 0.000122,
+      "resolvable": false,
       "inference_warnings": [
-        "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
+        "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+        "14 个独立单元最细只能表达 p=1.2e-04,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "evidence_end": "2026-08-03",
       "max_evidence_age_days": 90,
@@ -108,7 +115,7 @@
       "failed": [
         "n<200",
         "independent_clusters<20",
-        "|t_clustered|<4.19",
+        "unresolvable_at_2_clusters",
         "run_not_reproducible_dirty_tree"
       ],
       "notes": "旗舰标的:必须和别的边用同一条门槛,不因投入大而放宽。",
@@ -126,9 +133,13 @@
         16.991
       ],
       "sign_test_p": 0.6879,
+      "wild_p": 1.0,
+      "p_floor": 0.5,
+      "resolvable": false,
       "inference_warnings": [
         "only 2 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "the 95% bootstrap interval on the mean contains zero"
+        "the 95% bootstrap interval on the mean contains zero",
+        "2 个独立单元最细只能表达 p=5.0e-01,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "evidence_end": "2026-08-09",
       "max_evidence_age_days": 30,
@@ -150,7 +161,7 @@
       "approved": false,
       "failed": [
         "independent_clusters<20",
-        "|t_clustered|<4.19"
+        "unresolvable_at_9_clusters"
       ],
       "notes": "唯一的正收益边:集群买入后按 filing date 建多头。",
       "n": 1085,
@@ -167,9 +178,13 @@
         7.244
       ],
       "sign_test_p": 0.0063,
+      "wild_p": 0.0105,
+      "p_floor": 0.00391,
+      "resolvable": false,
       "inference_warnings": [
         "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "mean is 4.9x the median — the average is carried by a few tail events, so the typical trade looks nothing like it"
+        "mean is 4.9x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+        "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "evidence_end": "2026-03-31",
       "max_evidence_age_days": 180,
