@@ -152,17 +152,28 @@ def test_ungated_edge_never_produces_a_position_recommendation():
 
 
 def test_ungated_snapshot_still_serves_calibration():
-    """The point is to grow n from 95, so the calibration inputs must survive."""
+    """The page's job while ungated is to grow the sample, so its inputs must survive.
+
+    This used to assert n == 95, t == 3.45 and two exact Brier scores. Those are
+    *measurements*: they move every time the experiment re-runs, and pinning them made
+    the suite fail on a successful re-run rather than on a defect. Worse, the numbers
+    it pinned turned out to be wrong — 95 events over 2 calendar days, scored with an
+    i.i.d. t-statistic. A test that had frozen them would have defended the error.
+
+    What is actually invariant is the *shape*: the calibration inputs reach the page,
+    the sample is honestly counted, and nothing is promoted.
+    """
     snapshot = _snapshot()
 
     assert snapshot["outcomes"]["UP"]["model_probability"] > 0.5
     assert snapshot["outcomes"]["UP"]["best_ask"] == pytest.approx(0.50)
     gate = snapshot["gate_status"]
-    assert gate["n"] == 95
-    assert gate["t_stat"] == pytest.approx(3.45)
+    assert gate["n"] is not None and gate["n"] > 0
+    assert gate["t_stat"] is not None
     assert gate["significant"] is False
-    assert gate["brier_model"] == pytest.approx(0.2221)
-    assert gate["brier_market"] == pytest.approx(0.2491)
+    # The model beating the market's own price is the finding worth pursuing; it is
+    # also the only thing here that is not a sample-size artefact.
+    assert gate["brier_model"] is not None and gate["brier_market"] is not None
     assert gate["brier_model"] < gate["brier_market"]
 
 
