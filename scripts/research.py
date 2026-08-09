@@ -58,6 +58,11 @@ EXPERIMENTS: tuple[Experiment, ...] = (
                "data/us_crypto_results.json", "山寨币散户拥挤 + 美股内部人卖出", "~3 分钟"),
     Experiment("billboard", "scripts/billboard_experiment.py",
                "data/billboard_results.json", "A股龙虎榜反转", "~15 分钟"),
+    # Was missing from this list, which is why its manifest went stale while the other
+    # three were re-run on a clean tree. A runner that covers three of four experiments
+    # quietly reintroduces the drift it exists to prevent.
+    Experiment("btc5m", "scripts/btc5m_mispricing.py",
+               "data/btc5m_mispricing.json", "BTC 5分钟模型 vs 市价", "~10 分钟"),
 )
 
 

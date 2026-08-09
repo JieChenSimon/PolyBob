@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-09T08:16:43.367047+00:00",
+  "generated_at": "2026-08-09T18:26:41.483310+00:00",
   "real_data_only": true,
   "hold_days": 5,
-  "n_trials": 237,
+  "n_trials": 241,
   "us_cost_bps": 5.0,
   "alt_cost_bps": 10.0,
   "inference": "cluster_robust",
@@ -22,15 +22,18 @@
       "mean_excess_pct": -0.152,
       "median_excess_pct": 0.19,
       "win_rate": 0.5411,
-      "t_stat": 0.62,
+      "t_stat": -0.47,
       "t_stat_iid": -0.46,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        -0.673,
-        1.23
+        -0.758,
+        0.515
       ],
       "sign_test_p": 0.3627,
+      "wild_p": 0.632,
+      "p_floor": 1.42e-14,
+      "resolvable": true,
       "skew_ratio": -0.8,
       "cluster_by": "week",
       "inference": "cluster_robust",
@@ -1079,15 +1082,18 @@
       "mean_excess_pct": -0.683,
       "median_excess_pct": -0.26,
       "win_rate": 0.4558,
-      "t_stat": -2.56,
+      "t_stat": -1.87,
       "t_stat_iid": -1.97,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        -1.931,
-        -0.247
+        -1.421,
+        -0.002
       ],
       "sign_test_p": 0.2195,
+      "wild_p": 0.0775,
+      "p_floor": 1.78e-15,
+      "resolvable": true,
       "skew_ratio": 2.63,
       "cluster_by": "week",
       "inference": "cluster_robust",
@@ -2604,28 +2610,31 @@
     },
     {
       "strategy": "散户极度做多后(预期跌)",
-      "signals_found": 367,
+      "signals_found": 368,
       "dropped": {
         "no_prices": 0,
-        "window_too_short": 13,
+        "window_too_short": 14,
         "no_benchmark": 0,
         "no_carry": 0
       },
-      "measurable_rate": 0.9646,
+      "measurable_rate": 0.962,
       "n": 354,
       "n_clusters": 21,
       "mean_excess_pct": -2.072,
       "median_excess_pct": -1.287,
       "win_rate": 0.3616,
-      "t_stat": -1.6,
+      "t_stat": -1.62,
       "t_stat_iid": -5.68,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        -3.252,
-        0.136
+        -4.645,
+        0.117
       ],
       "sign_test_p": 0.0,
+      "wild_p": 0.132,
+      "p_floor": 9.54e-07,
+      "resolvable": true,
       "skew_ratio": 1.61,
       "cluster_by": "week",
       "inference": "cluster_robust",
@@ -5117,33 +5126,37 @@
     },
     {
       "strategy": "散户极度做多后 做空(含资金费)",
-      "signals_found": 367,
+      "signals_found": 368,
       "dropped": {
         "no_prices": 0,
-        "window_too_short": 13,
+        "window_too_short": 14,
         "no_benchmark": 0,
         "no_carry": 106
       },
-      "measurable_rate": 0.6757,
+      "measurable_rate": 0.6739,
       "n": 248,
       "n_clusters": 14,
       "mean_excess_pct": 3.088,
       "median_excess_pct": 2.094,
       "win_rate": 0.7016,
-      "t_stat": 1.81,
+      "t_stat": 1.85,
       "t_stat_iid": 6.4,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        0.072,
-        4.661
+        0.308,
+        6.238
       ],
       "sign_test_p": 0.0,
+      "wild_p": 0.0695,
+      "p_floor": 0.000122,
+      "resolvable": false,
       "skew_ratio": 1.48,
       "cluster_by": "week",
       "inference": "cluster_robust",
       "warnings": [
-        "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
+        "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+        "14 个独立单元最细只能表达 p=1.2e-04,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "events": [
         {
@@ -6888,54 +6901,38 @@
     },
     {
       "strategy": "散户极度做空后(预期涨)",
-      "signals_found": 277,
+      "signals_found": 276,
       "dropped": {
         "no_prices": 0,
-        "window_too_short": 6,
+        "window_too_short": 8,
         "no_benchmark": 0,
         "no_carry": 0
       },
-      "measurable_rate": 0.9783,
-      "n": 271,
+      "measurable_rate": 0.971,
+      "n": 268,
       "n_clusters": 22,
-      "mean_excess_pct": -1.049,
-      "median_excess_pct": -0.875,
-      "win_rate": 0.417,
-      "t_stat": -1.94,
-      "t_stat_iid": -3.08,
+      "mean_excess_pct": -1.054,
+      "median_excess_pct": -0.898,
+      "win_rate": 0.4179,
+      "t_stat": -1.29,
+      "t_stat_iid": -3.06,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        -3.588,
-        -0.148
+        -2.609,
+        0.552
       ],
-      "sign_test_p": 0.0074,
-      "skew_ratio": 1.2,
+      "sign_test_p": 0.0085,
+      "wild_p": 0.247,
+      "p_floor": 4.77e-07,
+      "resolvable": true,
+      "skew_ratio": 1.17,
       "cluster_by": "week",
       "inference": "cluster_robust",
-      "warnings": [],
+      "warnings": [
+        "the 95% bootstrap interval on the mean contains zero"
+      ],
       "events": [
-        {
-          "symbol": "DOGE-USDT",
-          "date": "2026-03-12",
-          "entry_date": "2026-03-12",
-          "exit_date": "2026-03-17",
-          "excess": -0.03744
-        },
-        {
-          "symbol": "SOL-USDT",
-          "date": "2026-03-12",
-          "entry_date": "2026-03-12",
-          "exit_date": "2026-03-17",
-          "excess": -0.002118
-        },
-        {
-          "symbol": "XRP-USDT",
-          "date": "2026-03-12",
-          "entry_date": "2026-03-12",
-          "exit_date": "2026-03-17",
-          "excess": 0.021217
-        },
         {
           "symbol": "ADA-USDT",
           "date": "2026-03-13",

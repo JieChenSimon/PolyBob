@@ -202,15 +202,18 @@
         "mean_excess_pct": -2.016,
         "median_excess_pct": -3.581,
         "win_rate": 0.3559,
-        "t_stat": -6.86,
+        "t_stat": -6.61,
         "t_stat_iid": -29.59,
         "t_hurdle": 4.19,
         "significant": true,
         "bootstrap_ci_pct": [
-          -2.499,
-          -1.396
+          -2.604,
+          -1.392
         ],
         "sign_test_p": 0.0,
+        "wild_p": 0.0005,
+        "p_floor": 0.0,
+        "resolvable": true,
         "skew_ratio": 0.56,
         "cluster_by": "week",
         "inference": "cluster_robust",
@@ -239,15 +242,18 @@
         "mean_excess_pct": -2.168,
         "median_excess_pct": -3.664,
         "win_rate": 0.3508,
-        "t_stat": -7.0,
+        "t_stat": -6.61,
         "t_stat_iid": -26.87,
         "t_hurdle": 4.19,
         "significant": true,
         "bootstrap_ci_pct": [
-          -2.619,
-          -1.485
+          -2.806,
+          -1.486
         ],
         "sign_test_p": 0.0,
+        "wild_p": 0.0005,
+        "p_floor": 0.0,
+        "resolvable": true,
         "skew_ratio": 0.59,
         "cluster_by": "week",
         "inference": "cluster_robust",
@@ -284,15 +290,18 @@
         "mean_excess_pct": -0.152,
         "median_excess_pct": 0.19,
         "win_rate": 0.5411,
-        "t_stat": 0.62,
+        "t_stat": -0.47,
         "t_stat_iid": -0.46,
         "t_hurdle": 4.19,
         "significant": false,
         "bootstrap_ci_pct": [
-          -0.673,
-          1.23
+          -0.758,
+          0.515
         ],
         "sign_test_p": 0.3627,
+        "wild_p": 0.632,
+        "p_floor": 1.42e-14,
+        "resolvable": true,
         "skew_ratio": -0.8,
         "cluster_by": "week",
         "inference": "cluster_robust",
@@ -320,33 +329,37 @@
       },
       "result": {
         "strategy": "散户极度做多后 做空(含资金费)",
-        "signals_found": 367,
+        "signals_found": 368,
         "dropped": {
           "no_prices": 0,
-          "window_too_short": 13,
+          "window_too_short": 14,
           "no_benchmark": 0,
           "no_carry": 106
         },
-        "measurable_rate": 0.6757,
+        "measurable_rate": 0.6739,
         "n": 248,
         "n_clusters": 14,
         "mean_excess_pct": 3.088,
         "median_excess_pct": 2.094,
         "win_rate": 0.7016,
-        "t_stat": 1.81,
+        "t_stat": 1.85,
         "t_stat_iid": 6.4,
         "t_hurdle": 4.19,
         "significant": false,
         "bootstrap_ci_pct": [
-          0.072,
-          4.661
+          0.308,
+          6.238
         ],
         "sign_test_p": 0.0,
+        "wild_p": 0.0695,
+        "p_floor": 0.000122,
+        "resolvable": false,
         "skew_ratio": 1.48,
         "cluster_by": "week",
         "inference": "cluster_robust",
         "warnings": [
-          "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
+          "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+          "14 个独立单元最细只能表达 p=1.2e-04,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
         "direction": "short",
         "carry_included": true
@@ -400,6 +413,7 @@
         "warnings": [
           "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
           "mean is 8.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+          "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.18,胜率 52.1%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
           "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
         "control_single_buy": {
@@ -435,6 +449,7 @@
           "warnings": [
             "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
             "mean is 20.5x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+            "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.63,胜率 50.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
             "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
           ]
         },
@@ -458,30 +473,30 @@
       },
       "result": {
         "strategy": "btc5m_mispricing",
-        "n": 99,
-        "n_clusters": 2,
-        "mean_excess_pct": 9.753,
-        "median_excess_pct": 38.5,
-        "win_rate": 0.5253,
-        "t_stat": 0.99,
-        "t_stat_iid": 2.15,
+        "n": 98,
+        "n_clusters": 1,
+        "mean_excess_pct": 18.408,
+        "median_excess_pct": 46.75,
+        "win_rate": 0.6224,
+        "t_stat": 0.0,
+        "t_stat_iid": 4.17,
         "t_hurdle": 4.19,
         "significant": false,
-        "bootstrap_ci_pct": [
-          -0.071,
-          16.991
-        ],
-        "sign_test_p": 0.6879,
-        "skew_ratio": 0.25,
+        "bootstrap_ci_pct": null,
+        "sign_test_p": 0.0197,
+        "wild_p": null,
+        "p_floor": null,
+        "resolvable": false,
+        "skew_ratio": 0.39,
         "cluster_by": "day",
         "inference": "cluster_robust",
         "warnings": [
-          "only 2 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "the 95% bootstrap interval on the mean contains zero"
+          "only one independence cluster — no inference is possible",
+          "only 1 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
         ],
-        "mean_pnl_per_contract": 0.0975,
-        "brier_model": 0.225,
-        "brier_market": 0.233
+        "mean_pnl_per_contract": 0.1841,
+        "brier_model": 0.2142,
+        "brier_market": 0.2395
       }
     },
     {

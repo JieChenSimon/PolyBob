@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T18:22:54.219412+00:00",
+  "generated_at": "2026-08-09T18:25:19.794217+00:00",
   "real_data_only": true,
   "source": "SEC Form 345",
   "quarters": [
@@ -54,6 +54,7 @@
       "warnings": [
         "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
         "mean is 8.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+        "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.18,胜率 52.1%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
         "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "events": [
@@ -7687,6 +7688,7 @@
       "warnings": [
         "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
         "mean is 20.5x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+        "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.63,胜率 50.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
         "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "events": [
