@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T08:10:00.429609+00:00",
+  "generated_at": "2026-08-09T08:16:14.275291+00:00",
   "real_data_only": true,
   "source": "SEC Form 345",
   "quarters": [
@@ -27,7 +27,8 @@
       "dropped": {
         "no_prices": 43,
         "window_too_short": 13,
-        "no_benchmark": 0
+        "no_benchmark": 0,
+        "no_carry": 0
       },
       "measurable_rate": 0.9509,
       "n": 1085,
@@ -7655,7 +7656,8 @@
       "dropped": {
         "no_prices": 61,
         "window_too_short": 23,
-        "no_benchmark": 0
+        "no_benchmark": 0,
+        "no_carry": 0
       },
       "measurable_rate": 0.9609,
       "n": 2065,

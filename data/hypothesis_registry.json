@@ -298,7 +298,9 @@
         "inference": "cluster_robust",
         "warnings": [
           "the 95% bootstrap interval on the mean contains zero"
-        ]
+        ],
+        "direction": "short",
+        "carry_included": false
       }
     },
     {
@@ -345,7 +347,9 @@
         "inference": "cluster_robust",
         "warnings": [
           "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
-        ]
+        ],
+        "direction": "short",
+        "carry_included": true
       }
     },
     {
@@ -369,7 +373,8 @@
         "dropped": {
           "no_prices": 43,
           "window_too_short": 13,
-          "no_benchmark": 0
+          "no_benchmark": 0,
+          "no_carry": 0
         },
         "measurable_rate": 0.9509,
         "n": 1085,
@@ -399,7 +404,8 @@
           "dropped": {
             "no_prices": 61,
             "window_too_short": 23,
-            "no_benchmark": 0
+            "no_benchmark": 0,
+            "no_carry": 0
           },
           "measurable_rate": 0.9609,
           "n": 2065,

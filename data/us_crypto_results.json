@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T08:12:13.323417+00:00",
+  "generated_at": "2026-08-09T08:16:43.367047+00:00",
   "real_data_only": true,
   "hold_days": 5,
   "n_trials": 237,
@@ -1060,7 +1060,9 @@
           "exit_date": "2026-08-04",
           "excess": 0.002976
         }
-      ]
+      ],
+      "direction": "short",
+      "carry_included": false
     },
     {
       "strategy": "对照:单人卖出",
@@ -2596,7 +2598,9 @@
           "exit_date": "2026-08-06",
           "excess": 0.054261
         }
-      ]
+      ],
+      "direction": "short",
+      "carry_included": false
     },
     {
       "strategy": "散户极度做多后(预期跌)",
@@ -5107,7 +5111,9 @@
           "exit_date": "2026-08-08",
           "excess": -0.040722
         }
-      ]
+      ],
+      "direction": "long",
+      "carry_included": false
     },
     {
       "strategy": "散户极度做多后 做空(含资金费)",
@@ -6876,7 +6882,9 @@
           "exit_date": "2026-08-08",
           "excess": 0.03886
         }
-      ]
+      ],
+      "direction": "short",
+      "carry_included": true
     },
     {
       "strategy": "散户极度做空后(预期涨)",
@@ -8804,7 +8812,9 @@
           "exit_date": "2026-08-08",
           "excess": -0.046643
         }
-      ]
+      ],
+      "direction": "long",
+      "carry_included": false
     }
   ]
 }

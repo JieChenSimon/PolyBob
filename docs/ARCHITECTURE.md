@@ -87,6 +87,19 @@ JSON,所谓"缓存"就是提供商最后一次返回的东西。
 - **没有**引入 MLflow / DVC / feature store。单人项目上这些是负担;等价物是
   `run_manifest.py` 那 150 行。
 
+## 研究闭环
+
+```
+python scripts/research.py run all      # 跑实验 → 自动重建看板
+python scripts/research.py status       # 看板现状与每行失败的原因
+python scripts/research.py check        # 看板是否与证据一致(CI)
+```
+
+`run` 在**源码未提交时拒绝启动**(除非 `--allow-dirty`)。理由:记录的 commit 不描述
+实际跑的代码时,结果拿不到开仓权限 —— 跑完一小时 SEC 抓取才发现这件事是浪费一小时。
+重建看板不是一个可以跳过的独立步骤:证据写了而看板没重建,门禁就在描述一个不存在的
+实验,而这种偏离是静默的。
+
 ## 不变量(CI 强制)
 
 1. `data/promotion_board.json` 必须能从证据逐字节重建(`event_study_board.py --check`)。
@@ -95,6 +108,9 @@ JSON,所谓"缓存"就是提供商最后一次返回的东西。
 4. `data/market_cache/` 和 `data/store/` 不得进 git;`promotion_board.json` 和
    `hypothesis_registry.json` 必须在。
 5. 缺失就是缺失 —— 任何"取不到数据"都不能变成一个数字。
+6. `scripts/` 和 `libs/` 里不得再出现自带的 `forward_return` —— 出场规则只有
+   `libs/quant/edge_backtest.py` 一处。建一个共享模块并不能阻止第五份拷贝长出来,
+   一个测试可以。
 
 ## 现状
 

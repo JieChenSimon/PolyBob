@@ -44,7 +44,9 @@ jobs:
     # fails here rather than being discovered by trading on it.
     - name: Promotion board matches the evidence
       run: |
-        python scripts/event_study_board.py --check
+        # research.py check also reports evidence that cannot be replayed —
+        # a trade row citing an unreproducible run is a claim, not evidence.
+        python scripts/research.py check
 
     - name: Nothing may reintroduce an overwritable cache
       run: |

@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-08-09T08:12:13.323417+00:00",
+  "generated_at": "2026-08-09T08:16:44.557439+00:00",
   "real_data_only": true,
   "n_trials": 237,
   "t_hurdle": 4.19,
   "sources": {
-    "data/billboard_results.json": "2026-08-09T06:27:11.492116+00:00",
+    "data/billboard_results.json": "2026-08-09T08:16:44.557439+00:00",
     "data/btc5m_mispricing.json": "2026-07-29T02:44:39.778288+00:00",
-    "data/insider_results.json": "2026-08-09T08:10:00.429609+00:00",
-    "data/us_crypto_results.json": "2026-08-09T08:12:13.323417+00:00"
+    "data/insider_results.json": "2026-08-09T08:16:14.275291+00:00",
+    "data/us_crypto_results.json": "2026-08-09T08:16:43.367047+00:00"
   },
   "note": "由 scripts/event_study_board.py 从原始实验输出生成;每行的 t 值都是本模块用 source 文件里的逐事件收益重算的聚类标准误 t,不是抄来的。role=trade 才可开仓,role=avoid 只是回避过滤器。",
   "inference": "cluster_robust",
@@ -49,8 +49,8 @@
       "inference_warnings": [],
       "evidence_end": "2026-07-31",
       "max_evidence_age_days": 90,
-      "run_as_of": "2026-08-09T06:26:16.579711+00:00",
-      "run_reproducible": false,
+      "run_as_of": "2026-08-09T08:16:43.508361+00:00",
+      "run_reproducible": true,
       "evidence": "来源 data/billboard_results.json; n=40756; 独立week=125; t(聚类)=-6.86 vs t(iid)=-29.59; 证据截至 2026-07-31; 2024-03-05..2026-07-31; 持有 5 日; 逐年胜率 34.2-37.4%"
     },
     {
@@ -67,8 +67,7 @@
       "approved": false,
       "failed": [
         "independent_clusters<20",
-        "|t_clustered|<4.19",
-        "run_not_reproducible_dirty_tree"
+        "|t_clustered|<4.19"
       ],
       "notes": "做空腿单独计价并计入资金费,证据和实施方式必须是同一条腿。",
       "n": 248,
@@ -90,8 +89,8 @@
       ],
       "evidence_end": "2026-08-03",
       "max_evidence_age_days": 90,
-      "run_as_of": "2026-08-09T08:11:44.546768+00:00",
-      "run_reproducible": false,
+      "run_as_of": "2026-08-09T08:16:14.471450+00:00",
+      "run_reproducible": true,
       "evidence": "来源 data/us_crypto_results.json; n=248; 独立week=14; t(聚类)=1.81 vs t(iid)=6.40; 证据截至 2026-08-03; 持有 5 日"
     },
     {
@@ -142,8 +141,7 @@
       "approved": false,
       "failed": [
         "independent_clusters<20",
-        "|t_clustered|<4.19",
-        "run_not_reproducible_dirty_tree"
+        "|t_clustered|<4.19"
       ],
       "notes": "唯一的正收益边:集群买入后按 filing date 建多头。",
       "n": 1085,
@@ -166,8 +164,8 @@
       ],
       "evidence_end": "2026-03-31",
       "max_evidence_age_days": 180,
-      "run_as_of": "2026-08-09T08:09:29.906401+00:00",
-      "run_reproducible": false,
+      "run_as_of": "2026-08-09T08:15:42.670918+00:00",
+      "run_reproducible": true,
       "evidence": "来源 data/insider_results.json; n=1085; 独立month=9; t(聚类)=2.72 vs t(iid)=6.62; 证据截至 2026-03-31; 2025Q3..2026Q1; 持有 20 日"
     }
   ]
