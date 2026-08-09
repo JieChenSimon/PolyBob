@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-09T10:44:14.574779+00:00",
+  "generated_at": "2026-08-09T18:22:54.219412+00:00",
   "real_data_only": true,
-  "n_trials": 237,
+  "n_trials": 241,
   "t_hurdle": 4.19,
   "sources": {
     "data/billboard_results.json": "2026-08-09T08:16:44.557439+00:00",
     "data/btc5m_mispricing.json": "2026-08-09T10:44:14.574779+00:00",
-    "data/insider_results.json": "2026-08-09T08:16:14.275291+00:00",
+    "data/insider_results.json": "2026-08-09T18:22:54.219412+00:00",
     "data/us_crypto_results.json": "2026-08-09T08:16:43.367047+00:00"
   },
   "note": "由 scripts/event_study_board.py 从原始实验输出生成;每行的 t 值都是本模块用 source 文件里的逐事件收益重算的聚类标准误 t,不是抄来的。role=trade 才可开仓,role=avoid 只是回避过滤器。",
@@ -161,36 +161,37 @@
       "approved": false,
       "failed": [
         "independent_clusters<20",
-        "unresolvable_at_9_clusters"
+        "unresolvable_at_9_clusters",
+        "run_not_reproducible_dirty_tree"
       ],
       "notes": "唯一的正收益边:集群买入后按 filing date 建多头。",
       "n": 1085,
-      "win_rate": 0.5419,
-      "mean_excess_pct": 4.728,
-      "median_excess_pct": 0.964,
-      "t_stat": 3.67,
-      "t_stat_iid": 6.62,
+      "win_rate": 0.5207,
+      "mean_excess_pct": 3.95,
+      "median_excess_pct": 0.451,
+      "t_stat": 3.63,
+      "t_stat_iid": 5.55,
       "n_clusters": 9,
       "cluster_by": "month",
       "inference": "cluster_robust",
       "bootstrap_ci_pct": [
-        2.334,
-        7.244
+        2.209,
+        6.269
       ],
-      "sign_test_p": 0.0063,
-      "wild_p": 0.0105,
+      "sign_test_p": 0.1816,
+      "wild_p": 0.005,
       "p_floor": 0.00391,
       "resolvable": false,
       "inference_warnings": [
         "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "mean is 4.9x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+        "mean is 8.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
         "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "evidence_end": "2026-03-31",
       "max_evidence_age_days": 180,
-      "run_as_of": "2026-08-09T08:15:42.670918+00:00",
-      "run_reproducible": true,
-      "evidence": "来源 data/insider_results.json; n=1085; 独立month=9; t(聚类)=3.67 vs t(iid)=6.62; 证据截至 2026-03-31; 2025Q3..2026Q1; 持有 20 日"
+      "run_as_of": "2026-08-09T17:36:20.155656+00:00",
+      "run_reproducible": false,
+      "evidence": "来源 data/insider_results.json; n=1085; 独立month=9; t(聚类)=3.63 vs t(iid)=5.55; 证据截至 2026-03-31; 2025Q3..2026Q1; 持有 20 日"
     }
   ]
 }

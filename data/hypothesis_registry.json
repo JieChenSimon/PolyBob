@@ -379,24 +379,28 @@
         "measurable_rate": 0.9509,
         "n": 1085,
         "n_clusters": 9,
-        "mean_excess_pct": 4.728,
-        "median_excess_pct": 0.964,
-        "win_rate": 0.5419,
-        "t_stat": 2.72,
-        "t_stat_iid": 6.62,
+        "mean_excess_pct": 3.95,
+        "median_excess_pct": 0.451,
+        "win_rate": 0.5207,
+        "t_stat": 3.63,
+        "t_stat_iid": 5.55,
         "t_hurdle": 4.19,
         "significant": false,
         "bootstrap_ci_pct": [
-          1.674,
-          7.891
+          2.19,
+          6.45
         ],
-        "sign_test_p": 0.0063,
-        "skew_ratio": 4.9,
+        "sign_test_p": 0.1816,
+        "wild_p": 0.005,
+        "p_floor": 0.00391,
+        "resolvable": false,
+        "skew_ratio": 8.76,
         "cluster_by": "month",
         "inference": "cluster_robust",
         "warnings": [
           "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "mean is 4.9x the median — the average is carried by a few tail events, so the typical trade looks nothing like it"
+          "mean is 8.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+          "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
         "control_single_buy": {
           "strategy": "对照:单人买入",
@@ -410,24 +414,28 @@
           "measurable_rate": 0.9609,
           "n": 2065,
           "n_clusters": 9,
-          "mean_excess_pct": 2.56,
-          "median_excess_pct": 0.531,
-          "win_rate": 0.5303,
-          "t_stat": 3.04,
-          "t_stat_iid": 6.8,
+          "mean_excess_pct": 1.778,
+          "median_excess_pct": 0.087,
+          "win_rate": 0.5056,
+          "t_stat": 5.13,
+          "t_stat_iid": 4.78,
           "t_hurdle": 4.19,
           "significant": false,
           "bootstrap_ci_pct": [
-            0.858,
-            3.311
+            1.148,
+            2.469
           ],
-          "sign_test_p": 0.0063,
-          "skew_ratio": 4.82,
+          "sign_test_p": 0.6283,
+          "wild_p": 0.005,
+          "p_floor": 0.00391,
+          "resolvable": false,
+          "skew_ratio": 20.48,
           "cluster_by": "month",
           "inference": "cluster_robust",
           "warnings": [
             "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-            "mean is 4.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it"
+            "mean is 20.5x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+            "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
           ]
         },
         "clustering_premise": "unsupported_control_at_least_as_strong"
@@ -523,6 +531,15 @@
         "n_configs": 18,
         "description": "定向板:3 个域 x 3 条边 x 双向(follow/fade),方向由数据挑选。",
         "outcome": "0 promoted — 双向都测,方向不是先验而是搜索结果"
+      },
+      "result": null
+    },
+    {
+      "search": {
+        "search_id": "benchmark_choice_us_equity",
+        "n_configs": 4,
+        "description": "基准选择:SPY / QQQ / 全域等权横截面 / SPY与横截面各半,在真实内部人事件上各测一遍。",
+        "outcome": "按先验理由选了横截面中性(小盘暴露),不是按 t 值最高的那个(50/50 混合 t=3.76)"
       },
       "result": null
     }

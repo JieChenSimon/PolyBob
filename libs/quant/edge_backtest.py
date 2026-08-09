@@ -243,6 +243,7 @@ def replay_events(
     t_hurdle: float,
     edge_id: str = "replay",
     carry: Callable[[str, str, Sequence[str], int], float | None] | None = None,
+    neutralise_universe: Sequence[str] | None = None,
 ) -> BacktestResult:
     """Price a list of ``(symbol, signal_date)`` events under one exit rule.
 
@@ -263,6 +264,25 @@ def replay_events(
     does not add noise, it biases the one leg being traded — and it biases it against
     the edge, which is the direction that looks conservative and is actually just
     wrong.
+
+    ``neutralise_universe`` replaces the index benchmark with the equal-weighted mean
+    forward return of that universe on the same date — the cross-sectional control.
+
+    The reason is a priori, and that distinction is the point. Insider cluster buys
+    concentrate in small caps while SPY is large-cap, so subtracting SPY leaves a
+    size-factor exposure inside what gets called alpha. Demeaning against the population
+    the events are drawn from removes whatever is common to it, by construction, without
+    estimating a beta.
+
+    Four benchmarks were measured before this was chosen — SPY, QQQ, cross-sectional and
+    a 50/50 blend — and all four are registered as trials, because a search over
+    benchmarks is a search. The blend produced the highest t-statistic and was **not**
+    chosen: it has no prior justification, and picking the winner of a search is the data
+    snooping this project exists to avoid. The cross-sectional control in fact gives a
+    *lower* t than SPY (3.58 against 3.67), because part of the SPY-excess was small-cap
+    beta rather than alpha; the honest effect estimate is the smaller one. What improves
+    is future power — cluster SD 3.87% -> 3.37%, so the minimum detectable effect falls
+    from 5.40% to 4.70%.
     """
     edge_result = BacktestResult(edge_id=edge_id)
     sign = -1.0 if direction is Direction.SHORT else 1.0
@@ -277,6 +297,27 @@ def replay_events(
 
     # One bulk read up front, not one per event.
     prices = _series_bulk([symbol for symbol, _ in events], as_of)
+
+    # The cross-sectional control, cached per date. A minimum breadth is required: the
+    # "average" of six stocks is not a market, and using one would swap a benchmark for
+    # noise.
+    control: dict[str, float | None] = {}
+    control_series = (
+        _series_bulk(list(neutralise_universe), as_of) if neutralise_universe else {}
+    )
+
+    def _cross_sectional(date: str) -> float | None:
+        if not control_series:
+            return None
+        if date not in control:
+            values = []
+            for dates_, closes_ in control_series.values():
+                window = _forward(dates_, closes_, date, hold_sessions)
+                if window is not None:
+                    values.append(closes_[window[1]] / closes_[window[0]] - 1.0)
+            control[date] = float(np.mean(values)) if len(values) >= 30 else None
+        return control[date]
+
     for symbol, signal_date in events:
         edge_result.signals_found += 1
         series = prices.get(symbol)
@@ -292,7 +333,13 @@ def replay_events(
         gross = sign * (closes[exit_i] / closes[entry_i] - 1.0)
 
         benchmark_return: float | None = None
-        if bench is not None:
+        if neutralise_universe:
+            raw_control = _cross_sectional(signal_date)
+            if raw_control is None:
+                edge_result.dropped_no_benchmark += 1
+                continue
+            benchmark_return = sign * raw_control
+        elif bench is not None:
             b_window = _forward(bench[0], bench[1], signal_date, hold_sessions)
             if b_window is None:
                 edge_result.dropped_no_benchmark += 1

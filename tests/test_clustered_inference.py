@@ -338,3 +338,29 @@ def test_the_hurdle_is_stricter_than_bonferroni():
     hurdle = deflated_t_stat_threshold(237)
     assert hurdle == pytest.approx(4.19, abs=0.01)
     assert _alpha_for_t(hurdle) < 0.05 / 237
+
+
+def test_a_tail_driven_significance_is_called_out():
+    """The sharpest form of the skew warning, and it fired on real data.
+
+    The single-buy control reaches t=5.13 — above the hurdle — with a 50.6% win rate, a
+    median of +0.09% and a sign test at p=0.63. A coin flip with a few large winners.
+    That may still be a real portfolio return, but it is not what "these stocks
+    outperform" sounds like, and it sizes completely differently: Kelly on a 50.6% win
+    rate is nothing, while the mean is positive.
+    """
+    # Mostly nothing, a few large winners: significant on the mean, a coin flip on the
+    # median. Spread over enough clusters that the t-statistic is trustworthy.
+    rets = ([0.0005, -0.0005] * 240) + [1.2] * 20
+    result = analyse(rets, _dates(500, weeks=40), t_hurdle=2.0, hold_days=5)
+    assert result.sign_test_p is not None and result.sign_test_p > 0.10
+    assert abs(result.t_clustered) >= 2.0 * 0.75
+    assert any("只存在于尾部" in w for w in result.warnings)
+
+
+def test_a_broad_effect_is_not_called_tail_driven():
+    """The warning must not fire on an edge that actually moves the typical trade."""
+    rets = _returns(600, 0.02, 0.01, weeks=40, shock=0.002)
+    result = analyse(rets, _dates(600, weeks=40), t_hurdle=2.0, hold_days=5)
+    assert result.win_rate > 0.9
+    assert not any("只存在于尾部" in w for w in result.warnings)

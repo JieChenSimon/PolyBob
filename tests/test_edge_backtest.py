@@ -280,3 +280,95 @@ def test_measured_carry_is_added_to_the_short():
     )
     # +10% from the price fall, plus 0.3% of funding collected.
     assert result.trades[0].excess == pytest.approx(0.103)
+
+
+# ------------------------------------------------- cross-sectional neutralisation
+def _many(prefix: str, count: int, *, rise: float) -> list[str]:
+    """`count` real-shaped instruments that all move by ``rise`` over one session."""
+    names = []
+    for i in range(count):
+        symbol = f"{prefix}{i:03d}"
+        _write(symbol, {"2026-03-02": 100.0, "2026-03-03": 100.0 * (1 + rise)})
+        names.append(symbol)
+    return names
+
+
+def test_the_cross_sectional_control_removes_the_common_move():
+    """Demeaning against the population the events are drawn from.
+
+    Insider clusters concentrate in small caps while SPY is large-cap, so a SPY-excess
+    return carries a size-factor exposure inside what gets called alpha. The control
+    removes whatever is common to the population, by construction, without estimating
+    a beta.
+    """
+    universe = _many("U", 40, rise=0.05)          # the whole population rose 5%
+    _write("EDGE", {"2026-03-02": 100.0, "2026-03-03": 107.0})   # the event rose 7%
+
+    result = edge_backtest.replay_events(
+        [("EDGE", "2026-03-02")], direction=Direction.LONG, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+        neutralise_universe=universe,
+    )
+    # 7% minus the population's 5% is 2% of alpha, not 7% of it.
+    assert result.trades[0].excess == pytest.approx(0.02, abs=1e-6)
+
+
+def test_the_control_overrides_the_index_benchmark_when_both_are_given():
+    """One benchmark per measurement. Subtracting both would double count."""
+    universe = _many("V", 40, rise=0.05)
+    _write("SPY", {"2026-03-02": 100.0, "2026-03-03": 101.0})
+    _write("EDGE2", {"2026-03-02": 100.0, "2026-03-03": 107.0})
+
+    result = edge_backtest.replay_events(
+        [("EDGE2", "2026-03-02")], direction=Direction.LONG, hold_sessions=1,
+        benchmark="SPY", cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+        neutralise_universe=universe,
+    )
+    assert result.trades[0].excess == pytest.approx(0.02, abs=1e-6)
+
+
+def test_a_thin_control_universe_is_refused_rather_than_averaged():
+    """The "average" of six stocks is not a market.
+
+    Using one would swap a benchmark for noise, and a noisy benchmark inflates the
+    measured effect's variance rather than removing anything.
+    """
+    universe = _many("W", 6, rise=0.05)
+    _write("EDGE3", {"2026-03-02": 100.0, "2026-03-03": 107.0})
+
+    result = edge_backtest.replay_events(
+        [("EDGE3", "2026-03-02")], direction=Direction.LONG, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+        neutralise_universe=universe,
+    )
+    assert result.trades == []
+    assert result.dropped_no_benchmark == 1
+
+
+def test_the_control_is_signed_with_the_position_like_a_benchmark():
+    """A short's excess is measured against a short of the control."""
+    universe = _many("X", 40, rise=-0.05)         # the population fell 5%
+    _write("EDGE4", {"2026-03-02": 100.0, "2026-03-03": 93.0})   # the event fell 7%
+
+    result = edge_backtest.replay_events(
+        [("EDGE4", "2026-03-02")], direction=Direction.SHORT, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+        neutralise_universe=universe,
+    )
+    # Shorting the event earns +7%; shorting the population would have earned +5%.
+    assert result.trades[0].excess == pytest.approx(0.02, abs=1e-6)
+
+
+def test_the_control_is_read_point_in_time_like_everything_else():
+    """It is a benchmark, so it inherits the store's as-of guarantee."""
+    universe = _many("Y", 40, rise=0.05)
+    _write("EDGE5", {"2026-03-02": 100.0, "2026-03-03": 107.0},
+           fetched=dt.datetime(2026, 5, 1, tzinfo=dt.UTC))
+
+    early = edge_backtest.replay_events(
+        [("EDGE5", "2026-03-02")], direction=Direction.LONG, hold_sessions=1,
+        benchmark=None, cost_bps=0.0,
+        as_of=dt.datetime(2026, 3, 5, tzinfo=dt.UTC), t_hurdle=3.0,
+        neutralise_universe=universe,
+    )
+    assert early.trades == []                     # the event's prices were not known yet

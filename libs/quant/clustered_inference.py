@@ -315,6 +315,23 @@ def analyse(
             "few tail events, so the typical trade looks nothing like it"
         )
 
+    # The sharpest version of that warning: a t-statistic that clears its bar while the
+    # *median* is indistinguishable from zero is an effect that exists only in the tail.
+    # Measured on the real insider edge, the single-buy control reaches t=5.13 with a
+    # 50.6% win rate, a median of +0.09% and a sign test at p=0.63 — a coin flip with a
+    # few large winners. That can still be a real portfolio return, but it is not the
+    # thing "stocks that outperform" sounds like, and it sizes very differently.
+    sign_p = _sign_test_p(raw)
+    if (sign_p is not None and sign_p > 0.10
+            and abs(t_clustered) >= t_hurdle * 0.75
+            and skew_ratio is not None and abs(skew_ratio) > 3):
+        warnings.append(
+            f"t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p={sign_p:.2f},"
+            f"胜率 {float((raw > 0).mean())*100:.1f}%)—— 这个效应只存在于尾部。"
+            f"组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,"
+            f"而且仓位算法必须按整个分布定,不能按胜率定。"
+        )
+
     lo = hi = None
     if g >= 2:
         # Resample whole clusters and recompute the pooled mean — the same estimator
@@ -359,7 +376,7 @@ def analyse(
         t_iid=t_iid, t_clustered=t_clustered, t_hurdle=t_hurdle,
         significant=significant,
         bootstrap_lo=lo, bootstrap_hi=hi,
-        sign_test_p=_sign_test_p(raw),
+        sign_test_p=sign_p,
         wild_p=wild_p, p_floor=p_floor, resolvable=resolvable,
         skew_ratio=skew_ratio, cluster_by=by, warnings=warnings,
     )
