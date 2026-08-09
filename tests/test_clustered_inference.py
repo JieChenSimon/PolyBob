@@ -194,3 +194,74 @@ def test_to_dict_reports_both_statistics():
     assert abs(payload["t_stat"]) < abs(payload["t_stat_iid"])
     assert payload["n_clusters"] < payload["n"]
     assert payload["cluster_by"] == "week"
+
+
+# ------------------------------------------------ the estimator must be the mean
+def test_the_reported_mean_and_the_t_statistic_describe_the_same_quantity():
+    """The defect this replaced: two estimators on one row.
+
+    The first version computed the t-statistic from the unweighted average of cluster
+    means while the board printed ``mean_excess_pct`` from the sample mean. On the real
+    altcoin edge those differed by 37% — +3.09% reported next to a t computed at
+    +2.25%. Whatever else a row does, its effect size and its significance have to be
+    about the same number.
+    """
+    rets = _returns(600, 0.02, 0.03, weeks=30, shock=0.02)
+    result = analyse(rets, _dates(600, weeks=30), t_hurdle=3.77, hold_days=5)
+    assert result.mean == pytest.approx(float(np.mean(rets)))
+    # The t-statistic is that mean over its cluster-robust standard error, so the
+    # implied SE must be positive and finite.
+    implied_se = result.mean / result.t_clustered
+    assert implied_se > 0
+
+
+def test_unbalanced_clusters_do_not_let_a_tiny_group_dominate():
+    """A 3-event week must not carry the same weight as a 32-event week.
+
+    Averaging cluster means gave them equal weight, which is why the altcoin edge —
+    whose weekly clusters range from 3 to 32 events — was penalised twice: once for
+    genuine dependence and once for the arithmetic.
+    """
+    import datetime as dt
+
+    start = dt.date(2025, 1, 6)
+    returns: list[float] = []
+    dates: list[str] = []
+    for week in range(25):
+        # One outlying week with a single extreme observation, the rest well behaved.
+        size, value = (1, 5.0) if week == 0 else (40, 0.02)
+        for i in range(size):
+            returns.append(value)
+            dates.append((start + dt.timedelta(weeks=week, days=i % 5)).isoformat())
+
+    result = analyse(returns, dates, t_hurdle=3.77, hold_days=5)
+    # The pooled mean is dominated by the 960 ordinary observations, not by the one
+    # outlier, so it stays near 0.02 rather than being dragged toward 5.0/25.
+    assert result.mean < 0.03
+    assert result.n_clusters == 25
+
+
+def test_a_single_cluster_holding_everything_still_cannot_be_significant():
+    result = analyse([0.05] * 300, ["2025-01-06"] * 300, t_hurdle=3.77, hold_days=5)
+    assert result.n_clusters == 1
+    assert result.t_clustered == 0.0
+    assert result.significant is False
+
+
+def test_the_bootstrap_interval_brackets_the_reported_mean():
+    """The interval must be around the quantity being reported, not another one."""
+    rets = _returns(600, 0.03, 0.02, weeks=40, shock=0.005)
+    result = analyse(rets, _dates(600, weeks=40), t_hurdle=3.77, hold_days=5)
+    assert result.bootstrap_lo is not None
+    assert result.bootstrap_lo <= result.mean <= result.bootstrap_hi
+
+
+def test_zero_variance_within_and_across_clusters_is_not_significant():
+    """Every observation identical means no measurable uncertainty — and no evidence.
+
+    Dividing by a zero standard error would produce an infinite t, which is how a
+    degenerate sample turns into a promotion.
+    """
+    result = analyse([0.02] * 400, _dates(400, weeks=40), t_hurdle=3.77, hold_days=5)
+    assert result.t_clustered == 0.0
+    assert result.significant is False

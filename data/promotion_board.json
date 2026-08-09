@@ -36,14 +36,14 @@
       "win_rate": 0.3559,
       "mean_excess_pct": -2.016,
       "median_excess_pct": -3.581,
-      "t_stat": -6.86,
+      "t_stat": -6.61,
       "t_stat_iid": -29.59,
       "n_clusters": 125,
       "cluster_by": "week",
       "inference": "cluster_robust",
       "bootstrap_ci_pct": [
-        -2.499,
-        -1.396
+        -2.604,
+        -1.415
       ],
       "sign_test_p": 0.0,
       "inference_warnings": [],
@@ -51,7 +51,7 @@
       "max_evidence_age_days": 90,
       "run_as_of": "2026-08-09T08:16:43.508361+00:00",
       "run_reproducible": true,
-      "evidence": "来源 data/billboard_results.json; n=40756; 独立week=125; t(聚类)=-6.86 vs t(iid)=-29.59; 证据截至 2026-07-31; 2024-03-05..2026-07-31; 持有 5 日; 逐年胜率 34.2-37.4%"
+      "evidence": "来源 data/billboard_results.json; n=40756; 独立week=125; t(聚类)=-6.61 vs t(iid)=-29.59; 证据截至 2026-07-31; 2024-03-05..2026-07-31; 持有 5 日; 逐年胜率 34.2-37.4%"
     },
     {
       "strategy": "altcoin_retail_crowding",
@@ -74,14 +74,14 @@
       "win_rate": 0.7016,
       "mean_excess_pct": 3.088,
       "median_excess_pct": 2.094,
-      "t_stat": 1.81,
+      "t_stat": 1.85,
       "t_stat_iid": 6.4,
       "n_clusters": 14,
       "cluster_by": "week",
       "inference": "cluster_robust",
       "bootstrap_ci_pct": [
-        0.072,
-        4.661
+        0.202,
+        6.282
       ],
       "sign_test_p": 0.0,
       "inference_warnings": [
@@ -91,7 +91,7 @@
       "max_evidence_age_days": 90,
       "run_as_of": "2026-08-09T08:16:14.471450+00:00",
       "run_reproducible": true,
-      "evidence": "来源 data/us_crypto_results.json; n=248; 独立week=14; t(聚类)=1.81 vs t(iid)=6.40; 证据截至 2026-08-03; 持有 5 日"
+      "evidence": "来源 data/us_crypto_results.json; n=248; 独立week=14; t(聚类)=1.85 vs t(iid)=6.40; 证据截至 2026-08-03; 持有 5 日"
     },
     {
       "strategy": "btc5m_mispricing",
@@ -116,7 +116,7 @@
       "win_rate": 0.5253,
       "mean_excess_pct": 9.753,
       "median_excess_pct": 38.5,
-      "t_stat": 0.99,
+      "t_stat": 1.17,
       "t_stat_iid": 2.15,
       "n_clusters": 2,
       "cluster_by": "day",
@@ -134,7 +134,7 @@
       "max_evidence_age_days": 30,
       "run_as_of": "2026-08-09T10:29:17.569938+00:00",
       "run_reproducible": false,
-      "evidence": "来源 data/btc5m_mispricing.json; n=99; 独立day=2; t(聚类)=0.99 vs t(iid)=2.15; 证据截至 2026-08-09; 持有 1 日"
+      "evidence": "来源 data/btc5m_mispricing.json; n=99; 独立day=2; t(聚类)=1.17 vs t(iid)=2.15; 证据截至 2026-08-09; 持有 1 日"
     },
     {
       "strategy": "us_insider_cluster_buy",
@@ -157,14 +157,14 @@
       "win_rate": 0.5419,
       "mean_excess_pct": 4.728,
       "median_excess_pct": 0.964,
-      "t_stat": 2.72,
+      "t_stat": 3.67,
       "t_stat_iid": 6.62,
       "n_clusters": 9,
       "cluster_by": "month",
       "inference": "cluster_robust",
       "bootstrap_ci_pct": [
-        1.674,
-        7.891
+        2.334,
+        7.244
       ],
       "sign_test_p": 0.0063,
       "inference_warnings": [
@@ -175,7 +175,7 @@
       "max_evidence_age_days": 180,
       "run_as_of": "2026-08-09T08:15:42.670918+00:00",
       "run_reproducible": true,
-      "evidence": "来源 data/insider_results.json; n=1085; 独立month=9; t(聚类)=2.72 vs t(iid)=6.62; 证据截至 2026-03-31; 2025Q3..2026Q1; 持有 20 日"
+      "evidence": "来源 data/insider_results.json; n=1085; 独立month=9; t(聚类)=3.67 vs t(iid)=6.62; 证据截至 2026-03-31; 2025Q3..2026Q1; 持有 20 日"
     }
   ]
 }

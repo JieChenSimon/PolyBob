@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T10:41:09.737938+00:00",
+  "generated_at": "2026-08-09T11:18:07.028157+00:00",
   "real_data_only": true,
   "t_hurdle": 4.19,
   "min_clusters": 20,
@@ -11,21 +11,21 @@
     {
       "name": "negative_uniform",
       "description": "假边:随机标的 + 随机日期(日期均匀分布)。构造上没有任何优势。",
-      "trials": 12,
+      "trials": 6,
       "pass_rate_clustered": 0.0,
       "pass_rate_iid": 0.0,
-      "median_t_clustered": -0.36,
+      "median_t_clustered": -0.119,
       "median_t_iid": -0.002,
       "median_clusters": 35
     },
     {
       "name": "negative_bunched",
       "description": "假边:随机标的,但信号挤在少数几周里——真实事件边的形状。",
-      "trials": 7,
+      "trials": 3,
       "pass_rate_clustered": 0.0,
       "pass_rate_iid": 0.0,
       "median_t_clustered": 0.239,
-      "median_t_iid": 0.082,
+      "median_t_iid": -1.136,
       "median_clusters": 6
     },
     {
@@ -34,11 +34,56 @@
       "trials": 20,
       "pass_rate_clustered": 0.0,
       "pass_rate_iid": 0.0,
-      "median_t_clustered": 0.865,
-      "median_t_iid": 0.784,
-      "median_clusters": 35
+      "median_t_clustered": 0.596,
+      "median_t_iid": 0.686,
+      "median_clusters": 34
     }
   ],
+  "power_curve": [
+    {
+      "drift_pct": 0.5,
+      "trials": 20,
+      "power": 0.0,
+      "median_t": -0.39
+    },
+    {
+      "drift_pct": 1.0,
+      "trials": 20,
+      "power": 0.0,
+      "median_t": 0.09
+    },
+    {
+      "drift_pct": 1.5,
+      "trials": 20,
+      "power": 0.0,
+      "median_t": 0.6
+    },
+    {
+      "drift_pct": 2.5,
+      "trials": 20,
+      "power": 0.05,
+      "median_t": 1.58
+    },
+    {
+      "drift_pct": 4.0,
+      "trials": 20,
+      "power": 0.15,
+      "median_t": 2.94
+    },
+    {
+      "drift_pct": 6.0,
+      "trials": 20,
+      "power": 0.9,
+      "median_t": 4.88
+    },
+    {
+      "drift_pct": 8.0,
+      "trials": 20,
+      "power": 0.95,
+      "median_t": 6.95
+    }
+  ],
+  "min_detectable_effect_pct": 6.0,
   "lookahead": {
     "available": true,
     "cheat_n": 400,

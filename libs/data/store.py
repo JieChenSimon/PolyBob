@@ -197,6 +197,35 @@ def write(
 # --------------------------------------------------------------------- reading
 
 
+# One DuckDB connection, reused. It is in-process and stateless for our purposes —
+# every query names its own parquet files — so a fresh connection per call bought
+# nothing and cost a great deal: the live scanner reads one symbol at a time, and the
+# validation harness issued ~100k connections before this was noticed. Connections are
+# cheap individually and ruinous in aggregate, which is the usual shape of this bug.
+_CONNECTION: Any = None
+
+
+def _connect():
+    global _CONNECTION
+    if _CONNECTION is None:
+        import duckdb
+
+        _CONNECTION = duckdb.connect()
+    return _CONNECTION
+
+
+def close() -> None:
+    """Release the shared connection. Tests that swap ``STORE_ROOT`` do not need
+    this — the connection holds no reference to a directory — but a long-lived
+    process shutting down should."""
+    global _CONNECTION
+    if _CONNECTION is not None:
+        try:
+            _CONNECTION.close()
+        finally:
+            _CONNECTION = None
+
+
 def _files(ds: Dataset, symbols: Iterable[str] | None) -> list[str]:
     base = ds.path()
     if not base.exists():
@@ -227,7 +256,6 @@ def read(
     Returns a pandas DataFrame. Empty (with the right columns) when nothing
     matches, so callers never have to distinguish "no data" from "no table".
     """
-    import duckdb
     import pandas as pd
 
     ds = ds if isinstance(ds, Dataset) else dataset(ds)
@@ -266,11 +294,7 @@ def read(
         SELECT * EXCLUDE (_rank) FROM observed WHERE _rank = 1
         ORDER BY symbol, {EVENT_DATE}
     """
-    con = duckdb.connect()
-    try:
-        frame = con.execute(sql, [files, *params]).df()
-    finally:
-        con.close()
+    frame = _connect().execute(sql, [files, *params]).df()
     for column in columns:
         if column not in frame.columns:
             frame[column] = None
@@ -284,7 +308,6 @@ def restatements(ds: Dataset | str, symbols: Iterable[str] | str | None = None):
     overwrite-in-place cache made invisible. Here it is a query, so "how much of
     my sample was restated after the fact?" has an answer.
     """
-    import duckdb
     import pandas as pd
 
     ds = ds if isinstance(ds, Dataset) else dataset(ds)
@@ -293,44 +316,34 @@ def restatements(ds: Dataset | str, symbols: Iterable[str] | str | None = None):
     files = _files(ds, symbols)
     if not files:
         return pd.DataFrame({"symbol": [], EVENT_DATE: [], "observations": []})
-    con = duckdb.connect()
-    try:
-        return con.execute(
-            f"""
-            SELECT symbol, {EVENT_DATE}, count(*) AS observations,
-                   min({FETCHED_AT}) AS first_seen, max({FETCHED_AT}) AS last_seen
-            FROM read_parquet(?, union_by_name = true, hive_partitioning = true)
-            GROUP BY symbol, {EVENT_DATE}
-            HAVING count(*) > 1
-            ORDER BY observations DESC, symbol, {EVENT_DATE}
-            """,
-            [files],
-        ).df()
-    finally:
-        con.close()
+    return _connect().execute(
+        f"""
+        SELECT symbol, {EVENT_DATE}, count(*) AS observations,
+               min({FETCHED_AT}) AS first_seen, max({FETCHED_AT}) AS last_seen
+        FROM read_parquet(?, union_by_name = true, hive_partitioning = true)
+        GROUP BY symbol, {EVENT_DATE}
+        HAVING count(*) > 1
+        ORDER BY observations DESC, symbol, {EVENT_DATE}
+        """,
+        [files],
+    ).df()
 
 
 def coverage(ds: Dataset | str) -> dict[str, Any]:
     """What the store actually holds — for a page that must not overstate itself."""
-    import duckdb
-
     ds = ds if isinstance(ds, Dataset) else dataset(ds)
     files = _files(ds, None)
     if not files:
         return {"dataset": ds.name, "symbols": 0, "rows": 0, "start": None, "end": None,
                 "first_fetch": None, "last_fetch": None}
-    con = duckdb.connect()
-    try:
-        row = con.execute(
-            f"""
-            SELECT count(DISTINCT symbol), count(*), min({EVENT_DATE}), max({EVENT_DATE}),
-                   min({FETCHED_AT}), max({FETCHED_AT})
-            FROM read_parquet(?, union_by_name = true, hive_partitioning = true)
-            """,
-            [files],
-        ).fetchone()
-    finally:
-        con.close()
+    row = _connect().execute(
+        f"""
+        SELECT count(DISTINCT symbol), count(*), min({EVENT_DATE}), max({EVENT_DATE}),
+               min({FETCHED_AT}), max({FETCHED_AT})
+        FROM read_parquet(?, union_by_name = true, hive_partitioning = true)
+        """,
+        [files],
+    ).fetchone()
     return {
         "dataset": ds.name, "symbols": row[0], "rows": row[1],
         "start": row[2], "end": row[3],
@@ -353,5 +366,6 @@ def symbols(ds: Dataset | str) -> list[str]:
 __all__ = [
     "DAILY_BARS", "DATASETS", "EVENT_DATE", "FETCHED_AT", "FUNDING_RATES",
     "INSIDER_FILINGS", "POSITIONING", "STORE_ROOT", "Dataset", "StoreError",
-    "coverage", "dataset", "now_utc", "read", "restatements", "symbols", "write",
+    "close", "coverage", "dataset", "now_utc", "read", "restatements", "symbols",
+    "write",
 ]

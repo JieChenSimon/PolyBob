@@ -113,16 +113,55 @@ class ClusteredResult:
         }
 
 
-def _cluster_means(
+def _buckets(
     returns: Sequence[float], dates: Sequence[str], by: ClusterBy
-) -> tuple[np.ndarray, list[str]]:
-    buckets: dict[str, list[float]] = {}
+) -> dict[str, list[float]]:
+    out: dict[str, list[float]] = {}
     for value, date in zip(returns, dates):
         if not np.isfinite(value):
             continue
-        buckets.setdefault(cluster_key(date, by), []).append(float(value))
-    keys = sorted(buckets)
-    return np.array([float(np.mean(buckets[k])) for k in keys]), keys
+        out.setdefault(cluster_key(date, by), []).append(float(value))
+    return out
+
+
+def _crve_t(buckets: dict[str, list[float]]) -> tuple[float, float]:
+    """Cluster-robust t for the sample mean. Returns ``(t, standard_error)``.
+
+    The estimator is the **sample mean** and only the variance changes. The first
+    version of this module instead averaged the cluster means, and that was wrong in
+    two ways that compounded:
+
+    1. It silently changed the estimator. The board reports ``mean_excess_pct`` from
+       the sample mean while its ``t_stat`` came from the cluster-mean average — two
+       different quantities on the same row. On the altcoin edge they differed by 37%
+       (+3.09% against +2.25%).
+    2. It over-corrected on unbalanced clusters, giving a 3-event week the same weight
+       as a 32-event week. The altcoin edge's clusters range 3 to 32.
+
+    This is the standard sandwich estimator:
+    ``Var(mean) = G/(G-1) * sum_g (sum_{i in g} (r_i - mean))^2 / n^2``.
+    Within a cluster the residuals are allowed to be arbitrarily correlated, which is
+    the whole point — it makes no assumption about *how* the overlap works.
+    """
+    values = [v for group in buckets.values() for v in group]
+    n, g = len(values), len(buckets)
+    if n < 2 or g < 2:
+        return 0.0, 0.0
+    arr = np.asarray(values, dtype=float)
+    mean = float(arr.mean())
+    scores = np.array([float(np.sum(np.asarray(group) - mean)) for group in buckets.values()])
+    variance = (g / (g - 1)) * float((scores ** 2).sum()) / (n * n)
+    se = float(np.sqrt(variance)) if variance > 0 else 0.0
+
+    # A degenerate sample has no measurable uncertainty, and dividing by its residual
+    # floating-point standard error produces a t of 1e16 — which would sail through any
+    # hurdle. The guard is *relative*: an absolute ``se <= 0`` misses the residue,
+    # because summing identical values leaves errors around 1e-18 rather than exactly
+    # zero. Scale is set by the data itself so the test works at any magnitude.
+    scale = float(np.abs(arr).mean()) or 1.0
+    if se <= scale * 1e-12:
+        return 0.0, 0.0
+    return mean / se, se
 
 
 def _sign_test_p(returns: np.ndarray) -> float | None:
@@ -165,10 +204,10 @@ def analyse(
     """
     raw = np.asarray([r for r in returns if np.isfinite(r)], dtype=float)
     by = cluster_by or recommended_cluster(hold_days)
-    means, keys = _cluster_means(returns, dates, by)
+    buckets = _buckets(returns, dates, by)
 
     warnings: list[str] = []
-    n, g = len(raw), len(means)
+    n, g = len(raw), len(buckets)
     if n == 0 or g == 0:
         return ClusteredResult(0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, t_hurdle, False,
                                None, None, None, None, by, ["no usable returns"])
@@ -180,8 +219,7 @@ def analyse(
         warnings.append("only one independence cluster — no inference is possible")
         t_clustered = 0.0
     else:
-        sd_g = means.std(ddof=1)
-        t_clustered = float(means.mean() / (sd_g / np.sqrt(g))) if sd_g > 0 else 0.0
+        t_clustered, _ = _crve_t(buckets)
 
     if g < min_clusters:
         # Cluster-robust standard errors are themselves unreliable with few
@@ -203,9 +241,15 @@ def analyse(
 
     lo = hi = None
     if g >= 2:
+        # Resample whole clusters and recompute the pooled mean — the same estimator
+        # the t-statistic uses. Averaging cluster *means* here would give an interval
+        # around a different quantity from the one being reported.
         rng = np.random.default_rng(seed)
+        groups = [np.asarray(v, dtype=float) for v in buckets.values()]
+        sums = np.array([grp.sum() for grp in groups])
+        sizes = np.array([len(grp) for grp in groups], dtype=float)
         draws = rng.integers(0, g, size=(bootstrap_draws, g))
-        samples = means[draws].mean(axis=1)
+        samples = sums[draws].sum(axis=1) / sizes[draws].sum(axis=1)
         lo, hi = (float(np.percentile(samples, 2.5)), float(np.percentile(samples, 97.5)))
         if lo <= 0 <= hi:
             warnings.append("the 95% bootstrap interval on the mean contains zero")

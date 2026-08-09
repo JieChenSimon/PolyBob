@@ -126,25 +126,32 @@ def _session_dates(symbol: str, as_of: dt.datetime) -> list[str]:
     return [str(d) for d in frame[store.EVENT_DATE].tolist()]
 
 
-def _score(events: list[tuple[str, str]], as_of: dt.datetime, hurdle: float,
-           *, drift: float = 0.0) -> TrialOutcome | None:
-    """Price synthetic events through the *production* replay and score both ways."""
+def _price(events: list[tuple[str, str]], as_of: dt.datetime, hurdle: float):
+    """Run the events through the *production* replay once.
+
+    Split from scoring because pricing is the expensive half — it reads every symbol's
+    bars — while injecting a drift only shifts the mean. The first version re-priced
+    for each of seven drift levels and spent twenty minutes of CPU doing the same work
+    nine times.
+    """
     result = edge_backtest.replay_events(
         events, direction=Direction.LONG, hold_sessions=HOLD_SESSIONS,
         benchmark=BENCHMARK, cost_bps=COST_BPS, as_of=as_of,
         t_hurdle=hurdle, edge_id="validation",
     )
-    if len(result.trades) < 100 or result.inference is None:
+    if len(result.trades) < 100:
         return None
+    return ([t.excess for t in result.trades], [t.signal_date for t in result.trades])
 
-    excesses = [t.excess + drift for t in result.trades]
-    dates = [t.signal_date for t in result.trades]
-    if drift:
-        inference = analyse(excesses, dates, t_hurdle=hurdle, hold_days=HOLD_SESSIONS,
-                            min_clusters=MIN_CLUSTERS)
-    else:
-        inference = result.inference
 
+def _score_priced(priced, hurdle: float, *, drift: float = 0.0) -> TrialOutcome | None:
+    """Score already-priced returns, optionally with a known drift injected."""
+    if priced is None:
+        return None
+    excesses, dates = priced
+    inference = analyse([e + drift for e in excesses], dates,
+                        t_hurdle=hurdle, hold_days=HOLD_SESSIONS,
+                        min_clusters=MIN_CLUSTERS)
     # The i.i.d. verdict the project used to reach, on identical returns. The only
     # difference is the denominator, which is the whole point.
     return TrialOutcome(
@@ -231,12 +238,12 @@ def main() -> None:
     print(f"\n{'─'*82}\n1-2. 负对照:假边应该几乎全被拒绝\n{'─'*82}")
     for i in range(args.trials):
         uniform = _random_events(rng, universe, calendars, args.events, bunch_weeks=None)
-        outcome = _score(uniform, as_of, hurdle)
+        outcome = _score_priced(_price(uniform, as_of, hurdle), hurdle)
         if outcome:
             experiments[0].trials.append(outcome)
 
         bunched = _random_events(rng, universe, calendars, args.events, bunch_weeks=6)
-        outcome = _score(bunched, as_of, hurdle)
+        outcome = _score_priced(_price(bunched, as_of, hurdle), hurdle)
         if outcome:
             experiments[1].trials.append(outcome)
 
@@ -246,15 +253,18 @@ def main() -> None:
     print(f"\n{'─'*82}\n3. 正对照 + 功效曲线:多大的真实优势才检得出来\n{'─'*82}")
     power_curve: list[dict[str, Any]] = []
     reps = max(20, args.trials // 4)
-    base_events = [
-        _random_events(rng, universe, calendars, args.events, bunch_weeks=None)
+    # Price each synthetic edge once, then re-score it at every drift level.
+    base_priced = [
+        _price(_random_events(rng, universe, calendars, args.events, bunch_weeks=None),
+               as_of, hurdle)
         for _ in range(reps)
     ]
+    base_priced = [p for p in base_priced if p is not None]
     for drift in (0.005, 0.010, 0.015, 0.025, 0.040, 0.060, 0.080):
         detected = trials = 0
         ts: list[float] = []
-        for events in base_events:
-            outcome = _score(events, as_of, hurdle, drift=drift)
+        for priced in base_priced:
+            outcome = _score_priced(priced, hurdle, drift=drift)
             if outcome is None:
                 continue
             trials += 1
@@ -346,7 +356,7 @@ def _lookahead_experiment(universe, calendars, as_of, hurdle, rng) -> dict[str, 
     if len(cheating) < 100:
         return {"lines": ["真实历史里符合条件的作弊样本不足,跳过"], "available": False}
 
-    peeked = _score(cheating, as_of, hurdle)
+    peeked = _score_priced(_price(cheating, as_of, hurdle), hurdle)
     if peeked is None:
         return {"lines": ["无法定价作弊样本"], "available": False}
 
