@@ -8,14 +8,19 @@ import { useLanguage } from '@/lib/i18n';
 // settings last. Heavy chart routes keep prefetch disabled (perf contract).
 const navItems = [
   { href: '/overview', label: { en: 'Daily Brief', zh: '每日简报' } },
+  // Second, right after the brief: the journal is where the north star is
+  // actually measured. It sat nowhere at all while the workbench reported
+  // research win rates it had no way to confirm.
+  { href: '/journal', label: { en: 'Journal', zh: '交易日志' } },
   { href: '/markets', label: { en: 'Markets', zh: '市场观察' }, prefetch: false },
   { href: '/polymarket', label: { en: 'Polymarket', zh: 'Polymarket' }, aliases: ['/btc-5m'] },
   { href: '/crypto', label: { en: 'Crypto', zh: '加密货币' } },
   { href: '/us-equities', label: { en: 'Equities', zh: '股票观察' }, prefetch: false },
-  { href: '/strategies', label: { en: 'Strategies', zh: '策略中心' } },
-  { href: '/execution', label: { en: 'Execution', zh: '执行台' } },
-  { href: '/simulation', label: { en: 'Simulation', zh: '模拟盘' } },
-  { href: '/risk-ops', label: { en: 'Risk Ops', zh: '风险运营' } },
+  // 执行台 / 模拟盘 / 风险运营 / 策略中心 moved to attic/ — they were four tabs
+  // of operating surface for zero tradable edges. The shape of a page is a
+  // promise, and blanking its numbers does not withdraw it. The scoreboard and
+  // the reasons each edge was demoted now live on /overview, which is where a
+  // person actually starts.
   { href: '/settings', label: { en: 'Settings', zh: '设置' } },
 ];
 

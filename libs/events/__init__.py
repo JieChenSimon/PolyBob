@@ -78,6 +78,10 @@ class EventBus:
         # Counters exposed via stats().
         self._published = 0
         self._delivered = 0
+        # Per-topic count of handlers that raised. Split out from ``_delivered``
+        # because that counter used to increment even when the handler blew up,
+        # so a consumer failing on every event still reported 100% delivery.
+        self._handler_errors: dict[str, int] = {}
         self._dropped: Dict[str, int] = {}
         self._coalesced: Dict[str, int] = {}
 
@@ -162,6 +166,10 @@ class EventBus:
             "dropped_total": sum(self._dropped.values()),
             "coalesced": dict(self._coalesced),
             "coalesced_total": sum(self._coalesced.values()),
+            # Exposed so a wholly broken subscriber is visible on the same
+            # dashboard that reports delivery, rather than hiding behind it.
+            "handler_errors": dict(self._handler_errors),
+            "handler_errors_total": sum(self._handler_errors.values()),
             "queue_depths": {
                 topic: [sub.queue.qsize() for sub in subs]
                 for topic, subs in self._subscribers.items()
@@ -221,11 +229,36 @@ class EventBus:
 
     @staticmethod
     def _coalesce_key(data: Any) -> Any:
+        """Derive the keep-latest key for a lossy payload.
+
+        This used to accept ``dict`` only, which quietly disabled coalescing on
+        exactly the two topics it exists for: ORDERBOOK_TICK and TRADE_TICK
+        publish pydantic models (``OrderbookTick`` / ``TradeTick``), so every
+        model payload got key ``None`` and the bus degraded to plain
+        drop-oldest. The visible damage was not just the lost updates: without
+        a key, one busy asset's burst evicts *other* assets' only tick, so a
+        market could go silent because a different market was active. Attribute
+        lookup covers models and any other object exposing the id fields; the
+        scalar/sequence guard keeps unkeyable payloads (lists, strings) on the
+        drop-oldest path they already used.
+        """
         if isinstance(data, dict):
             for field in _COALESCE_KEY_FIELDS:
                 value = data.get(field)
                 if value is not None:
                     return value
+            return None
+        if data is None or isinstance(data, (str, bytes, bool, int, float, list, tuple, set)):
+            return None
+        for field in _COALESCE_KEY_FIELDS:
+            value = getattr(data, field, None)
+            if value is None or callable(value):
+                continue
+            try:
+                hash(value)
+            except TypeError:
+                continue
+            return value
         return None
 
     async def _consume(self, sub: _Subscription):
@@ -238,19 +271,30 @@ class EventBus:
                 payload = value
             sub.busy = True
             try:
-                await self._safe_call(sub.handler, sub.topic, payload)
-                self._delivered += 1
+                # ``delivered`` used to increment unconditionally right after
+                # ``_safe_call``, which swallows every handler exception. A
+                # subscriber whose handler raised on 100% of events therefore
+                # reported 100% delivery — the counter measured dequeues, not
+                # deliveries, and a fully broken consumer looked healthy on the
+                # only dashboard that would have caught it.
+                if await self._safe_call(sub.handler, sub.topic, payload):
+                    self._delivered += 1
+                else:
+                    self._handler_errors[sub.topic] = (
+                        self._handler_errors.get(sub.topic, 0) + 1
+                    )
             finally:
                 sub.busy = False
                 sub.queue.task_done()
 
-    async def _safe_call(self, handler: Callable, topic: str, data: Any):
-        """安全调用处理器，捕获异常"""
+    async def _safe_call(self, handler: Callable, topic: str, data: Any) -> bool:
+        """安全调用处理器，捕获异常；返回是否真正成功处理。"""
         try:
             if asyncio.iscoroutinefunction(handler):
                 await handler(data)
             else:
                 handler(data)
+            return True
         except Exception as e:
             logger.error(
                 "event_handler_error",
@@ -259,6 +303,7 @@ class EventBus:
                 error=str(e),
                 exc_info=True,
             )
+            return False
 
 
 # 全局事件总线实例

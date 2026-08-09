@@ -7,9 +7,9 @@ from libs.crypto.hyperliquid_client import HyperliquidClient
 from libs.db import connect
 from libs.db.repositories import BasketRepository, DecisionRepository, IntentRepository
 from libs.schemas import ExecutionVenue
-from services.execution_engine.basket_executor import BasketExecutor
-from services.execution_engine.contract_executor import ContractExecutor
-from services.execution_engine.intent_execution_service import IntentExecutionService
+from modules.execution_engine.basket_executor import BasketExecutor
+from modules.execution_engine.contract_executor import ContractExecutor
+from modules.execution_engine.intent_execution_service import IntentExecutionService
 
 
 def build_executors() -> dict[ExecutionVenue, ContractExecutor]:
@@ -72,7 +72,7 @@ def create_spread_intent(intent_service, **overrides):
     return asyncio.run(intent_service.create_intent(**kwargs))
 
 
-def test_restart_recovers_intents_baskets_and_errors(tmp_path):
+def test_restart_recovers_intents_baskets_and_errors(tmp_path, promoted_strategy):
     db_path = tmp_path / "polybob.sqlite3"
     _, intent_service = build_services(db_path)
 
@@ -125,7 +125,7 @@ def test_restart_recovers_intents_baskets_and_errors(tmp_path):
         assert leg["client_order_id"] is not None
 
 
-def test_duplicate_idempotency_key_returns_original_intent(tmp_path):
+def test_duplicate_idempotency_key_returns_original_intent(tmp_path, promoted_strategy):
     db_path = tmp_path / "polybob.sqlite3"
     _, intent_service = build_services(db_path)
 
@@ -146,7 +146,7 @@ def test_duplicate_idempotency_key_returns_original_intent(tmp_path):
     assert rows["n"] == 1
 
 
-def test_signature_dedupe_survives_restart(tmp_path):
+def test_signature_dedupe_survives_restart(tmp_path, promoted_strategy):
     db_path = tmp_path / "polybob.sqlite3"
     _, intent_service = build_services(db_path, dedupe_window_seconds=300.0)
 
@@ -162,7 +162,7 @@ def test_signature_dedupe_survives_restart(tmp_path):
     assert blocked["error"] is not None
 
 
-def test_audit_trail_records_full_intent_history(tmp_path):
+def test_audit_trail_records_full_intent_history(tmp_path, promoted_strategy):
     db_path = tmp_path / "polybob.sqlite3"
     _, intent_service = build_services(db_path)
 
@@ -208,7 +208,7 @@ def test_audit_trail_records_full_intent_history(tmp_path):
     assert basket_event_types[-1] == "basket.status_changed"
 
 
-def test_corrupted_db_degrades_to_empty_state(tmp_path):
+def test_corrupted_db_degrades_to_empty_state(tmp_path, promoted_strategy):
     db_path = tmp_path / "corrupted.sqlite3"
     db_path.write_bytes(b"this is not a sqlite database, not even close")
 
@@ -224,7 +224,7 @@ def test_corrupted_db_degrades_to_empty_state(tmp_path):
     assert submitted["status"] == "submitted"
 
 
-def test_missing_db_starts_empty_and_bootstraps_schema(tmp_path):
+def test_missing_db_starts_empty_and_bootstraps_schema(tmp_path, promoted_strategy):
     db_path = tmp_path / "brand-new.sqlite3"
     basket_executor, intent_service = build_services(db_path)
     assert asyncio.run(intent_service.restore_state()) == 0

@@ -3,12 +3,12 @@ import asyncio
 from libs.crypto.binance_client import BinanceClient
 from libs.crypto.hyperliquid_client import HyperliquidClient
 from libs.schemas import ExecutionVenue
-from services.execution_engine.basket_executor import BasketExecutor
-from services.execution_engine.contract_executor import ContractExecutor
-from services.execution_engine.intent_execution_service import IntentExecutionService
+from modules.execution_engine.basket_executor import BasketExecutor
+from modules.execution_engine.contract_executor import ContractExecutor
+from modules.execution_engine.intent_execution_service import IntentExecutionService
 
 
-def test_intent_execution_service_creates_and_submits_intent():
+def test_intent_execution_service_creates_and_submits_intent(promoted_strategy):
     executors = {
         ExecutionVenue.BINANCE: ContractExecutor(
             BinanceClient(paper_trading=True),
@@ -58,7 +58,7 @@ def test_intent_execution_service_creates_and_submits_intent():
     assert submitted["basket_id"] is not None
 
 
-def test_intent_execution_service_blocks_duplicate_submission():
+def test_intent_execution_service_blocks_duplicate_submission(promoted_strategy):
     executors = {
         ExecutionVenue.BINANCE: ContractExecutor(
             BinanceClient(paper_trading=True),

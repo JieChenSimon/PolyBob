@@ -58,8 +58,17 @@ def test_resistance_breakout_requires_volume_for_confidence():
     assert loud_break[0].volume_confirmed and not quiet_break[0].volume_confirmed
 
 
-def test_false_breakdown_is_detected_and_is_high_conviction():
-    # Sit on support, stab below it, snap back — the author's favourite setup.
+def test_false_breakdown_is_detected_but_carries_low_confidence():
+    """The book's boldest claim, held to this project's own evidence standard.
+
+    《炒股的智慧》 calls the false breakdown a "十次有九次" setup. Measured here on
+    2,557 real events it wins 45.8% — indistinguishable from both the
+    "broke and never recovered" control and the unconditional base rate. The
+    signal is still surfaced (seeing a pattern fire and knowing it failed testing
+    beats not seeing it), but its confidence has to reflect the measurement
+    rather than the claim, or the engine is quoting a book at the operator and
+    calling it evidence.
+    """
     closes = [10.0] * 40 + [9.2, 9.3, 10.4]
     volumes = [1000.0] * 40 + [4000.0, 4000.0, 5000.0]
     signals = detect_signals(_bars(closes, volumes=volumes))
@@ -67,8 +76,22 @@ def test_false_breakdown_is_detected_and_is_high_conviction():
     assert false_breakdowns
     signal = false_breakdowns[0]
     assert signal.direction is Direction.BUY
-    assert signal.confidence >= 0.8          # highest-conviction setup
     assert signal.stop_price is not None and signal.stop_price < signal.price
+    # Low, not high: the measurement falsified the claim.
+    assert signal.confidence <= 0.25
+    # And the rationale must carry the falsification, not just a number.
+    assert "45.8%" in signal.rationale_zh
+
+
+def test_volume_confirmation_does_not_raise_false_breakdown_confidence():
+    """The subset the book calls strongest measured worst (-0.47%, 45.9%)."""
+    closes = [10.0] * 40 + [9.2, 9.3, 10.4]
+    loud = detect_signals(_bars(closes, volumes=[1000.0] * 40 + [4000.0, 4000.0, 5000.0]))
+    quiet = detect_signals(_bars(closes, volumes=[1000.0] * 43))
+
+    loud_signal = next(s for s in loud if s.kind is SignalKind.FALSE_BREAKDOWN)
+    quiet_signal = next(s for s in quiet if s.kind is SignalKind.FALSE_BREAKDOWN)
+    assert loud_signal.confidence <= quiet_signal.confidence
 
 
 def test_stop_never_risks_more_than_the_ceiling():
@@ -147,3 +170,49 @@ def test_position_size_enforces_the_books_rules():
     assert not poor_rr["allowed"] and "risk/reward" in poor_rr["reason"]
 
     assert not position_size(capital=100_000, entry=10.0, stop=11.0)["allowed"]
+
+
+def test_unknown_account_equity_yields_a_rule_not_an_amount():
+    """No configured equity must not become an invented one.
+
+    The verdict API passed a hardcoded ``capital=100_000`` into this function, so
+    the product's "how much to buy" field showed an exact allocation and share
+    count derived from an account that does not exist. The rule — one tenth of
+    equity, risk as a fraction — is genuinely knowable without an account size;
+    the amounts are not.
+    """
+    sized = position_size(capital=None, entry=10.0, stop=9.2, target=13.0)
+    assert sized["allowed"] is True
+    assert sized["capital_known"] is False
+    # The rule survives.
+    assert sized["capital_fraction"] == 0.1
+    assert sized["risk_pct"] == pytest.approx(0.08)
+    assert sized["risk_fraction_of_equity"] == pytest.approx(0.008)
+    # The amounts do not — and are None, never zero.
+    assert sized["allocation"] is None
+    assert sized["shares"] is None
+    assert sized["risk_amount"] is None
+    assert sized["capital"] is None
+
+
+def test_zero_equity_is_treated_as_unknown_not_as_a_zero_position():
+    """``capital=0`` cannot produce a real 0-share recommendation."""
+    sized = position_size(capital=0.0, entry=10.0, stop=9.2, target=13.0)
+    assert sized["capital_known"] is False
+    assert sized["shares"] is None
+
+
+def test_a_configured_equity_still_produces_amounts():
+    """Setting POLYBOB_ACCOUNT_EQUITY must restore the concrete figures."""
+    sized = position_size(capital=50_000.0, entry=10.0, stop=9.2, target=13.0)
+    assert sized["capital_known"] is True
+    assert sized["allocation"] == 5_000.0
+    assert sized["shares"] == 500
+    assert sized["risk_amount"] == pytest.approx(400.0)
+
+
+def test_the_api_does_not_default_the_account_equity():
+    """Nothing may quietly reintroduce a default account size."""
+    from libs.config import Settings
+
+    assert Settings().polybob_account_equity is None

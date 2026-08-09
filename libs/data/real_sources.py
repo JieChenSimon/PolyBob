@@ -20,9 +20,10 @@ from __future__ import annotations
 import json
 import time
 import urllib.parse
-import urllib.request
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
+
+from libs.data.http_client import HttpFetchError, http_get_bytes
 
 CACHE_DIR = Path("data/market_cache")
 CACHE_TTL_SECONDS = 6 * 3600
@@ -41,9 +42,12 @@ class DailyBars:
     closes: list[float]
     source: str
     opens: list[float] | None = None
-    highs: list[float] | None = None
-    lows: list[float] | None = None
-    volumes: list[float] | None = None
+    # Optional per-bar values are ``float | None``: a gap in the vendor's data is
+    # a gap, not a zero and not a copy of the close. Consumers must decide what
+    # an unknown bar means for them rather than being handed a plausible number.
+    highs: list[float | None] | None = None
+    lows: list[float | None] | None = None
+    volumes: list[float | None] | None = None
 
     def __len__(self) -> int:
         return len(self.closes)
@@ -58,12 +62,11 @@ class DailyBars:
 
 
 def _http_get(url: str, timeout: float = 20.0) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": _UA})
+    """Fetch over the shared pooled session — see libs/data/http_client.py."""
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return response.read()
-    except Exception as exc:  # noqa: BLE001 - surface provider failure honestly
-        raise DataUnavailable(f"{url} -> {type(exc).__name__}: {exc}") from exc
+        return http_get_bytes(url, timeout=timeout, headers={"User-Agent": _UA})
+    except HttpFetchError as exc:
+        raise DataUnavailable(str(exc)) from exc
 
 
 def _cache_path(key: str) -> Path:
@@ -82,6 +85,90 @@ def _cached_json(key: str, loader) -> dict:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload))
     return payload
+
+
+# --------------------------------------------------------------- store mirror
+def _mirror(bars: "DailyBars") -> "DailyBars":
+    """Record what we just observed in the bitemporal store, then hand it back.
+
+    Every fetch passes through here so that ``libs/data/store`` accumulates a real
+    ``fetched_at`` for each bar. That is what lets an experiment pin an ``as_of``
+    and get the same sample size twice — the property this project lacked when the
+    insider study returned n=753 one day and n=667 the next off "the same" cache.
+
+    Mirroring is best-effort by design. A store write failing must not take down a
+    page that already has its data in hand; the cost of a missed write is a gap in
+    the observation history, which is visible, rather than a broken read path.
+    """
+    try:
+        from libs.data import store
+
+        rows = []
+        for i, date in enumerate(bars.dates):
+            def at(seq, idx=i):
+                return None if seq is None or idx >= len(seq) else seq[idx]
+
+            rows.append({
+                "symbol": bars.symbol,
+                store.EVENT_DATE: date,
+                "open": at(bars.opens),
+                "high": at(bars.highs),
+                "low": at(bars.lows),
+                "close": bars.closes[i],
+                "volume": at(bars.volumes),
+                "source": bars.source,
+            })
+        store.write(store.DAILY_BARS, bars.symbol, rows)
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("store mirror skipped for %s: %s", bars.symbol, exc)
+    return bars
+
+
+def bars_as_of(
+    symbol: str, domain: str, when, *, start=None, end=None
+) -> "DailyBars":
+    """Bars as they were **known** at ``when`` — the point-in-time read.
+
+    This is the function research must use. ``fetch_*`` returns today's view of
+    history, which is the right answer for a live scan and the wrong one for a
+    backtest: today's view has been restated, backfilled and survivorship-cleaned,
+    none of which was available on the day the decision would have been made.
+
+    Raises :class:`DataUnavailable` when the store holds nothing at that cut,
+    rather than falling back to a live fetch. A silent fallback would defeat the
+    entire purpose: the run would quietly read the future.
+    """
+    from libs.data import store
+
+    frame = store.read(store.DAILY_BARS, symbol, as_of=when, start=start, end=end)
+    if len(frame) == 0:
+        raise DataUnavailable(
+            f"store 里没有 {symbol} 在 {when} 之前的观测。"
+            f"先运行 scripts/warm_cache.py,或把 as_of 放宽到有数据的时点。"
+        )
+
+    def col(name):
+        if name not in frame.columns:
+            return None
+        values = [None if v != v else v for v in frame[name].tolist()]  # NaN -> None
+        return None if all(v is None for v in values) else values
+
+    closes = [float(v) for v in frame["close"].tolist()]
+    sources = [str(v) for v in frame["source"].tolist() if v]
+    # Deliberately not mirrored: this is a read. Writing back would stamp
+    # historical rows with today's fetched_at and destroy the very ordering the
+    # as-of query depends on.
+    return DailyBars(
+        symbol=symbol,
+        domain=domain,
+        dates=[str(d) for d in frame[store.EVENT_DATE].tolist()],
+        closes=closes,
+        source=f"store@{sources[-1] if sources else 'unknown'}",
+        opens=col("open"),
+        highs=col("high"),
+        lows=col("low"),
+        volumes=col("volume"),
+    )
 
 
 # --------------------------------------------------------------------- altcoin
@@ -131,11 +218,11 @@ def fetch_altcoin_daily(inst_id: str, days: int = 720) -> DailyBars:
         raise DataUnavailable(f"OKX returned no candles for {inst_id}")
     rows = sorted(rows, key=lambda r: int(r[0]))[-days:]   # oldest first
     dates = [time.strftime("%Y-%m-%d", time.gmtime(int(r[0]) / 1000)) for r in rows]
-    return DailyBars(
+    return _mirror(DailyBars(
         inst_id, "altcoin", dates, [float(r[4]) for r in rows], "okx",
         opens=[float(r[1]) for r in rows], highs=[float(r[2]) for r in rows],
         lows=[float(r[3]) for r in rows], volumes=[float(r[5]) for r in rows],
-    )
+    ))
 
 
 def fetch_funding_rate_daily(inst_id: str, days: int = 400) -> dict[str, float]:
@@ -201,9 +288,28 @@ def fetch_us_equity_daily(symbol: str, years: int = 5) -> DailyBars:
     dates: list[str] = []
     closes: list[float] = []
     opens: list[float] = []
-    highs: list[float] = []
-    lows: list[float] = []
-    volumes: list[float] = []
+    highs: list[float | None] = []
+    lows: list[float | None] = []
+    volumes: list[float | None] = []
+
+    def _optional(field: str, index: int) -> float | None:
+        """A missing field is ``None``. It is never a number.
+
+        This used to substitute ``close`` for a missing high/low and ``0.0`` for
+        a missing volume. Both are fabrications, and the volume one was
+        load-bearing: six missing bars out of three hundred moved the 20-day
+        volume ratio from 1.00 to 0.70 and flipped the verdict's volume gate
+        from ``confirming`` to ``drying_up`` — the page told you nobody was
+        trading a stock because the vendor dropped 2% of its fields.
+        """
+        series = quote.get(field)
+        if not series or index >= len(series) or series[index] is None:
+            return None
+        try:
+            return float(series[index])
+        except (TypeError, ValueError):
+            return None
+
     for i, (stamp, close) in enumerate(zip(stamps, quote_closes)):
         o = quote.get("open", [None])[i] if i < len(quote.get("open", [])) else None
         if close is None or o is None:   # unfinished/halted session — never fabricate
@@ -211,13 +317,13 @@ def fetch_us_equity_daily(symbol: str, years: int = 5) -> DailyBars:
         dates.append(time.strftime("%Y-%m-%d", time.gmtime(stamp)))
         closes.append(float(close))
         opens.append(float(o))
-        highs.append(float(quote["high"][i]) if quote.get("high") and quote["high"][i] is not None else float(close))
-        lows.append(float(quote["low"][i]) if quote.get("low") and quote["low"][i] is not None else float(close))
-        volumes.append(float(quote["volume"][i]) if quote.get("volume") and quote["volume"][i] is not None else 0.0)
+        highs.append(_optional("high", i))
+        lows.append(_optional("low", i))
+        volumes.append(_optional("volume", i))
     if not closes:
         raise DataUnavailable(f"Yahoo returned no usable closes for {symbol}")
-    return DailyBars(symbol.upper(), "us_equity", dates, closes, "yahoo",
-                     opens=opens, highs=highs, lows=lows, volumes=volumes)
+    return _mirror(DailyBars(symbol.upper(), "us_equity", dates, closes, "yahoo",
+                             opens=opens, highs=highs, lows=lows, volumes=volumes))
 
 
 # --------------------------------------------------------------------- a-share
@@ -227,9 +333,17 @@ def _tencent_code(symbol: str) -> str:
     Accepts an already-prefixed symbol because callers round-trip our own output
     (e.g. the verdict endpoint re-fetches bars using the normalised ``SH600519``
     it just returned); rejecting that would make the symbol non-idempotent.
+
+    An explicit prefix is **honoured, not re-inferred**. Inference reads the
+    leading digits, which is right for ordinary stocks but wrong for indices:
+    the CSI 300 is ``sh000300``, yet ``000300`` infers to Shenzhen. Discarding
+    the caller's prefix there does not fail — it silently returns a *different
+    instrument*, which is the worst way for market data to be wrong.
     """
     raw = symbol.split(".")[0].strip().upper()
-    code = raw[2:] if raw[:2] in {"SH", "SZ", "BJ"} and raw[2:].isdigit() else raw
+    if raw[:2] in {"SH", "SZ", "BJ"} and raw[2:].isdigit() and len(raw[2:]) == 6:
+        return raw.lower()
+    code = raw
     if not code.isdigit() or len(code) != 6:
         raise DataUnavailable(f"invalid A-share code: {symbol}")
     if code.startswith("920"):
@@ -262,16 +376,17 @@ def fetch_a_share_daily(symbol: str, days: int = 1200) -> DailyBars:
     if not rows:
         raise DataUnavailable(f"Tencent returned no bars for {symbol}")
     # row = [date, open, close, high, low, volume]
-    return DailyBars(
+    return _mirror(DailyBars(
         tencent.upper(), "a_share", [r[0] for r in rows], [float(r[2]) for r in rows], "tencent",
         opens=[float(r[1]) for r in rows], highs=[float(r[3]) for r in rows],
         lows=[float(r[4]) for r in rows], volumes=[float(r[5]) for r in rows],
-    )
+    ))
 
 
 __all__ = [
     "DailyBars",
     "DataUnavailable",
+    "bars_as_of",
     "fetch_a_share_daily",
     "fetch_altcoin_daily",
     "fetch_funding_rate_daily",

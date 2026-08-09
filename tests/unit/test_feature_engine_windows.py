@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from libs.schemas import OrderbookTick, TradeTick
-from services.feature_engine.service import MarketFeatures
+from modules.feature_engine.service import MarketFeatures
 
 
 def test_price_window_keeps_exact_running_statistics():

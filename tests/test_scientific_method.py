@@ -71,6 +71,69 @@ def test_registry_counts_every_trial(tmp_path):
     assert entry["result"]["approved"] is False
 
 
+def test_abandoned_searches_still_count_as_trials(tmp_path):
+    """A search you ran and discarded consumed a draw from the same distribution.
+
+    The real omission: a 184-configuration chart-pattern sweep and an 18-test
+    directional board were both run, both found nothing, and neither reached the
+    registry — so the hurdle was computed as if 35 trials had happened when the
+    honest figure was 237 (3.77 vs 4.19). Forgetting a failed search is the one
+    kind of forgetting that makes your own results look better.
+    """
+    reg = HypothesisRegistry(tmp_path / "reg.json")
+    reg.register(_valid(hypothesis_id="h1"))
+    assert reg.n_trials == 1
+
+    reg.record_search("wide_sweep", 184, "chart patterns", outcome="0 promoted")
+    assert reg.n_trials == 185
+
+
+def test_a_search_survives_a_reload(tmp_path):
+    """The failure mode this guards: trials that quietly evaporate.
+
+    ``_collapse_duplicates`` keys entries by ``hypothesis_id``. A search row has
+    none, so a naive filter drops it on load — the count would be right in the
+    process that wrote it and wrong in every process that read it afterwards,
+    lowering the bar for whoever came next.
+    """
+    reg = HypothesisRegistry(tmp_path / "reg.json")
+    reg.record_search("wide_sweep", 184, "chart patterns")
+    reg.register(_valid(hypothesis_id="h1"))
+
+    reloaded = HypothesisRegistry(tmp_path / "reg.json")
+    assert reloaded.n_trials == 185
+    assert [s["search_id"] for s in reloaded.searches] == ["wide_sweep"]
+
+
+def test_recording_a_search_twice_does_not_double_count(tmp_path):
+    """Re-running the sweep script must not inflate the count either."""
+    reg = HypothesisRegistry(tmp_path / "reg.json")
+    reg.record_search("wide_sweep", 184, "chart patterns")
+    reg.record_search("wide_sweep", 184, "chart patterns")
+    assert reg.n_trials == 184
+
+
+def test_searches_are_never_claimed_as_evidence(tmp_path):
+    """They raise the bar; they never count as a tested hypothesis."""
+    reg = HypothesisRegistry(tmp_path / "reg.json")
+    reg.record_search("wide_sweep", 184, "chart patterns")
+    assert reg.untested == []                    # not a pre-registered hypothesis
+    assert reg.result_for("wide_sweep") is None
+
+
+def test_the_live_registry_counts_the_prior_searches():
+    """The committed registry must hold both backfilled sweeps.
+
+    If this fails, ``data/hypothesis_registry.json`` lost them and every hurdle in
+    the repository just got easier. Backfilled by
+    ``scripts/register_prior_searches.py``.
+    """
+    reg = HypothesisRegistry()
+    ids = {s["search_id"] for s in reg.searches}
+    assert {"wide_chart_pattern_sweep", "focused_directional_board"} <= ids
+    assert reg.n_trials >= 237
+
+
 # --- PBO -------------------------------------------------------------------
 
 

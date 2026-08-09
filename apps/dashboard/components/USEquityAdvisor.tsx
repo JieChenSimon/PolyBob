@@ -1,8 +1,11 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import VerdictBanner from '@/components/VerdictBanner';
+import { domainForSymbol, instrumentHref } from '@/lib/instrument';
 import dynamic from 'next/dynamic';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   buildTechnicalAdvice,
   type TechnicalAdvice,
@@ -501,10 +504,42 @@ const uiText = {
   },
 };
 
-export default function USEquityAdvisor() {
+export default function USEquityAdvisor({
+  symbol: symbolOverride,
+  hideList = false,
+}: {
+  /** Pin the panel to one instrument (used by that instrument's own page). */
+  symbol?: string;
+  /** Hide the watchlist rail when the page is already about a single name. */
+  hideList?: boolean;
+} = {}) {
   const { language } = useLanguage();
   const text = uiText[language];
-  const [selectedSymbol, setSelectedSymbol] = useState('NVDA');
+  // The URL is the page's single source of truth for which instrument is being
+  // looked at. This used to be local state while VerdictBanner read ?symbol=,
+  // so clicking AMD in this list left the verdict above still judging NVDA and
+  // the wisdom panel below still judging NVDA — three panels, three answers,
+  // one screen. The verdict now lives on the instrument's own route, and
+  // selecting here navigates there.
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const selectedSymbol = (
+    symbolOverride || searchParams?.get('symbol') || 'NVDA'
+  ).toUpperCase();
+  // Selecting a name stays on this page and swaps the detail panel, which is
+  // what the quote, chart, moving averages, order book and technical read are
+  // for. Navigating away on click removed all of that behind a page with only a
+  // verdict on it — the selection UI and the detail UI belong together.
+  const setSelectedSymbol = useCallback(
+    (next: string) => {
+      const clean = (next || '').trim().toUpperCase();
+      if (!clean || clean === selectedSymbol) return;
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      params.set('symbol', clean);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams, selectedSymbol],
+  );
   const [query, setQuery] = useState('');
   const [selectedMarket, setSelectedMarket] = useState<Market>('US');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -533,12 +568,22 @@ export default function USEquityAdvisor() {
     }
   }, []);
 
+  // Switching market (US ⇄ A-share) resets the view — but it must not overwrite
+  // an instrument the URL explicitly asked for. This effect also runs on mount,
+  // so it was stamping the first name of the default market over ?symbol=,
+  // which is why opening a link to AMD landed on AAPL.
+  const marketSwitchedOnce = useRef(false);
   useEffect(() => {
-    const nextSymbol = observations.find((item) => item.market === selectedMarket)?.symbol || 'NVDA';
-    setSelectedSymbol(nextSymbol);
     setSelectedCategory('All');
     setChartMode('all_intraday');
     setPage(1);
+    if (!marketSwitchedOnce.current) {
+      marketSwitchedOnce.current = true;   // mount: honour the URL
+      return;
+    }
+    if (urlNamedSymbol) return;
+    const nextSymbol = observations.find((item) => item.market === selectedMarket)?.symbol || 'NVDA';
+    setSelectedSymbol(nextSymbol);
   }, [selectedMarket]);
 
   const activeQuoteQuery = useQuery<QuotePayload>({
@@ -626,16 +671,39 @@ export default function USEquityAdvisor() {
     };
   }, [activeQuoteQuery.data, activeQuoteQuery.error, activeQuoteQuery.isPending, batchQuoteQuery.data, batchQuoteQuery.error, batchQuoteQuery.isPending]);
 
+  // Only snap to the first row when the URL named nothing. The watchlist is a
+  // hardcoded Nasdaq-100 style universe, but the insider-cluster edge lives in
+  // small and mid caps — SCTX, FSBC, CLBK are exactly the tickers it fires on
+  // and none of them are in the list. Overriding an explicit ?symbol= with the
+  // first list item meant clicking through from 今日机会 landed you on AAPL.
+  const urlNamedSymbol = Boolean(symbolOverride || searchParams?.get('symbol'));
   useEffect(() => {
-    if (filteredObservations.length === 0) {
+    if (urlNamedSymbol || filteredObservations.length === 0) {
       return;
     }
     if (!filteredObservations.some((item) => item.symbol === selectedSymbol)) {
       setSelectedSymbol(filteredObservations[0].symbol);
     }
-  }, [filteredObservations, selectedSymbol]);
+  }, [filteredObservations, selectedSymbol, setSelectedSymbol, urlNamedSymbol]);
 
-  const selected = marketObservations.find((item) => item.symbol === selectedSymbol) ?? marketObservations[0] ?? observations[0];
+  // A symbol from the URL that is not in the watchlist is still a real
+  // instrument: synthesise a minimal row for it so the quote, chart and
+  // technicals can load rather than silently showing a different stock.
+  const selected =
+    marketObservations.find((item) => item.symbol === selectedSymbol)
+    ?? (urlNamedSymbol
+      ? ({
+          symbol: selectedSymbol,
+          name: selectedSymbol,
+          // A-share codes are six digits; anything else is treated as US. Same
+          // rule the wisdom endpoint uses to resolve a bare symbol.
+          market: /^\d{6}/.test(selectedSymbol) ? 'CN' : 'US',
+          sector: '',
+          universe: 'Personal',
+        } satisfies EquityObservation)
+      : undefined)
+    ?? marketObservations[0]
+    ?? observations[0];
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
   const selectedQuote = quoteState.bySymbol[selected.symbol];
   const technicalQuery = useQuery<Omit<TechnicalState, 'loading' | 'error'>>({
@@ -739,8 +807,14 @@ export default function USEquityAdvisor() {
     <div className="w-full min-w-0 overflow-hidden rounded-md border border-stone-200 bg-white text-stone-900 shadow-[0_1px_2px_rgba(28,25,23,0.04)]">
       <TerminalHeader language={language} quoteState={quoteState} />
 
-      <div className="grid border-t border-stone-200 lg:grid-cols-[minmax(260px,300px),minmax(0,1fr)] xl:grid-cols-[minmax(260px,300px),minmax(0,1fr),minmax(280px,330px)]">
-        <div className="order-2 lg:order-none">
+      <div
+        className={
+          hideList
+            ? 'grid border-t border-stone-200 xl:grid-cols-[minmax(0,1fr),minmax(280px,330px)]'
+            : 'grid border-t border-stone-200 lg:grid-cols-[minmax(260px,300px),minmax(0,1fr)] xl:grid-cols-[minmax(260px,300px),minmax(0,1fr),minmax(280px,330px)]'
+        }
+      >
+        <div className={hideList ? 'hidden' : 'order-2 lg:order-none'}>
           <ObservationRail
             categories={categories}
             favoriteSet={favoriteSet}
@@ -771,6 +845,7 @@ export default function USEquityAdvisor() {
           <EquityDecisionHeader
             advice={technicalAdvice}
             favoriteSet={favoriteSet}
+            verdictDomain={selected.market === 'CN' ? 'a_share' : 'us_equity'}
             item={selected}
             quote={selectedQuote}
             text={text}
@@ -1063,6 +1138,7 @@ function EquityDecisionHeader({
   favoriteSet,
   item,
   quote,
+  verdictDomain,
   text,
   onToggleFavorite,
 }: {
@@ -1070,6 +1146,8 @@ function EquityDecisionHeader({
   favoriteSet: Set<string>;
   item: EquityObservation;
   quote?: QuotePayload['quotes'][number];
+  /** Which market's verdict rules apply to this name. */
+  verdictDomain: string;
   text: typeof uiText.zh;
   onToggleFavorite: (symbol: string) => void;
 }) {
@@ -1105,6 +1183,18 @@ function EquityDecisionHeader({
             >
               {favoriteSet.has(item.symbol) ? `★ ${text.removeFavorite}` : `☆ ${text.addFavorite}`}
             </button>
+          </div>
+
+          {/*
+            该标的的投资准则判定 — above the core conclusion on purpose.
+            What follows below is a moving-average read: this project tested
+            chart-pattern rules across 184 configurations and confirmed none of
+            them, so 「逢高减仓」 is context, not evidence. The verdict is the
+            part with a measured win rate and a sample size behind it, and the
+            reader meets it first.
+          */}
+          <div className="mt-4">
+            <VerdictBanner symbol={item.symbol} domain={verdictDomain} embedded />
           </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">

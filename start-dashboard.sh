@@ -5,6 +5,11 @@
 set -e
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# 同一份进程生命周期保障。dashboard 尤其需要:``next dev`` 会派生 next-server,
+# 真正占着端口的是那个孙进程,它不是本脚本的 job。
+# shellcheck source=scripts/run-guard.sh
+. "$ROOT_DIR/scripts/run-guard.sh"
 DASHBOARD_DIR="$ROOT_DIR/apps/dashboard"
 DASHBOARD_PORT="${POLYBOB_DASHBOARD_PORT:-}"
 
@@ -32,12 +37,12 @@ if [ ! -d "node_modules" ]; then
     npm install
 fi
 
-if lsof -nP -iTCP:"$DASHBOARD_PORT" -sTCP:LISTEN >/dev/null 2>&1; then
-    echo "Error: dashboard port $DASHBOARD_PORT is already in use:"
-    lsof -nP -iTCP:"$DASHBOARD_PORT" -sTCP:LISTEN
-    echo "Set POLYBOB_DASHBOARD_PORT to a free port."
-    exit 1
-fi
+run_guard_init
+run_guard_own_ports "$DASHBOARD_PORT"
+run_guard_arm
+run_guard_require_free_port "$DASHBOARD_PORT" "Dashboard"
 
 echo "Starting PolyBob dashboard at http://localhost:$DASHBOARD_PORT"
-POLYBOB_DASHBOARD_PORT="$DASHBOARD_PORT" npm run dev
+POLYBOB_DASHBOARD_PORT="$DASHBOARD_PORT" npm run dev &
+run_guard_write_pid dashboard "$!"
+wait

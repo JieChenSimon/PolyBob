@@ -42,6 +42,10 @@ US = ["AAPL", "NVDA", "TSLA", "MSFT", "AMZN", "META", "GOOGL", "AMD", "JPM", "XO
 CN = ["600519", "000001", "300750", "601318", "000858", "600036", "000651", "002594"]
 COST = {"altcoin": 10.0, "us_equity": 5.0, "a_share": 8.0}
 PERIODS = {"altcoin": 365, "us_equity": 252, "a_share": 244}
+# Both hypotheses are searched over a four-lookback grid and the best config is
+# reported, so each (hypothesis, domain) pair burns four trials, not one. The
+# grids below are the single source of truth for both the search and the count.
+LOOKBACK_GRID = {"xs_momentum": (20, 30, 60, 90), "ts_momentum": (30, 60, 90, 120)}
 
 
 # ----------------------------------------------------------- pre-registration
@@ -81,6 +85,7 @@ def preregister(registry: HypothesisRegistry) -> list[Hypothesis]:
                 mechanism=spec["mechanism"], literature=spec["literature"],
                 direction=spec["direction"], universe=domain,
                 horizon_days=spec["horizon_days"], cost_bps=COST[domain],
+                n_configs=len(LOOKBACK_GRID[spec["hypothesis_id"]]),
             )
             registry.register(h)
             hypotheses.append(h)
@@ -164,10 +169,11 @@ def main() -> None:
     for domain, series in data.items():
         if len(series) < 5:
             continue
-        for name, fn, lookbacks in (
-            ("xs_momentum", xs_momentum_returns, (20, 30, 60, 90)),
-            ("ts_momentum", ts_momentum_returns, (30, 60, 90, 120)),
+        for name, fn in (
+            ("xs_momentum", xs_momentum_returns),
+            ("ts_momentum", ts_momentum_returns),
         ):
+            lookbacks = LOOKBACK_GRID[name]
             configs = []
             for lb in lookbacks:
                 try:

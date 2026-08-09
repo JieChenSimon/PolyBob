@@ -3,7 +3,7 @@ import threading
 import time
 
 from libs.schemas import ExecutionVenue, InstrumentRef
-from services.pair_feature_engine import PairDefinition, PairFeatureEngineService
+from modules.pair_feature_engine import PairDefinition, PairFeatureEngineService
 
 
 def build_pair(left_fetch, right_fetch) -> PairDefinition:

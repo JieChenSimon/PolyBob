@@ -1,6 +1,6 @@
+import { Suspense } from 'react';
+import BestOpportunity from '@/components/BestOpportunity';
 import USEquityAdvisor from '@/components/USEquityAdvisor';
-import VerdictBanner from '@/components/VerdictBanner';
-import WisdomSignalPanel from '@/components/WisdomSignalPanel';
 import SectionIntro from '@/components/SectionIntro';
 
 export default function USEquitiesPage() {
@@ -10,15 +10,27 @@ export default function USEquitiesPage() {
         eyebrow={{ zh: '真实行情', en: 'Real Quotes' }}
         title={{ zh: '股票观察', en: 'Equity Monitor' }}
         description={{
-          zh: '美股与 A 股的真实报价、走势图、均线和技术加减仓观察；未接入真实组合时只给观察价，不给仓位建议。',
-          en: 'US and China equity quotes, charts, moving averages, and technical add/trim watch levels without portfolio sizing.',
+          zh: '先看本类别今天最好的机会,再看行情与技术观察。单个标的的投资准则判定在该标的的子页面里。',
+          en: 'Start with the best opportunity in this market, then quotes and technical context. Each instrument’s verdict lives on its own page.',
         }}
       />
 
       <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:px-8">
-        <VerdictBanner symbol="NVDA" domain="us_equity" />
-        <USEquityAdvisor />
-        <WisdomSignalPanel symbol="NVDA" domain="us_equity" />
+        {/*
+          A category tab answers "which of these should I look at". The verdict
+          answers "what do I do about this one" and now lives at
+          /us-equities/[symbol] — it used to sit here for a hardcoded default,
+          which put an instrument-level judgement in a selection's slot.
+        */}
+        <Suspense fallback={<div className="mb-6 h-28 rounded-xl border-l-4 border-stone-200 bg-stone-50" />}>
+          <BestOpportunity
+            domain="us_equity"
+            title={{ zh: '美股今天该看哪一只', en: 'Which US name to look at today' }}
+          />
+        </Suspense>
+        <Suspense fallback={null}>
+          <USEquityAdvisor />
+        </Suspense>
       </main>
     </>
   );

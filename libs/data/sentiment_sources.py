@@ -21,10 +21,11 @@ from __future__ import annotations
 
 import json
 import time
-import urllib.request
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+
+from libs.data.http_client import HttpFetchError, http_get_bytes
 
 CACHE_DIR = Path("data/market_cache")
 _UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
@@ -38,12 +39,11 @@ def _get(url: str, referer: str | None = None, encoding: str = "utf-8", timeout:
     headers = {"User-Agent": _UA}
     if referer:
         headers["Referer"] = referer
-    request = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return response.read().decode(encoding, "replace")
-    except Exception as exc:  # noqa: BLE001 - surface provider failure honestly
+        raw = http_get_bytes(url, timeout=timeout, headers=headers)
+    except HttpFetchError as exc:
         raise SentimentUnavailable(f"{url.split('?')[0]}: {exc}") from exc
+    return raw.decode(encoding, "replace")
 
 
 @dataclass(frozen=True)

@@ -9,15 +9,15 @@ import pytest
 from libs.db import fact_store
 from libs.db.simulation_store import SimRunRecord, SimulationStore
 from libs.events import Topics, get_event_bus
-from services.simulation import metrics as sim_metrics
-from services.simulation.service import (
+from modules.simulation import metrics as sim_metrics
+from modules.simulation.service import (
     InvalidRunTransitionError,
     SimulationService,
     UnknownRunError,
     apply_avg_price_fill,
     downsample_equity_curve,
 )
-from services.simulation.sources import SimSignal
+from modules.simulation.sources import SimSignal
 from strategies.signal_fusion import SignalFusion
 
 

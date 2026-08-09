@@ -52,10 +52,13 @@ class OrderbookTick(BaseModel):
     market_id: str
     asset_id: Optional[str] = None
     timestamp: datetime
-    bid_price: float
-    ask_price: float
-    bid_size: float
-    ask_size: float
+    # A side that is not quoted is ``None``. It used to be ``0.0``, which is a
+    # real price — a bid of zero — and downstream that made a one-sided book
+    # look like a two-sided one with a free option on it.
+    bid_price: Optional[float] = None
+    ask_price: Optional[float] = None
+    bid_size: Optional[float] = None
+    ask_size: Optional[float] = None
     bids: list[tuple[float, float]] = Field(default_factory=list)
     asks: list[tuple[float, float]] = Field(default_factory=list)
     # Order-book platform extensions (optional, backward compatible).
@@ -275,7 +278,9 @@ class OnchainTransferEvent(BaseModel):
     from_address: str
     to_address: str
     amount: float
-    usd_value: float
+    # None when the transfer could not be priced. A zero would be a claim that
+    # the transfer was worthless, and the alert threshold would never see it.
+    usd_value: Optional[float] = None
     from_label: Optional[str] = None
     to_label: Optional[str] = None
     to_entity_type: OnchainEntityType = OnchainEntityType.UNKNOWN

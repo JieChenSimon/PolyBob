@@ -21,7 +21,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 import math
 
-from services.strategy_engine.base import Strategy, StrategySignal
+from modules.strategy_engine.base import Strategy, StrategySignal
 from strategies.signal_core import SpreadReversionParams, spread_reversion_entry
 from libs.schemas import Side
 

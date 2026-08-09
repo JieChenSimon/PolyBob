@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 
 from libs.research.registry import ExperimentRegistry
-from services.simulation.service import SimulationService
+from modules.simulation.service import SimulationService
 
 
 def _service(tmp_path):

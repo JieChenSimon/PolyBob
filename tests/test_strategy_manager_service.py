@@ -1,6 +1,6 @@
 import pytest
 
-from services.strategy_manager import StrategyManagerService
+from modules.strategy_manager import StrategyManagerService
 
 
 def test_strategy_manager_loads_templates():

@@ -29,7 +29,7 @@ from libs.quant.cointegration import (
 )
 from libs.quant.risk_metrics import _calculate_max_drawdown_jit
 from libs.schemas import OrderbookTick, Side, TradeTick
-from services.feature_engine.service import MarketFeatures
+from modules.feature_engine.service import MarketFeatures
 
 
 @dataclass(frozen=True)
@@ -273,7 +273,7 @@ def build_feature_case(updates: int = 40_000, trade_every: int = 4) -> Benchmark
 
     return BenchmarkCase(
         name="feature_stream_updates",
-        module="services/feature_engine",
+        module="modules/feature_engine",
         unit="updates",
         operations=operations,
         workload=workload,

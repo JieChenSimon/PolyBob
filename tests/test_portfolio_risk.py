@@ -6,10 +6,10 @@ from libs.db import fact_store
 from libs.schemas import ExecutionVenue
 from libs.crypto.binance_client import BinanceClient
 from libs.crypto.hyperliquid_client import HyperliquidClient
-from services.execution_engine.basket_executor import BasketExecutor
-from services.execution_engine.contract_executor import ContractExecutor
-from services.execution_engine.intent_execution_service import IntentExecutionService
-from services.risk_manager.risk_checker import (
+from modules.execution_engine.basket_executor import BasketExecutor
+from modules.execution_engine.contract_executor import ContractExecutor
+from modules.execution_engine.intent_execution_service import IntentExecutionService
+from modules.risk_manager.risk_checker import (
     PortfolioRiskChecker,
     RiskChecker,
     RiskDecision,
@@ -21,7 +21,7 @@ def _leg(market="mkt_a", quantity=10.0, price=100.0):
     return {"market_id": market, "quantity": quantity, "limit_price": price}
 
 
-def test_unknown_positions_rejected():
+def test_unknown_positions_rejected(promoted_strategy):
     checker = PortfolioRiskChecker()
     decision = checker.evaluate_intent([_leg()], positions=None)
     assert isinstance(decision, RiskDecision)
@@ -29,7 +29,7 @@ def test_unknown_positions_rejected():
     assert decision.reasons == ["position data unavailable"]
 
 
-def test_flat_book_within_limits_allowed():
+def test_flat_book_within_limits_allowed(promoted_strategy):
     checker = PortfolioRiskChecker()
     decision = checker.evaluate_intent([_leg()], positions={})
     assert decision.allowed is True
@@ -37,14 +37,14 @@ def test_flat_book_within_limits_allowed():
     assert decision.measurements["proposed_notional"] == 1000.0
 
 
-def test_max_single_order_notional_triggers():
+def test_max_single_order_notional_triggers(promoted_strategy):
     checker = PortfolioRiskChecker(RiskLimits(max_order_notional=500.0))
     decision = checker.evaluate_intent([_leg(quantity=10.0, price=100.0)], positions={})
     assert decision.allowed is False
     assert any("order notional 1000.00" in r and "500.00" in r for r in decision.reasons)
 
 
-def test_max_gross_notional_triggers_with_existing_positions():
+def test_max_gross_notional_triggers_with_existing_positions(promoted_strategy):
     checker = PortfolioRiskChecker(RiskLimits(max_gross_notional=5000.0))
     decision = checker.evaluate_intent(
         [_leg(quantity=10.0, price=100.0)],
@@ -55,7 +55,7 @@ def test_max_gross_notional_triggers_with_existing_positions():
     assert decision.measurements["gross_notional"] == 5500.0
 
 
-def test_max_per_market_notional_triggers():
+def test_max_per_market_notional_triggers(promoted_strategy):
     checker = PortfolioRiskChecker(RiskLimits(max_market_notional=1200.0))
     decision = checker.evaluate_intent(
         [_leg(market="mkt_a", quantity=10.0, price=100.0)],
@@ -65,7 +65,7 @@ def test_max_per_market_notional_triggers():
     assert any("market notional 1300.00" in r and "mkt_a" in r for r in decision.reasons)
 
 
-def test_max_basket_leg_count_triggers():
+def test_max_basket_leg_count_triggers(promoted_strategy):
     checker = PortfolioRiskChecker(RiskLimits(max_basket_legs=2))
     legs = [_leg(market=f"mkt_{i}", quantity=1.0, price=1.0) for i in range(3)]
     decision = checker.evaluate_intent(legs, positions={})
@@ -73,7 +73,7 @@ def test_max_basket_leg_count_triggers():
     assert any("basket leg count 3 exceeds limit 2" in r for r in decision.reasons)
 
 
-def test_min_cash_buffer_triggers():
+def test_min_cash_buffer_triggers(promoted_strategy):
     checker = PortfolioRiskChecker(RiskLimits(min_cash_buffer=500.0))
     decision = checker.evaluate_intent(
         [_leg(quantity=10.0, price=100.0)], positions={}, cash=1200.0
@@ -87,7 +87,7 @@ def test_min_cash_buffer_triggers():
     assert "cash balance unavailable" in unknown.reasons
 
 
-def test_missing_leg_price_is_rejected():
+def test_missing_leg_price_is_rejected(promoted_strategy):
     checker = PortfolioRiskChecker()
     decision = checker.evaluate_intent(
         [{"market_id": "mkt_a", "quantity": 5.0, "limit_price": None}], positions={}
@@ -96,7 +96,7 @@ def test_missing_leg_price_is_rejected():
     assert any("leg notional unavailable" in r for r in decision.reasons)
 
 
-def test_multiple_limits_report_all_reasons():
+def test_multiple_limits_report_all_reasons(promoted_strategy):
     checker = PortfolioRiskChecker(
         RiskLimits(max_order_notional=100.0, max_gross_notional=100.0, max_market_notional=100.0)
     )
@@ -105,7 +105,7 @@ def test_multiple_limits_report_all_reasons():
     assert len(decision.reasons) == 3
 
 
-def test_decisions_persisted_as_audit_events(tmp_path):
+def test_decisions_persisted_as_audit_events(tmp_path, promoted_strategy):
     db_path = tmp_path / "audit.sqlite3"
     checker = PortfolioRiskChecker(audit_db_path=db_path)
 
@@ -125,7 +125,7 @@ def test_decisions_persisted_as_audit_events(tmp_path):
     assert denied_payload["reasons"] == ["position data unavailable"]
 
 
-def test_legacy_risk_checker_alias_still_works():
+def test_legacy_risk_checker_alias_still_works(promoted_strategy):
     legacy = RiskChecker(max_position=1000, max_order_size=100)
     allowed, _ = legacy.check_order(50)
     assert allowed is True
@@ -174,7 +174,7 @@ def _create_intent(service):
     )
 
 
-def test_intent_service_with_portfolio_checker_and_positions_submits():
+def test_intent_service_with_portfolio_checker_and_positions_submits(promoted_strategy):
     service = _intent_service(
         risk_checker=PortfolioRiskChecker(),
         position_provider=lambda: {},
@@ -184,7 +184,7 @@ def test_intent_service_with_portfolio_checker_and_positions_submits():
     assert submitted["status"] == "submitted"
 
 
-def test_intent_service_without_position_provider_rejects():
+def test_intent_service_without_position_provider_rejects(promoted_strategy):
     service = _intent_service(risk_checker=PortfolioRiskChecker())
     created = _create_intent(service)
     result = asyncio.run(service.submit_intent(created["intent_id"]))
@@ -192,7 +192,7 @@ def test_intent_service_without_position_provider_rejects():
     assert "position data unavailable" in result["error"]
 
 
-def test_intent_service_limit_breach_rejects_with_measured_value():
+def test_intent_service_limit_breach_rejects_with_measured_value(promoted_strategy):
     service = _intent_service(
         risk_checker=PortfolioRiskChecker(RiskLimits(max_order_notional=100.0)),
         position_provider=lambda: {},

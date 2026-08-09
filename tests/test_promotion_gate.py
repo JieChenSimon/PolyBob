@@ -126,3 +126,87 @@ def test_annualized_sharpe_scales():
     assert annualized_sharpe(r, 252) == pytest.approx(
         annualized_sharpe(r, 1) * np.sqrt(252), rel=1e-9
     )
+
+
+# --------------------------------------------------- gate at the only choke point
+@pytest.mark.asyncio
+async def test_gate_blocks_intents_created_inside_the_process(monkeypatch):
+    """The gate has to stop the process, not just the human.
+
+    It used to live in the API route. That stopped you from raising an intent by
+    hand for an unvalidated strategy, while the lifespan auto-started
+    ``spread_arbitrage_v1`` — which is on no board — and that path never went
+    through the route. A gate on the door humans use is not a gate.
+    """
+    from unittest.mock import MagicMock
+
+    from modules.execution_engine.intent_execution_service import (
+        IntentExecutionService,
+        StrategyNotPromoted,
+    )
+
+    service = IntentExecutionService(basket_executor=MagicMock())
+    with pytest.raises(StrategyNotPromoted):
+        await service.create_intent(
+            strategy_id="spread_arbitrage_v1", rationale="auto",
+            expected_edge_bps=20.0, confidence=0.9, legs=[],
+        )
+
+
+@pytest.mark.asyncio
+async def test_gate_allows_a_promoted_strategy(promoted_strategy):
+    from unittest.mock import MagicMock
+
+    from modules.execution_engine.intent_execution_service import IntentExecutionService
+
+    service = IntentExecutionService(basket_executor=MagicMock())
+    result = await service.create_intent(
+        strategy_id="us_insider_cluster_buy", rationale="cluster filing",
+        expected_edge_bps=511.0, confidence=0.53, legs=[],
+    )
+    assert result["intent_id"]
+
+
+def test_runtime_mode_comes_from_the_board_not_the_name():
+    """``"spread" in strategy_id -> paper_ready`` handed out a free pass.
+
+    The board is the only authority on what has an edge; what letters are in a
+    strategy's name says nothing about it.
+
+    Both halves are asserted through the *fixture's* board rather than the live
+    one. This test used to hardcode ``us_insider_cluster_buy == "paper_ready"``,
+    which was true only because that edge happened to be promoted at the time;
+    when clustered standard errors dropped it back to lab the test failed even
+    though the mechanism it describes still worked perfectly. A test of "the mode
+    follows the board" must not also assert what today's board contains.
+    """
+    from modules.strategy_manager.service import StrategyManagerService
+
+    manager = StrategyManagerService()
+    assert manager._derive_runtime_mode("spread_arbitrage_v1") == "research"
+    assert manager._derive_runtime_mode("cross_market_dislocation_v1") == "research"
+
+
+def test_runtime_mode_follows_a_promotion(promoted_strategy):
+    """Promote anything and the mode moves with it — including a made-up name."""
+    from modules.strategy_manager.service import StrategyManagerService
+
+    manager = StrategyManagerService()
+    assert manager._derive_runtime_mode("anything_the_board_cleared") == "paper_ready"
+
+
+def test_no_strategy_is_paper_ready_on_the_live_board():
+    """The current, honest state of the desk: nothing may leave research.
+
+    Not an invariant of the design — a snapshot of the evidence. Both former
+    trade edges cleared their hurdle on i.i.d. t-statistics (5.40 and 6.38);
+    clustered, the same real data gives 2.35 and 1.81 against 3.77. If a future
+    experiment earns a promotion this test is expected to fail, and the fix is to
+    update it — deliberately, having looked at the new evidence.
+    """
+    from modules.strategy_manager.service import StrategyManagerService
+
+    manager = StrategyManagerService()
+    for strategy in ("us_insider_cluster_buy", "altcoin_retail_crowding",
+                     "a_share_billboard_reversal", "btc5m_mispricing"):
+        assert manager._derive_runtime_mode(strategy) == "research", strategy

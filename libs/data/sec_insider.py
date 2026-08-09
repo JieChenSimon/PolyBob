@@ -22,12 +22,13 @@ from __future__ import annotations
 import csv
 import io
 import time
-import urllib.request
 import zipfile
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+
+from libs.data.http_client import HttpFetchError, http_get_bytes
 
 CACHE_DIR = Path("data/market_cache/sec")
 _BASE = "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets"
@@ -76,11 +77,10 @@ def _download_quarter(year: int, quarter: int) -> bytes:
     if cache.exists() and cache.stat().st_size > 1000:
         return cache.read_bytes()
     url = f"{_BASE}/{year}q{quarter}_form345.zip"
-    request = urllib.request.Request(url, headers={"User-Agent": _UA})
     try:
-        with urllib.request.urlopen(request, timeout=120) as response:
-            payload = response.read()
-    except Exception as exc:  # noqa: BLE001 - surface provider failure honestly
+        # Multi-megabyte zip: streamed so the body is not buffered twice.
+        payload = http_get_bytes(url, timeout=120, headers={"User-Agent": _UA}, stream=True)
+    except HttpFetchError as exc:
         raise SecDataUnavailable(f"{year}Q{quarter}: {exc}") from exc
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache.write_bytes(payload)

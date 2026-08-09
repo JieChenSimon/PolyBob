@@ -34,6 +34,8 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from libs.data.http_client import HttpFetchError, http_get_json
+
 CACHE_DIR = Path("data/market_cache")
 _BASE = "https://datacenter-web.eastmoney.com/api/data/v1/get"
 _REPORT = "RPT_DAILYBILLBOARD_DETAILSNEW"
@@ -108,11 +110,9 @@ def _fetch_page(page: int, page_size: int) -> list[dict]:
         "pageNumber": str(page), "sortColumns": "TRADE_DATE", "sortTypes": "-1",
     }
     url = f"{_BASE}?{urllib.parse.urlencode(params)}"
-    request = urllib.request.Request(url, headers={"User-Agent": _UA})
     try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            payload = json.loads(response.read())
-    except Exception as exc:  # noqa: BLE001 - surface provider failure honestly
+        payload = http_get_json(url, timeout=30, headers={"User-Agent": _UA})
+    except HttpFetchError as exc:
         raise FlowDataUnavailable(f"dragon-tiger page {page}: {exc}") from exc
     result = payload.get("result") or {}
     return result.get("data") or []

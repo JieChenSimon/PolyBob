@@ -16,7 +16,7 @@ from libs.backtest.engine import BacktestEngine, BacktestConfig
 from libs.backtest.analyzer import BacktestAnalyzer
 from libs.quant.signal_fusion import SignalEnsemble
 from libs.schemas import Side
-from services.strategy_engine.base import StrategySignal
+from modules.strategy_engine.base import StrategySignal
 
 logger = structlog.get_logger()
 

@@ -1,0 +1,24 @@
+strategy_id: altcoin_retail_crowding
+name: Altcoin Retail Crowding Short
+description: >-
+  散户拥挤做多后做空永续。实测 n=234,5 日收益 +3.20%,胜率 68.4%,t=6.45 > 门槛 3.77
+  (已计入资金费:拥挤做多时多头付资金费给空头)。同一批事件的现货腿是 -2.03%,只是
+  "别买"的理由;可开仓的是做空腿,证据和实施方式必须是同一条腿。
+
+parameters:
+  # These three ARE the validated rule; changing one detaches the strategy from
+  # its evidence and the gate check refuses to trade.
+  lookback: 30
+  percentile: 80.0
+  hold_days: 5
+  # Operational.
+  position_usd: 500.0
+  max_positions_per_scan: 3
+  scan_interval_seconds: 21600
+  expected_edge_bps: 320.0
+  confidence: 0.68
+
+risk_limits:
+  max_position_size: 500.0
+  max_leverage: 1.0
+  max_open_positions: 3

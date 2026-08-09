@@ -12,7 +12,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from libs.knowledge.sources.finnhub_news import FinnhubNewsSource
-from services.feature_engine.service import FeatureEngineService
+from modules.feature_engine.service import FeatureEngineService
 
 
 class _FakeResponse:

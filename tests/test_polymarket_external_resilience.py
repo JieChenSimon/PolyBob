@@ -6,8 +6,8 @@ import pytest
 
 from libs.polymarket.websocket import classify_websocket_error, should_log_reconnect_attempt
 from libs.schemas import Market, MarketStatus
-from services.market_discovery.service import classify_market_scan_error
-from services.realtime_ingestor.service import RealtimeIngestorService
+from modules.market_discovery.service import classify_market_scan_error
+from modules.realtime_ingestor.service import RealtimeIngestorService
 
 
 def test_market_scan_classifies_proxy_503_without_traceback_path():

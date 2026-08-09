@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from services.onchain_monitor.service import OnchainMonitorService
+from modules.onchain_monitor.service import OnchainMonitorService
 from libs.schemas import OnchainEntityType, OnchainWatchAddress
 
 

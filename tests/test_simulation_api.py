@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import apps.api.main as api
-from services.simulation import SimulationService
+from modules.simulation import SimulationService
 
 
 @pytest.fixture

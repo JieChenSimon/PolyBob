@@ -3,7 +3,7 @@
 实现 Engle-Granger 协整检验和 Kalman Filter 动态对冲比率
 """
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple
 from dataclasses import dataclass
 
 

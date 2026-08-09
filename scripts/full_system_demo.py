@@ -5,8 +5,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from libs.polymarket.clob_client import PolymarketClient
-from services.execution_engine.order_manager import OrderManager
-from services.risk_manager.risk_checker import RiskChecker
+from modules.execution_engine.order_manager import OrderManager
+from modules.risk_manager.risk_checker import RiskChecker
 
 def main():
     print("=" * 60)

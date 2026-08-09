@@ -14,38 +14,10 @@ read_env_value() {
     sed -n "s/^${key}=//p" .env 2>/dev/null | tail -n 1
 }
 
-require_free_port() {
-    local port="$1"
-    local service="$2"
-    if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
-        echo "❌ $service port $port is already in use:"
-        lsof -nP -iTCP:"$port" -sTCP:LISTEN
-        echo "Set a different port with POLYBOB_API_PORT or POLYBOB_DASHBOARD_PORT."
-        exit 1
-    fi
-}
-
-# 设置信号处理
-cleanup() {
-    local exit_code=$?
-    trap - EXIT INT
-    echo ""
-    echo "🛑 Stopping all services..."
-
-    # 先发送 SIGTERM，让进程优雅退出
-    [ -n "$API_PID" ] && kill -TERM "$API_PID" 2>/dev/null
-    [ -n "$DASHBOARD_PID" ] && kill -TERM "$DASHBOARD_PID" 2>/dev/null
-
-    # 等待进程退出
-    [ -n "$API_PID" ] && wait "$API_PID" 2>/dev/null
-    [ -n "$DASHBOARD_PID" ] && wait "$DASHBOARD_PID" 2>/dev/null
-
-    echo "✅ All services stopped"
-    exit $exit_code
-}
-
-trap cleanup EXIT
-trap 'exit 130' INT
+# 进程生命周期保障(信号 / 进程组 / 看门狗)由 scripts/run-guard.sh 统一提供,
+# start.sh 和 start-dashboard.sh 用的是同一份。
+# shellcheck source=scripts/run-guard.sh
+. "$(dirname "$0")/scripts/run-guard.sh"
 
 echo "╔═══════════════════════════════════════╗"
 echo "║     POLYBOB COMPLETE STARTUP          ║"
@@ -82,16 +54,22 @@ DASHBOARD_PORT="${DASHBOARD_PORT:-$(read_env_value POLYBOB_DASHBOARD_PORT)}"
 API_PORT="${API_PORT:-18000}"
 DASHBOARD_PORT="${DASHBOARD_PORT:-13001}"
 
-# 只检查端口，不终止其他项目的进程
+# 启动是幂等的:上次运行的残留先停掉,所以连跑两次得到一个实例而不是端口冲突。
+run_guard_init
+run_guard_own_ports "$API_PORT" "$DASHBOARD_PORT"
+run_guard_arm
+
+# 检查端口。属于 PolyBob 自己的旧实例会被回收;别的项目的进程不会被碰。
 echo "🔎 Checking ports $API_PORT and $DASHBOARD_PORT..."
-require_free_port "$API_PORT" "API"
-require_free_port "$DASHBOARD_PORT" "Dashboard"
+run_guard_require_free_port "$API_PORT" "API"
+run_guard_require_free_port "$DASHBOARD_PORT" "Dashboard"
 
 # 启动 API (禁用输出缓冲)
 echo ""
 echo "🚀 Starting API server..."
 POLYBOB_API_PORT="$API_PORT" python -u -m apps.api.main &
 API_PID=$!
+run_guard_write_pid api "$API_PID"
 echo "   API PID: $API_PID"
 
 # 等待 API 启动
@@ -144,6 +122,7 @@ fi
 
 DASHBOARD_PID=$!
 cd ../..
+run_guard_write_pid dashboard "$DASHBOARD_PID"
 echo "   Dashboard PID: $DASHBOARD_PID"
 
 echo ""
@@ -159,9 +138,8 @@ echo "║ Press Ctrl+C to stop all services     ║"
 echo "╚═══════════════════════════════════════╝"
 echo ""
 
-# 等待用户中断
-trap 'exit 130' INT
-trap cleanup EXIT
+# 信号处理由 run_guard_arm 一次装好,这里不再重复注册
+# (以前在这里只重装 INT/EXIT,把前面装好的 HUP 处理覆盖掉了)。
 
 # 保持脚本运行
 wait

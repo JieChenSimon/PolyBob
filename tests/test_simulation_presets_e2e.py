@@ -5,7 +5,7 @@ snapshots, and watch it open positions and produce metrics. These tests do
 exactly that: for every runnable preset (and the new momentum strategy) we
 resolve the preset into ``create_run`` kwargs, start the run, drive it with
 synthetic ``FEATURE_SNAPSHOT`` / ``PAIR_SNAPSHOT`` dicts shaped like the ones
-``services/simulation/service.py`` dispatches, then assert the run booked
+``modules/simulation/service.py`` dispatches, then assert the run booked
 trades (including a closed, pnl-realizing trade) and computes non-trivial
 metrics. If a preset can't trade against representative data it is not usable,
 and this file would fail.
@@ -15,9 +15,9 @@ from datetime import UTC, datetime
 
 import pytest
 
-from services.simulation.metrics import compute_run_metrics
-from services.simulation.presets import resolve_run_params
-from services.simulation.service import SimulationService
+from modules.simulation.metrics import compute_run_metrics
+from modules.simulation.presets import resolve_run_params
+from modules.simulation.service import SimulationService
 
 
 def make_service(tmp_path) -> SimulationService:

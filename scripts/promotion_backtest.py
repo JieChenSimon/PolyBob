@@ -5,7 +5,7 @@ each strategy *causally* (signals use only past data; positions earn the next
 bar's move; costs charged on turnover), and runs each result through
 ``libs.quant.promotion.PromotionGate`` (Deflated Sharpe with multiple-testing
 correction, cost-stress, walk-forward stability, minimum sample). Emits a
-red/green board and writes it to ``data/promotion_board.json`` so only
+red/green board and writes it to ``data/promotion_backtest.json`` so only
 gate-passing (strategy, instrument) pairs are marked promotable.
 
 This is a *vectorized, OHLCV-level* screen — indicative, not the full
@@ -263,7 +263,9 @@ def main() -> None:
         })
 
     board.sort(key=lambda r: (-r["approved"], -r["sharpe"]))
-    out = Path("data/promotion_board.json")
+    # See scripts/real_scoreboard.py: the promotion board has a single writer,
+    # scripts/event_study_board.py. This script publishes its own results.
+    out = Path("data/promotion_backtest.json")
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps({"n_trials": n_trials, "cost_bps": COST_BPS, "board": board},
                               indent=2, ensure_ascii=False))

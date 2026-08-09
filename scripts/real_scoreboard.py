@@ -6,8 +6,9 @@ whether any edge hypothesis actually produces a win rate and return that
 survives costs and multiple-testing correction.
 
 Nothing here uses simulated data. Every bar comes from OKX / Yahoo / Tencent.
-Results are written to ``data/promotion_board.json`` so the promotion registry
-(and thus the live intent gate) only ever promotes what cleared the bar.
+Results are written to ``data/price_edge_scoreboard.json``. They reach the
+execution desk only through ``scripts/event_study_board.py``, the single writer
+of the promotion board, and only for edges declared in its ``EDGE_SPECS``.
 """
 
 from __future__ import annotations
@@ -34,11 +35,12 @@ from libs.quant.edges import (
     cross_sectional_momentum_positions,
     funding_contrarian,
 )
+from libs.data.universe import A_SHARE_LIQUID, US_LIQUID
 from libs.quant.promotion import PromotionGate, annualized_sharpe
 
 # In-scope instruments only (see project memory: BTC-5m / US+A-share / altcoins).
-US_EQUITIES = ["AAPL", "NVDA", "TSLA", "MSFT", "SPY"]
-A_SHARES = ["600519", "000001", "300750", "601318", "000858"]
+US_EQUITIES = list(US_LIQUID)      # 见 libs/data/universe
+A_SHARES = list(A_SHARE_LIQUID)
 ALTCOIN_FALLBACK = ["SOL-USDT", "DOGE-USDT", "AVAX-USDT", "LINK-USDT", "ADA-USDT"]
 
 COST_BPS = {"altcoin": 10.0, "us_equity": 5.0, "a_share": 8.0}
@@ -201,7 +203,11 @@ def main() -> None:
         })
 
     board.sort(key=lambda r: (-r["approved"], -(r["sharpe"] or 0)))
-    out = Path("data/promotion_board.json")
+    # Its own file. This script tests price-based edges; it used to write the
+    # promotion board directly, which meant running it silently replaced the
+    # event-study edges with an unrelated experiment. The board now has exactly
+    # one writer (scripts/event_study_board.py), which reads files like this one.
+    out = Path("data/price_edge_scoreboard.json")
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps({
         "generated_at": datetime.now(UTC).isoformat(),

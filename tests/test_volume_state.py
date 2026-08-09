@@ -277,7 +277,7 @@ def test_wire_contract_shape():
 
 def test_api_emits_null_volume_for_an_instrument_with_no_volume_concept():
     """Polymarket BTC-5m publishes a book, not volume bars — so: null, not a number."""
-    from apps.api.main import _classify_volume_or_unknown
+    from apps.api.verdict_api import _classify_volume_or_unknown
 
     assert _classify_volume_or_unknown(None, "btc5m") is None
     assert _classify_volume_or_unknown(None, "polymarket") is None

@@ -39,8 +39,8 @@
 ### Task 3: Background Service And API
 
 **Files:**
-- Create: `services/knowledge_ingestion/service.py`
-- Create: `services/knowledge_ingestion/__init__.py`
+- Create: `modules/knowledge_ingestion/service.py`
+- Create: `modules/knowledge_ingestion/__init__.py`
 - Modify: `libs/config.py`
 - Modify: `apps/api/main.py`
 - Test: `tests/test_knowledge_ingestion_service.py`

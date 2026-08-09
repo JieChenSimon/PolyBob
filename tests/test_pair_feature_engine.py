@@ -1,7 +1,7 @@
 import asyncio
 
 from libs.schemas import ExecutionVenue, InstrumentRef
-from services.pair_feature_engine import PairDefinition, PairFeatureEngineService
+from modules.pair_feature_engine import PairDefinition, PairFeatureEngineService
 
 
 def test_pair_feature_engine_builds_snapshot():

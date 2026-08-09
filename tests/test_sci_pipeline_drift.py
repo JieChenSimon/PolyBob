@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 
 from libs.quant.drift import DriftLevel
-from services.monitoring.drift_monitor import DriftMonitor
+from modules.monitoring.drift_monitor import DriftMonitor
 
 
 def _rng():

@@ -34,10 +34,12 @@ from libs.data.real_sources import (
     okx_usdt_universe,
 )
 from libs.quant.edges import range_expansion, gap_fade, volume_confirmed_trend
+from libs.quant.hypothesis import HypothesisRegistry
+from libs.data.universe import A_SHARE_LIQUID, US_LIQUID
 from libs.quant.promotion import PromotionGate, annualized_sharpe
 
-US_EQUITIES = ["AAPL", "NVDA", "TSLA", "MSFT", "SPY", "AMZN", "META", "GOOGL", "AMD", "QQQ"]
-A_SHARES = ["600519", "000001", "300750", "601318", "000858", "600036", "000651", "002594"]
+US_EQUITIES = list(US_LIQUID)      # 见 libs/data/universe
+A_SHARES = list(A_SHARE_LIQUID)
 COST_BPS = {"altcoin": 10.0, "us_equity": 5.0, "a_share": 8.0}
 PERIODS = {"altcoin": 365, "us_equity": 252, "a_share": 244}
 
@@ -123,7 +125,19 @@ def main() -> None:
                 port = np.mean([x[-length:] for x in legs], axis=0)
                 tests.append((f"{edge_name}_{label}", f"{domain.upper()}_x{len(legs)}", domain, port))
 
-    n_trials = len(tests)          # both directions counted — no free lunch
+    # Both directions counted — no free lunch. But this script's own tests are not
+    # the only search that has happened: the event studies registered 35 trials and
+    # the wide chart-pattern sweep another 184, all drawn from the same distribution
+    # of things this project looked at. A local ``len(tests)`` made this board's bar
+    # the lowest in the repository purely because it forgot the rest.
+    registry = HypothesisRegistry()
+    registry.record_search(
+        "focused_directional_board", len(tests),
+        "定向板:3 个域 x 3 条边 x 双向(follow/fade),方向由数据挑选。",
+        outcome="见 data/focused_board.json",
+    )
+    n_trials = registry.n_trials
+    print(f"试验次数 {n_trials}(本板 {len(tests)} 组 + 注册表其余搜索)")
     gate = PromotionGate(n_trials=n_trials, min_dsr=0.90, min_observations=200,
                          min_oos_stability_rate=0.5)
 

@@ -1,0 +1,326 @@
+{
+  "generated_at": "2026-07-31T09:06:58.163654+00:00",
+  "real_data_only": true,
+  "primary_horizon": 5,
+  "secondary_horizons": [
+    10,
+    20
+  ],
+  "cost_bps": {
+    "a_share": 30.0,
+    "us_equity": 10.0,
+    "altcoin": 20.0
+  },
+  "benchmarks": {
+    "a_share": "sh000300",
+    "us_equity": "SPY",
+    "altcoin": "BTC-USDT"
+  },
+  "n_trials": 23,
+  "t_hurdle": 3.68,
+  "decided_on": "t_clustered",
+  "results": {
+    "h5": [
+      {
+        "group": "假突破反转(全部)",
+        "n": 2557,
+        "n_dates": 799,
+        "mean_excess_pct": -0.26,
+        "median_excess_pct": -0.332,
+        "win_rate": 0.4576,
+        "t_naive": -3.13,
+        "t_clustered": -2.19,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  └ 放量确认子集",
+        "n": 1007,
+        "n_dates": 442,
+        "mean_excess_pct": -0.467,
+        "median_excess_pct": -0.318,
+        "win_rate": 0.4588,
+        "t_naive": -3.25,
+        "t_clustered": -2.11,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  └ 未放量子集",
+        "n": 1550,
+        "n_dates": 650,
+        "mean_excess_pct": -0.125,
+        "median_excess_pct": -0.334,
+        "win_rate": 0.4568,
+        "t_naive": -1.25,
+        "t_clustered": -1.39,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "对照:破位未收回",
+        "n": 2254,
+        "n_dates": 698,
+        "mean_excess_pct": -0.31,
+        "median_excess_pct": -0.415,
+        "win_rate": 0.4574,
+        "t_naive": -3.4,
+        "t_clustered": -2.65,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "对照:无条件基准率",
+        "n": 23720,
+        "n_dates": 497,
+        "mean_excess_pct": -0.233,
+        "median_excess_pct": -0.375,
+        "win_rate": 0.4518,
+        "t_naive": -7.89,
+        "t_clustered": -3.03,
+        "t_hurdle": 3.68,
+        "significant": false
+      }
+    ],
+    "h10": [
+      {
+        "group": "假突破反转(全部)",
+        "n": 1961,
+        "n_dates": 727,
+        "mean_excess_pct": -0.309,
+        "median_excess_pct": -0.35,
+        "win_rate": 0.4681,
+        "t_naive": -2.29,
+        "t_clustered": -1.5,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  └ 放量确认子集",
+        "n": 813,
+        "n_dates": 405,
+        "mean_excess_pct": -0.563,
+        "median_excess_pct": -0.691,
+        "win_rate": 0.4465,
+        "t_naive": -2.57,
+        "t_clustered": -2.05,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  └ 未放量子集",
+        "n": 1148,
+        "n_dates": 554,
+        "mean_excess_pct": -0.13,
+        "median_excess_pct": -0.232,
+        "win_rate": 0.4834,
+        "t_naive": -0.76,
+        "t_clustered": -1.29,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "对照:破位未收回",
+        "n": 1684,
+        "n_dates": 617,
+        "mean_excess_pct": -0.41,
+        "median_excess_pct": -0.432,
+        "win_rate": 0.4549,
+        "t_naive": -2.83,
+        "t_clustered": -2.2,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "对照:无条件基准率",
+        "n": 11800,
+        "n_dates": 272,
+        "mean_excess_pct": -0.304,
+        "median_excess_pct": -0.521,
+        "win_rate": 0.4557,
+        "t_naive": -4.89,
+        "t_clustered": -2.48,
+        "t_hurdle": 3.68,
+        "significant": false
+      }
+    ],
+    "h20": [
+      {
+        "group": "假突破反转(全部)",
+        "n": 1466,
+        "n_dates": 631,
+        "mean_excess_pct": -0.128,
+        "median_excess_pct": -0.59,
+        "win_rate": 0.472,
+        "t_naive": -0.54,
+        "t_clustered": -0.75,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  └ 放量确认子集",
+        "n": 654,
+        "n_dates": 357,
+        "mean_excess_pct": -0.327,
+        "median_excess_pct": -1.074,
+        "win_rate": 0.4511,
+        "t_naive": -0.87,
+        "t_clustered": -0.81,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  └ 未放量子集",
+        "n": 812,
+        "n_dates": 448,
+        "mean_excess_pct": 0.033,
+        "median_excess_pct": -0.102,
+        "win_rate": 0.4889,
+        "t_naive": 0.11,
+        "t_clustered": -0.87,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "对照:破位未收回",
+        "n": 1301,
+        "n_dates": 559,
+        "mean_excess_pct": -0.279,
+        "median_excess_pct": -0.472,
+        "win_rate": 0.4743,
+        "t_naive": -1.16,
+        "t_clustered": -1.15,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "对照:无条件基准率",
+        "n": 5860,
+        "n_dates": 160,
+        "mean_excess_pct": -0.472,
+        "median_excess_pct": -1.007,
+        "win_rate": 0.4403,
+        "t_naive": -3.81,
+        "t_clustered": -2.24,
+        "t_hurdle": 3.68,
+        "significant": false
+      }
+    ],
+    "by_domain": [
+      {
+        "group": "  a_share",
+        "n": 747,
+        "n_dates": 272,
+        "mean_excess_pct": -0.408,
+        "median_excess_pct": -0.604,
+        "win_rate": 0.4284,
+        "t_naive": -2.62,
+        "t_clustered": -2.86,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  us_equity",
+        "n": 1556,
+        "n_dates": 645,
+        "mean_excess_pct": -0.065,
+        "median_excess_pct": -0.183,
+        "win_rate": 0.4781,
+        "t_naive": -0.68,
+        "t_clustered": -0.91,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  altcoin",
+        "n": 254,
+        "n_dates": 113,
+        "mean_excess_pct": -1.018,
+        "median_excess_pct": -1.017,
+        "win_rate": 0.4173,
+        "t_naive": -2.69,
+        "t_clustered": -2.53,
+        "t_hurdle": 3.68,
+        "significant": false
+      }
+    ],
+    "by_year": [
+      {
+        "group": "  2021",
+        "n": 48,
+        "n_dates": 22,
+        "mean_excess_pct": 0.103,
+        "median_excess_pct": -0.049,
+        "win_rate": 0.5,
+        "t_naive": 0.21,
+        "t_clustered": 0.3,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  2022",
+        "n": 475,
+        "n_dates": 138,
+        "mean_excess_pct": 0.211,
+        "median_excess_pct": 0.09,
+        "win_rate": 0.5095,
+        "t_naive": 1.19,
+        "t_clustered": 1.21,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  2023",
+        "n": 280,
+        "n_dates": 128,
+        "mean_excess_pct": -0.151,
+        "median_excess_pct": -0.31,
+        "win_rate": 0.45,
+        "t_naive": -0.81,
+        "t_clustered": 0.15,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  2024",
+        "n": 474,
+        "n_dates": 170,
+        "mean_excess_pct": -0.179,
+        "median_excess_pct": -0.251,
+        "win_rate": 0.4641,
+        "t_naive": -1.0,
+        "t_clustered": -0.83,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  2025",
+        "n": 687,
+        "n_dates": 200,
+        "mean_excess_pct": -0.477,
+        "median_excess_pct": -0.683,
+        "win_rate": 0.4119,
+        "t_naive": -2.79,
+        "t_clustered": -2.35,
+        "t_hurdle": 3.68,
+        "significant": false
+      },
+      {
+        "group": "  2026",
+        "n": 593,
+        "n_dates": 141,
+        "mean_excess_pct": -0.53,
+        "median_excess_pct": -0.382,
+        "win_rate": 0.4637,
+        "t_naive": -2.69,
+        "t_clustered": -2.34,
+        "t_hurdle": 3.68,
+        "significant": false
+      }
+    ]
+  },
+  "caveats": [
+    "Universes are instruments listed today; delisted names are absent, which biases long-side results upward. Compare groups, not levels.",
+    "Events are date-clustered; t_clustered is the honest statistic."
+  ]
+}

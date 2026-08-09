@@ -3,7 +3,7 @@
 Before the fix, generate_signal used ``Side.BUY``/``Side.SELL`` which do not
 exist on the enum (only BUY_YES/BUY_NO/SELL_YES/SELL_NO), so it raised
 AttributeError on *every* directional signal — crashing the live strategy-engine
-path (services/strategy_engine/service.py) and hybrid_strategy. This guards the
+path (modules/strategy_engine/service.py) and hybrid_strategy. This guards the
 mapping direction>0 -> BUY_YES, direction<0 -> SELL_YES.
 """
 

@@ -69,7 +69,10 @@ def test_blend_defaults_reproduce_market_plus_digital():
     from libs.polymarket.btc_five_minute import (
         BTC5M_INDICATORS, DEFAULT_ENABLED_INDICATORS, blend_up_probability,
     )
-    assert set(DEFAULT_ENABLED_INDICATORS) == {"market_implied", "digital_option"}
+    # ``market_implied`` was removed from the defaults: the edge this workbench
+    # reports is ``model - ask``, so a model containing the quote measures the
+    # spread mechanism against itself and calls the result a mispricing.
+    assert set(DEFAULT_ENABLED_INDICATORS) == {"digital_option"}
     assert {i["id"] for i in BTC5M_INDICATORS} == {
         "market_implied", "digital_option", "momentum_1m", "book_imbalance"}
 
@@ -79,7 +82,7 @@ def test_blend_defaults_reproduce_market_plus_digital():
         return_volatility=0.0009, enabled_indicators=None,
     )
     used = {b["id"] for b in breakdown if b["used"]}
-    assert used == {"market_implied", "digital_option"}  # defaults
+    assert used == {"digital_option"}  # defaults, minus the circular one
     assert 0.5 < prob <= 1.0
 
 
@@ -102,4 +105,8 @@ def test_blend_falls_back_when_nothing_usable():
         target_price=None, seconds_to_expiry=120, config=BtcFiveMinuteConfig(),
         enabled_indicators=["digital_option"],   # not computable without prices
     )
-    assert prob == 0.5  # config.model_probability_up fallback
+    # Nothing could be computed, so nothing is reported. This used to fall back
+    # to config.model_probability_up (0.5), which downstream is indistinguishable
+    # from a model that ran and concluded 50/50 — and 0.5 against a 0.44 quote
+    # reads as a six-point edge that nothing measured.
+    assert prob is None

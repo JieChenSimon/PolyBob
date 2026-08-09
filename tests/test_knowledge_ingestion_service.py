@@ -5,7 +5,7 @@ import pytest
 from libs.knowledge.models import KnowledgeDocument
 from libs.knowledge.sources.base import SourceRefreshResult
 from libs.knowledge.store import KnowledgeStore
-from services.knowledge_ingestion.service import KnowledgeIngestionService
+from modules.knowledge_ingestion.service import KnowledgeIngestionService
 
 
 def doc(document_id: str, content: str) -> KnowledgeDocument:

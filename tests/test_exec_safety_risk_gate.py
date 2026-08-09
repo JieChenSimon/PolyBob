@@ -9,10 +9,10 @@ import asyncio
 
 from libs.crypto.binance_client import BinanceClient
 from libs.schemas import ExecutionVenue
-from services.execution_engine.basket_executor import BasketExecutor
-from services.execution_engine.contract_executor import ContractExecutor
-from services.execution_engine.intent_execution_service import IntentExecutionService
-from services.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
+from modules.execution_engine.basket_executor import BasketExecutor
+from modules.execution_engine.contract_executor import ContractExecutor
+from modules.execution_engine.intent_execution_service import IntentExecutionService
+from modules.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
 
 
 def _live_style_service(position_provider):
@@ -62,7 +62,7 @@ def _make_intent(service, *, quantity, limit_price):
     )
 
 
-def test_live_intent_exceeding_order_notional_is_rejected():
+def test_live_intent_exceeding_order_notional_is_rejected(promoted_strategy):
     # Flat book (empty dict = genuinely flat) so only the proposed leg matters.
     service = _live_style_service(lambda: {})
     # 2 BTC * 65_000 = 130_000 > max_order_notional (50_000).
@@ -72,7 +72,7 @@ def test_live_intent_exceeding_order_notional_is_rejected():
     assert "order notional" in (submitted["error"] or "")
 
 
-def test_live_intent_exceeding_gross_with_existing_positions_is_rejected():
+def test_live_intent_exceeding_gross_with_existing_positions_is_rejected(promoted_strategy):
     # Existing exposure already near the gross cap; a small new leg pushes over.
     service = _live_style_service(lambda: {"BTCUSDT": 240_000.0})
     created = _make_intent(service, quantity=0.3, limit_price=65_000)  # +19_500
@@ -81,14 +81,14 @@ def test_live_intent_exceeding_gross_with_existing_positions_is_rejected():
     assert "gross notional" in (submitted["error"] or "")
 
 
-def test_live_intent_within_limits_is_submitted():
+def test_live_intent_within_limits_is_submitted(promoted_strategy):
     service = _live_style_service(lambda: {})
     created = _make_intent(service, quantity=0.1, limit_price=65_000)  # 6_500
     submitted = asyncio.run(service.submit_intent(created["intent_id"]))
     assert submitted["status"] == "submitted"
 
 
-def test_fails_closed_when_positions_unavailable():
+def test_fails_closed_when_positions_unavailable(promoted_strategy):
     # position_provider returns None -> unknown positions -> must reject.
     service = _live_style_service(lambda: None)
     created = _make_intent(service, quantity=0.1, limit_price=65_000)

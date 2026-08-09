@@ -75,3 +75,21 @@ data/polymarket_snapshot.json
 .DS_Store
 Thumbs.db
 data/market_cache/
+
+# Vendor response cache — 306MB of raw Yahoo/OKX/SEC/Tencent JSON.
+#
+# It was tracked, which made every experiment re-run a ~300MB diff and put the
+# repository's history at the mercy of whatever the providers happened to return
+# that day. It is a *cache*: derivable, replaceable, and not evidence.
+#
+# What IS evidence stays tracked: data/*_results.json (per-event returns),
+# data/promotion_board.json, data/hypothesis_registry.json. Those are small,
+# and they are the files the gate reads.
+#
+# Rebuild with: python scripts/warm_cache.py
+data/market_cache/
+
+# Bitemporal store — derived from the providers, rebuilt by warm_cache.py.
+# The *evidence* (data/*_results.json + manifests) stays tracked; the store is
+# the substrate those results were measured on and is regenerable.
+data/store/

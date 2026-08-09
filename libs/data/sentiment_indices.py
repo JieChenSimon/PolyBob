@@ -26,6 +26,8 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
+from libs.data.http_client import HttpFetchError, http_get_bytes
+
 CACHE_DIR = Path("data/market_cache")
 _UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
 
@@ -35,11 +37,10 @@ class SentimentIndexUnavailable(RuntimeError):
 
 
 def _get(url: str, timeout: float = 25.0) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": _UA})
+    """Fetch over the shared pooled session — see libs/data/http_client.py."""
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return response.read()
-    except Exception as exc:  # noqa: BLE001 - surface provider failure honestly
+        return http_get_bytes(url, timeout=timeout, headers={"User-Agent": _UA})
+    except HttpFetchError as exc:
         raise SentimentIndexUnavailable(f"{url.split('?')[0]}: {exc}") from exc
 
 

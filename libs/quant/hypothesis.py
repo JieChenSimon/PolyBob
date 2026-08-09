@@ -62,6 +62,11 @@ class Hypothesis:
     horizon_days: int
     cost_bps: float
     min_sharpe: float = 0.5
+    # How many parameter configurations the backtest will search before it
+    # reports a winner. A lookback grid of four, with the best one reported, is
+    # four trials — not one — and the multiple-testing correction only stays
+    # honest if the grid is declared here, before the search runs.
+    n_configs: int = 1
     registered_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def __post_init__(self) -> None:
@@ -69,6 +74,10 @@ class Hypothesis:
             raise InadmissibleHypothesis(
                 f"'{self.hypothesis_id}' has no economic rationale. A pattern that "
                 "only exists in a backtest is a fluke until theory says otherwise."
+            )
+        if self.n_configs < 1:
+            raise InadmissibleHypothesis(
+                f"'{self.hypothesis_id}': n_configs must be at least 1."
             )
         if not self.mechanism.strip():
             raise InadmissibleHypothesis(
@@ -86,7 +95,14 @@ class Hypothesis:
 
 
 class HypothesisRegistry:
-    """Append-only log of pre-registered hypotheses and their verdicts."""
+    """Log of pre-registered hypotheses and their verdicts, keyed by id.
+
+    One entry per ``hypothesis_id``. Re-running an experiment re-registers the
+    same hypothesis rather than appending a second copy: duplicates would both
+    inflate the trial count and split a hypothesis from its own result, which is
+    exactly what happened when ``register`` blindly appended. Registration is
+    therefore an upsert that preserves any result already recorded.
+    """
 
     def __init__(self, path: str | Path | None = None) -> None:
         self.path = Path(path) if path else REGISTRY_PATH
@@ -96,32 +112,153 @@ class HypothesisRegistry:
     def _load(self) -> None:
         if self.path.exists():
             try:
-                self.entries = json.loads(self.path.read_text()).get("entries", [])
+                raw = json.loads(self.path.read_text()).get("entries", [])
             except Exception:  # noqa: BLE001 - corrupt file starts fresh
-                self.entries = []
+                raw = []
+            self.entries = _collapse_duplicates(raw)
 
     def register(self, hypothesis: Hypothesis) -> None:
-        """Record a hypothesis *before* its backtest is run."""
-        self.entries.append({"hypothesis": hypothesis.to_dict(), "result": None})
+        """Record a hypothesis *before* its backtest is run (idempotent by id)."""
+        payload = hypothesis.to_dict()
+        for entry in self.entries:
+            if not entry.get("hypothesis"):
+                continue          # an exploratory-sweep row, not a hypothesis
+            if entry["hypothesis"]["hypothesis_id"] == hypothesis.hypothesis_id:
+                # Keep the original registration timestamp: the whole point of
+                # pre-registration is that it predates the result.
+                payload["registered_at"] = entry["hypothesis"].get(
+                    "registered_at", payload["registered_at"]
+                )
+                entry["hypothesis"] = payload
+                self._save()
+                return
+        self.entries.append({"hypothesis": payload, "result": None})
         self._save()
 
     def record_result(self, hypothesis_id: str, result: dict[str, Any]) -> None:
         for entry in self.entries:
-            if entry["hypothesis"]["hypothesis_id"] == hypothesis_id:
+            spec = entry.get("hypothesis")
+            if spec and spec["hypothesis_id"] == hypothesis_id:
                 entry["result"] = result
                 break
         self._save()
 
+    def record_search(
+        self, search_id: str, n_configs: int, description: str, *, outcome: str = ""
+    ) -> None:
+        """Record an exploratory sweep that produced no promoted hypothesis.
+
+        The multiple-testing burden is set by how many things you *looked at*, not
+        by how many you kept. This project ran a 184-configuration sweep of chart
+        patterns and an 18-test directional sweep, found nothing, and registered
+        neither — so the hurdle was computed as if only 35 trials had happened.
+        Abandoned searches are the easiest kind to leave out and the most
+        important to include: a search only lowers the bar if you forget it.
+
+        These carry no ``result`` because there is nothing to claim. They exist
+        purely to make :attr:`n_trials` honest.
+        """
+        entry = {
+            "search": {
+                "search_id": search_id,
+                "n_configs": int(n_configs),
+                "description": description,
+                "outcome": outcome or "no hypothesis promoted",
+            },
+            "result": None,
+        }
+        for i, existing in enumerate(self.entries):
+            if existing.get("search", {}).get("search_id") == search_id:
+                self.entries[i] = entry
+                self._save()
+                return
+        self.entries.append(entry)
+        self._save()
+
     @property
     def n_trials(self) -> int:
-        """Every hypothesis ever registered — the honest multiple-testing count."""
-        return len(self.entries)
+        """Every configuration ever tried — the honest multiple-testing count.
+
+        Counts parameter configurations, not hypotheses: a hypothesis searched
+        over a grid of four lookbacks consumed four trials, and correcting as if
+        it were one understates the t-hurdle every other edge is judged against.
+
+        Exploratory sweeps registered via :meth:`record_search` are included on
+        the same footing. A configuration you tried and discarded still consumed a
+        draw from the same distribution as the one you kept.
+        """
+        total = 0
+        for entry in self.entries:
+            spec = entry.get("hypothesis") or entry.get("search") or {}
+            total += max(1, int(spec.get("n_configs", 1) or 1))
+        return total
+
+    @property
+    def searches(self) -> list[dict[str, Any]]:
+        """Exploratory sweeps that count as trials but claim no result."""
+        return [e["search"] for e in self.entries if e.get("search")]
+
+    @property
+    def untested(self) -> list[str]:
+        """Registered hypotheses with no result — pre-registered but never run.
+
+        They still count as trials (they were part of the search), but a board
+        must never claim them as evidence.
+        """
+        return [
+            e["hypothesis"]["hypothesis_id"]
+            for e in self.entries
+            if e.get("hypothesis") and not e.get("result")
+        ]
+
+    def result_for(self, hypothesis_id: str) -> dict[str, Any] | None:
+        for entry in self.entries:
+            spec = entry.get("hypothesis")
+            if spec and spec["hypothesis_id"] == hypothesis_id:
+                return entry.get("result")
+        return None
 
     def _save(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(
             json.dumps({"entries": self.entries}, indent=2, ensure_ascii=False)
         )
+
+
+def _collapse_duplicates(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Merge repeat registrations of the same id, keeping the recorded result.
+
+    Historic files were written by an append-only ``register``, so the same
+    hypothesis can appear several times with the result attached to only one of
+    them. Collapsing on load heals those files instead of leaving the trial
+    count hostage to how many times a script was re-run.
+    """
+    merged: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for entry in entries:
+        # Exploratory-sweep rows are keyed separately and have no result to merge.
+        # Dropping them here — which an ``hypothesis_id``-only filter would do
+        # silently — would delete trials from the count on the next load, quietly
+        # lowering the hurdle every edge is judged against.
+        search = entry.get("search") or {}
+        if search.get("search_id"):
+            key = f"search:{search['search_id']}"
+            if key not in merged:
+                merged[key] = {"search": search, "result": None}
+                order.append(key)
+            continue
+
+        hypothesis = entry.get("hypothesis") or {}
+        key = str(hypothesis.get("hypothesis_id", ""))
+        if not key:
+            continue
+        if key not in merged:
+            merged[key] = {"hypothesis": hypothesis, "result": entry.get("result")}
+            order.append(key)
+            continue
+        if entry.get("result") and not merged[key].get("result"):
+            merged[key]["result"] = entry["result"]
+    return [merged[k] for k in order]
 
 
 __all__ = [

@@ -1,0 +1,17 @@
+{
+  "experiment": "billboard_attention_reversal",
+  "as_of": "2026-08-09T06:26:16.579711+00:00",
+  "params": {
+    "hold_days": 5,
+    "cost_bps": 30.0,
+    "max_events": 50000
+  },
+  "code": {
+    "commit": "2ab7225c87ff21dc69dff700486c4cb1f89cd466",
+    "dirty": true,
+    "dirty_files": 638
+  },
+  "started_at": "2026-08-09T06:26:16.609012+00:00",
+  "inputs": {},
+  "reproducible": false
+}

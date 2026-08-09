@@ -55,6 +55,38 @@ class Direction(str, Enum):
     EXIT = "exit"
 
 
+# What this project measured when it tested the book's boldest claim.
+#
+# 《炒股的智慧》 calls the false breakdown its highest-conviction setup and says it
+# wins "十次有九次" — nine times in ten. Measured on real data across all three
+# instrument domains (scripts/false_breakdown_experiment.py, results in
+# data/false_breakdown_results.json), it does not:
+#
+#   假突破反转(全部)      n=2557  平均超额 -0.26%  胜率 45.8%  t=-2.19 (门槛 3.68)
+#   └ 放量确认子集        n=1007  平均超额 -0.47%  胜率 45.9%
+#   对照:破位未收回       n=2254  平均超额 -0.31%  胜率 45.7%
+#   对照:无条件基准率    n=23720  平均超额 -0.23%  胜率 45.2%
+#
+# The signal group is indistinguishable from both controls, so the pattern
+# carries no information — the "recovery" that supposedly makes it special
+# performs the same as a breakdown that never recovered. The volume-confirmed
+# subset, which the book singles out as the strongest, is the *worst* of the
+# three. And the unconditional base rate is negative by roughly one round trip's
+# cost, which is the sanity check that the machinery itself is unbiased.
+#
+# The signal is kept, surfaced, and labelled with this measurement rather than
+# deleted: seeing a pattern fire and knowing it has been tested and failed is
+# more useful than not seeing it at all. 「知错却不肯认错就更加不可救药。」
+FALSE_BREAKDOWN_EVIDENCE = {
+    "n": 2557,
+    "win_rate": 0.458,
+    "mean_excess": -0.0026,
+    "t_clustered": -2.19,
+    "t_hurdle": 3.68,
+    "confirmed": False,
+    "source": "scripts/false_breakdown_experiment.py",
+}
+
 # The book's stop-loss discipline: 10% preferred, 20% is the hard ceiling.
 DEFAULT_STOP_PCT = 0.10
 MAX_STOP_PCT = 0.20
@@ -193,22 +225,34 @@ def detect_signals(bars: Bars, window: int = 5, lookback: int = 60) -> list[Wisd
                              else " WITHOUT volume — the book calls this meaningless")),
         ))
 
-    # 3) False breakdown — the author's highest-conviction setup.
+    # 3) False breakdown — the author's highest-conviction setup, and the one
+    #    claim in this book that this project has measured and *falsified*.
+    #    See FALSE_BREAKDOWN_EVIDENCE below and scripts/false_breakdown_experiment.py.
     support = float(np.min(low[max(0, i - lookback) : i - 2])) if i > 5 else 0.0
     if support > 0:
         broke = np.any(low[max(0, i - 3) : i + 1] < support)
         recovered = close[i] > support
         if broke and recovered:
-            confidence = 0.6 + (0.3 if volume_ok else 0.0)
+            # Confidence reflects the measurement, not the claim. Volume
+            # confirmation *lowers* it: the volume-confirmed subset was the
+            # worst-performing of all (-0.47%, 45.9% win rate).
+            confidence = 0.15 if volume_ok else 0.2
             signals.append(WisdomSignal(
                 kind=SignalKind.FALSE_BREAKDOWN, direction=Direction.BUY, index=i,
                 price=float(close[i]), stop_price=_clamped_stop(close[i], support * 0.97),
-                confidence=min(confidence, 1.0), volume_confirmed=volume_ok,
-                rationale_zh=(f"跌穿支撑 {support:.4g} 后快速收回"
-                              + ("，放量确认——书中「十次有九次赚钱」" if volume_ok else "，但成交量未放大")),
-                rationale_en=(f"Broke support {support:.4g} then snapped back"
-                              + (" on heavy volume — the author's highest-conviction setup"
-                                 if volume_ok else ", but without volume confirmation")),
+                confidence=confidence, volume_confirmed=volume_ok,
+                rationale_zh=(f"跌穿支撑 {support:.4g} 后收回"
+                              + ("（放量）" if volume_ok else "（未放量）")
+                              + f"。⚠️ 书中称「十次有九次赚钱」，"
+                                f"但本项目在 {FALSE_BREAKDOWN_EVIDENCE['n']} 个真实事件上实测"
+                                f"胜率仅 {FALSE_BREAKDOWN_EVIDENCE['win_rate']*100:.1f}%，"
+                                f"与「破位未收回」对照组无区别——该形态未被证实"),
+                rationale_en=(f"Broke support {support:.4g} then reclaimed it"
+                              + (" on volume" if volume_ok else " without volume")
+                              + f". ⚠️ The book claims 9-in-10; measured on "
+                                f"{FALSE_BREAKDOWN_EVIDENCE['n']} real events the win rate is "
+                                f"{FALSE_BREAKDOWN_EVIDENCE['win_rate']*100:.1f}% and "
+                                f"indistinguishable from the control — unconfirmed"),
             ))
 
     # 4) Parabolic exhaustion (exit): steep run, then the first down close.
@@ -258,9 +302,17 @@ def trailing_stop(bars: Bars, entry_index: int, window: int = 5) -> float | None
 
 
 def position_size(
-    capital: float, entry: float, stop: float, target: float | None = None
+    capital: float | None, entry: float, stop: float, target: float | None = None
 ) -> dict:
-    """The book's sizing rule: one of ten parts, and only at 1:3 or better."""
+    """The book's sizing rule: one of ten parts, and only at 1:3 or better.
+
+    ``capital`` may be ``None``, meaning nobody has told this process how large
+    the account is. In that case the rule is still reported — one tenth of equity,
+    with the risk as a percentage — but no allocation, share count or dollar risk
+    is produced. Those are the fields that look like measurements, and a caller
+    that supplies an invented equity gets an exact share count for an account that
+    does not exist. Missing must stay missing, here as everywhere else.
+    """
     if entry <= 0 or stop <= 0 or stop >= entry:
         return {"allowed": False, "reason": "invalid entry/stop"}
     risk_pct = (entry - stop) / entry
@@ -269,15 +321,27 @@ def position_size(
     reward_ratio = ((target - entry) / (entry - stop)) if target else None
     if reward_ratio is not None and reward_ratio < MIN_RISK_REWARD:
         return {"allowed": False, "reason": f"risk/reward {reward_ratio:.1f} below 1:{MIN_RISK_REWARD:.0f}"}
-    allocation = capital / CAPITAL_PARTS
+
+    known = capital is not None and capital > 0
+    allocation = (capital / CAPITAL_PARTS) if known else None
     return {
         "allowed": True,
-        "allocation": round(allocation, 2),
-        "shares": int(allocation // entry) if entry > 0 else 0,
+        # The rule, which is always knowable.
+        "capital_fraction": round(1.0 / CAPITAL_PARTS, 4),
         "risk_pct": round(risk_pct, 4),
-        "risk_amount": round(allocation * risk_pct, 2),
+        "risk_fraction_of_equity": round(risk_pct / CAPITAL_PARTS, 5),
         "reward_ratio": round(reward_ratio, 2) if reward_ratio else None,
-        "note": "one of ten parts, per 分散风险",
+        # The amounts, which are only knowable with a real account size.
+        "capital": round(float(capital), 2) if known else None,
+        "allocation": round(allocation, 2) if allocation is not None else None,
+        "shares": int(allocation // entry) if allocation is not None else None,
+        "risk_amount": round(allocation * risk_pct, 2) if allocation is not None else None,
+        "capital_known": known,
+        "note": (
+            "one of ten parts, per 分散风险"
+            if known
+            else "one of ten parts, per 分散风险 — 未配置账户权益,只给比例不给股数"
+        ),
     }
 
 

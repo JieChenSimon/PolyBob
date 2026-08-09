@@ -1,0 +1,63 @@
+{
+  "experiment": "altcoin_retail_crowding",
+  "as_of": "2026-08-09T06:27:31.646726+00:00",
+  "params": {
+    "hold_days": 5,
+    "us_cost_bps": 5.0,
+    "alt_cost_bps": 10.0,
+    "us_universe": [
+      "AAPL",
+      "MSFT",
+      "NVDA",
+      "AMZN",
+      "META",
+      "GOOGL",
+      "TSLA",
+      "AMD",
+      "JPM",
+      "BAC",
+      "WFC",
+      "C",
+      "XOM",
+      "CVX",
+      "PFE",
+      "MRK",
+      "KO",
+      "NKE",
+      "DIS",
+      "VZ",
+      "T",
+      "F",
+      "GM",
+      "GE",
+      "BA",
+      "INTC"
+    ],
+    "alts": [
+      "SOL",
+      "DOGE",
+      "ADA",
+      "AVAX",
+      "LINK",
+      "LTC",
+      "XRP",
+      "BCH"
+    ],
+    "percentile_window": 30
+  },
+  "code": {
+    "commit": "2ab7225c87ff21dc69dff700486c4cb1f89cd466",
+    "dirty": true,
+    "dirty_files": 639
+  },
+  "started_at": "2026-08-09T06:27:31.674090+00:00",
+  "inputs": {
+    "us_insiders": {
+      "universe": 26
+    },
+    "altcoin_positioning": {
+      "coins": 8
+    }
+  },
+  "reproducible": false
+}

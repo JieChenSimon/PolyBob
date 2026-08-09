@@ -3,7 +3,6 @@ GARCH模型 - 波动率估计
 实现 GARCH(1,1) 模型用于动态波动率预测
 """
 import numpy as np
-from typing import Tuple
 from dataclasses import dataclass
 
 

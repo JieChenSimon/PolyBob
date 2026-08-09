@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 import pytest
 import httpx
 
+import apps.api.btc_five_minute as btc
+import apps.api.deps as deps
 import apps.api.main as api
 
 
@@ -64,10 +66,10 @@ async def fake_unavailable_btc_reference():
 
 
 @pytest.mark.asyncio
-async def test_gamma_market_fetch_uses_event_slug_for_target_price_metadata():
+async def test_gamma_market_fetch_uses_event_slug_for_target_price_metadata(btc5m_promoted):
     client = FakeClient()
 
-    market = await api.fetch_btc_five_minute_gamma_market(
+    market = await btc.fetch_btc_five_minute_gamma_market(
         client,
         gamma_base_url="https://gamma-api.polymarket.com",
         slug="btc-updown-5m-1782384600",
@@ -78,7 +80,7 @@ async def test_gamma_market_fetch_uses_event_slug_for_target_price_metadata():
     assert market["eventMetadata"]["priceToBeat"] == 61189.13539580122
 
 
-def test_extracts_live_target_price_from_polymarket_page_crypto_prices():
+def test_extracts_live_target_price_from_polymarket_page_crypto_prices(btc5m_promoted):
     html = (
         '"state":{"data":{"openPrice":61187.70127318885,"closePrice":null},'
         '"dataUpdateCount":1},'
@@ -86,7 +88,7 @@ def test_extracts_live_target_price_from_polymarket_page_crypto_prices():
         '"fiveminute","2026-06-25T12:05:00Z"]'
     )
 
-    price = api._extract_btc_five_minute_page_target_price(
+    price = btc._extract_btc_five_minute_page_target_price(
         html,
         "2026-06-25T12:00:00Z",
         "2026-06-25T12:05:00Z",
@@ -95,7 +97,7 @@ def test_extracts_live_target_price_from_polymarket_page_crypto_prices():
     assert price == 61187.70127318885
 
 
-def test_extracts_target_price_from_backslash_escaped_page_state():
+def test_extracts_target_price_from_backslash_escaped_page_state(btc5m_promoted):
     # Polymarket dehydrates its React Query cache as a JSON *string*, so quotes
     # arrive backslash-escaped. The parser must survive that encoding.
     html = (
@@ -105,7 +107,7 @@ def test_extracts_target_price_from_backslash_escaped_page_state():
         r'\"fiveminute\",\"2026-07-21T15:05:00Z\"],\"queryHash\":...'
     )
 
-    price = api._extract_btc_five_minute_page_target_price(
+    price = btc._extract_btc_five_minute_page_target_price(
         html,
         "2026-07-21T15:00:00Z",
         "2026-07-21T15:05:00Z",
@@ -115,7 +117,7 @@ def test_extracts_target_price_from_backslash_escaped_page_state():
 
 
 @pytest.mark.asyncio
-async def test_fetches_target_price_from_crypto_price_api():
+async def test_fetches_target_price_from_crypto_price_api(btc5m_promoted):
     class ApiClient:
         def __init__(self):
             self.calls = []
@@ -138,7 +140,7 @@ async def test_fetches_target_price_from_crypto_price_api():
                 }
             )
 
-    target = await api.fetch_btc_five_minute_api_target_price(
+    target = await btc.fetch_btc_five_minute_api_target_price(
         ApiClient(),
         slug="btc-updown-5m-1782388800",
     )
@@ -151,20 +153,20 @@ async def test_fetches_target_price_from_crypto_price_api():
 
 
 @pytest.mark.asyncio
-async def test_target_price_api_missing_open_price_raises():
+async def test_target_price_api_missing_open_price_raises(btc5m_promoted):
     class ApiClient:
         async def get(self, url, params=None, headers=None):
             return FakeResponse({"openPrice": None, "closePrice": None})
 
     with pytest.raises(ValueError):
-        await api.fetch_btc_five_minute_api_target_price(
+        await btc.fetch_btc_five_minute_api_target_price(
             ApiClient(),
             slug="btc-updown-5m-1782388800",
         )
 
 
 @pytest.mark.asyncio
-async def test_fetches_live_target_price_from_polymarket_page():
+async def test_fetches_live_target_price_from_polymarket_page(btc5m_promoted):
     class PageClient:
         async def get(self, url, headers=None):
             assert url == "https://polymarket.com/event/btc-updown-5m-1782388800"
@@ -176,7 +178,7 @@ async def test_fetches_live_target_price_from_polymarket_page():
                 '"fiveminute","2026-06-25T12:05:00Z"]'
             )
 
-    target = await api.fetch_btc_five_minute_page_target_price(
+    target = await btc.fetch_btc_five_minute_page_target_price(
         PageClient(),
         slug="btc-updown-5m-1782388800",
     )
@@ -189,7 +191,7 @@ async def test_fetches_live_target_price_from_polymarket_page():
 
 
 @pytest.mark.asyncio
-async def test_btc_reference_aggregator_selects_lowest_staleness_timestamped_source():
+async def test_btc_reference_aggregator_selects_lowest_staleness_timestamped_source(btc5m_promoted):
     class MultiSourceClient:
         async def get(self, url, params=None, headers=None):
             if "binance.com" in url:
@@ -202,7 +204,7 @@ async def test_btc_reference_aggregator_selects_lowest_staleness_timestamped_sou
 
     now = datetime.fromtimestamp(1782388800.500, tz=timezone.utc)
 
-    reference = await api.fetch_btc_reference_aggregate(MultiSourceClient(), now=now)
+    reference = await btc.fetch_btc_reference_aggregate(MultiSourceClient(), now=now)
 
     assert reference["source"] == "okx_swap"
     assert reference["price"] == 61201.20
@@ -215,7 +217,7 @@ async def test_btc_reference_aggregator_selects_lowest_staleness_timestamped_sou
 
 
 @pytest.mark.asyncio
-async def test_btc_reference_aggregator_keeps_failed_sources_and_rejects_outliers():
+async def test_btc_reference_aggregator_keeps_failed_sources_and_rejects_outliers(btc5m_promoted):
     class PartialClient:
         async def get(self, url, params=None, headers=None):
             if "binance.com" in url:
@@ -228,7 +230,7 @@ async def test_btc_reference_aggregator_keeps_failed_sources_and_rejects_outlier
 
     now = datetime.fromtimestamp(1782388800.500, tz=timezone.utc)
 
-    reference = await api.fetch_btc_reference_aggregate(PartialClient(), now=now)
+    reference = await btc.fetch_btc_reference_aggregate(PartialClient(), now=now)
 
     assert reference["source"] == "binance_futures"
     assert reference["price"] == 61200.10
@@ -239,8 +241,8 @@ async def test_btc_reference_aggregator_keeps_failed_sources_and_rejects_outlier
 
 
 @pytest.mark.asyncio
-async def test_btc_five_minute_endpoint_returns_workbench_payload(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_five_minute_endpoint_returns_workbench_payload(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
 
     async def fake_collect(slug=None, enabled_indicators=None):
         return {
@@ -283,9 +285,9 @@ async def test_btc_five_minute_endpoint_returns_workbench_payload(monkeypatch):
             },
         }
 
-    monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
+    monkeypatch.setattr(btc, "collect_btc_five_minute_workbench", fake_collect)
 
-    payload = await api.get_btc_five_minute_workbench()
+    payload = await btc.get_btc_five_minute_workbench()
 
     assert payload["source"] == "polymarket_clob"
     assert payload["action"] == "watch_up"
@@ -296,8 +298,8 @@ async def test_btc_five_minute_endpoint_returns_workbench_payload(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_btc_five_minute_endpoint_cache_is_window_aware(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_five_minute_endpoint_cache_is_window_aware(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
     calls = 0
 
     async def fake_collect(slug=None, enabled_indicators=None):
@@ -312,10 +314,10 @@ async def test_btc_five_minute_endpoint_cache_is_window_aware(monkeypatch):
             "outcomes": {},
         }
 
-    monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
+    monkeypatch.setattr(btc, "collect_btc_five_minute_workbench", fake_collect)
 
-    first = await api.get_btc_five_minute_workbench(slug="btc-updown-5m-1782384600")
-    second = await api.get_btc_five_minute_workbench(slug="btc-updown-5m-1782384900")
+    first = await btc.get_btc_five_minute_workbench(slug="btc-updown-5m-1782384600")
+    second = await btc.get_btc_five_minute_workbench(slug="btc-updown-5m-1782384900")
 
     assert first["slug"] == "btc-updown-5m-1782384600"
     assert second["slug"] == "btc-updown-5m-1782384900"
@@ -323,16 +325,16 @@ async def test_btc_five_minute_endpoint_cache_is_window_aware(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_btc_five_minute_endpoint_fails_closed_without_fake_book(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_five_minute_endpoint_fails_closed_without_fake_book(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
 
     async def fake_collect(slug=None, enabled_indicators=None):
         raise RuntimeError("Gamma market unavailable")
 
-    monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
-    monkeypatch.setattr(api, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
+    monkeypatch.setattr(btc, "collect_btc_five_minute_workbench", fake_collect)
+    monkeypatch.setattr(btc, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
 
-    payload = await api.get_btc_five_minute_workbench()
+    payload = await btc.get_btc_five_minute_workbench()
 
     assert payload["source"] == "unavailable"
     assert payload["action"] == "no_trade"
@@ -349,16 +351,16 @@ async def test_btc_five_minute_endpoint_fails_closed_without_fake_book(monkeypat
 
 
 @pytest.mark.asyncio
-async def test_btc_five_minute_endpoint_reports_exception_class_when_message_empty(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_five_minute_endpoint_reports_exception_class_when_message_empty(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
 
     async def fake_collect(slug=None, enabled_indicators=None):
         raise TimeoutError()
 
-    monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
-    monkeypatch.setattr(api, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
+    monkeypatch.setattr(btc, "collect_btc_five_minute_workbench", fake_collect)
+    monkeypatch.setattr(btc, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
 
-    payload = await api.get_btc_five_minute_workbench()
+    payload = await btc.get_btc_five_minute_workbench()
 
     assert payload["source"] == "unavailable"
     assert payload["action"] == "no_trade"
@@ -367,7 +369,7 @@ async def test_btc_five_minute_endpoint_reports_exception_class_when_message_emp
 
 
 @pytest.mark.asyncio
-async def test_gamma_market_fetch_does_not_retry_transport_failures():
+async def test_gamma_market_fetch_does_not_retry_transport_failures(btc5m_promoted):
     class TimeoutClient:
         def __init__(self):
             self.calls = 0
@@ -394,7 +396,7 @@ async def test_gamma_market_fetch_does_not_retry_transport_failures():
 
     client = TimeoutClient()
 
-    market = await api.fetch_btc_five_minute_gamma_market(
+    market = await btc.fetch_btc_five_minute_gamma_market(
         client,
         gamma_base_url="https://gamma-api.polymarket.com",
         slug="btc-updown-5m-1782384600",
@@ -405,7 +407,7 @@ async def test_gamma_market_fetch_does_not_retry_transport_failures():
 
 
 @pytest.mark.asyncio
-async def test_gamma_market_fetch_uses_markets_fallback_after_event_503():
+async def test_gamma_market_fetch_uses_markets_fallback_after_event_503(btc5m_promoted):
     class ServiceUnavailableClient:
         def __init__(self):
             self.calls = 0
@@ -430,7 +432,7 @@ async def test_gamma_market_fetch_uses_markets_fallback_after_event_503():
 
     client = ServiceUnavailableClient()
 
-    market = await api.fetch_btc_five_minute_gamma_market(
+    market = await btc.fetch_btc_five_minute_gamma_market(
         client,
         gamma_base_url="https://gamma-api.polymarket.com",
         slug="btc-updown-5m-1782384600",
@@ -441,8 +443,8 @@ async def test_gamma_market_fetch_uses_markets_fallback_after_event_503():
 
 
 @pytest.mark.asyncio
-async def test_btc_reference_safe_uses_short_cache(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_reference_safe_uses_short_cache(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
     calls = 0
 
     async def fake_aggregate(client):
@@ -460,17 +462,17 @@ async def test_btc_reference_safe_uses_short_cache(monkeypatch):
             "sources": [],
         }
 
-    monkeypatch.setattr(api, "fetch_btc_reference_aggregate", fake_aggregate)
+    monkeypatch.setattr(btc, "fetch_btc_reference_aggregate", fake_aggregate)
 
-    first = await api._fetch_btc_reference_aggregate_safe(object())
-    second = await api._fetch_btc_reference_aggregate_safe(object())
+    first = await btc._fetch_btc_reference_aggregate_safe(object())
+    second = await btc._fetch_btc_reference_aggregate_safe(object())
 
     assert first["price"] == second["price"]
     assert calls == 1
 
 
 @pytest.mark.asyncio
-async def test_realtime_market_uses_multi_source_reference(monkeypatch):
+async def test_realtime_market_uses_multi_source_reference(monkeypatch, btc5m_promoted):
     async def fake_reference(client):
         return {
             "source": "coinbase_spot",
@@ -484,7 +486,7 @@ async def test_realtime_market_uses_multi_source_reference(monkeypatch):
             "sources": [{"source": "coinbase_spot", "status": "ok", "selected": True}],
         }
 
-    monkeypatch.setattr(api, "_fetch_btc_reference_aggregate_safe", fake_reference)
+    monkeypatch.setattr(btc, "_fetch_btc_reference_aggregate_safe", fake_reference)
 
     payload = await api.get_realtime_market()
 
@@ -494,8 +496,8 @@ async def test_realtime_market_uses_multi_source_reference(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_btc_five_minute_endpoint_diagnoses_provider_503(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_five_minute_endpoint_diagnoses_provider_503(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
     request = httpx.Request("GET", "https://gamma-api.polymarket.com/markets")
     response = httpx.Response(503, request=request, text="Service Unavailable")
 
@@ -506,10 +508,10 @@ async def test_btc_five_minute_endpoint_diagnoses_provider_503(monkeypatch):
             response=response,
         )
 
-    monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
-    monkeypatch.setattr(api, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
+    monkeypatch.setattr(btc, "collect_btc_five_minute_workbench", fake_collect)
+    monkeypatch.setattr(btc, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
 
-    payload = await api.get_btc_five_minute_workbench()
+    payload = await btc.get_btc_five_minute_workbench()
 
     assert payload["source"] == "unavailable"
     assert payload["error_diagnosis"]["category"] == "provider_status"
@@ -519,17 +521,17 @@ async def test_btc_five_minute_endpoint_diagnoses_provider_503(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_btc_five_minute_endpoint_diagnoses_network_connection(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_five_minute_endpoint_diagnoses_network_connection(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
     request = httpx.Request("GET", "https://clob.polymarket.com/book")
 
     async def fake_collect(slug=None, enabled_indicators=None):
         raise httpx.ConnectError("SSL handshake failed", request=request)
 
-    monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
-    monkeypatch.setattr(api, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
+    monkeypatch.setattr(btc, "collect_btc_five_minute_workbench", fake_collect)
+    monkeypatch.setattr(btc, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
 
-    payload = await api.get_btc_five_minute_workbench()
+    payload = await btc.get_btc_five_minute_workbench()
 
     assert payload["error_diagnosis"]["category"] == "network_connection"
     assert payload["error_diagnosis"]["provider"] == "Polymarket CLOB"
@@ -537,17 +539,17 @@ async def test_btc_five_minute_endpoint_diagnoses_network_connection(monkeypatch
 
 
 @pytest.mark.asyncio
-async def test_btc_five_minute_endpoint_diagnoses_503_inside_transport_error(monkeypatch):
-    api.clear_api_response_cache()
+async def test_btc_five_minute_endpoint_diagnoses_503_inside_transport_error(monkeypatch, btc5m_promoted):
+    deps.clear_api_response_cache()
     request = httpx.Request("GET", "https://gamma-api.polymarket.com/markets")
 
     async def fake_collect(slug=None, enabled_indicators=None):
         raise httpx.ConnectError("503 Service Unavailable", request=request)
 
-    monkeypatch.setattr(api, "collect_btc_five_minute_workbench", fake_collect)
-    monkeypatch.setattr(api, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
+    monkeypatch.setattr(btc, "collect_btc_five_minute_workbench", fake_collect)
+    monkeypatch.setattr(btc, "fetch_btc_reference_for_unavailable_workbench", fake_unavailable_btc_reference)
 
-    payload = await api.get_btc_five_minute_workbench()
+    payload = await btc.get_btc_five_minute_workbench()
 
     assert payload["error_diagnosis"]["category"] == "provider_status"
     assert payload["error_diagnosis"]["responsibility"] == "external_provider"

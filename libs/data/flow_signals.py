@@ -31,6 +31,8 @@ import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 
+from libs.data.http_client import HttpFetchError, http_get_json
+
 CACHE_DIR = pathlib.Path("data/market_cache")
 _UA = "Mozilla/5.0 (PolyBob research)"
 
@@ -53,11 +55,10 @@ def _finnhub_key() -> str:
 
 
 def _get(url: str, timeout: float = 20.0) -> dict | list:
-    request = urllib.request.Request(url, headers={"User-Agent": _UA})
+    """Fetch over the shared pooled session — see libs/data/http_client.py."""
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            return json.loads(response.read())
-    except Exception as exc:  # noqa: BLE001 - surface provider failure honestly
+        return http_get_json(url, timeout=timeout, headers={"User-Agent": _UA})
+    except HttpFetchError as exc:
         raise SignalDataUnavailable(f"{url.split('?')[0]}: {exc}") from exc
 
 

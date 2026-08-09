@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from libs.quant.promotion_registry import get_registry
+
 
 @dataclass(frozen=True)
 class BtcFiveMinuteConfig:
@@ -15,13 +17,54 @@ class BtcFiveMinuteConfig:
     max_stale_ms: int = 5_000
     near_expiry_seconds: int = 20
     model_probability_up: float = 0.5
-    min_edge: float = 0.02
+    # No independent live threshold. It is read from the study that produced it
+    # (``data/btc5m_mispricing.json``) so the two cannot drift: the product used
+    # to fire at 0.02 while the research required 0.10 — five times more noise
+    # than anything that was ever measured, on a hypothesis that failed its
+    # hurdle anyway. Set it only to *tighten*; a looser value is reported and
+    # never applied.
+    min_edge: float | None = None
     min_win_probability: float = 0.58
     min_expected_value: float = 0.01
     watch_expected_value: float = -0.02
     price_probability_weight: float = 0.70
     fractional_kelly: float = 0.25
     max_kelly_fraction: float = 0.05
+
+
+RESEARCH_PATH = "data/btc5m_mispricing.json"
+
+
+@dataclass(frozen=True)
+class ResearchThresholds:
+    """The thresholds the study actually traded, and where they came from."""
+
+    edge_threshold: float | None
+    fee: float | None
+    source: str
+    error: str | None = None
+
+
+def load_research_thresholds(path: "str | None" = None) -> ResearchThresholds:
+    """Read the entry threshold from the experiment output, or report why not.
+
+    A missing or unreadable file yields ``edge_threshold=None``, which blocks
+    entry downstream. That is the point: without knowing what was researched,
+    there is no such thing as "the researched threshold", and defaulting to a
+    number would recreate exactly the drift this function exists to prevent.
+    """
+    from pathlib import Path
+
+    source = str(path or RESEARCH_PATH)
+    try:
+        payload = json.loads(Path(source).read_text())
+    except Exception as exc:  # noqa: BLE001 - absence must be visible, not fatal
+        return ResearchThresholds(None, None, source, f"{type(exc).__name__}: {exc}")
+    edge = payload.get("edge_threshold")
+    fee = payload.get("fee")
+    if not isinstance(edge, (int, float)):
+        return ResearchThresholds(None, fee, source, "edge_threshold missing from研究结果")
+    return ResearchThresholds(float(edge), float(fee) if isinstance(fee, (int, float)) else None, source)
 
 
 @dataclass(frozen=True)
@@ -121,6 +164,86 @@ def normalize_book(
     )
 
 
+def _threshold_status(config: "BtcFiveMinuteConfig", research_path: "str | None") -> dict[str, Any]:
+    """Which entry threshold applies, and whether config and study agree."""
+    research = load_research_thresholds(research_path)
+    configured = config.min_edge
+    if research.edge_threshold is None:
+        return {"min_edge": None, "configured_min_edge": configured,
+                "research_min_edge": None, "source": research.source,
+                "consistent": None, "error": research.error}
+    if configured is None:
+        return {"min_edge": research.edge_threshold, "configured_min_edge": None,
+                "research_min_edge": research.edge_threshold,
+                "source": research.source, "consistent": True, "error": None}
+    consistent = configured >= research.edge_threshold
+    return {
+        # The stricter of the two always wins. A looser live threshold is a
+        # claim the evidence does not support, so it is reported and discarded.
+        "min_edge": max(configured, research.edge_threshold),
+        "configured_min_edge": configured,
+        "research_min_edge": research.edge_threshold,
+        "source": research.source,
+        "consistent": consistent,
+        "error": None if consistent else (
+            f"实盘阈值 {configured} 低于研究阈值 {research.edge_threshold}，"
+            "以研究阈值为准"
+        ),
+    }
+
+
+def _gate_status(enabled_indicators, research_path: "str | None" = None) -> dict[str, Any]:
+    """Has this edge cleared the gate, is it the same model, and where is n now?
+
+    The sample-size and calibration numbers travel with the gate on purpose: the
+    honest use of this page while ungated is to grow n from 95 towards the 200+
+    the hypothesis needs, and ``brier_model < brier_market`` is the real signal
+    saying that is worth doing.
+    """
+    from pathlib import Path
+
+    registry = get_registry()
+    research: dict[str, Any] = {}
+    try:
+        payload = json.loads(Path(str(research_path or RESEARCH_PATH)).read_text())
+        research = payload.get("result") or {}
+    except Exception:  # noqa: BLE001 - absence shows up as None, never as a number
+        research = {}
+    promoted = registry.is_promoted("btc5m_mispricing", "BTC_5M")
+    # The indicator set the study used. Turning extra indicators on makes the
+    # live model a different model from the one whose Brier score was measured,
+    # so the evidence stops applying to it.
+    studied = set(DEFAULT_ENABLED_INDICATORS)
+    # A circular indicator never reaches the blend, so switching it on does not
+    # change the model that produced the evidence.
+    active = (set(enabled_indicators) if enabled_indicators is not None else studied) - _CIRCULAR_INDICATORS
+    return {
+        "strategy": "btc5m_mispricing",
+        "instrument": "BTC_5M",
+        "promoted": promoted,
+        "reason": registry.reason_blocked("btc5m_mispricing", "BTC_5M"),
+        "model_matches_evidence": active == studied,
+        "studied_indicators": sorted(studied),
+        "n": research.get("n"),
+        "t_stat": research.get("t_stat"),
+        "t_hurdle": research.get("t_hurdle"),
+        "significant": research.get("significant"),
+        "brier_model": research.get("brier_model"),
+        "brier_market": research.get("brier_market"),
+    }
+
+
+def _research_only_optimizer(payload: dict[str, Any]) -> dict[str, Any]:
+    """Strip everything that reads as an instruction to trade."""
+    out = dict(payload)
+    out["decision"] = "research_only"
+    for field in ("kelly_fraction", "max_acceptable_price", "recommended_outcome",
+                  "limit_price", "position_fraction"):
+        if field in out:
+            out[field] = None
+    return out
+
+
 def build_workbench_snapshot(
     *,
     market: dict[str, Any],
@@ -130,6 +253,7 @@ def build_workbench_snapshot(
     now: datetime,
     config: BtcFiveMinuteConfig | None = None,
     enabled_indicators: "list[str] | tuple[str, ...] | set[str] | None" = None,
+    research_path: "str | None" = None,
 ) -> dict[str, Any]:
     config = config or BtcFiveMinuteConfig()
     now = _ensure_utc(now)
@@ -143,6 +267,18 @@ def build_workbench_snapshot(
         reason_codes.append("MISSING_TARGET_PRICE")
     if btc_price is None:
         reason_codes.append("MISSING_BTC_REFERENCE")
+
+    thresholds = _threshold_status(config, research_path)
+    if thresholds["min_edge"] is None:
+        reason_codes.append("MISSING_RESEARCH_THRESHOLD")
+    if thresholds["consistent"] is False:
+        reason_codes.append("LIVE_THRESHOLD_DISAGREES_WITH_RESEARCH")
+
+    gate = _gate_status(enabled_indicators, research_path)
+    if not gate["promoted"]:
+        reason_codes.append("EDGE_NOT_PROMOTED")
+    if not gate["model_matches_evidence"]:
+        reason_codes.append("MODEL_DIFFERS_FROM_STUDIED_MODEL")
     reason_codes = sorted(set(reason_codes))
 
     # Real realized volatility (std of 1-minute BTC log returns), if the ingester
@@ -160,19 +296,48 @@ def build_workbench_snapshot(
         momentum_1m=momentum_1m,
         enabled_indicators=enabled_indicators,
     )
-    down_probability = 1.0 - up_probability
+    # No model probability means no complement either. Deriving 1 - None as 0.5
+    # would invent a second fabricated number from the first.
+    down_probability = (1.0 - up_probability) if up_probability is not None else None
+    if up_probability is None:
+        reason_codes.append("MISSING_MODEL_PROBABILITY")
     outcomes = {
         "UP": _outcome_payload(up_book, up_probability, reason_codes, config),
         "DOWN": _outcome_payload(down_book, down_probability, reason_codes, config),
     }
     entry_optimizer = _entry_optimizer_payload(outcomes, reason_codes, config)
 
+    # Nothing here may recommend a position while the edge is unpromoted, the
+    # live threshold disagrees with the study, or the model is not the one that
+    # was studied. The workbench stays useful — the book, the model probability
+    # and the Brier comparison are exactly what raises n from 95 towards the 200+
+    # this hypothesis needs — but it stops handing out a limit price and a Kelly
+    # size for a result that failed its own hurdle.
+    research_only = (not gate["promoted"]
+                     or thresholds["min_edge"] is None
+                     or thresholds["consistent"] is False
+                     or not gate["model_matches_evidence"])
+
     recommended = None
     action = "no_trade"
-    if not reason_codes:
-        best_label = max(outcomes, key=lambda label: outcomes[label]["estimated_edge"])
-        best = outcomes[best_label]
-        if best["estimated_edge"] >= config.min_edge:
+    if research_only:
+        action = "research_only"
+        entry_optimizer = _research_only_optimizer(entry_optimizer)
+        for label in outcomes:
+            outcomes[label]["candidate_entry_price"] = None
+            analysis = outcomes[label].get("entry_analysis")
+            if isinstance(analysis, dict):
+                analysis["entry_decision"] = "research_only"
+                for field in ("kelly_fraction", "max_acceptable_price", "entry_band"):
+                    if field in analysis:
+                        analysis[field] = None
+    elif not reason_codes:
+        edges = {k: v["estimated_edge"] for k, v in outcomes.items()
+                 if v["estimated_edge"] is not None}
+        best_label = max(edges, key=edges.get) if edges else None
+        if best_label is None:
+            reason_codes.append("MISSING_MODEL_PROBABILITY")
+        elif edges[best_label] >= thresholds["min_edge"]:
             recommended = best_label
             action = f"watch_{best_label.lower()}"
         else:
@@ -192,7 +357,9 @@ def build_workbench_snapshot(
         "btc_reference": btc_reference,
         "action": action,
         "recommended_outcome": recommended,
-        "reason_codes": reason_codes,
+        "reason_codes": sorted(set(reason_codes)),
+        "thresholds": thresholds,
+        "gate_status": gate,
         "entry_optimizer": entry_optimizer,
         "outcomes": outcomes,
         "return_volatility": return_volatility,
@@ -206,14 +373,22 @@ def build_workbench_snapshot(
 
 def _outcome_payload(
     book: NormalizedBook,
-    model_probability: float,
+    model_probability: float | None,
     reason_codes: list[str],
     config: BtcFiveMinuteConfig,
 ) -> dict[str, Any]:
     executable_price = book.best_ask.price if book.best_ask else None
     cost_penalty = _cost_penalty(book)
-    estimated_edge = round(model_probability - executable_price, 4) if executable_price is not None else None
-    expected_value = round(model_probability - executable_price - cost_penalty, 4) if executable_price is not None else None
+    # Every derived figure needs *all* of its inputs. Any of them missing makes
+    # the result unknown, not zero and not a default — an edge computed from a
+    # fabricated cost or a fabricated probability looks exactly like a real one.
+    have_edge = model_probability is not None and executable_price is not None
+    estimated_edge = round(model_probability - executable_price, 4) if have_edge else None
+    expected_value = (
+        round(model_probability - executable_price - cost_penalty, 4)
+        if have_edge and cost_penalty is not None
+        else None
+    )
     candidate_entry_price = (
         executable_price
         if executable_price is not None
@@ -222,6 +397,16 @@ def _outcome_payload(
         and expected_value >= config.min_expected_value
         else None
     )
+    # The model against the book's own mid, kept beside the tradable edge so the
+    # two comparisons are never confused: ``estimated_edge`` is versus the ask
+    # you would actually pay, this one is versus the market's consensus.
+    book_mid = _book_reference_probability(book)
+    model_vs_mid = (
+        round(model_probability - book_mid, 4)
+        if model_probability is not None and book_mid is not None
+        else None
+    )
+
     entry_analysis = _entry_analysis_payload(
         book=book,
         win_probability=model_probability,
@@ -241,9 +426,10 @@ def _outcome_payload(
         "spread": book.spread,
         "bid_depth_top3": book.bid_depth_top3,
         "ask_depth_top3": book.ask_depth_top3,
-        "model_probability": round(model_probability, 4),
+        "model_probability": round(model_probability, 4) if model_probability is not None else None,
         "candidate_entry_price": candidate_entry_price,
         "estimated_edge": estimated_edge,
+        "model_vs_mid": model_vs_mid,
         "entry_analysis": entry_analysis,
         "levels": {
             "bids": [level.__dict__ for level in book.bids[:10]],
@@ -255,13 +441,28 @@ def _outcome_payload(
 def _entry_analysis_payload(
     *,
     book: NormalizedBook,
-    win_probability: float,
-    cost_penalty: float,
-    expected_value: float,
+    win_probability: float | None,
+    cost_penalty: float | None,
+    expected_value: float | None,
     reason_codes: list[str],
     config: BtcFiveMinuteConfig,
 ) -> dict[str, Any]:
     entry_price = book.best_ask.price if book.best_ask else None
+    if win_probability is None or cost_penalty is None:
+        # Without a model probability or a real cost there is no entry analysis
+        # to give. Every band below is derived from those two; producing them
+        # from a substituted value would put a precise-looking limit price on a
+        # screen with nothing behind it.
+        return {
+            "entry_decision": "unavailable",
+            "entry_price": entry_price,
+            "entry_band": None,
+            "max_acceptable_price": None,
+            "kelly_fraction": None,
+            "win_probability": win_probability,
+            "cost_penalty": cost_penalty,
+            "expected_value": expected_value,
+        }
     enter_below = _clamp_probability(win_probability - cost_penalty - config.min_expected_value)
     watch_below = _clamp_probability(win_probability - cost_penalty)
     avoid_above = _clamp_probability(watch_below + max(0.02, book.spread or 0.0))
@@ -295,7 +496,7 @@ def _entry_analysis_payload(
         "entry_decision": decision,
         "entry_price": entry_price,
         "max_acceptable_price": enter_below,
-        "win_probability": round(win_probability, 4),
+        "win_probability": round(win_probability, 4) if win_probability is not None else None,
         "expected_value": expected_value,
         "cost_penalty": round(cost_penalty, 4),
         "kelly_fraction": round(kelly_fraction, 4),
@@ -446,6 +647,11 @@ def _win_probability_up(
         price_probability = _sigmoid((btc_price - target_price) / max(1.0, scale))
 
     weight = min(1.0, max(0.0, config.price_probability_weight))
+    if market_probability is None:
+        # No book, so no market leg. Use the price model alone rather than
+        # blending against a substituted 0.5 — that fallback made an empty book
+        # pull every estimate toward a coin flip that nothing computed.
+        return _clamp_probability(price_probability)
     blended = weight * price_probability + (1.0 - weight) * market_probability
     return _clamp_probability(blended)
 
@@ -459,9 +665,12 @@ BTC5M_INDICATORS: list[dict[str, Any]] = [
     {
         "id": "market_implied",
         "name": {"zh": "盘口隐含概率", "en": "Market-implied"},
-        "description": {"zh": "Polymarket UP/DOWN 盘口价隐含的上涨概率（市场共识，短周期通常很准）。",
-                        "en": "Up probability implied by the Polymarket UP/DOWN book prices."},
-        "default": True, "weight": 0.30, "experimental": False,
+        "description": {"zh": "Polymarket UP/DOWN 盘口价隐含的上涨概率。⚠️ 不参与默认模型："
+                              "「错价」= 模型概率 − 盘口价，若模型本身含盘口价，就是拿市场价论证市场错了。",
+                        "en": "Up probability implied by the Polymarket book. NOT in the default "
+                              "model: the edge is model minus quote, so a model containing the "
+                              "quote argues the market is wrong using the market's own price."},
+        "default": False, "weight": 0.30, "experimental": False,
     },
     {
         "id": "digital_option",
@@ -486,6 +695,8 @@ BTC5M_INDICATORS: list[dict[str, Any]] = [
     },
 ]
 _INDICATOR_WEIGHT = {i["id"]: i["weight"] for i in BTC5M_INDICATORS}
+# Indicators that cannot enter the model without making the edge self-referential.
+_CIRCULAR_INDICATORS = frozenset({"market_implied"})
 DEFAULT_ENABLED_INDICATORS = tuple(i["id"] for i in BTC5M_INDICATORS if i["default"])
 
 
@@ -519,8 +730,14 @@ def blend_up_probability(
     return_volatility: float | None = None,
     momentum_1m: float | None = None,
     enabled_indicators: "list[str] | tuple[str, ...] | set[str] | None" = None,
-) -> tuple[float, list[dict[str, Any]]]:
-    """Blend the *enabled* indicator probabilities into one P(up) + a breakdown."""
+) -> tuple[float | None, list[dict[str, Any]]]:
+    """Blend the *enabled* indicator probabilities into one P(up) + a breakdown.
+
+    Returns ``None`` when no enabled indicator could be computed. It used to
+    fall back to ``config.model_probability_up`` (0.5), which is indistinguishable
+    downstream from a model that ran and concluded 50/50 — and 0.5 against a
+    quote of 0.44 reads as a 6-point edge that nothing measured.
+    """
     enabled = set(enabled_indicators) if enabled_indicators is not None else set(DEFAULT_ENABLED_INDICATORS)
 
     # Each indicator's independent P(up) (None if not computable).
@@ -543,45 +760,72 @@ def blend_up_probability(
     for ind in BTC5M_INDICATORS:
         iid = ind["id"]
         p = probs.get(iid)
-        active = iid in enabled and p is not None
+        # ``market_implied`` is never blended, however it is configured. The edge
+        # this workbench reports is ``model - ask``; a model containing the quote
+        # measures the spread mechanism against itself and calls the result a
+        # mispricing. It is still computed and displayed — it is the thing the
+        # model is being compared *to*.
+        circular = iid in _CIRCULAR_INDICATORS
+        active = iid in enabled and p is not None and not circular
         if active:
             w = _INDICATOR_WEIGHT[iid]
             num += w * p
             den += w
-        breakdown.append({
+        row = {
             "id": iid, "name": ind["name"], "enabled": iid in enabled,
             "experimental": ind["experimental"], "weight": _INDICATOR_WEIGHT[iid],
             "probability": round(p, 4) if p is not None else None, "used": active,
-        })
+        }
+        if circular:
+            row["excluded_reason"] = "circular_with_estimated_edge"
+        breakdown.append(row)
 
-    blended = _clamp_probability(num / den) if den > 0 else _clamp_probability(config.model_probability_up)
+    blended = _clamp_probability(num / den) if den > 0 else None
     return blended, breakdown
 
 
-def _market_implied_up_probability(up_book: NormalizedBook, down_book: NormalizedBook) -> float:
+def _market_implied_up_probability(
+    up_book: NormalizedBook, down_book: NormalizedBook
+) -> float | None:
     up_mid = _book_reference_probability(up_book)
     down_mid = _book_reference_probability(down_book)
+    if up_mid is None or down_mid is None:
+        return None
     total = up_mid + down_mid
     if total <= 0:
-        return 0.5
+        return None
     return _clamp_probability(up_mid / total)
 
 
-def _cost_penalty(book: NormalizedBook) -> float:
-    spread_cost = (book.spread or 0.08) / 2
+def _cost_penalty(book: NormalizedBook) -> float | None:
+    """Round-trip cost from the real book, or ``None`` when there is no book.
+
+    This used to substitute an 8-cent spread nobody quoted. Downstream that
+    number is indistinguishable from a measured one, so a market with no
+    liquidity at all produced a confident-looking cost estimate and fed it into
+    the edge calculation.
+    """
+    if book.spread is None:
+        return None
+    spread_cost = book.spread / 2
     depth = min(book.bid_depth_top3, book.ask_depth_top3) if book.is_complete else 0
     depth_penalty = 0.0 if depth >= 500 else min(0.03, (500 - depth) / 50_000)
     return round(spread_cost + depth_penalty, 4)
 
 
-def _book_reference_probability(book: NormalizedBook) -> float:
+def _book_reference_probability(book: NormalizedBook) -> float | None:
+    """What the book says the probability is, or ``None`` if it says nothing.
+
+    An empty book used to return 0.5 — a coin flip that looks exactly like a
+    computed 50/50. 0.5 must only ever come from arithmetic that ran.
+    """
     if book.best_bid is not None and book.best_ask is not None:
         return (book.best_bid.price + book.best_ask.price) / 2
     if book.best_ask is not None:
         return book.best_ask.price
     if book.best_bid is not None:
         return book.best_bid.price
-    return 0.5
+    return None
 
 
 def _btc_reference_price(btc_reference: dict[str, Any]) -> float | None:

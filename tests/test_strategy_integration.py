@@ -3,7 +3,7 @@
 """
 import pytest
 
-from services.strategy_engine import StrategyEngineService
+from modules.strategy_engine import StrategyEngineService
 from strategies import AIEnhancedPredictionV1, CrossMarketDislocationV1, SpreadReversionV1
 
 

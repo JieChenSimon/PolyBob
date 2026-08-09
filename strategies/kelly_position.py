@@ -22,7 +22,7 @@ Kelly Criterion: f* = (p*b - q) / b
 from typing import Optional
 import math
 
-from services.strategy_engine.base import Strategy, StrategySignal
+from modules.strategy_engine.base import Strategy, StrategySignal
 from libs.schemas import Side
 
 

@@ -1,0 +1,56 @@
+{
+  "experiment": "insider_cluster_buy",
+  "as_of": "2026-08-09T06:30:34.006409+00:00",
+  "params": {
+    "quarters": [
+      [
+        2025,
+        3
+      ],
+      [
+        2025,
+        4
+      ],
+      [
+        2026,
+        1
+      ]
+    ],
+    "hold_days": 20,
+    "cost_bps": 10.0,
+    "symbol_cap": null,
+    "min_insiders": 2,
+    "min_value_usd": 50000,
+    "benchmark": "SPY"
+  },
+  "code": {
+    "commit": "2ab7225c87ff21dc69dff700486c4cb1f89cd466",
+    "dirty": true,
+    "dirty_files": 104,
+    "dirty_sample": [
+      "apps/api/btc_five_minute.py",
+      "apps/api/deps.py",
+      "apps/api/edges_api.py",
+      "apps/api/journal_api.py",
+      "apps/api/main.py",
+      "apps/api/portfolio_api.py",
+      "apps/api/verdict_api.py",
+      "apps/dashboard/app/crypto/[symbol]/"
+    ]
+  },
+  "started_at": "2026-08-09T06:30:34.034074+00:00",
+  "inputs": {
+    "insider_filings": {
+      "quarters": 3,
+      "trades": 216961,
+      "clusters": 1141,
+      "singles": 2149
+    },
+    "daily_bars": {
+      "symbols_requested": 1430,
+      "symbols_available": 1370,
+      "price_coverage": 0.958
+    }
+  },
+  "reproducible": false
+}

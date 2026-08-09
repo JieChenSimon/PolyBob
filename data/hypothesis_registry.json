@@ -12,21 +12,22 @@
         "horizon_days": 30,
         "cost_bps": 10.0,
         "min_sharpe": 0.5,
+        "n_configs": 4,
         "registered_at": "2026-07-27T08:37:10.004942+00:00"
       },
       "result": {
         "hypothesis": "xs_momentum@altcoin",
         "best_lookback": 60,
-        "sharpe": -1.08,
-        "win_rate": 0.4727,
-        "total_return": -0.3335,
-        "t_stat": -0.73,
-        "t_hurdle": 3.39,
-        "dsr": 0.0195,
-        "pbo": 0.2619047619047619,
-        "pbo_verdict": "suspect",
+        "sharpe": -1.39,
+        "win_rate": 0.4852,
+        "total_return": -0.396,
+        "t_stat": -0.95,
+        "t_hurdle": 3.75,
+        "dsr": 0.0009,
+        "pbo": 0.20634920634920634,
+        "pbo_verdict": "acceptable",
         "approved": false,
-        "n": 165
+        "n": 169
       }
     },
     {
@@ -41,18 +42,19 @@
         "horizon_days": 30,
         "cost_bps": 5.0,
         "min_sharpe": 0.5,
+        "n_configs": 4,
         "registered_at": "2026-07-27T08:37:10.005169+00:00"
       },
       "result": {
         "hypothesis": "xs_momentum@us_equity",
         "best_lookback": 90,
-        "sharpe": 0.44,
+        "sharpe": 0.49,
         "win_rate": 0.5064,
-        "total_return": 0.58,
-        "t_stat": 0.95,
-        "t_hurdle": 3.39,
-        "dsr": 0.3643,
-        "pbo": 0.623015873015873,
+        "total_return": 0.7123,
+        "t_stat": 1.04,
+        "t_hurdle": 3.75,
+        "dsr": 0.1439,
+        "pbo": 0.5952380952380952,
         "pbo_verdict": "overfit",
         "approved": false,
         "n": 1163
@@ -70,18 +72,19 @@
         "horizon_days": 30,
         "cost_bps": 8.0,
         "min_sharpe": 0.5,
+        "n_configs": 4,
         "registered_at": "2026-07-27T08:37:10.005464+00:00"
       },
       "result": {
         "hypothesis": "xs_momentum@a_share",
         "best_lookback": 20,
-        "sharpe": 0.57,
-        "win_rate": 0.5036,
-        "total_return": 0.3868,
-        "t_stat": 0.85,
-        "t_hurdle": 3.39,
-        "dsr": 0.3247,
-        "pbo": 0.46825396825396826,
+        "sharpe": 0.66,
+        "win_rate": 0.5073,
+        "total_return": 0.5109,
+        "t_stat": 0.99,
+        "t_hurdle": 3.75,
+        "dsr": 0.133,
+        "pbo": 0.4087301587301587,
         "pbo_verdict": "suspect",
         "approved": false,
         "n": 550
@@ -99,21 +102,22 @@
         "horizon_days": 60,
         "cost_bps": 10.0,
         "min_sharpe": 0.5,
+        "n_configs": 4,
         "registered_at": "2026-07-27T08:37:10.005578+00:00"
       },
       "result": {
         "hypothesis": "ts_momentum@altcoin",
         "best_lookback": 120,
-        "sharpe": -0.49,
-        "win_rate": 0.439,
-        "total_return": -0.0329,
-        "t_stat": -0.41,
-        "t_hurdle": 3.39,
-        "dsr": 0.0509,
-        "pbo": 0.2261904761904762,
-        "pbo_verdict": "acceptable",
+        "sharpe": -0.7,
+        "win_rate": 0.4258,
+        "total_return": -0.0472,
+        "t_stat": -0.59,
+        "t_hurdle": 3.75,
+        "dsr": 0.0059,
+        "pbo": 0.3055555555555556,
+        "pbo_verdict": "suspect",
         "approved": false,
-        "n": 255
+        "n": 259
       }
     },
     {
@@ -128,18 +132,19 @@
         "horizon_days": 60,
         "cost_bps": 5.0,
         "min_sharpe": 0.5,
+        "n_configs": 4,
         "registered_at": "2026-07-27T08:37:10.005678+00:00"
       },
       "result": {
         "hypothesis": "ts_momentum@us_equity",
-        "best_lookback": 60,
-        "sharpe": 1.09,
-        "win_rate": 0.5384,
-        "total_return": 1.1219,
-        "t_stat": 2.42,
-        "t_hurdle": 3.39,
-        "dsr": 0.8688,
-        "pbo": 0.7738095238095238,
+        "best_lookback": 120,
+        "sharpe": 1.06,
+        "win_rate": 0.5552,
+        "total_return": 1.0528,
+        "t_stat": 2.35,
+        "t_hurdle": 3.75,
+        "dsr": 0.5989,
+        "pbo": 0.8650793650793651,
         "pbo_verdict": "overfit",
         "approved": false,
         "n": 1253
@@ -157,18 +162,19 @@
         "horizon_days": 60,
         "cost_bps": 8.0,
         "min_sharpe": 0.5,
+        "n_configs": 4,
         "registered_at": "2026-07-27T08:37:10.005769+00:00"
       },
       "result": {
         "hypothesis": "ts_momentum@a_share",
         "best_lookback": 30,
-        "sharpe": 0.71,
+        "sharpe": 0.74,
         "win_rate": 0.4667,
-        "total_return": 0.2853,
-        "t_stat": 1.15,
-        "t_hurdle": 3.39,
-        "dsr": 0.4374,
-        "pbo": 0.32142857142857145,
+        "total_return": 0.303,
+        "t_stat": 1.2,
+        "t_hurdle": 3.75,
+        "dsr": 0.1805,
+        "pbo": 0.36507936507936506,
         "pbo_verdict": "suspect",
         "approved": false,
         "n": 640
@@ -186,17 +192,29 @@
         "horizon_days": 5,
         "cost_bps": 30.0,
         "min_sharpe": 0.5,
+        "n_configs": 1,
         "registered_at": "2026-07-27T08:45:43.330503+00:00"
       },
       "result": {
         "strategy": "H1 全部上榜(超额,净成本)",
-        "n": 6446,
-        "mean_excess_pct": -2.74,
-        "median_excess_pct": -3.93,
-        "win_rate": 0.3568,
-        "t_stat": -15.77,
-        "t_hurdle": 3.54,
-        "significant": true
+        "n": 40756,
+        "n_clusters": 125,
+        "mean_excess_pct": -2.016,
+        "median_excess_pct": -3.581,
+        "win_rate": 0.3559,
+        "t_stat": -6.86,
+        "t_stat_iid": -29.59,
+        "t_hurdle": 4.19,
+        "significant": true,
+        "bootstrap_ci_pct": [
+          -2.499,
+          -1.396
+        ],
+        "sign_test_p": 0.0,
+        "skew_ratio": 0.56,
+        "cluster_by": "week",
+        "inference": "cluster_robust",
+        "warnings": []
       }
     },
     {
@@ -211,82 +229,30 @@
         "horizon_days": 5,
         "cost_bps": 30.0,
         "min_sharpe": 0.5,
+        "n_configs": 1,
         "registered_at": "2026-07-27T08:45:43.330917+00:00"
       },
       "result": {
         "strategy": "H2 对照:无机构买入",
-        "n": 4362,
-        "mean_excess_pct": -3.184,
-        "median_excess_pct": -4.309,
-        "win_rate": 0.3393,
-        "t_stat": -14.54,
-        "t_hurdle": 3.54,
-        "significant": true
+        "n": 30388,
+        "n_clusters": 125,
+        "mean_excess_pct": -2.168,
+        "median_excess_pct": -3.664,
+        "win_rate": 0.3508,
+        "t_stat": -7.0,
+        "t_stat_iid": -26.87,
+        "t_hurdle": 4.19,
+        "significant": true,
+        "bootstrap_ci_pct": [
+          -2.619,
+          -1.485
+        ],
+        "sign_test_p": 0.0,
+        "skew_ratio": 0.59,
+        "cluster_by": "week",
+        "inference": "cluster_robust",
+        "warnings": []
       }
-    },
-    {
-      "hypothesis": {
-        "hypothesis_id": "billboard_attention_reversal",
-        "claim": "Stocks published on the dragon-tiger list underperform over the following week.",
-        "rationale": "behavioural",
-        "mechanism": "The after-close disclosure is an attention shock; retail buying pushes price beyond fair value. It is not arbitraged away because A-shares have T+1 settlement, daily price limits and costly shorting.",
-        "literature": "Attention-driven retail overreaction and short-horizon reversal are documented in retail-dominated markets.",
-        "direction": "short_or_avoid_listed_names",
-        "universe": "A-share dragon-tiger listings",
-        "horizon_days": 5,
-        "cost_bps": 30.0,
-        "min_sharpe": 0.5,
-        "registered_at": "2026-07-27T08:46:00.686265+00:00"
-      },
-      "result": null
-    },
-    {
-      "hypothesis": {
-        "hypothesis_id": "billboard_institutional_flow",
-        "claim": "Listings where institutional seats are net buyers outperform listings where they are not.",
-        "rationale": "structural",
-        "mechanism": "The exchange reveals seat-level flow; institution-only seats proxy informed demand that the wider market has not yet priced.",
-        "literature": "Informed-flow disclosure predicts returns where the disclosure is mandatory and seat-level.",
-        "direction": "long_institutional_buy_listings",
-        "universe": "A-share dragon-tiger listings",
-        "horizon_days": 5,
-        "cost_bps": 30.0,
-        "min_sharpe": 0.5,
-        "registered_at": "2026-07-27T08:46:00.686697+00:00"
-      },
-      "result": null
-    },
-    {
-      "hypothesis": {
-        "hypothesis_id": "billboard_attention_reversal",
-        "claim": "Stocks published on the dragon-tiger list underperform over the following week.",
-        "rationale": "behavioural",
-        "mechanism": "The after-close disclosure is an attention shock; retail buying pushes price beyond fair value. It is not arbitraged away because A-shares have T+1 settlement, daily price limits and costly shorting.",
-        "literature": "Attention-driven retail overreaction and short-horizon reversal are documented in retail-dominated markets.",
-        "direction": "short_or_avoid_listed_names",
-        "universe": "A-share dragon-tiger listings",
-        "horizon_days": 5,
-        "cost_bps": 30.0,
-        "min_sharpe": 0.5,
-        "registered_at": "2026-07-27T08:46:58.867387+00:00"
-      },
-      "result": null
-    },
-    {
-      "hypothesis": {
-        "hypothesis_id": "billboard_institutional_flow",
-        "claim": "Listings where institutional seats are net buyers outperform listings where they are not.",
-        "rationale": "structural",
-        "mechanism": "The exchange reveals seat-level flow; institution-only seats proxy informed demand that the wider market has not yet priced.",
-        "literature": "Informed-flow disclosure predicts returns where the disclosure is mandatory and seat-level.",
-        "direction": "long_institutional_buy_listings",
-        "universe": "A-share dragon-tiger listings",
-        "horizon_days": 5,
-        "cost_bps": 30.0,
-        "min_sharpe": 0.5,
-        "registered_at": "2026-07-27T08:46:58.867779+00:00"
-      },
-      "result": null
     },
     {
       "hypothesis": {
@@ -300,9 +266,32 @@
         "horizon_days": 5,
         "cost_bps": 5.0,
         "min_sharpe": 0.5,
+        "n_configs": 2,
         "registered_at": "2026-07-27T08:53:07.047851+00:00"
       },
-      "result": null
+      "result": {
+        "strategy": "内部人卖出集群(≥3人同日)",
+        "n": 145,
+        "n_clusters": 47,
+        "mean_excess_pct": 0.08,
+        "median_excess_pct": -0.243,
+        "win_rate": 0.4621,
+        "t_stat": -0.82,
+        "t_stat_iid": 0.24,
+        "t_hurdle": 4.19,
+        "significant": false,
+        "bootstrap_ci_pct": [
+          -1.327,
+          0.576
+        ],
+        "sign_test_p": 0.4064,
+        "skew_ratio": -0.33,
+        "cluster_by": "week",
+        "inference": "cluster_robust",
+        "warnings": [
+          "the 95% bootstrap interval on the mean contains zero"
+        ]
+      }
     },
     {
       "hypothesis": {
@@ -316,9 +305,32 @@
         "horizon_days": 5,
         "cost_bps": 10.0,
         "min_sharpe": 0.5,
+        "n_configs": 3,
         "registered_at": "2026-07-27T08:53:07.048282+00:00"
       },
-      "result": null
+      "result": {
+        "strategy": "散户极度做多后 做空(含资金费)",
+        "n": 248,
+        "n_clusters": 14,
+        "mean_excess_pct": 3.088,
+        "median_excess_pct": 2.094,
+        "win_rate": 0.7016,
+        "t_stat": 1.81,
+        "t_stat_iid": 6.4,
+        "t_hurdle": 4.19,
+        "significant": false,
+        "bootstrap_ci_pct": [
+          0.072,
+          4.661
+        ],
+        "sign_test_p": 0.0,
+        "skew_ratio": 1.48,
+        "cluster_by": "week",
+        "inference": "cluster_robust",
+        "warnings": [
+          "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
+        ]
+      }
     },
     {
       "hypothesis": {
@@ -332,17 +344,57 @@
         "horizon_days": 20,
         "cost_bps": 10.0,
         "min_sharpe": 0.5,
+        "n_configs": 1,
         "registered_at": "2026-07-29T02:21:39.756087+00:00"
       },
       "result": {
         "strategy": "内部人集群买入(≥2人)",
-        "n": 667,
-        "mean_excess_pct": 5.108,
-        "median_excess_pct": 0.765,
-        "win_rate": 0.5322,
-        "t_stat": 5.03,
-        "t_hurdle": 3.59,
-        "significant": true
+        "n": 1085,
+        "n_clusters": 9,
+        "mean_excess_pct": 4.728,
+        "median_excess_pct": 0.964,
+        "win_rate": 0.5419,
+        "t_stat": 2.72,
+        "t_stat_iid": 6.62,
+        "t_hurdle": 4.19,
+        "significant": false,
+        "bootstrap_ci_pct": [
+          1.674,
+          7.891
+        ],
+        "sign_test_p": 0.0063,
+        "skew_ratio": 4.9,
+        "cluster_by": "month",
+        "inference": "cluster_robust",
+        "warnings": [
+          "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+          "mean is 4.9x the median — the average is carried by a few tail events, so the typical trade looks nothing like it"
+        ],
+        "control_single_buy": {
+          "strategy": "对照:单人买入",
+          "n": 2065,
+          "n_clusters": 9,
+          "mean_excess_pct": 2.56,
+          "median_excess_pct": 0.531,
+          "win_rate": 0.5303,
+          "t_stat": 3.04,
+          "t_stat_iid": 6.8,
+          "t_hurdle": 4.19,
+          "significant": false,
+          "bootstrap_ci_pct": [
+            0.858,
+            3.311
+          ],
+          "sign_test_p": 0.0063,
+          "skew_ratio": 4.82,
+          "cluster_by": "month",
+          "inference": "cluster_robust",
+          "warnings": [
+            "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+            "mean is 4.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it"
+          ]
+        },
+        "clustering_premise": "unsupported_control_at_least_as_strong"
       }
     },
     {
@@ -370,6 +422,56 @@
         "brier_model": 0.2221,
         "brier_market": 0.2491
       }
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "false_breakdown_stop_run",
+        "claim": "A break below recent support that closes back above it is followed by positive excess returns over the next week.",
+        "rationale": "structural",
+        "mechanism": "Stops cluster immediately below visible support because that is where chart readers place them. Sweeping that cluster forces selling that carries no information about value; once exhausted, the imbalance reverses. It survives arbitrage because supplying liquidity into a cascade requires capital precisely when risk appears highest.",
+        "literature": "Liquidity-provision premia after forced selling, and short-horizon reversal following non-informational order flow, are documented across equity and crypto markets.",
+        "direction": "long_after_support_recovery",
+        "universe": "US large caps + A-share liquid names + major altcoins",
+        "horizon_days": 5,
+        "cost_bps": 10.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-31T09:00:35.506489+00:00"
+      },
+      "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "false_breakdown_is_noise",
+        "claim": "Break-and-recover events carry no exploitable information; excess returns are indistinguishable from zero once costs and the market are removed.",
+        "rationale": "structural",
+        "mechanism": "Support levels are visible to everyone, so any predictable bounce is competed away by faster participants. What remains is a pattern that looks compelling in hindsight because losing instances stop being drawn on the chart.",
+        "literature": "Chart patterns without a flow-based mechanism are the part of the factor zoo that fails to replicate out of sample.",
+        "direction": "no_position",
+        "universe": "US large caps + A-share liquid names + major altcoins",
+        "horizon_days": 5,
+        "cost_bps": 10.0,
+        "min_sharpe": 0.5,
+        "registered_at": "2026-07-31T09:00:35.506973+00:00"
+      },
+      "result": null
+    },
+    {
+      "search": {
+        "search_id": "wide_chart_pattern_sweep",
+        "n_configs": 184,
+        "description": "宽扫:通用图形形态(区间扩张/缺口/量价确认等)在三个域上的 184 组参数配置。",
+        "outcome": "0 promoted — 本项目多处引用它作为'图形形态未获验证'的依据"
+      },
+      "result": null
+    },
+    {
+      "search": {
+        "search_id": "focused_directional_board",
+        "n_configs": 18,
+        "description": "定向板:3 个域 x 3 条边 x 双向(follow/fade),方向由数据挑选。",
+        "outcome": "0 promoted — 双向都测,方向不是先验而是搜索结果"
+      },
+      "result": null
     }
   ]
 }

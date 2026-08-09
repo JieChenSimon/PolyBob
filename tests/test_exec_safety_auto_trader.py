@@ -1,6 +1,6 @@
 """P3: auto-trader state survives restart, and the signal is not mislabeled AI."""
-from services.auto_trader.engine import TradingEngine
-from services.auto_trader.state_store import AutoTraderStateStore
+from modules.auto_trader.engine import TradingEngine
+from modules.auto_trader.state_store import AutoTraderStateStore
 
 
 def test_state_recovers_after_restart(tmp_path):

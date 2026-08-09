@@ -1,5 +1,7 @@
 'use client';
 
+import { Suspense, useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE } from '@/lib/config';
 import { useLanguage } from '@/lib/i18n';
@@ -56,6 +58,14 @@ interface VolumeBlock {
   evidence_en?: string | null;
 }
 
+interface EdgeInstanceBlock {
+  strategy: string;
+  instrument: string;
+  status: 'active' | 'inactive' | 'unknown' | string;
+  evidence_zh?: string | null;
+  evidence_en?: string | null;
+}
+
 interface VerdictPayload {
   symbol: string;
   domain: string;
@@ -72,6 +82,14 @@ interface VerdictPayload {
    */
   volume?: VolumeBlock | null;
   price?: number | null;
+  /**
+   * Per-instrument edge checks. An approved edge in this asset class is not an
+   * edge on this ticker: the US edge fires only in the days after insiders
+   * file, so the banner shows which edges were checked and what they found.
+   */
+  edges?: EdgeInstanceBlock[] | null;
+  /** The market's measured trap, evaluated on this symbol. Null = not checked. */
+  trap?: EdgeInstanceBlock | null;
 }
 
 const VERDICT_STYLE: Record<string, string> = {
@@ -613,6 +631,73 @@ function VolumeSection({ volume, zh }: { volume: VolumeBlock; zh: boolean }) {
   );
 }
 
+const EDGE_STATUS_STYLE: Record<
+  string,
+  { zh: string; en: string; chip: string; glyph: string }
+> = {
+  active: {
+    zh: '本标的已触发',
+    en: 'FIRING HERE',
+    chip: 'border-emerald-300 bg-emerald-100 text-emerald-800',
+    glyph: '✓',
+  },
+  inactive: {
+    zh: '本标的未触发',
+    en: 'NOT FIRING',
+    chip: 'border-stone-300 bg-stone-100 text-stone-600',
+    glyph: '·',
+  },
+  unknown: {
+    zh: '未能检查',
+    en: 'NOT CHECKED',
+    chip: 'border-amber-300 bg-amber-50 text-amber-700',
+    glyph: '?',
+  },
+};
+
+/**
+ * Which validated edges were checked against *this* instrument, and what each
+ * found. This section exists because the banner used to claim "a validated edge
+ * exists" whenever the asset class contained one — true of the class, false of
+ * the ticker in front of you.
+ */
+function EdgeSection({
+  edges,
+  symbol,
+  zh,
+}: {
+  edges: EdgeInstanceBlock[];
+  symbol: string;
+  zh: boolean;
+}) {
+  return (
+    <div className="border-t border-stone-200/70 bg-white/60 px-5 py-3">
+      <span className="eyebrow">
+        {zh ? `已验证优势 · 在 ${symbol} 上的检查结果` : `Validated edges · checked on ${symbol}`}
+      </span>
+      <ul className="mt-2 grid gap-2">
+        {edges.map((edge) => {
+          const style = EDGE_STATUS_STYLE[edge.status] ?? EDGE_STATUS_STYLE.unknown;
+          return (
+            <li key={`${edge.strategy}:${edge.instrument}`} className="flex gap-2">
+              <span
+                className={`h-fit shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${style.chip}`}
+              >
+                {style.glyph} {zh ? style.zh : style.en}
+              </span>
+              <span className="min-w-0 text-xs leading-5 text-stone-600">
+                <span className="font-mono text-[11px] text-stone-500">{edge.strategy}</span>
+                {' — '}
+                {(zh ? edge.evidence_zh : edge.evidence_en) ?? ''}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 /**
  * The verdict banner that opens every instrument page.
  *
@@ -620,15 +705,90 @@ function VolumeSection({ volume, zh }: { volume: VolumeBlock; zh: boolean }) {
  * always shows the reasoning, never a bare recommendation, and states plainly
  * when a check is unknown rather than quietly passing it.
  */
-export default function VerdictBanner({
-  symbol,
-  domain = 'auto',
-}: {
+interface VerdictBannerProps {
+  /** Fallback instrument when the URL does not name one. */
   symbol: string;
   domain?: string;
+  notApplicable?: { zh: string; en: string };
+  /**
+   * Embedded inside an instrument's detail panel. The panel already names the
+   * instrument, so the symbol input would be a second control for the same
+   * thing; and ``symbol`` is authoritative rather than a fallback, because the
+   * panel's own selection is what the reader is looking at.
+   */
+  embedded?: boolean;
+}
+
+/**
+ * ``useSearchParams`` opts a route into client rendering and Next requires a
+ * Suspense boundary around it. Keeping the boundary here means the four
+ * instrument pages stay plain server components.
+ */
+export default function VerdictBanner(props: VerdictBannerProps) {
+  return (
+    <Suspense fallback={<VerdictBannerSkeleton />}>
+      <VerdictBannerInner {...props} />
+    </Suspense>
+  );
+}
+
+function VerdictBannerSkeleton() {
+  return (
+    <section
+      aria-hidden
+      className="mb-6 h-24 rounded-xl border-2 border-stone-300 bg-stone-50"
+    />
+  );
+}
+
+function VerdictBannerInner({
+  symbol: defaultSymbol,
+  domain = 'auto',
+  notApplicable,
+  embedded = false,
+}: VerdictBannerProps & {
+  /** Fallback instrument when the URL does not name one. */
+  symbol: string;
+  domain?: string;
+  /**
+   * Set when this page's instrument is outside what the verdict framework can
+   * judge. The banner then says so instead of judging a stand-in: a five-minute
+   * binary contract is not the same instrument as its underlying's daily bars,
+   * and showing the latter's trend under the former's name is worse than
+   * showing nothing.
+   */
+  notApplicable?: { zh: string; en: string };
 }) {
   const { language } = useLanguage();
   const zh = language === 'zh';
+  const searchParams = useSearchParams();
+
+  // The instrument being judged follows the page's selection. It used to be
+  // hard-coded per page, so every US stock page showed a verdict for NVDA and
+  // every A-share page one for 600519, no matter what the operator was looking
+  // at — a judgement about a different instrument entirely.
+  const urlSymbol = searchParams?.get('symbol')?.trim();
+  // Embedded: the host panel's selection wins. Standalone: the URL wins, with
+  // the prop as the fallback for a page that names no instrument.
+  const symbol = embedded
+    ? defaultSymbol
+    : urlSymbol && urlSymbol.length > 0
+      ? urlSymbol
+      : defaultSymbol;
+
+  const [draft, setDraft] = useState(symbol);
+  useEffect(() => setDraft(symbol), [symbol]);
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const applySymbol = (next: string) => {
+    const clean = next.trim().toUpperCase();
+    if (!clean || clean === symbol) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('symbol', clean);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const query = useQuery<VerdictPayload>({
     queryKey: ['verdict', symbol, domain],
@@ -640,7 +800,27 @@ export default function VerdictBanner({
     },
     refetchInterval: 300_000,
     staleTime: 240_000,
+    enabled: !notApplicable,
   });
+
+  if (notApplicable) {
+    return (
+      <section
+        aria-label={zh ? '投资准则判定' : 'Investment principle verdict'}
+        className="mb-6 rounded-xl border-2 border-stone-300 bg-stone-50 px-5 py-4"
+      >
+        <div className="text-[11px] font-medium uppercase tracking-wide text-stone-500">
+          {zh ? '投资准则判定' : 'Verdict'}
+        </div>
+        <div className="mt-0.5 text-lg font-bold text-stone-600">
+          {zh ? '不适用于本标的' : 'Not applicable to this instrument'}
+        </div>
+        <p className="mt-1 text-sm leading-6 text-stone-600">
+          {zh ? notApplicable.zh : notApplicable.en}
+        </p>
+      </section>
+    );
+  }
 
   const data = query.data;
   const style = data ? VERDICT_STYLE[data.verdict] : VERDICT_STYLE.wait;
@@ -653,8 +833,28 @@ export default function VerdictBanner({
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4">
         <div className="min-w-0">
-          <div className="text-[11px] font-medium uppercase tracking-wide text-stone-500">
-            {zh ? '投资准则判定' : 'Verdict'} · {data?.symbol ?? symbol}
+          <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wide text-stone-500">
+            <span>{zh ? '投资准则判定' : 'Verdict'}</span>
+            {embedded ? null : <span aria-hidden>·</span>}
+            {embedded ? null : <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                applySymbol(draft);
+              }}
+            >
+              <label className="sr-only" htmlFor="verdict-symbol">
+                {zh ? '判定哪个标的' : 'Instrument to judge'}
+              </label>
+              <input
+                id="verdict-symbol"
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onBlur={() => applySymbol(draft)}
+                spellCheck={false}
+                className="w-28 rounded border border-stone-300 bg-white/80 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-stone-800 focus:border-stone-500 focus:outline-none"
+                aria-label={zh ? '判定哪个标的' : 'Instrument to judge'}
+              />
+            </form>}
           </div>
           <div className={`mt-0.5 text-2xl font-bold tracking-tight ${label?.tone ?? 'text-stone-600'}`}>
             {query.isLoading
@@ -675,6 +875,25 @@ export default function VerdictBanner({
         </p>
       </div>
 
+      {/* The edge comes first, and it is the only block on this banner with a
+          measured win rate behind it. Trend and volume used to sit above it with
+          six return boxes, three moving averages and a progress bar each, while
+          the edge got one line of small text — a visual hierarchy that was the
+          exact inverse of the evidence hierarchy. Both are heuristics from a
+          book that this project tested across 184 configurations and could not
+          confirm; they are kept because they are informative, and demoted
+          because they are not evidence. */}
+      {data && data.edges && data.edges.length > 0 ? (
+        <EdgeSection edges={data.edges} symbol={data.symbol} zh={zh} />
+      ) : null}
+
+      {data ? (
+        <details className="border-t border-stone-200/70 bg-white/40">
+          <summary className="cursor-pointer px-5 py-2 text-[11px] text-stone-500 hover:bg-stone-50">
+            {zh
+              ? '技术面参考（趋势 / 量能）— 书本启发式，本项目 184 组配置未能验证，仅作背景'
+              : 'Technical context (trend / volume) — book heuristics this project could not validate across 184 configurations; background only'}
+          </summary>
       {data ? (
         data.trend ? (
           <TrendSection
@@ -708,6 +927,9 @@ export default function VerdictBanner({
             </p>
           </div>
         )
+      ) : null}
+
+        </details>
       ) : null}
 
       {data ? (

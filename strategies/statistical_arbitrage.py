@@ -19,7 +19,7 @@ from typing import Optional
 from collections import defaultdict, deque
 import math
 
-from services.strategy_engine.base import Strategy, StrategySignal
+from modules.strategy_engine.base import Strategy, StrategySignal
 from libs.schemas import Side
 
 

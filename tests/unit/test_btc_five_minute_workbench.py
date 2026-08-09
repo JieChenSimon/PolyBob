@@ -13,14 +13,14 @@ from libs.polymarket.btc_five_minute import (
 )
 
 
-def test_builds_five_minute_slug_from_unix_boundary():
+def test_builds_five_minute_slug_from_unix_boundary(btc5m_promoted):
     now = datetime.fromtimestamp(1782384799, tz=timezone.utc)
 
     assert build_btc_five_minute_slug(now) == "btc-updown-5m-1782384600"
     assert build_btc_five_minute_slug(now, offset_windows=1) == "btc-updown-5m-1782384900"
 
 
-def test_maps_up_and_down_tokens_from_gamma_market():
+def test_maps_up_and_down_tokens_from_gamma_market(btc5m_promoted):
     market = {
         "id": "2665625",
         "conditionId": "0xabc",
@@ -36,7 +36,7 @@ def test_maps_up_and_down_tokens_from_gamma_market():
     assert mapped["DOWN"] == "down-token"
 
 
-def test_rejects_unverified_outcome_mapping():
+def test_rejects_unverified_outcome_mapping(btc5m_promoted):
     market = {
         "outcomes": '["Up"]',
         "clobTokenIds": '["up-token", "down-token"]',
@@ -46,7 +46,7 @@ def test_rejects_unverified_outcome_mapping():
         map_outcome_tokens(market)
 
 
-def test_normalizes_order_book_sorting_and_depth():
+def test_normalizes_order_book_sorting_and_depth(btc5m_promoted):
     book = normalize_book(
         token_id="up-token",
         raw_book={
@@ -74,7 +74,7 @@ def test_normalizes_order_book_sorting_and_depth():
     assert book.freshness_ms == 1000
 
 
-def test_keeps_one_sided_order_book_visible_but_not_tradable():
+def test_keeps_one_sided_order_book_visible_but_not_tradable(btc5m_promoted):
     now = datetime.fromtimestamp(1782384701, tz=timezone.utc)
     up_book = normalize_book(
         token_id="up-token",
@@ -111,11 +111,14 @@ def test_keeps_one_sided_order_book_visible_but_not_tradable():
     assert snapshot["outcomes"]["UP"]["best_ask"] is None
     assert snapshot["outcomes"]["UP"]["spread"] is None
     assert snapshot["outcomes"]["UP"]["candidate_entry_price"] is None
-    assert snapshot["outcomes"]["UP"]["entry_analysis"]["entry_decision"] == "no_trade"
+    # A one-sided book has no spread, so the round-trip cost cannot be computed
+    # and there is no entry analysis to give. This used to read ``no_trade`` —
+    # a decision — off the back of a fabricated 8-cent spread.
+    assert snapshot["outcomes"]["UP"]["entry_analysis"]["entry_decision"] == "unavailable"
     assert snapshot["entry_optimizer"]["decision"] == "no_trade"
 
 
-def test_builds_no_trade_when_spread_is_too_wide():
+def test_builds_no_trade_when_spread_is_too_wide(btc5m_promoted):
     now = datetime.fromtimestamp(1782384701, tz=timezone.utc)
     market = {
         "id": "2665625",
@@ -168,7 +171,7 @@ def test_builds_no_trade_when_spread_is_too_wide():
     assert snapshot["outcomes"]["UP"]["candidate_entry_price"] is None
 
 
-def test_builds_candidate_entry_for_best_edge_side():
+def test_builds_candidate_entry_for_best_edge_side(btc5m_promoted):
     now = datetime.fromtimestamp(1782384701, tz=timezone.utc)
     market = {
         "id": "2665625",
@@ -215,13 +218,19 @@ def test_builds_candidate_entry_for_best_edge_side():
         config=BtcFiveMinuteConfig(model_probability_up=0.56, min_edge=0.02),
     )
 
-    assert snapshot["action"] == "watch_up"
-    assert snapshot["recommended_outcome"] == "UP"
-    assert snapshot["outcomes"]["UP"]["candidate_entry_price"] == pytest.approx(0.50)
+    # 0.02 is looser than the 0.10 the study traded, so the snapshot refuses to
+    # act on it and says why. This assertion used to read ``watch_up``: the
+    # product fired on five times more noise than anything that was measured.
+    assert snapshot["action"] == "research_only"
+    assert snapshot["recommended_outcome"] is None
+    assert "LIVE_THRESHOLD_DISAGREES_WITH_RESEARCH" in snapshot["reason_codes"]
+    assert snapshot["thresholds"]["min_edge"] == pytest.approx(0.10)
+    # The side with the better edge is still identified — the selection logic
+    # this test is named for is intact, it just no longer becomes an order.
     assert snapshot["outcomes"]["UP"]["estimated_edge"] > 0
 
 
-def test_builds_target_price_from_polymarket_event_metadata():
+def test_builds_target_price_from_polymarket_event_metadata(btc5m_promoted):
     now = datetime.fromtimestamp(1782384701, tz=timezone.utc)
     market = {
         "id": "2665625",
@@ -273,7 +282,7 @@ def test_builds_target_price_from_polymarket_event_metadata():
     }
 
 
-def test_builds_live_target_price_from_polymarket_page_crypto_prices():
+def test_builds_live_target_price_from_polymarket_page_crypto_prices(btc5m_promoted):
     now = datetime.fromtimestamp(1782388810, tz=timezone.utc)
     market = {
         "id": "2665625",
@@ -321,7 +330,7 @@ def test_builds_live_target_price_from_polymarket_page_crypto_prices():
     }
 
 
-def test_entry_optimizer_rejects_missing_target_price():
+def test_entry_optimizer_rejects_missing_target_price(btc5m_promoted):
     now = datetime.fromtimestamp(1782388810, tz=timezone.utc)
     snapshot = build_workbench_snapshot(
         market={
@@ -343,7 +352,7 @@ def test_entry_optimizer_rejects_missing_target_price():
     assert snapshot["entry_optimizer"]["core_conclusion"] == "缺少目标价或实时价，跳过交易。"
 
 
-def test_entry_optimizer_finds_favorable_up_entry_with_price_zones_and_kelly():
+def test_entry_optimizer_finds_favorable_up_entry_with_price_zones_and_kelly(btc5m_promoted):
     now = datetime.fromtimestamp(1782388810, tz=timezone.utc)
     snapshot = build_workbench_snapshot(
         market=_market_with_target(now, target=61187.70),
@@ -370,7 +379,7 @@ def test_entry_optimizer_finds_favorable_up_entry_with_price_zones_and_kelly():
     assert down["entry_decision"] == "avoid"
 
 
-def test_entry_optimizer_avoids_high_ask_even_when_direction_is_right():
+def test_entry_optimizer_avoids_high_ask_even_when_direction_is_right(btc5m_promoted):
     now = datetime.fromtimestamp(1782388810, tz=timezone.utc)
     snapshot = build_workbench_snapshot(
         market=_market_with_target(now, target=61187.70),
@@ -388,7 +397,7 @@ def test_entry_optimizer_avoids_high_ask_even_when_direction_is_right():
     assert up["risk_notes"]
 
 
-def test_entry_optimizer_caps_fractional_kelly():
+def test_entry_optimizer_caps_fractional_kelly(btc5m_promoted):
     now = datetime.fromtimestamp(1782388810, tz=timezone.utc)
     snapshot = build_workbench_snapshot(
         market=_market_with_target(now, target=61187.70),

@@ -48,6 +48,15 @@ class Settings(BaseSettings):
     max_daily_loss: float = 500.0
     max_slippage_bps: float = 40.0
 
+    # Account equity, for turning a sizing *rule* into concrete share counts.
+    # Deliberately has no default. The verdict API used to pass a hardcoded
+    # 100,000 into the book's "one of ten parts" rule, which produced an exact
+    # allocation and share count for an account that does not exist — a fabricated
+    # number in the one place the product tells you how much to buy. Unset means
+    # the API reports the rule as a *fraction* of capital and says the equity is
+    # unknown, which is true. Set POLYBOB_ACCOUNT_EQUITY to get share counts.
+    polybob_account_equity: float | None = None
+
     # Monitoring
     prometheus_port: int = 19090
     log_level: str = "INFO"

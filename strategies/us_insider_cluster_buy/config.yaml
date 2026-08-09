@@ -1,0 +1,27 @@
+strategy_id: us_insider_cluster_buy
+name: US Insider Cluster Buy
+description: >-
+  内部人集群买入(SEC Form 345)。唯一一条通过门禁、可开仓的边:≥2 名内部人同日申报
+  公开市场买入后按 filing date 建多头,持有 20 个交易日。实测 n=667,超额 +5.11%,
+  胜率 53.2%,t=5.03 > 门槛 3.77。参数默认值即已验证值,改动会使证据失效。
+
+parameters:
+  # These three ARE the validated experiment. libs/quant/event_study_board.py
+  # approves the edge on the strength of a study that used exactly these
+  # thresholds, and the strategy refuses to emit intents if they are changed.
+  min_insiders: 2
+  min_value_usd: 50000.0
+  hold_sessions: 20
+  # Operational, not part of the evidence: how fresh a filing must be to still
+  # be the trade that was measured, and how much to put on.
+  max_age_days: 5
+  max_positions_per_scan: 5
+  position_usd: 1000.0
+  scan_interval_seconds: 21600
+  expected_edge_bps: 511.0
+  confidence: 0.53
+
+risk_limits:
+  max_position_size: 1000.0
+  max_leverage: 1.0
+  max_open_positions: 5

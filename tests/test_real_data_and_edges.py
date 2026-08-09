@@ -51,9 +51,33 @@ def test_tencent_code_infers_exchange():
     assert _tencent_code("920819") == "bj920819"      # Beijing
 
 
+def test_tencent_code_honours_an_explicit_exchange_prefix():
+    """An explicit prefix wins over digit-based inference.
+
+    Inference reads the leading digits, which is correct for ordinary stocks but
+    wrong for indices: the CSI 300 is ``sh000300`` while ``000300`` infers to
+    Shenzhen. Re-inferring there does not fail loudly — it silently returns a
+    *different instrument*, so every benchmark-relative return computed against
+    it would be quietly wrong.
+    """
+    assert _tencent_code("sh000300") == "sh000300"    # CSI 300 index
+    assert _tencent_code("SH000300") == "sh000300"
+    assert _tencent_code("sh000001") == "sh000001"    # SSE Composite, not 平安银行
+    assert _tencent_code("000001") == "sz000001"      # bare code still infers
+
+
+def test_tencent_code_is_idempotent():
+    for symbol in ("600519", "000001", "sh000300", "920819"):
+        once = _tencent_code(symbol)
+        assert _tencent_code(once) == once
+        assert _tencent_code(once.upper()) == once
+
+
 def test_tencent_code_rejects_invalid():
     with pytest.raises(DataUnavailable):
         _tencent_code("AAPL")
+    with pytest.raises(DataUnavailable):
+        _tencent_code("SH12345")      # prefix present but the code is malformed
 
 
 def test_daily_bars_usability_and_ohlc_flags():

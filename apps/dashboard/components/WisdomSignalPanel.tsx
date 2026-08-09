@@ -1,7 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ErrorState from '@/components/ui/ErrorState';
 import { API_BASE } from '@/lib/config';
 import { useLanguage } from '@/lib/i18n';
@@ -27,6 +28,9 @@ interface WisdomPayload {
   bars: number;
   signals: WisdomSignal[];
   position_sizing: {
+    capital_known?: boolean;
+    capital_fraction?: number;
+    risk_fraction_of_equity?: number;
     allowed: boolean;
     allocation?: number;
     risk_pct?: number;
@@ -59,8 +63,17 @@ export default function WisdomSignalPanel({
 }) {
   const { language } = useLanguage();
   const zh = language === 'zh';
-  const [input, setInput] = useState(symbol);
-  const [active, setActive] = useState(symbol);
+  // Follows the page's ?symbol=, same as the verdict banner and the equity
+  // list. The prop is only the fallback for a page that names no instrument.
+  const searchParams = useSearchParams();
+  const urlSymbol = searchParams?.get('symbol')?.trim();
+  const pageSymbol = urlSymbol && urlSymbol.length > 0 ? urlSymbol.toUpperCase() : symbol;
+  const [input, setInput] = useState(pageSymbol);
+  const [active, setActive] = useState(pageSymbol);
+  useEffect(() => {
+    setInput(pageSymbol);
+    setActive(pageSymbol);
+  }, [pageSymbol]);
 
   const query = useQuery<WisdomPayload>({
     queryKey: ['wisdom', active, domain],
@@ -211,14 +224,38 @@ export default function WisdomSignalPanel({
         <div className="border-t border-stone-200 bg-stone-50/60 px-5 py-3 text-[11px] text-stone-600">
           {data.position_sizing.allowed ? (
             <>
-              {zh ? '仓位建议(资金十分之一):' : 'Size (one of ten parts): '}
-              <span className="font-mono font-semibold text-stone-800">
-                {data.position_sizing.allocation?.toLocaleString()}
-              </span>
-              {zh ? ' · 单笔风险 ' : ' · risk '}
-              <span className="font-mono font-semibold text-stone-800">
-                {((data.position_sizing.risk_pct ?? 0) * 100).toFixed(1)}%
-              </span>
+              {/* With no configured account equity the rule is still reportable —
+                  one tenth of capital — but the allocation and share count are
+                  not. This used to be computed from a hardcoded 100,000, so the
+                  panel printed an exact figure for an account nobody owns. */}
+              {data.position_sizing.capital_known === false ? (
+                <>
+                  {zh ? '仓位规则:资金的 ' : 'Size rule: '}
+                  <span className="font-mono font-semibold text-stone-800">
+                    1/{data.rules.capital_parts}
+                  </span>
+                  {zh ? ' · 单笔风险占权益 ' : ' of equity · risk '}
+                  <span className="font-mono font-semibold text-stone-800">
+                    {((data.position_sizing.risk_fraction_of_equity ?? 0) * 100).toFixed(2)}%
+                  </span>
+                  <span className="ml-2 text-stone-400">
+                    {zh
+                      ? '(未配置账户权益,不给具体金额和股数)'
+                      : '(no account equity configured — no amount or share count)'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  {zh ? '仓位建议(资金十分之一):' : 'Size (one of ten parts): '}
+                  <span className="font-mono font-semibold text-stone-800">
+                    {data.position_sizing.allocation?.toLocaleString()}
+                  </span>
+                  {zh ? ' · 单笔风险 ' : ' · risk '}
+                  <span className="font-mono font-semibold text-stone-800">
+                    {((data.position_sizing.risk_pct ?? 0) * 100).toFixed(1)}%
+                  </span>
+                </>
+              )}
             </>
           ) : (
             <>

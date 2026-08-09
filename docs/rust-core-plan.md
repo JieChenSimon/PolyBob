@@ -37,7 +37,7 @@
 | `libs/backtest/replay.py` | 排序、异步等待、事件发布 | 低至中 | 仅在百万级事件排序/解码成为热点后迁移 |
 | `libs/backtest/execution.py` | 少量数学、异步模拟延迟 | 低 | 保留 Python |
 | `libs/quant/portfolio_optimization.py` | SciPy SLSQP、矩阵求逆 | 中低 | 先优化数据与调用频率，不首迁 |
-| `services/risk_manager/*` | 业务规则与状态 | 低 | 保留 Python |
+| `modules/risk_manager/*` | 业务规则与状态 | 低 | 保留 Python |
 | 行情 API、缓存、数据库 | I/O 密集 | 低 | 不迁 Rust |
 | Dashboard | React 渲染与网络请求 | 无 | 不迁 Rust |
 

@@ -93,3 +93,56 @@ def sample_feature_snapshot():
             "depth_imbalance": 0.15,
         }
     }
+
+
+@pytest.fixture
+def promoted_strategy(monkeypatch):
+    """Let a test build intents without the promotion gate standing in the way.
+
+    The gate now lives in ``IntentExecutionService.create_intent`` — the only
+    place an intent can be born — so every test about dedupe, persistence or
+    risk checking would otherwise have to care about the board. Those tests are
+    about other things; this fixture states plainly that they are exercising a
+    strategy the desk has cleared, without pinning them to whatever real edge
+    happens to be on the board today.
+
+    The gate's own behaviour is tested directly in
+    ``tests/test_promotion_gate.py`` and ``tests/test_promoted_strategies.py``.
+    """
+    from libs.quant import promotion_registry
+
+    class _AllPromoted:
+        def is_promoted(self, strategy, instrument=None):
+            return True
+
+        def reason_blocked(self, strategy, instrument=None):
+            return "promoted"
+
+    monkeypatch.setattr(promotion_registry, "get_registry", lambda: _AllPromoted())
+    return _AllPromoted()
+
+
+@pytest.fixture
+def btc5m_promoted(monkeypatch, tmp_path):
+    """Give the BTC-5m workbench a board that promoted it.
+
+    The live board does *not* promote ``btc5m_mispricing`` (n=95, t=3.45 against
+    a 3.77 hurdle), so every snapshot now degrades to ``research_only`` and
+    withholds the limit price and Kelly size. That is the intended production
+    behaviour; tests that exercise the entry optimiser itself need the gate open
+    to reach the code they are about. The gate's own behaviour is covered in
+    ``tests/unit/test_btc_five_minute_gate.py``.
+    """
+    import json
+
+    from libs.polymarket import btc_five_minute as btc
+    from libs.quant.promotion_registry import PromotionRegistry
+
+    path = tmp_path / "board.json"
+    path.write_text(json.dumps({"board": [{
+        "strategy": "btc5m_mispricing", "instrument": "BTC_5M",
+        "approved": True, "role": "trade", "failed": [],
+    }]}))
+    registry = PromotionRegistry(path)
+    monkeypatch.setattr(btc, "get_registry", lambda: registry)
+    return registry

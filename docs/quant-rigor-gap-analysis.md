@@ -56,7 +56,7 @@ chasing equity curves.
 1. **Unify every strategy's signal path (problem 2).** Only `DualMAStrategy` is
    proven research==live. Route all strategies through one causal signal
    library imported by both backtest and live, and retire the duplicate API
-   runtime (`apps/api/main.py` vs `services/api_server/main.py`).
+   runtime (`apps/api/main.py` vs `modules/api_server/main.py`).
 2. **Populate the PIT universe from real history (problem 3).** Persist each
    Polymarket market's listing/resolution time and each token's listing/delist
    time from `market_discovery`, then back the universe with it.

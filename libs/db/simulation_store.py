@@ -77,6 +77,7 @@ _SCHEMA_STATEMENTS = (
         equity REAL NOT NULL,
         cash REAL NOT NULL,
         gross_exposure REAL NOT NULL DEFAULT 0,
+        degraded INTEGER NOT NULL DEFAULT 0,
         PRIMARY KEY (run_id, ts)
     )
     """,
@@ -186,6 +187,10 @@ class SimEquityPointRecord:
     equity: float
     cash: float
     gross_exposure: float
+    # True when a position had to be valued at something other than a fresh
+    # mark. The curve carries its own provenance so metrics can refuse to
+    # summarise it rather than quietly reporting a number built on entry prices.
+    degraded: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -440,12 +445,14 @@ class SimulationStore:
         cash: float,
         gross_exposure: float,
         ts: str | None = None,
+        degraded: bool = False,
     ) -> None:
         with self._connect() as connection:
             connection.execute(
                 """
-                INSERT OR REPLACE INTO sim_equity_points (run_id, ts, equity, cash, gross_exposure)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT OR REPLACE INTO sim_equity_points
+                    (run_id, ts, equity, cash, gross_exposure, degraded)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run_id,
@@ -453,6 +460,7 @@ class SimulationStore:
                     float(equity),
                     float(cash),
                     float(gross_exposure),
+                    1 if degraded else 0,
                 ),
             )
 
@@ -469,6 +477,7 @@ class SimulationStore:
                 equity=float(row["equity"]),
                 cash=float(row["cash"]),
                 gross_exposure=float(row["gross_exposure"]),
+                degraded=bool(row["degraded"]) if "degraded" in row.keys() else False,
             )
             for row in rows
         ]

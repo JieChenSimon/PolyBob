@@ -300,6 +300,16 @@ def _log_ratio(ratio: float | None) -> float:
     return _clamp(math.log(ratio) / _RATIO_SCALE)
 
 
+def _present(values: "Sequence[float | None]") -> list[float]:
+    """Only the bars that actually have a volume.
+
+    Averaging over a window that contains gaps must divide by the number of
+    bars that *reported*, not by the window width — otherwise every gap reads
+    as a bar that traded nothing and drags the ratio toward zero.
+    """
+    return [float(v) for v in values if v is not None and v > 0]
+
+
 def _unavailable(bars_len: int, as_of: str | None, reason_zh: str, reason_en: str) -> VolumeState:
     return VolumeState(
         classification=VolumeClass.UNAVAILABLE, score=0.5, raw_score=0.0,
@@ -327,7 +337,13 @@ def classify_volume(bars: Any) -> VolumeState:
     """
     closes = [float(c) for c in getattr(bars, "closes", None) or []]
     raw_volumes = getattr(bars, "volumes", None)
-    volumes = [float(v) for v in raw_volumes] if raw_volumes else []
+    # A bar whose volume the vendor did not supply is ``None``. Coercing it to
+    # 0.0 is what let six missing bars out of three hundred drag the 20-day
+    # ratio from 1.00 to 0.70 and flip this classifier from ``confirming`` to
+    # ``drying_up`` — a gate on the verdict, moved by absent data.
+    volumes: list[float | None] = (
+        [None if v is None else float(v) for v in raw_volumes] if raw_volumes else []
+    )
     dates = list(getattr(bars, "dates", None) or [])
     as_of = dates[-1] if dates else None
     n = min(len(closes), len(volumes))
@@ -348,16 +364,27 @@ def classify_volume(bars: Any) -> VolumeState:
         )
 
     closes, volumes = closes[-n:], volumes[-n:]
-    zeros = sum(1 for v in volumes if v <= 0)
-    if zeros > _MAX_ZERO_FRACTION * n:
+
+    # Missing (None) and zero are the same thing here — "no usable volume for
+    # this bar" — and both are excluded from every sum and median below rather
+    # than counted as a bar that traded nothing.
+    missing = sum(1 for v in volumes if v is None or v <= 0)
+    if missing > _MAX_ZERO_FRACTION * n:
         return _unavailable(
             n, as_of,
-            f"{zeros}/{n} 根K线成交量为 0，视为数据缺失而非无人交易——不猜",
-            f"{zeros}/{n} bars report zero volume; treated as missing data, not as "
-            "genuine no-trade — this is not a guess",
+            f"{missing}/{n} 根K线缺少可用成交量，视为数据缺失而非无人交易——不猜",
+            f"{missing}/{n} bars have no usable volume; treated as missing data, not "
+            "as genuine no-trade — this is not a guess",
+        )
+    if volumes[-1] is None or volumes[-1] <= 0:
+        return _unavailable(
+            n, as_of,
+            "最近一根K线没有成交量数据，无法判断当下的量价关系——不猜",
+            "The latest bar has no volume, so the current volume-price relationship "
+            "is unknown — this is not a guess",
         )
 
-    baseline = _median(volumes[-min(BASELINE_WINDOW, n):])
+    baseline = _median(_present(volumes[-min(BASELINE_WINDOW, n):]))
     if baseline <= 0:
         return _unavailable(
             n, as_of,
@@ -369,7 +396,14 @@ def classify_volume(bars: Any) -> VolumeState:
     # --- Ratios: the only unit-free view of volume ---------------------------
     ratios: dict[str, float | None] = {}
     for label, w in WINDOWS.items():
-        ratios[label] = (sum(volumes[-w:]) / w / baseline) if n >= w else None
+        window = _present(volumes[-w:])
+        # Require most of the window to be present; otherwise the ratio is a
+        # statement about a few surviving bars, not about the window.
+        ratios[label] = (
+            (sum(window) / len(window) / baseline)
+            if n >= w and len(window) >= w * (1 - _MAX_ZERO_FRACTION)
+            else None
+        )
     latest_volume = volumes[-1]
     latest_ratio = latest_volume / baseline
     ratio_20 = ratios["20d"]
@@ -382,8 +416,8 @@ def classify_volume(bars: Any) -> VolumeState:
 
     # Granville's on-balance logic over the same 20 bars.
     up_vol = sum(volumes[-i] for i in range(1, _PRICE_WINDOW + 1)
-                 if closes[-i] > closes[-i - 1])
-    win_vol = sum(volumes[-_PRICE_WINDOW:])
+                 if closes[-i] > closes[-i - 1] and volumes[-i] is not None)
+    win_vol = sum(_present(volumes[-_PRICE_WINDOW:]))
     up_share = (up_vol / win_vol) if win_vol > 0 else None
 
     # --- Agreement ------------------------------------------------------------

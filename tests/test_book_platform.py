@@ -16,7 +16,7 @@ from libs.polymarket.book_state import (
 )
 from libs.polymarket.replay import replay_from_log
 from libs.schemas import OrderbookTick
-from services.realtime_ingestor.service import RealtimeIngestorService
+from modules.realtime_ingestor.service import RealtimeIngestorService
 
 RECEIVE_TS = datetime(2026, 7, 21, 12, 0, 0)
 

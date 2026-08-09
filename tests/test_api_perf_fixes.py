@@ -1,11 +1,12 @@
 """Regression tests for API performance fixes (shared client, cache eviction, lab status)."""
 from types import SimpleNamespace
 
+import apps.api.deps as deps
 import apps.api.main as api
 
 
 async def test_expired_api_cache_entries_are_evicted_on_insert():
-    api.clear_api_response_cache()
+    deps.clear_api_response_cache()
 
     async def load_a() -> dict:
         return {"value": "a"}
@@ -13,30 +14,30 @@ async def test_expired_api_cache_entries_are_evicted_on_insert():
     async def load_b() -> dict:
         return {"value": "b"}
 
-    await api.cached_api_response("key_a", -1.0, load_a)  # expires immediately
-    assert "key_a" in api._api_response_cache
+    await deps.cached_api_response("key_a", -1.0, load_a)  # expires immediately
+    assert "key_a" in deps._api_response_cache
 
-    await api.cached_api_response("key_b", 60.0, load_b)
+    await deps.cached_api_response("key_b", 60.0, load_b)
 
-    assert "key_a" not in api._api_response_cache
-    assert "key_a" not in api._api_response_locks
-    assert "key_b" in api._api_response_cache
+    assert "key_a" not in deps._api_response_cache
+    assert "key_a" not in deps._api_response_locks
+    assert "key_b" in deps._api_response_cache
 
-    api.clear_api_response_cache()
+    deps.clear_api_response_cache()
 
 
 async def test_api_cache_total_size_is_capped():
-    api.clear_api_response_cache()
+    deps.clear_api_response_cache()
 
     async def load() -> dict:
         return {}
 
-    for index in range(api._API_RESPONSE_CACHE_MAX_ENTRIES + 20):
-        await api.cached_api_response(f"key_{index}", 60.0, load)
+    for index in range(deps._API_RESPONSE_CACHE_MAX_ENTRIES + 20):
+        await deps.cached_api_response(f"key_{index}", 60.0, load)
 
-    assert len(api._api_response_cache) <= api._API_RESPONSE_CACHE_MAX_ENTRIES + 1
+    assert len(deps._api_response_cache) <= deps._API_RESPONSE_CACHE_MAX_ENTRIES + 1
 
-    api.clear_api_response_cache()
+    deps.clear_api_response_cache()
 
 
 async def test_lab_trading_status_uses_cached_price_without_http_call(monkeypatch):
@@ -101,6 +102,6 @@ async def test_lab_trading_status_fetches_once_when_no_cached_price(monkeypatch)
 
 
 def test_shared_http_client_is_reused_and_lazily_recreated():
-    first = api.get_shared_http_client()
-    second = api.get_shared_http_client()
+    first = deps.get_shared_http_client()
+    second = deps.get_shared_http_client()
     assert first is second

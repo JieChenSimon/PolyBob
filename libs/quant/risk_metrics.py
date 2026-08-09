@@ -3,7 +3,7 @@
 实现 VaR, CVaR, 最大回撤等风险指标
 """
 import numpy as np
-from typing import List, Tuple
+from typing import Tuple
 from dataclasses import dataclass
 from numba import jit
 

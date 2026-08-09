@@ -24,7 +24,7 @@ def test_all_critical_paths_covered():
     """验证关键路径已覆盖"""
     critical_paths = {
         "libs/backtest/engine.py": "tests/test_backtest.py",
-        "services/risk_manager/risk_checker.py": "tests/unit/test_risk_control.py",
+        "modules/risk_manager/risk_checker.py": "tests/unit/test_risk_control.py",
         "strategies/spread_reversion.py": "tests/test_strategies.py",
     }
 

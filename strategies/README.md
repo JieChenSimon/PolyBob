@@ -119,12 +119,12 @@ Signal(
 
 ### Strategy Manager Service
 
-**路径**: `services/strategy_manager/`
+**路径**: `modules/strategy_manager/`
 
 统一管理所有策略的启动、停止和监控:
 
 ```python
-from services.strategy_manager import StrategyManagerService
+from modules.strategy_manager import StrategyManagerService
 
 manager = StrategyManagerService()
 await manager.start()  # 启动所有策略
@@ -174,7 +174,7 @@ await strategy.start()
 ### 通过 Strategy Manager 启动
 
 ```python
-from services.strategy_manager import StrategyManagerService
+from modules.strategy_manager import StrategyManagerService
 
 manager = StrategyManagerService()
 await manager.start()  # 自动加载并启动所有策略

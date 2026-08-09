@@ -130,7 +130,11 @@ async def test_sample_backtest_keeps_lab_guard(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_archived_api_server_cannot_bypass_lab_guard():
-    module_path = Path(__file__).resolve().parents[1] / "services" / "api_server" / "main.py"
+    # Moved to attic/ in the phase-0 architecture contraction. It was already
+    # self-described as "archived"; attic/ is simply where archived code now lives.
+    module_path = (
+        Path(__file__).resolve().parents[1] / "attic" / "services" / "api_server" / "main.py"
+    )
     spec = importlib.util.spec_from_file_location("archived_api_server_main", module_path)
     archived_api = importlib.util.module_from_spec(spec)
     assert spec.loader is not None

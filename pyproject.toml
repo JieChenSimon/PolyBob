@@ -25,6 +25,12 @@ dependencies = [
     "numba>=0.59.0",
     "scipy>=1.11.0",
     "pandas>=2.1.0",
+    # The bitemporal store (libs/data/store.py). Parquet for append-only
+    # observation history, DuckDB for the as-of window query that makes
+    # look-ahead structurally unavailable, pytz for DuckDB's tz-aware timestamps.
+    "pyarrow>=15.0.0",
+    "duckdb>=1.0.0",
+    "pytz>=2024.1",
     "torch>=2.0.0",
     "akshare>=1.18.0",
 ]

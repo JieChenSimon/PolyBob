@@ -109,11 +109,11 @@ describe('altcoin discovery contract', () => {
       universe_counts: { alpha_total: 308, unique_intersection: 128 },
     });
 
-    expect(parsed.candidates[0].pumpPotential['30d'].value).toBe(75);
-    expect(parsed.candidates[0].cashoutRisk['90d'].value).toBe(55);
-    expect(parsed.candidates[0].chipConcentrationPercent).toBe(89.5);
-    expect(parsed.candidates[0].tradePlans['30d']).toBeUndefined();
-    expect(parsed.candidates[0].vetoes).toContain('COVERAGE_BELOW_MINIMUM');
+    expect(parsed.candidates[0]!.pumpPotential['30d']!.value).toBe(75);
+    expect(parsed.candidates[0]!.cashoutRisk['90d']!.value).toBe(55);
+    expect(parsed.candidates[0]!.chipConcentrationPercent).toBe(89.5);
+    expect(parsed.candidates[0]!.tradePlans['30d']).toBeUndefined();
+    expect(parsed.candidates[0]!.vetoes).toContain('COVERAGE_BELOW_MINIMUM');
     expect(parsed.sourceHealth.binance_alpha.status).toBe('ok');
   });
 
@@ -165,7 +165,7 @@ describe('altcoin discovery contract', () => {
       universe_counts: {},
     });
 
-    expect(parsed.candidates[0].pumpPotential['7d'].value).toBeNull();
+    expect(parsed.candidates[0]!.pumpPotential['7d']!.value).toBeNull();
   });
 
   it('parses one selected candidate detail without wrapping it in a list', () => {

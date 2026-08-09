@@ -5,15 +5,13 @@ import asyncio
 import json
 import math
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 import logging
 import sys
-import time
 import structlog
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Awaitable, Callable
-from urllib.parse import urlparse
+from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -27,23 +25,19 @@ from libs.config import get_settings
 from libs import metrics as ops_metrics
 from libs.db import fact_store
 from libs.db.repositories import BasketRepository, DecisionRepository, IntentRepository
-from libs.polymarket.btc_five_minute import (
-    BtcFiveMinuteConfig,
-    build_btc_five_minute_slug,
-    build_workbench_snapshot,
-    map_outcome_tokens,
-    normalize_book,
+from modules.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
+from modules.market_discovery import MarketDiscoveryService
+from modules.realtime_ingestor import RealtimeIngestorService
+from modules.feature_engine import FeatureEngineService
+from modules.strategy_manager import StrategyManagerService
+from modules.execution_engine.basket_executor import BasketExecutor
+from modules.execution_engine.contract_executor import ContractExecutor
+from modules.execution_engine.intent_execution_service import (
+    IntentExecutionService,
+    StrategyNotPromoted,
 )
-from services.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
-from services.market_discovery import MarketDiscoveryService
-from services.realtime_ingestor import RealtimeIngestorService
-from services.feature_engine import FeatureEngineService
-from services.strategy_manager import StrategyManagerService
-from services.execution_engine.basket_executor import BasketExecutor
-from services.execution_engine.contract_executor import ContractExecutor
-from services.execution_engine.intent_execution_service import IntentExecutionService
-from services.onchain_monitor import OnchainMonitorService
-from services.pair_feature_engine import PairDefinition, PairFeatureEngineService
+from modules.onchain_monitor import OnchainMonitorService
+from modules.pair_feature_engine import PairDefinition, PairFeatureEngineService
 from libs.crypto.binance_client import BinanceClient
 from libs.crypto.discovery.providers.binance_alpha import BinanceAlphaProvider
 from libs.crypto.discovery.providers.binance_futures import BinanceFuturesProvider
@@ -53,20 +47,21 @@ from libs.crypto.discovery.service import AltcoinDiscoveryService
 from libs.crypto.hyperliquid_client import HyperliquidClient
 from libs.knowledge.impact import ASSET_CLASSES
 from libs.quant.promotion import PromotionGate
+from dataclasses import asdict
 from libs.quant.promotion_registry import get_registry as get_promotion_registry
 from libs.knowledge.models import KnowledgeSearchResult, SourceRunStatus
 from libs.knowledge.sources.finnhub_news import FinnhubNewsSource
 from libs.knowledge.sources.statementdog import StatementDogSource
 from libs.knowledge.store import KnowledgeStore
 from libs.schemas import ExecutionVenue, InstrumentRef
-from services.knowledge_ingestion import KnowledgeIngestionService
-from services.simulation import (
+from modules.knowledge_ingestion import KnowledgeIngestionService
+from modules.simulation import (
     InvalidRunTransitionError,
     SimulationService,
     UnknownRunError,
     downsample_equity_curve,
 )
-from services.simulation.metrics import compute_run_metrics
+from modules.simulation.metrics import compute_run_metrics
 
 
 def configure_logging():
@@ -104,7 +99,6 @@ def configure_logging():
 
 configure_logging()
 
-logger = structlog.get_logger()
 
 
 # 全局服务实例
@@ -126,93 +120,29 @@ ONCHAIN_WATCHLIST_PATH = Path(__file__).parent.parent.parent / "config" / "oncha
 PORTFOLIO_LEDGER_NOT_CONFIGURED_NOTE = (
     "Portfolio ledger not configured; portfolio exposure, leverage, and PnL are unknown."
 )
-_api_response_cache: dict[str, dict[str, Any]] = {}
-_api_response_locks: dict[str, asyncio.Lock] = {}
-_API_RESPONSE_CACHE_MAX_ENTRIES = 256
-
-_shared_http_client: httpx.AsyncClient | None = None
-
-
-def get_shared_http_client() -> httpx.AsyncClient:
-    """返回进程级共享的 AsyncClient；缺失时懒加载创建（便于无 lifespan 的测试）。"""
-    global _shared_http_client
-    if _shared_http_client is None or _shared_http_client.is_closed:
-        _shared_http_client = httpx.AsyncClient(
-            timeout=httpx.Timeout(4, connect=2),
-            headers={"User-Agent": "PolyBob/0.1"},
-        )
-    return _shared_http_client
-
-
-async def close_shared_http_client() -> None:
-    global _shared_http_client
-    client, _shared_http_client = _shared_http_client, None
-    if client is not None and not client.is_closed:
-        await client.aclose()
-
-
-def _evict_expired_api_cache_entries(now: float, active_key: str) -> None:
-    """插入新缓存前清理过期条目（及其锁），并对总量做硬上限。"""
-    for key in [
-        key
-        for key, entry in _api_response_cache.items()
-        if entry["expires_at"] <= now and key != active_key
-    ]:
-        _api_response_cache.pop(key, None)
-        _api_response_locks.pop(key, None)
-
-    overflow = len(_api_response_cache) - _API_RESPONSE_CACHE_MAX_ENTRIES
-    if overflow > 0:
-        for key in sorted(
-            _api_response_cache,
-            key=lambda cache_key: _api_response_cache[cache_key]["expires_at"],
-        ):
-            if overflow <= 0:
-                break
-            if key == active_key:
-                continue
-            _api_response_cache.pop(key, None)
-            _api_response_locks.pop(key, None)
-            overflow -= 1
-
-
-async def cached_api_response(
-    key: str,
-    ttl_seconds: float,
-    loader: Callable[[], Awaitable[dict]],
-) -> dict:
-    now = time.monotonic()
-    cached = _api_response_cache.get(key)
-    if cached and cached["expires_at"] > now:
-        return cached["value"]
-
-    lock = _api_response_locks.setdefault(key, asyncio.Lock())
-    async with lock:
-        now = time.monotonic()
-        cached = _api_response_cache.get(key)
-        if cached and cached["expires_at"] > now:
-            return cached["value"]
-
-        value = await loader()
-        now = time.monotonic()
-        _evict_expired_api_cache_entries(now, key)
-        _api_response_cache[key] = {
-            "expires_at": now + ttl_seconds,
-            "value": value,
-        }
-        return value
-
-
-def clear_api_response_cache() -> None:
-    _api_response_cache.clear()
-    _api_response_locks.clear()
+# Shared plumbing lives in apps/api/deps.py so route modules can import it
+# without importing the application. Re-exported here because callers and
+# tests still reach for apps.api.main.<name>.
+from apps.api import btc_five_minute as btc_workbench  # noqa: E402
+from apps.api.btc_five_minute import router as btc_five_minute_router  # noqa: E402
+from apps.api.edges_api import router as edges_router  # noqa: E402
+from apps.api.journal_api import router as journal_router  # noqa: E402
+from apps.api.portfolio_api import router as portfolio_router  # noqa: E402
+from apps.api.verdict_api import router as verdict_router  # noqa: E402
+from apps.api.deps import (  # noqa: E402
+    cached_api_response,
+    clear_api_response_cache,
+    close_shared_http_client,
+    get_shared_http_client,
+    logger,
+)
 
 
 def get_trading_engine():
     """延迟初始化交易引擎，避免应用启动阶段额外阻塞。"""
     global trading_engine
     if trading_engine is None:
-        from services.auto_trader.engine import TradingEngine
+        from modules.auto_trader.engine import TradingEngine
 
         trading_engine = TradingEngine(10000)
     return trading_engine
@@ -750,7 +680,14 @@ async def lifespan(app: FastAPI):
     )
     await strategy_manager.start()
     try:
-        await strategy_manager.start_instance("spread_arbitrage_v1:default")
+        # 不自启任何策略。原来这里无条件拉起 spread_arbitrage_v1——它根本不在看板
+        # 上,于是每次进程启动都有一个未验证的策略在无人值守地下单意图。
+        #
+        # 改成"只自启已晋级的"也不对:那会在 API 一启动就跑起真实的扫描循环(打 SEC /
+        # OKX、按小时轮询)。开一个研究工作台不该等于开始交易。启动策略是一个显式动作,
+        # 走 POST /api/strategies/instances/{id}/start。
+        logger.info("strategy_autostart_disabled",
+                    hint="start instances explicitly via the API")
     except Exception as exc:
         logger.warning("failed_to_start_default_spread_arbitrage", error=str(exc))
 
@@ -827,6 +764,14 @@ app.add_middleware(
 # Prometheus 可观测性中间件（每路由时延直方图 + 在途请求 + 事件循环滞后）。
 if ops_metrics.PrometheusMiddleware is not None:
     app.add_middleware(ops_metrics.PrometheusMiddleware)
+
+# Route groups extracted from this file live in their own modules. Each owns its
+# helpers, so the group can be read — and tested — without the other 60 routes.
+app.include_router(btc_five_minute_router)
+app.include_router(verdict_router)
+app.include_router(edges_router)
+app.include_router(journal_router)
+app.include_router(portfolio_router)
 
 
 @app.get("/metrics")
@@ -973,735 +918,6 @@ async def get_markets_summary():
         }
 
     return await cached_api_response("markets_summary", 5.0, load)
-
-
-@app.get("/api/polymarket/btc-5m/indicators")
-async def get_btc_five_minute_indicators():
-    """BTC 5m 涨跌预测可选指标目录（前端弹窗据此渲染勾选）。"""
-    from libs.polymarket.btc_five_minute import BTC5M_INDICATORS, DEFAULT_ENABLED_INDICATORS
-
-    return {"indicators": BTC5M_INDICATORS, "default_enabled": list(DEFAULT_ENABLED_INDICATORS)}
-
-
-@app.get("/api/polymarket/btc-5m/workbench")
-async def get_btc_five_minute_workbench(slug: str | None = None, indicators: str | None = None):
-    """BTC 5-minute Polymarket Up/Down 专用工作台。
-
-    ``indicators`` 逗号分隔的指标 id（如 ``market_implied,digital_option``）。
-    留空 = 默认指标；用于前端弹窗自定义预测。
-    """
-    requested_slug = slug or build_btc_five_minute_slug(datetime.now().astimezone())
-    enabled = [s.strip() for s in indicators.split(",") if s.strip()] if indicators else None
-
-    async def load() -> dict:
-        return await collect_btc_five_minute_workbench(slug=requested_slug, enabled_indicators=enabled)
-
-    try:
-        return await cached_api_response(
-            f"btc_five_minute_workbench:{requested_slug}:{','.join(enabled) if enabled else 'default'}",
-            # TTL 略大于 dashboard 轮询间隔，避免稳定轮询每次都打冷缓存。
-            float(getattr(get_settings(), "polybob_btc_5m_poll_seconds", 3)) + 1.0,
-            load,
-        )
-    except Exception as exc:
-        error = str(exc) or exc.__class__.__name__
-        btc_reference = await fetch_btc_reference_for_unavailable_workbench()
-        return {
-            "source": "unavailable",
-            "action": "no_trade",
-            "recommended_outcome": None,
-            "reason_codes": ["WORKBENCH_UNAVAILABLE"],
-            "slug": requested_slug,
-            "btc_reference": btc_reference,
-            "data_health": build_btc_five_minute_unavailable_health(exc, btc_reference),
-            "error": error,
-            "error_diagnosis": diagnose_btc_five_minute_error(exc),
-            "timestamp": datetime.utcnow().isoformat(),
-        }
-
-
-async def fetch_btc_reference_for_unavailable_workbench() -> dict | None:
-    try:
-        reference = await _fetch_btc_reference_aggregate_safe(get_shared_http_client())
-        return reference if reference.get("price") is not None else None
-    except Exception:
-        return None
-
-
-def build_btc_five_minute_unavailable_health(exc: Exception, btc_reference: dict | None) -> dict:
-    diagnosis = diagnose_btc_five_minute_error(exc)
-    btc_reference_ok = bool(btc_reference and isinstance(btc_reference.get("price"), (int, float)))
-    return {
-        "polymarket_market": {
-            "status": "unavailable",
-            "provider": diagnosis.get("provider") or "Polymarket Gamma",
-            "message": str(exc) or exc.__class__.__name__,
-            "action": diagnosis.get("user_action"),
-            "endpoint": diagnosis.get("endpoint"),
-        },
-        "polymarket_orderbook": {
-            "status": "unavailable",
-            "provider": "Polymarket CLOB",
-            "message": "Order book was not requested because the active BTC 5m market could not be resolved.",
-            "action": "先恢复 Polymarket Gamma 市场元数据；没有真实 token id 时不请求 CLOB 盘口，也不生成假盘口。",
-            "endpoint": None,
-        },
-        "btc_reference": {
-            "status": "ok" if btc_reference_ok else "unavailable",
-            "provider": str(btc_reference.get("source")) if btc_reference_ok else "Binance / OKX / Coinbase",
-            "message": (
-                f"BTC reference available from {btc_reference.get('source')}."
-                if btc_reference_ok
-                else "No BTC reference source returned a valid price."
-            ),
-            "action": None if btc_reference_ok else "检查本机到 Binance / OKX / Coinbase 的网络或代理链路。",
-            "endpoint": None,
-        },
-        "target_price": {
-            "status": "unavailable",
-            "provider": "Polymarket event/page",
-            "message": "Target price is unavailable because the active BTC 5m market could not be resolved.",
-            "action": "等待 Polymarket Gamma 或页面目标价恢复。",
-            "endpoint": None,
-        },
-    }
-
-
-def build_btc_five_minute_success_health(snapshot: dict) -> dict:
-    up = snapshot.get("outcomes", {}).get("UP", {}) if isinstance(snapshot.get("outcomes"), dict) else {}
-    down = snapshot.get("outcomes", {}).get("DOWN", {}) if isinstance(snapshot.get("outcomes"), dict) else {}
-    both_books = bool(up.get("is_real_orderbook") and down.get("is_real_orderbook"))
-    complete_books = bool(
-        both_books
-        and isinstance(up.get("best_bid"), (int, float))
-        and isinstance(up.get("best_ask"), (int, float))
-        and isinstance(down.get("best_bid"), (int, float))
-        and isinstance(down.get("best_ask"), (int, float))
-    )
-    btc_reference = snapshot.get("btc_reference") if isinstance(snapshot.get("btc_reference"), dict) else None
-    btc_reference_ok = bool(btc_reference and isinstance(btc_reference.get("price"), (int, float)))
-    target = snapshot.get("target_price") if isinstance(snapshot.get("target_price"), dict) else None
-    target_ok = bool(target and isinstance(target.get("price"), (int, float)))
-    orderbook_status = "ok" if complete_books else "degraded" if both_books else "unavailable"
-    orderbook_message = (
-        "UP and DOWN executable order books loaded."
-        if complete_books
-        else "CLOB returned real levels, but at least one side is missing bid or ask depth."
-        if both_books
-        else "One or both CLOB order books are unavailable."
-    )
-    return {
-        "polymarket_market": {
-            "status": "ok",
-            "provider": "Polymarket Gamma",
-            "message": "Active BTC 5m market resolved.",
-            "action": None,
-            "endpoint": None,
-        },
-        "polymarket_orderbook": {
-            "status": orderbook_status,
-            "provider": "Polymarket CLOB",
-            "message": orderbook_message,
-            "action": (
-                None
-                if complete_books
-                else "保持 no-trade；等待双边 bid/ask 恢复后再计算入场价。"
-                if both_books
-                else "检查 CLOB /book 接口和 token id。"
-            ),
-            "endpoint": None,
-        },
-        "btc_reference": {
-            "status": "ok" if btc_reference_ok else "unavailable",
-            "provider": str(btc_reference.get("source")) if btc_reference_ok else "Binance / OKX / Coinbase",
-            "message": "BTC reference available." if btc_reference_ok else "No BTC reference source returned a valid price.",
-            "action": None if btc_reference_ok else "检查本机到 BTC 行情源的网络或代理链路。",
-            "endpoint": None,
-        },
-        "target_price": {
-            "status": "ok" if target_ok else "unavailable",
-            "provider": str(target.get("source")) if target_ok else "Polymarket event/page",
-            "message": "Target price available." if target_ok else "Target price unavailable.",
-            "action": None if target_ok else "检查 Gamma eventMetadata 或 Polymarket 页面目标价解析。",
-            "endpoint": None,
-        },
-    }
-
-
-def diagnose_btc_five_minute_error(exc: Exception) -> dict[str, Any]:
-    """Classify BTC 5m data failures so the UI can show where the problem likely is."""
-    technical_detail = str(exc) or exc.__class__.__name__
-    endpoint = _exception_endpoint(exc)
-    provider = _provider_from_endpoint(endpoint)
-    base = {
-        "category": "unknown",
-        "responsibility": "unknown",
-        "provider": provider,
-        "endpoint": endpoint,
-        "retryable": True,
-        "likely_cause": "暂时无法判断具体失败来源，可能是外部数据源、网络链路或本地服务内部错误。",
-        "user_action": "稍后重试；如果持续出现，把这里的 technical_detail 发出来继续排查。",
-        "technical_detail": technical_detail,
-    }
-
-    if isinstance(exc, (httpx.TimeoutException, TimeoutError)):
-        return {
-            **base,
-            "category": "network_timeout",
-            "responsibility": "local_network_or_provider_path",
-            "likely_cause": "请求外部数据源超时。可能是你的本机网络、代理、DNS 到该服务的链路问题，也可能是对方服务响应过慢。",
-            "user_action": "先检查本机网络/代理/VPN/DNS；同时可直接访问对应 endpoint 验证是否能连通。",
-        }
-
-    if "503 Service Unavailable" in technical_detail:
-        return {
-            **base,
-            "category": "provider_status",
-            "responsibility": "external_provider",
-            "likely_cause": f"{provider or '外部数据源'} 返回 503，说明对方服务或边缘节点当前不可用，不是 PolyBob 前端计算错误。",
-            "user_action": "等待外部服务恢复；可以用 curl 直接访问 endpoint 复核。系统会保持 no-trade，不使用假盘口。",
-        }
-
-    if isinstance(exc, httpx.HTTPStatusError):
-        status_code = exc.response.status_code
-        if status_code == 429:
-            return {
-                **base,
-                "category": "provider_rate_limit",
-                "responsibility": "external_provider",
-                "likely_cause": f"{provider or '外部数据源'} 返回 429，说明免费接口或当前 IP 触发了限流。",
-                "user_action": "降低刷新频率，等待限流窗口恢复；如果经常出现，需要做本地缓存或多数据源配额调度。",
-            }
-        if status_code >= 500:
-            return {
-                **base,
-                "category": "provider_status",
-                "responsibility": "external_provider",
-                "likely_cause": f"{provider or '外部数据源'} 返回 {status_code}，更像是对方服务不可用或临时故障，不是前端 UI 算错。",
-                "user_action": "等待外部服务恢复；可以用 curl 直接访问 endpoint 复核。系统会保持 no-trade，不使用假盘口。",
-            }
-        return {
-            **base,
-            "category": "provider_request_rejected",
-            "responsibility": "request_or_provider_policy",
-            "retryable": False,
-            "likely_cause": f"{provider or '外部数据源'} 返回 {status_code}，请求被拒绝，可能是参数、权限、地区或接口策略问题。",
-            "user_action": "检查 endpoint、请求参数、接口文档和地区/权限限制。",
-        }
-
-    if isinstance(exc, httpx.TransportError):
-        return {
-            **base,
-            "category": "network_connection",
-            "responsibility": "local_network_or_provider_path",
-            "likely_cause": "连接外部数据源失败。常见原因是本机网络、代理/VPN、DNS、SSL 握手、公司/地区网络限制，或对方边缘节点不可达。",
-            "user_action": "检查本机网络、代理/VPN、DNS 和系统时间；再用 curl 直接访问 endpoint 做链路验证。",
-        }
-
-    if isinstance(exc, ValueError):
-        return {
-            **base,
-            "category": "data_contract",
-            "responsibility": "external_provider_schema_or_parser",
-            "retryable": False,
-            "likely_cause": "外部数据返回结构与 PolyBob 预期不一致，可能是市场未开放、接口字段变化或解析规则需要更新。",
-            "user_action": "保留 no-trade；需要查看原始 API 响应并更新解析规则。",
-        }
-
-    return base
-
-
-def _exception_endpoint(exc: Exception) -> str | None:
-    request = getattr(exc, "request", None)
-    url = getattr(request, "url", None)
-    return str(url) if url else None
-
-
-def _provider_from_endpoint(endpoint: str | None) -> str | None:
-    if not endpoint:
-        return None
-    host = urlparse(endpoint).netloc.lower()
-    if "gamma-api.polymarket.com" in host:
-        return "Polymarket Gamma"
-    if "clob.polymarket.com" in host:
-        return "Polymarket CLOB"
-    if "binance.com" in host:
-        return "Binance Futures"
-    return host or None
-
-
-async def collect_btc_five_minute_workbench(
-    slug: str | None = None, enabled_indicators: list[str] | None = None
-) -> dict:
-    """从 Gamma + CLOB + BTC reference 构建 BTC 5m 工作台快照。"""
-    settings = get_settings()
-    now = datetime.now().astimezone()
-    slug = slug or build_btc_five_minute_slug(now)
-
-    client = get_shared_http_client()
-
-    async def load_market() -> dict:
-        return await fetch_btc_five_minute_gamma_market(
-            client,
-            gamma_base_url=settings.polymarket_gamma_api_url,
-            slug=slug,
-        )
-
-    market = await cached_api_response(
-        f"btc_five_minute_gamma_market:{slug}",
-        60.0,
-        load_market,
-    )
-    tokens = map_outcome_tokens(market)
-
-    up_response, down_response, btc_reference, page_target, micro = await asyncio.gather(
-        client.get(
-            f"{settings.polymarket_clob_rest_url}/book",
-            params={"token_id": tokens["UP"]},
-            timeout=httpx.Timeout(4.0, connect=2.0),
-        ),
-        client.get(
-            f"{settings.polymarket_clob_rest_url}/book",
-            params={"token_id": tokens["DOWN"]},
-            timeout=httpx.Timeout(4.0, connect=2.0),
-        ),
-        _fetch_btc_reference_aggregate_safe(client),
-        _fetch_btc_five_minute_page_target_price_safe(client, slug),
-        _fetch_btc_micro_features_safe(client),
-    )
-    up_response.raise_for_status()
-    down_response.raise_for_status()
-
-    # Attach real realized volatility + momentum so the workbench uses the
-    # calibrated digital-option probability and optional momentum indicator
-    # instead of the hand-tuned scale (fail-soft).
-    if isinstance(btc_reference, dict) and isinstance(micro, dict):
-        btc_reference = {**btc_reference, **micro}
-
-    received_at = datetime.now().astimezone()
-    snapshot_market = dict(market)
-    if page_target:
-        snapshot_market["polymarketPageTargetPrice"] = page_target
-    snapshot = build_workbench_snapshot(
-        market=snapshot_market,
-        up_book=normalize_book(tokens["UP"], up_response.json(), received_at),
-        down_book=normalize_book(tokens["DOWN"], down_response.json(), received_at),
-        btc_reference=btc_reference,
-        now=received_at,
-        config=BtcFiveMinuteConfig(),
-        enabled_indicators=enabled_indicators,
-    )
-    snapshot["data_health"] = build_btc_five_minute_success_health(snapshot)
-    return snapshot
-
-
-async def fetch_btc_five_minute_gamma_market(
-    client: httpx.AsyncClient,
-    *,
-    gamma_base_url: str,
-    slug: str,
-) -> dict:
-    """优先用 event slug，因为它包含 eventMetadata.priceToBeat。"""
-    async def fetch_event() -> Any:
-        response = await client.get(f"{gamma_base_url}/events/slug/{slug}")
-        response.raise_for_status()
-        return response.json()
-
-    async def fetch_markets() -> Any:
-        response = await client.get(f"{gamma_base_url}/markets", params={"slug": slug})
-        response.raise_for_status()
-        return response.json()
-
-    event_result, markets_result = await asyncio.gather(
-        fetch_event(),
-        fetch_markets(),
-        return_exceptions=True,
-    )
-
-    if not isinstance(event_result, Exception):
-        try:
-            return _select_btc_five_minute_market(event_result)
-        except ValueError:
-            pass
-
-    if not isinstance(markets_result, Exception):
-        if not isinstance(markets_result, list) or not markets_result:
-            raise ValueError("BTC 5m Gamma market not found")
-        return _select_btc_five_minute_market({"markets": markets_result})
-
-    if isinstance(markets_result, Exception):
-        raise markets_result
-    if isinstance(event_result, Exception):
-        raise event_result
-    raise ValueError("BTC 5m Gamma market not found")
-
-
-def _btc_five_minute_window_iso(slug: str) -> tuple[str, str]:
-    window_start = _btc_five_minute_slug_timestamp(slug)
-    start_iso = datetime.fromtimestamp(window_start, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    end_iso = datetime.fromtimestamp(window_start + 300, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    return start_iso, end_iso
-
-
-async def fetch_btc_five_minute_api_target_price(
-    client: httpx.AsyncClient,
-    *,
-    slug: str,
-) -> dict:
-    """Read the target price from Polymarket's crypto-price JSON API.
-
-    This is the same endpoint the event page calls client-side and is far more
-    reliable than scraping the dehydrated page state, which only intermittently
-    embeds the live window. ``openPrice`` is the window's "price to beat".
-    """
-    start_iso, end_iso = _btc_five_minute_window_iso(slug)
-    response = await client.get(
-        "https://polymarket.com/api/crypto/crypto-price",
-        params={
-            "symbol": "BTC",
-            "eventStartTime": start_iso,
-            "variant": "fiveminute",
-            "endDate": end_iso,
-        },
-        headers={"User-Agent": "Mozilla/5.0 PolyBob/0.1"},
-    )
-    response.raise_for_status()
-    payload = response.json()
-    if not isinstance(payload, dict) or payload.get("openPrice") is None:
-        raise ValueError("Polymarket crypto-price API returned no openPrice")
-    return {
-        "source": "polymarket_crypto_price_api",
-        "price": float(payload["openPrice"]),
-        "field": "crypto-price.openPrice",
-    }
-
-
-async def fetch_btc_five_minute_page_target_price(
-    client: httpx.AsyncClient,
-    *,
-    slug: str,
-) -> dict:
-    """Fallback: read the Polymarket page's dehydrated crypto-prices openPrice."""
-    start_iso, end_iso = _btc_five_minute_window_iso(slug)
-    response = await client.get(
-        f"https://polymarket.com/event/{slug}",
-        headers={"User-Agent": "Mozilla/5.0 PolyBob/0.1"},
-    )
-    response.raise_for_status()
-    price = _extract_btc_five_minute_page_target_price(response.text, start_iso, end_iso)
-    return {
-        "source": "polymarket_page_crypto_prices",
-        "price": price,
-        "field": "crypto-prices.openPrice",
-    }
-
-
-async def _fetch_btc_five_minute_page_target_price_safe(
-    client: httpx.AsyncClient,
-    slug: str,
-) -> dict | None:
-    async def load() -> dict:
-        # Prefer the JSON API; fall back to the page scrape if it is unavailable.
-        try:
-            return await fetch_btc_five_minute_api_target_price(client, slug=slug)
-        except Exception as api_exc:
-            logger.info(
-                "btc_five_minute_target_price_api_fallback",
-                slug=slug,
-                error=str(api_exc) or api_exc.__class__.__name__,
-            )
-            return await fetch_btc_five_minute_page_target_price(client, slug=slug)
-
-    try:
-        return await cached_api_response(f"btc_five_minute_page_target:{slug}", 20.0, load)
-    except Exception as exc:
-        logger.warning(
-            "btc_five_minute_target_price_unavailable",
-            slug=slug,
-            error=str(exc) or exc.__class__.__name__,
-        )
-        return None
-
-
-def _extract_btc_five_minute_page_target_price(html: str, start_iso: str, end_iso: str) -> float:
-    # Polymarket dehydrates the React Query cache into the page as a JSON string,
-    # so every quote may arrive backslash-escaped (\") rather than literal (").
-    # ``q`` matches a quote in either form so the parser survives both encodings.
-    q = r'\\?"'
-    start = re.escape(start_iso)
-    end = re.escape(end_iso)
-    pattern = re.compile(
-        rf'{q}state{q}:\{{{q}data{q}:\{{{q}openPrice{q}:(?P<open>[0-9]+(?:\.[0-9]+)?),'
-        rf'{q}closePrice{q}:(?:null|[0-9]+(?:\.[0-9]+)?)\}}'
-        rf'.{{0,1200}}?{q}queryKey{q}:\[{q}crypto-prices{q},{q}price{q},{q}BTC{q},'
-        rf'{q}{start}{q},{q}fiveminute{q},{q}{end}{q}\]',
-        re.DOTALL,
-    )
-    match = pattern.search(html)
-    if not match:
-        raise ValueError("Polymarket page crypto-prices target price not found")
-    return float(match.group("open"))
-
-
-def _btc_five_minute_slug_timestamp(slug: str) -> int:
-    match = re.fullmatch(r"btc-updown-5m-(\d+)", slug)
-    if not match:
-        raise ValueError("Invalid BTC 5m Polymarket slug")
-    return int(match.group(1))
-
-
-def _select_btc_five_minute_market(event_payload: Any) -> dict:
-    markets = event_payload.get("markets") if isinstance(event_payload, dict) else None
-    event_metadata = event_payload.get("eventMetadata") if isinstance(event_payload, dict) else None
-    if not isinstance(markets, list) or not markets:
-        raise ValueError("BTC 5m Gamma event has no markets")
-    for market in markets:
-        if not isinstance(market, dict):
-            continue
-        if bool(market.get("active", False)) and not bool(market.get("closed", False)):
-            selected = dict(market)
-            if event_metadata is not None and "eventMetadata" not in selected:
-                selected["eventMetadata"] = event_metadata
-            return selected
-    raise ValueError("BTC 5m Gamma event has no active market")
-
-
-async def fetch_btc_reference_aggregate(client: httpx.AsyncClient, *, now: datetime | None = None) -> dict:
-    received_at = now.astimezone(timezone.utc) if now else None
-    source_results = await asyncio.gather(
-        _fetch_btc_reference_source(
-            client,
-            source="binance_futures",
-            symbol="BTCUSDT",
-            url="https://fapi.binance.com/fapi/v1/ticker/price",
-            params={"symbol": "BTCUSDT"},
-            parser=_parse_binance_futures_ticker,
-            received_at=received_at,
-        ),
-        _fetch_btc_reference_source(
-            client,
-            source="okx_swap",
-            symbol="BTC-USDT-SWAP",
-            url="https://www.okx.com/api/v5/market/ticker",
-            params={"instId": "BTC-USDT-SWAP"},
-            headers={"User-Agent": "PolyBob/0.1"},
-            parser=_parse_okx_ticker,
-            received_at=received_at,
-        ),
-        _fetch_btc_reference_source(
-            client,
-            source="coinbase_spot",
-            symbol="BTC-USD",
-            url="https://api.exchange.coinbase.com/products/BTC-USD/ticker",
-            headers={"User-Agent": "PolyBob/0.1"},
-            parser=_parse_coinbase_ticker,
-            received_at=received_at,
-        ),
-    )
-    sources = [_classify_btc_reference_outlier(source, source_results) for source in source_results]
-    selected = _select_btc_reference_source(sources)
-    aggregate_received_at = datetime.now(timezone.utc).isoformat()
-    if selected is None:
-        return {
-            "source": "unavailable",
-            "symbol": "BTCUSDT",
-            "price": None,
-            "timestamp": aggregate_received_at,
-            "received_at": aggregate_received_at,
-            "latency_quality": "unavailable",
-            "sources": sources,
-        }
-    selected["selected"] = True
-    return {
-        "source": selected["source"],
-        "symbol": selected["symbol"],
-        "price": selected["price"],
-        "timestamp": selected.get("provider_timestamp") or selected["received_at"],
-        "received_at": selected["received_at"],
-        "provider_timestamp": selected.get("provider_timestamp"),
-        "round_trip_ms": selected["round_trip_ms"],
-        "staleness_ms": selected.get("staleness_ms"),
-        "latency_quality": selected["latency_quality"],
-        "sources": sources,
-    }
-
-
-async def _fetch_btc_micro_features_safe(client: httpx.AsyncClient) -> dict | None:
-    """Recent 1-minute BTC micro features: realized vol + last-minute momentum.
-
-    Feeds the calibrated digital-option probability and the optional momentum
-    indicator in the BTC 5m workbench. Fail-soft: any error returns None so the
-    model falls back to legacy behaviour.
-    """
-    async def load() -> dict | None:
-        response = await client.get(
-            "https://api.binance.com/api/v3/klines",
-            params={"symbol": "BTCUSDT", "interval": "1m", "limit": 30},
-            timeout=httpx.Timeout(4.0, connect=2.0),
-        )
-        response.raise_for_status()
-        closes = [float(row[4]) for row in response.json()]
-        if len(closes) < 10:
-            return None
-        rets = [math.log(closes[i] / closes[i - 1]) for i in range(1, len(closes)) if closes[i - 1] > 0]
-        if len(rets) < 5:
-            return None
-        mean = sum(rets) / len(rets)
-        var = sum((r - mean) ** 2 for r in rets) / (len(rets) - 1)
-        vol = math.sqrt(var)
-        out: dict = {"momentum_1m": rets[-1]}
-        if vol > 0:
-            out["return_volatility"] = vol
-        return out
-
-    try:
-        return await cached_api_response("btc_micro_features_1m", 15.0, load)
-    except Exception as exc:
-        logger.info("btc_micro_features_unavailable", error=str(exc) or exc.__class__.__name__)
-        return None
-
-
-async def _fetch_btc_reference_aggregate_safe(client: httpx.AsyncClient) -> dict:
-    async def load() -> dict:
-        return await fetch_btc_reference_aggregate(client)
-
-    try:
-        return await cached_api_response("btc_reference_aggregate", 1.0, load)
-    except Exception as exc:
-        return {
-            "source": "unavailable",
-            "symbol": "BTCUSDT",
-            "price": None,
-            "timestamp": datetime.utcnow().isoformat(),
-            "error": str(exc) or exc.__class__.__name__,
-            "latency_quality": "unavailable",
-            "sources": [],
-        }
-
-
-async def _fetch_btc_reference_source(
-    client: httpx.AsyncClient,
-    *,
-    source: str,
-    symbol: str,
-    url: str,
-    parser: Callable[[Any], tuple[float, datetime | None]],
-    received_at: datetime | None,
-    params: dict[str, str] | None = None,
-    headers: dict[str, str] | None = None,
-) -> dict:
-    started = time.perf_counter()
-    try:
-        response = await client.get(url, params=params, headers=headers)
-        response.raise_for_status()
-        round_trip_ms = max(0, int((time.perf_counter() - started) * 1000))
-        completed_at = received_at or datetime.now(timezone.utc)
-        price, provider_timestamp = parser(response.json())
-        provider_timestamp = provider_timestamp.astimezone(timezone.utc) if provider_timestamp else None
-        staleness_ms = (
-            max(0, int((completed_at - provider_timestamp).total_seconds() * 1000))
-            if provider_timestamp
-            else None
-        )
-        return {
-            "source": source,
-            "symbol": symbol,
-            "status": "ok",
-            "selected": False,
-            "price": price,
-            "provider_timestamp": provider_timestamp.isoformat() if provider_timestamp else None,
-            "received_at": completed_at.isoformat(),
-            "round_trip_ms": round_trip_ms,
-            "staleness_ms": staleness_ms,
-            "latency_quality": "provider_timestamp" if provider_timestamp else "transport_only",
-        }
-    except Exception as exc:
-        return {
-            "source": source,
-            "symbol": symbol,
-            "status": "error",
-            "selected": False,
-            "price": None,
-            "provider_timestamp": None,
-            "received_at": (received_at or datetime.now(timezone.utc)).isoformat(),
-            "round_trip_ms": max(0, int((time.perf_counter() - started) * 1000)),
-            "staleness_ms": None,
-            "latency_quality": "unavailable",
-            "error": str(exc) or exc.__class__.__name__,
-        }
-
-
-def _parse_binance_futures_ticker(payload: Any) -> tuple[float, datetime | None]:
-    price = float(payload["price"])
-    timestamp = _timestamp_ms_to_datetime(payload.get("time"))
-    return price, timestamp
-
-
-def _parse_okx_ticker(payload: Any) -> tuple[float, datetime | None]:
-    data = payload.get("data")
-    if not isinstance(data, list) or not data:
-        raise ValueError("OKX ticker payload missing data")
-    item = data[0]
-    return float(item["last"]), _timestamp_ms_to_datetime(item.get("ts"))
-
-
-def _parse_coinbase_ticker(payload: Any) -> tuple[float, datetime | None]:
-    provider_timestamp = None
-    raw_time = payload.get("time")
-    if raw_time:
-        provider_timestamp = datetime.fromisoformat(str(raw_time).replace("Z", "+00:00"))
-    return float(payload["price"]), provider_timestamp
-
-
-def _timestamp_ms_to_datetime(value: Any) -> datetime | None:
-    if value in (None, ""):
-        return None
-    return datetime.fromtimestamp(float(value) / 1000, tz=timezone.utc)
-
-
-def _classify_btc_reference_outlier(source: dict, all_sources: list[dict]) -> dict:
-    if source.get("status") != "ok" or not isinstance(source.get("price"), (int, float)):
-        return source
-    valid_prices = [
-        item["price"]
-        for item in all_sources
-        if item.get("status") == "ok" and isinstance(item.get("price"), (int, float))
-    ]
-    if len(valid_prices) < 2:
-        return source
-    if len(valid_prices) == 2:
-        low, high = sorted(valid_prices)
-        if low > 0 and (high - low) / low > 0.01 and source["price"] == high:
-            return {**source, "status": "outlier", "selected": False}
-        return source
-    sorted_prices = sorted(valid_prices)
-    midpoint = len(sorted_prices) // 2
-    median = (
-        sorted_prices[midpoint]
-        if len(sorted_prices) % 2 == 1
-        else (sorted_prices[midpoint - 1] + sorted_prices[midpoint]) / 2
-    )
-    if median > 0 and abs(source["price"] - median) / median > 0.01:
-        return {**source, "status": "outlier", "selected": False}
-    return source
-
-
-def _select_btc_reference_source(sources: list[dict]) -> dict | None:
-    candidates = [
-        source
-        for source in sources
-        if source.get("status") == "ok" and isinstance(source.get("price"), (int, float))
-    ]
-    if not candidates:
-        return None
-    return min(
-        candidates,
-        key=lambda source: (
-            0 if source.get("latency_quality") == "provider_timestamp" else 1,
-            source.get("staleness_ms") if source.get("staleness_ms") is not None else 10**9,
-            source.get("round_trip_ms") if source.get("round_trip_ms") is not None else 10**9,
-        ),
-    )
 
 
 @app.get("/api/pairs/snapshots")
@@ -1871,200 +1087,6 @@ def serialize_market_news(result: KnowledgeSearchResult) -> dict[str, Any]:
         "analysis_engine": metadata.get("analysis_engine", "heuristic"),
         "impacts": _news_impacts(result),
     }
-
-
-@app.get("/api/verdict")
-async def get_investment_verdict(symbol: str, domain: str = "auto"):
-    """投资准则判定——一个标的当前该不该动手,以及依据是什么。
-
-    汇总:真实数据可信度、该市场是否有通过门禁的优势、风险是否已定义、
-    是否正在犯本项目实测过的错误、以及当前是顺势还是逆势。默认结论是"等待"。
-    """
-    from libs.quant.verdict import judge
-
-    signals_payload = await get_wisdom_signals(symbol=symbol, domain=domain)
-    resolved_domain = signals_payload.get("domain", domain)
-
-    registry = get_promotion_registry()
-    registry.reload()
-    promoted = [
-        record.strategy for record in registry.promoted_pairs()
-        if _promotion_domain(record) == resolved_domain
-    ]
-
-    # Trap detection uses the same measured findings, evaluated on live data.
-    trap_flags: dict[str, bool] = {}
-    if resolved_domain == "altcoin":
-        try:
-            from libs.data.flow_signals import fetch_retail_positioning
-
-            points = await asyncio.to_thread(
-                fetch_retail_positioning, symbol.split("-")[0]
-            )
-            if len(points) >= 31:
-                recent = [p.long_short_ratio for p in points[-31:-1]]
-                threshold = sorted(recent)[int(len(recent) * 0.8)]
-                trap_flags["altcoin"] = points[-1].long_short_ratio > threshold
-        except Exception as exc:  # noqa: BLE001 - absence of data is not a trap
-            logger.info("verdict_trap_check_unavailable", error=str(exc))
-
-    resolved_symbol = signals_payload.get("symbol", symbol)
-    bars = await _fetch_verdict_bars(resolved_symbol, resolved_domain)
-    trend = _classify_trend_or_unknown(bars)
-    volume = _classify_volume_or_unknown(bars, resolved_domain)
-
-    report = judge(
-        symbol=signals_payload.get("symbol", symbol),
-        domain=resolved_domain,
-        data_source=signals_payload.get("source"),
-        as_of=signals_payload.get("as_of"),
-        bars=int(signals_payload.get("bars", 0)),
-        promoted_edges=promoted,
-        signals=signals_payload.get("signals", []),
-        trap_flags=trap_flags,
-        trend=trend,
-        volume=volume,
-    )
-    payload = report.to_dict()
-    payload["trend"] = trend.to_dict()
-    # ``null`` when the instrument has no volume concept at all. Polymarket
-    # BTC-5m publishes an order book, not traded-volume bars, and no volume
-    # number is fabricated from depth — see libs/quant/volume_state.py.
-    payload["volume"] = volume.to_dict() if volume is not None else None
-    return payload
-
-
-# Markets whose daily bars this endpoint can fetch. Anything else has no daily
-# volume concept here, and gets an honest ``null`` rather than an invented one.
-_VERDICT_VOLUME_DOMAINS = frozenset({"a_share", "altcoin", "us_equity"})
-
-
-async def _fetch_verdict_bars(symbol: str, domain: str):
-    """Real daily bars for the verdict checks, or ``None`` on any absence.
-
-    Shared by the trend and volume classifiers so one provider call serves both;
-    the cache key is unchanged so existing warm entries still hit.
-    """
-    from libs.data.real_sources import (
-        fetch_a_share_daily, fetch_altcoin_daily, fetch_us_equity_daily,
-    )
-
-    fetchers = {"a_share": fetch_a_share_daily, "altcoin": fetch_altcoin_daily,
-                "us_equity": fetch_us_equity_daily}
-    fetcher = fetchers.get(domain)
-    if fetcher is None:
-        return None
-    try:
-        return await cached_api_response(
-            f"trend_bars:{domain}:{symbol}", 300.0,
-            lambda: asyncio.to_thread(fetcher, symbol),
-        )
-    except Exception as exc:  # noqa: BLE001 - DataUnavailable et al; absence is not a signal
-        logger.info("verdict_bars_unavailable", symbol=symbol, error=str(exc))
-        return None
-
-
-def _classify_trend_or_unknown(bars):
-    """Bars -> trend classification, or an honest ``unknown``.
-
-    A provider outage must not silently become "no trend concern": the classifier
-    returns an ``unknown`` state, which the verdict engine treats as *not*
-    supporting ACT.
-    """
-    from libs.quant.trend_state import classify_trend
-
-    return classify_trend(bars)
-
-
-def _classify_volume_or_unknown(bars, domain: str):
-    """Bars -> volume-price classification, ``None`` where volume does not exist.
-
-    ``None`` means "this instrument has no volume concept" (the frontend renders
-    nothing); an ``unavailable`` state means "it should have one but we could not
-    read it". Both map to ``UNKNOWN`` in the verdict, never to a silent pass.
-    """
-    from libs.quant.volume_state import classify_volume
-
-    if domain not in _VERDICT_VOLUME_DOMAINS:
-        return None
-    return classify_volume(bars)
-
-
-def _promotion_domain(record) -> str:
-    """Map a promoted record to its market, for verdict filtering."""
-    strategy = record.strategy
-    if "a_share" in strategy or "billboard" in strategy:
-        return "a_share"
-    if "altcoin" in strategy or "crowding" in strategy:
-        return "altcoin"
-    if "insider" in strategy or "us_" in strategy:
-        return "us_equity"
-    return "unknown"
-
-
-@app.get("/api/wisdom/signals")
-async def get_wisdom_signals(symbol: str, domain: str = "auto"):
-    """《炒股的智慧》临界点信号——同一套方法接入任一标的。
-
-    ``domain`` 为 ``auto`` 时按代码推断:6位数字=A股,``X-USDT``=山寨币,
-    其余=美股。返回买卖信号、止损位与书中的仓位规则。
-    """
-    from libs.data.real_sources import (
-        DataUnavailable, fetch_a_share_daily, fetch_altcoin_daily, fetch_us_equity_daily,
-    )
-    from strategies import trading_wisdom as wisdom
-
-    clean = symbol.strip().upper()
-    if domain == "auto":
-        code = clean.split(".")[0]
-        if code.isdigit() and len(code) == 6:
-            domain = "a_share"
-        elif clean.endswith("-USDT") or clean.endswith("-USD"):
-            domain = "altcoin"
-        else:
-            domain = "us_equity"
-
-    fetchers = {"a_share": fetch_a_share_daily, "altcoin": fetch_altcoin_daily,
-                "us_equity": fetch_us_equity_daily}
-    if domain not in fetchers:
-        raise HTTPException(status_code=400, detail=f"unknown domain '{domain}'")
-
-    def load() -> dict:
-        try:
-            bars = fetchers[domain](clean)
-        except DataUnavailable as exc:
-            # Real data or nothing — never synthesise a price series to draw on.
-            raise HTTPException(status_code=502, detail=f"真实行情不可用: {exc}") from exc
-
-        series = wisdom.Bars(
-            closes=bars.closes, highs=bars.highs, lows=bars.lows,
-            opens=bars.opens, volumes=bars.volumes, dates=bars.dates,
-        )
-        signals = wisdom.detect_signals(series)
-        last_close = float(bars.closes[-1]) if bars.closes else 0.0
-        buys = [s for s in signals if s.direction is wisdom.Direction.BUY]
-        sizing = None
-        if buys and buys[0].stop_price:
-            sizing = wisdom.position_size(
-                capital=100_000.0, entry=buys[0].price, stop=buys[0].stop_price
-            )
-        return {
-            "symbol": bars.symbol, "domain": domain, "source": bars.source,
-            "as_of": bars.dates[-1] if bars.dates else None,
-            "last_close": last_close, "bars": len(bars),
-            "signals": [s.to_dict() for s in signals],
-            "position_sizing": sizing,
-            "rules": {
-                "stop_loss_max_pct": wisdom.MAX_STOP_PCT,
-                "capital_parts": wisdom.CAPITAL_PARTS,
-                "min_risk_reward": wisdom.MIN_RISK_REWARD,
-            },
-            "timestamp": datetime.utcnow().isoformat(),
-        }
-
-    return await cached_api_response(
-        f"wisdom:{domain}:{clean}", 300.0, lambda: asyncio.to_thread(load)
-    )
 
 
 @app.get("/api/market-sentiment")
@@ -2278,11 +1300,12 @@ async def get_promotion_board():
     return {
         "require_strategy_promotion": get_settings().require_strategy_promotion,
         **registry.to_dict(),
-        "records": [
-            {"strategy": r.strategy, "instrument": r.instrument, "approved": r.approved,
-             "sharpe": r.sharpe, "dsr": r.dsr, "failed": r.failed}
-            for r in registry._records
-        ],
+        # 整条记录透出。原来只发 6 个字段,而前端要的 win_rate / mean_excess_pct /
+        # t_stat / n / role 一个都不在里面——于是首页把胜率渲染成 NaN%、把收益渲染成
+        # 一个编造的红色 0.00%,还把 role=avoid 的回避过滤器算进"已通过门禁"。
+        # r.to_dict(), not asdict(r): the evidence age and expiry verdict are
+        # computed properties (they depend on today), and asdict would drop them.
+        "records": [r.to_dict() for r in registry.records()],
     }
 
 
@@ -2294,22 +1317,30 @@ async def create_strategy_intent(payload: dict | None = None):
     创建实盘意图（fail-closed）；未达标的一律拒绝，留在 lab。
     """
     payload = payload or {}
-    strategy_id = str(payload.get("strategy_id", "manual_spread_arbitrage"))
-    if get_settings().require_strategy_promotion:
-        registry = get_promotion_registry()
-        if not registry.is_promoted(strategy_id):
-            raise HTTPException(
-                status_code=403,
-                detail=f"策略 '{strategy_id}' 未过晋级门禁，留 lab：{registry.reason_blocked(strategy_id)}",
-            )
-    result = await require_intent_execution_service().create_intent(
-        strategy_id=strategy_id,
-        rationale=str(payload.get("rationale", "manual arbitrage intent")),
-        expected_edge_bps=float(payload.get("expected_edge_bps", 0.0)),
-        confidence=float(payload.get("confidence", 0.5)),
-        legs=payload.get("legs") or [],
-        metadata=payload.get("metadata"),
-    )
+    strategy_id = str(payload.get("strategy_id") or "").strip()
+    if not strategy_id:
+        raise HTTPException(status_code=422, detail="strategy_id 必填")
+
+    # expected_edge_bps 和 confidence 必须由调用方给出。原来它们默认 0.0 / 0.5,
+    # 于是"没人告诉我这笔的预期收益"被写成"预期收益是 0",再原样落进 intent 和
+    # decision 审计表,看起来像一个算出来的数字。
+    for field in ("expected_edge_bps", "confidence"):
+        if payload.get(field) is None:
+            raise HTTPException(status_code=422, detail=f"{field} 必填，不接受默认值")
+
+    # 门禁已下沉到 IntentExecutionService.create_intent(唯一收口点),
+    # 这里只负责把它的异常翻成 HTTP 403。
+    try:
+        result = await require_intent_execution_service().create_intent(
+            strategy_id=strategy_id,
+            rationale=str(payload.get("rationale", "manual intent")),
+            expected_edge_bps=float(payload["expected_edge_bps"]),
+            confidence=float(payload["confidence"]),
+            legs=payload.get("legs") or [],
+            metadata=payload.get("metadata"),
+        )
+    except StrategyNotPromoted as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
     clear_api_response_cache()
     return result
 
@@ -2442,7 +1473,7 @@ async def list_simulation_presets():
     ``suggested_universe`` 中的 ``MARKET_ID_*`` 占位符会在此处替换为
     market_discovery 提供的真实、已就绪的市场 id，让预设开箱即跑，无需手改。
     """
-    from services.simulation import presets as sim_presets
+    from modules.simulation import presets as sim_presets
 
     presets = [await _resolve_preset_universe(preset) for preset in sim_presets.list_presets()]
     return {"presets": presets}
@@ -2455,7 +1486,7 @@ async def create_simulation_run(payload: dict | None = None):
     可传 ``preset_id`` 采用预设测试类型：预设提供 strategy_id / config /
     建议标的作为基底，请求里显式给出的字段覆盖预设。
     """
-    from services.simulation import presets as sim_presets
+    from modules.simulation import presets as sim_presets
 
     service = require_simulation_service()
     payload = payload or {}
@@ -2715,7 +1746,9 @@ async def get_risk_summary():
 async def get_realtime_market():
     """获取实时 BTC 行情。"""
     try:
-        reference = await _fetch_btc_reference_aggregate_safe(get_shared_http_client())
+        reference = await btc_workbench._fetch_btc_reference_aggregate_safe(
+            get_shared_http_client()
+        )
         if reference.get("price") is None:
             return {"error": reference.get("error") or "BTC reference unavailable", "sources": reference.get("sources", [])}
         return reference

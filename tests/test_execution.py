@@ -4,8 +4,8 @@ import asyncio
 from libs.crypto.binance_client import BinanceClient
 from libs.crypto.hyperliquid_client import HyperliquidClient
 from libs.schemas import ExecutionVenue
-from services.execution_engine.basket_executor import BasketExecutor
-from services.execution_engine.contract_executor import ContractExecutor
+from modules.execution_engine.basket_executor import BasketExecutor
+from modules.execution_engine.contract_executor import ContractExecutor
 
 def test_paper_trading():
     """测试纸上交易"""

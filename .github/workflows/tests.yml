@@ -26,17 +26,43 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
 
-    - name: Run unit tests
+    # The whole suite, not three subdirectories. Most tests live directly in
+    # tests/, so the previous three steps silently skipped them — including the
+    # check that the promotion board still matches the evidence it claims.
+    # Live-provider tests are excluded by pytest.ini's `-m "not real_data"`.
+    - name: Run test suite
       run: |
-        pytest tests/unit/ -v --cov=libs --cov=strategies --cov-report=xml
-
-    - name: Run integration tests
-      run: |
-        pytest tests/integration/ -v
+        pytest -v --cov=libs --cov=strategies --cov-report=xml
 
     - name: Run backtest validation
       run: |
         pytest tests/backtest/ -v -m backtest
+
+    # The gate that decides what may reach the execution desk must be a pure
+    # function of the committed experiment output. If someone re-ran an
+    # experiment without regenerating the board, or edited a row by hand, this
+    # fails here rather than being discovered by trading on it.
+    - name: Promotion board matches the evidence
+      run: |
+        python scripts/event_study_board.py --check
+
+    - name: Nothing may reintroduce an overwritable cache
+      run: |
+        # data/market_cache/ was 613 committed JSON files with no observation
+        # time, which is why the insider study returned n=753 one day and n=667
+        # the next. It is now a rebuildable cache, and the *store* is the
+        # evidence substrate. Re-tracking either would restore the defect.
+        if git ls-files --error-unmatch data/market_cache >/dev/null 2>&1; then
+          echo "data/market_cache is tracked again — see .gitignore"; exit 1
+        fi
+        if git ls-files data/store | grep -q .; then
+          echo "data/store is tracked — it is derived, rebuild with warm_cache.py"; exit 1
+        fi
+        # The evidence itself must stay tracked.
+        for f in data/promotion_board.json data/hypothesis_registry.json; do
+          git ls-files --error-unmatch "$f" >/dev/null || { echo "$f untracked"; exit 1; }
+        done
+        echo "data boundary intact"
 
     - name: Upload coverage
       uses: codecov/codecov-action@v3

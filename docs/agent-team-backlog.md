@@ -97,13 +97,13 @@ Owner: Platform Lead
 
 Why:
 
-- `apps/api/main.py` and `services/api_server/main.py` overlap and diverge.
+- `apps/api/main.py` and `modules/api_server/main.py` overlap and diverge.
 - The old API can bypass current lab guard behavior.
 
 Scope:
 
-- `services/api_server/main.py`
-- `services/api_server/run.sh`
+- `modules/api_server/main.py`
+- `modules/api_server/run.sh`
 - `README.md`
 - `start.sh`
 - `start-all.sh`
