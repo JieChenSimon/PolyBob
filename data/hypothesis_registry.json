@@ -271,21 +271,29 @@
       },
       "result": {
         "strategy": "内部人卖出集群(≥3人同日)",
-        "n": 145,
+        "signals_found": 148,
+        "dropped": {
+          "no_prices": 0,
+          "window_too_short": 2,
+          "no_benchmark": 0,
+          "no_carry": 0
+        },
+        "measurable_rate": 0.9865,
+        "n": 146,
         "n_clusters": 47,
-        "mean_excess_pct": 0.08,
-        "median_excess_pct": -0.243,
-        "win_rate": 0.4621,
-        "t_stat": -0.82,
-        "t_stat_iid": 0.24,
+        "mean_excess_pct": -0.152,
+        "median_excess_pct": 0.19,
+        "win_rate": 0.5411,
+        "t_stat": 0.62,
+        "t_stat_iid": -0.46,
         "t_hurdle": 4.19,
         "significant": false,
         "bootstrap_ci_pct": [
-          -1.327,
-          0.576
+          -0.673,
+          1.23
         ],
-        "sign_test_p": 0.4064,
-        "skew_ratio": -0.33,
+        "sign_test_p": 0.3627,
+        "skew_ratio": -0.8,
         "cluster_by": "week",
         "inference": "cluster_robust",
         "warnings": [
@@ -310,6 +318,14 @@
       },
       "result": {
         "strategy": "散户极度做多后 做空(含资金费)",
+        "signals_found": 367,
+        "dropped": {
+          "no_prices": 0,
+          "window_too_short": 13,
+          "no_benchmark": 0,
+          "no_carry": 106
+        },
+        "measurable_rate": 0.6757,
         "n": 248,
         "n_clusters": 14,
         "mean_excess_pct": 3.088,
@@ -349,6 +365,13 @@
       },
       "result": {
         "strategy": "内部人集群买入(≥2人)",
+        "signals_found": 1141,
+        "dropped": {
+          "no_prices": 43,
+          "window_too_short": 13,
+          "no_benchmark": 0
+        },
+        "measurable_rate": 0.9509,
         "n": 1085,
         "n_clusters": 9,
         "mean_excess_pct": 4.728,
@@ -372,6 +395,13 @@
         ],
         "control_single_buy": {
           "strategy": "对照:单人买入",
+          "signals_found": 2149,
+          "dropped": {
+            "no_prices": 61,
+            "window_too_short": 23,
+            "no_benchmark": 0
+          },
+          "measurable_rate": 0.9609,
           "n": 2065,
           "n_clusters": 9,
           "mean_excess_pct": 2.56,

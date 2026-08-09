@@ -216,3 +216,67 @@ def test_an_avoid_signal_is_never_priced_as_a_position():
     signal = Signal(symbol="X", fired_on="2026-03-02", direction=Direction.AVOID,
                     evidence_zh="回避")
     assert signal.is_position is False
+
+
+# ------------------------------------------------- the consolidation must stick
+def test_no_script_owns_its_own_exit_rule():
+    """Guard against the fifth implementation.
+
+    The insider edge existed three times and only the study held an exit rule, so
+    the board approved a strategy with a 20-session hold while the product surfaced
+    a signal with none. Building a shared replay does not fix that on its own — the
+    first version of this work *added* a fourth implementation and left the scripts
+    on their own ``forward_return``. This test is what makes the consolidation
+    durable: pricing lives in one module, and a new one has to be a deliberate act.
+    """
+    import pathlib
+    import re
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    allowed = {root / "libs" / "quant" / "edge_backtest.py"}
+    # a_share_flow.capturable_return is the exchange's own T+1/limit-up mechanics,
+    # not an exit rule: it answers "what part of this move was capturable at all",
+    # which is a data question about that market and has no analogue elsewhere.
+    allowed.add(root / "libs" / "data" / "a_share_flow.py")
+
+    pattern = re.compile(r"^def (forward_return|_forward|capturable_return)\b", re.M)
+    offenders = []
+    for path in list((root / "scripts").rglob("*.py")) + list((root / "libs").rglob("*.py")):
+        if path in allowed or "__pycache__" in path.parts:
+            continue
+        if pattern.search(path.read_text()):
+            offenders.append(str(path.relative_to(root)))
+
+    assert not offenders, (
+        "these files define their own entry/exit pricing; use "
+        "libs.quant.edge_backtest so the board and the page cannot disagree: "
+        + ", ".join(offenders)
+    )
+
+
+def test_carry_is_dropped_rather_than_assumed_zero():
+    """A perp short selected on crowded longs is selected on *being paid*.
+
+    Assuming zero funding there does not add noise, it biases the one leg being
+    traded — and biases it against the edge, which looks conservative and is simply
+    wrong.
+    """
+    _write("X", {"2026-03-02": 100.0, "2026-03-03": 90.0})
+    result = edge_backtest.replay_events(
+        [("X", "2026-03-02")], direction=Direction.SHORT, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+        carry=lambda *_: None,
+    )
+    assert result.trades == []
+    assert result.dropped_no_carry == 1
+
+
+def test_measured_carry_is_added_to_the_short():
+    _write("X", {"2026-03-02": 100.0, "2026-03-03": 90.0})
+    result = edge_backtest.replay_events(
+        [("X", "2026-03-02")], direction=Direction.SHORT, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+        carry=lambda *_: 0.003,
+    )
+    # +10% from the price fall, plus 0.3% of funding collected.
+    assert result.trades[0].excess == pytest.approx(0.103)

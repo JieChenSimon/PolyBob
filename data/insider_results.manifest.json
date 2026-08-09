@@ -1,6 +1,6 @@
 {
   "experiment": "insider_cluster_buy",
-  "as_of": "2026-08-09T06:30:34.006409+00:00",
+  "as_of": "2026-08-09T08:09:29.906401+00:00",
   "params": {
     "quarters": [
       [
@@ -24,21 +24,14 @@
     "benchmark": "SPY"
   },
   "code": {
-    "commit": "2ab7225c87ff21dc69dff700486c4cb1f89cd466",
+    "commit": "de21d51475803718182282141a2c0e8387295f15",
     "dirty": true,
-    "dirty_files": 104,
+    "dirty_files": 1,
     "dirty_sample": [
-      "apps/api/btc_five_minute.py",
-      "apps/api/deps.py",
-      "apps/api/edges_api.py",
-      "apps/api/journal_api.py",
-      "apps/api/main.py",
-      "apps/api/portfolio_api.py",
-      "apps/api/verdict_api.py",
-      "apps/dashboard/app/crypto/[symbol]/"
+      "scripts/insider_experiment.py"
     ]
   },
-  "started_at": "2026-08-09T06:30:34.034074+00:00",
+  "started_at": "2026-08-09T08:09:29.927602+00:00",
   "inputs": {
     "insider_filings": {
       "quarters": 3,

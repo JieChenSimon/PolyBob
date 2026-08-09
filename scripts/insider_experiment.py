@@ -37,7 +37,8 @@ from libs.data.real_sources import DataUnavailable, fetch_us_equity_daily
 from libs.data.sec_insider import SecDataUnavailable, cluster_buys, fetch_insider_trades
 from libs.data import run_manifest
 from libs.data.universe import US_BENCHMARK
-from libs.quant import clustered_inference
+from libs.quant import edge_backtest
+from libs.quant.edge import Direction
 from libs.quant.hypothesis import Hypothesis, HypothesisRegistry, Rationale
 from libs.quant.pbo import deflated_t_stat_threshold
 
@@ -72,35 +73,39 @@ def preregister(registry: HypothesisRegistry) -> None:
     ))
 
 
-def forward_return(dates: list[str], closes: list[float], date: str, hold: int) -> float | None:
-    """Enter at the first close on/after the filing date; exit ``hold`` sessions later."""
-    idx = next((i for i, d in enumerate(dates) if d >= date), None)
-    if idx is None or idx + hold >= len(closes) or closes[idx] <= 0:
-        return None
-    return closes[idx + hold] / closes[idx] - 1.0
+def summarise(
+    name: str, events: list[tuple[str, str]], n_trials: int, as_of
+) -> dict:
+    """Price one group through the shared replay and return its evidence.
 
+    ``events`` is (symbol, filing_date) — the *signals*. This script no longer owns
+    an exit rule. It used to hold its own ``forward_return``, and so did
+    ``us_crypto_experiment``, and the live scanner held none at all: the board
+    approved a 20-session hold measured against SPY net of costs while the product
+    surfaced a signal with no exit. Those were different objects and only one of
+    them had a t-statistic.
 
-def summarise(name: str, events: list[tuple[float, str]], n_trials: int) -> dict:
-    """One group's evidence, with the dates kept so dependence can be corrected.
-
-    ``events`` is (excess_return, event_date). The date is not decoration: it is
-    what makes the standard error computable. Without it the only available
-    formula is the i.i.d. one, which is wrong here.
+    The hold, the benchmark, the entry timing and the cost now come from
+    :mod:`libs.quant.edge_backtest`, which the live path reads too. Prices come from
+    the bitemporal store at ``as_of``, so the sample is fixed and reproducible
+    rather than being whatever the providers last returned.
     """
-    usable = [(r, d) for r, d in events if np.isfinite(r)]
-    if len(usable) < 100:
-        return {"strategy": name, "n": len(usable), "note": "sample too small — not tested"}
-
-    result = clustered_inference.analyse(
-        [r for r, _ in usable], [d for _, d in usable],
-        t_hurdle=deflated_t_stat_threshold(n_trials), hold_days=HOLD_DAYS,
+    result = edge_backtest.replay_events(
+        events,
+        direction=Direction.LONG,
+        hold_sessions=HOLD_DAYS,
+        benchmark=US_BENCHMARK,
+        cost_bps=COST_BPS,
+        as_of=as_of,
+        t_hurdle=deflated_t_stat_threshold(n_trials),
+        edge_id=name,
     )
-    row = {"strategy": name, **result.to_dict()}
-    # The raw pairs travel with the summary so ``event_study_board.py --check``
-    # can recompute the statistic instead of copying it. A number nobody can
-    # recompute is the reason the old board was untrustworthy.
-    row["events"] = [{"date": d, "excess": round(r, 6)} for r, d in sorted(usable, key=lambda x: x[1])]
-    return row
+    if len(result.trades) < 100:
+        return {"strategy": name, "n": len(result.trades),
+                "note": "sample too small — not tested"}
+    payload = result.to_dict()
+    payload["strategy"] = name
+    return payload
 
 
 def main() -> None:
@@ -165,34 +170,24 @@ def main() -> None:
               f"取不到价格的标的若系统性偏向流动性差的小盘股,这个偏差会留在结果里")
 
     try:
-        spy = fetch_us_equity_daily(US_BENCHMARK, years=2)
+        fetch_us_equity_daily(US_BENCHMARK, years=2)      # warms the store
     except DataUnavailable as exc:
         print(f"基准不可用: {exc}")
         return
-    bench = {d: forward_return(spy.dates, spy.closes, d, HOLD_DAYS) for d in spy.dates}
 
-    def collect(events) -> list[tuple[float, str]]:
-        out: list[tuple[float, str]] = []
-        for symbol, date in events:
-            data = prices.get(symbol)
-            if not data:
-                continue
-            r = forward_return(data[0], data[1], date, HOLD_DAYS)
-            b = bench.get(date)
-            if b is None:                       # filing on a non-trading day
-                b = next((bench[d] for d in spy.dates if d >= date and bench.get(d) is not None), None)
-            if r is None or b is None:
-                continue
-            out.append((r - b - COST_BPS / 1e4, date))
-        return out
-
-    cluster_rets = collect(clusters)
-    single_rets = collect(singles)
+    # Every fetch above mirrored into the bitemporal store, so the replay reads
+    # prices *as they were known at* the manifest's cut rather than as they look
+    # now. Restated, backfilled and survivorship-cleaned history is what makes a
+    # backtest describe a strategy nobody could have run.
     n = registry.n_trials
     results = [
-        summarise("内部人集群买入(≥2人)", cluster_rets, n),
-        summarise("对照:单人买入", single_rets, n),
+        summarise("内部人集群买入(≥2人)", sorted(clusters), n, manifest.as_of),
+        summarise("对照:单人买入", sorted(singles), n, manifest.as_of),
     ]
+    for row in results:
+        if row.get("dropped"):
+            print(f"  {row['strategy']}: 信号 {row['signals_found']},可定价 {row['n']} "
+                  f"(覆盖 {row['measurable_rate']*100:.1f}%),丢弃 {row['dropped']}")
 
     # Both t-statistics are printed side by side. The i.i.d. column is kept
     # visible precisely because it is the wrong one: seeing 5.40 next to 2.29 is

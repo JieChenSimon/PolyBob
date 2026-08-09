@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import datetime as dt
 from dataclasses import dataclass, field
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 import numpy as np
 
@@ -66,6 +66,7 @@ class BacktestResult:
     dropped_no_prices: int = 0
     dropped_short_window: int = 0
     dropped_no_benchmark: int = 0
+    dropped_no_carry: int = 0
     inference: ClusteredResult | None = None
 
     @property
@@ -88,6 +89,7 @@ class BacktestResult:
                 "no_prices": self.dropped_no_prices,
                 "window_too_short": self.dropped_short_window,
                 "no_benchmark": self.dropped_no_benchmark,
+                "no_carry": self.dropped_no_carry,
             },
             "measurable_rate": (
                 None if self.measurable_rate is None else round(self.measurable_rate, 4)
@@ -215,6 +217,7 @@ def replay_events(
     as_of: dt.datetime,
     t_hurdle: float,
     edge_id: str = "replay",
+    carry: Callable[[str, str, Sequence[str], int], float | None] | None = None,
 ) -> BacktestResult:
     """Price a list of ``(symbol, signal_date)`` events under one exit rule.
 
@@ -223,6 +226,18 @@ def replay_events(
     clusters in one pass over SEC data, and asking it symbol-by-symbol would mean
     re-parsing three quarters of filings per ticker. The *pricing* is identical to
     :func:`run`, which is the part that has to agree.
+
+    ``carry`` adds a holding cost or income that is not in the price: funding for a
+    perpetual short, borrow for an equity short, dividends for a long. It is called
+    with ``(symbol, signal_date, session_dates, entry_index)`` and must return the
+    total over the holding window, or ``None`` when it cannot be measured.
+
+    ``None`` **drops the event** rather than treating the carry as zero. That is not
+    fastidiousness: the altcoin edge is a perp short selected precisely on crowded
+    longs, which is the state where longs *pay* shorts. Assuming zero funding there
+    does not add noise, it biases the one leg being traded — and it biases it against
+    the edge, which is the direction that looks conservative and is actually just
+    wrong.
     """
     edge_result = BacktestResult(edge_id=edge_id)
     sign = -1.0 if direction is Direction.SHORT else 1.0
@@ -260,12 +275,20 @@ def replay_events(
                 continue
             benchmark_return = sign * (bench[1][b_window[1]] / bench[1][b_window[0]] - 1.0)
 
+        carry_return = 0.0
+        if carry is not None:
+            measured = carry(symbol, signal_date, dates, entry_i)
+            if measured is None:
+                edge_result.dropped_no_carry += 1
+                continue
+            carry_return = measured
+
         edge_result.trades.append(Trade(
             symbol=symbol, signal_date=signal_date,
             entry_date=dates[entry_i], exit_date=dates[exit_i],
             entry_price=closes[entry_i], exit_price=closes[exit_i],
             gross_return=gross, benchmark_return=benchmark_return,
-            excess=gross - (benchmark_return or 0.0) - cost,
+            excess=gross - (benchmark_return or 0.0) + carry_return - cost,
         ))
 
     if edge_result.trades:

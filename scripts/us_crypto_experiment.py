@@ -46,7 +46,8 @@ from libs.data.real_sources import (
 from libs.data.universe import ALTCOIN_MAJORS, US_BENCHMARK, US_LIQUID
 from libs.data import run_manifest
 from libs.quant.hypothesis import Hypothesis, HypothesisRegistry, Rationale
-from libs.quant import clustered_inference
+from libs.quant import edge_backtest
+from libs.quant.edge import Direction
 from libs.quant.pbo import deflated_t_stat_threshold
 
 # From libs/data/universe, not a literal. The universe is part of the hypothesis:
@@ -93,54 +94,69 @@ def preregister(registry: HypothesisRegistry) -> None:
     ))
 
 
-def forward_return(dates: list[str], closes: list[float], date: str, hold: int) -> float | None:
-    """Return from the close on/after ``date`` to ``hold`` sessions later."""
-    idx = next((i for i, d in enumerate(dates) if d >= date), None)
-    if idx is None or idx + hold >= len(closes) or closes[idx] <= 0:
-        return None
-    return closes[idx + hold] / closes[idx] - 1.0
+def funding_carry(rates_by_coin: dict[str, dict[str, float]]):
+    """Build the ``carry`` callback the shared replay uses for a perp short.
 
+    Funding is not colour on a perp short, it is part of its P&L. OKX settles every
+    8h and :func:`fetch_funding_rate_daily` averages the three settlements per UTC
+    day, so a day's total is ``3 × mean``. A positive rate means longs pay shorts —
+    exactly the state this hypothesis selects on, so assuming zero where it is
+    unmeasured would bias the one leg being traded.
 
-def funding_received(
-    funding: dict[str, float], dates: list[str], date: str, hold: int
-) -> float | None:
-    """Funding a short collects over the holding window, or ``None`` if unknown.
-
-    OKX settles funding every 8h and :func:`fetch_funding_rate_daily` averages
-    the three settlements per UTC day, so a day's total is ``3 × mean``. A
-    positive rate means longs pay shorts — which is precisely the state this
-    hypothesis selects on, so it must be measured rather than assumed.
+    Returning ``None`` makes :func:`edge_backtest.replay_events` drop the event.
+    That is the honest choice: without funding the short is not measurable, and a
+    missing number must never become a zero.
     """
-    idx = next((i for i, d in enumerate(dates) if d >= date), None)
-    if idx is None or idx + hold >= len(dates):
-        return None
-    window = dates[idx:idx + hold]
-    rates = [funding.get(d) for d in window]
-    if any(r is None for r in rates):
-        return None
-    return float(sum(r * 3.0 for r in rates))  # type: ignore[misc]
+    def carry(symbol: str, signal_date: str, dates, entry_index: int) -> float | None:
+        coin = symbol.split("-")[0]
+        rates = rates_by_coin.get(coin)
+        if not rates:
+            return None
+        window = list(dates[entry_index:entry_index + HOLD_DAYS])
+        if len(window) < HOLD_DAYS:
+            return None
+        values = [rates.get(d) for d in window]
+        if any(v is None for v in values):
+            return None
+        return float(sum(v * 3.0 for v in values))  # type: ignore[misc]
+
+    return carry
 
 
-def stats_block(name: str, events: list[tuple[float, str]], n_trials: int) -> dict:
-    """One group's evidence, clustered by calendar week.
+def stats_block(
+    name: str, events: list[tuple[str, str]], n_trials: int, as_of,
+    *, direction: Direction, cost_bps: float, benchmark: str | None = None,
+    carry=None,
+) -> dict:
+    """Price one group through the shared replay.
 
-    The altcoin side is where the i.i.d. assumption fails hardest. Eight majors
-    that co-move, crowding at the same moment in the same rally, held for five
-    days: the 241 "independent observations" live in 13 distinct weeks. Dividing
-    by ``sqrt(241)`` reported t=6.38; the weekly cluster gives t=1.74 against a
-    3.77 hurdle. Same data, same returns — only the denominator was wrong.
+    This script used to hold its own ``forward_return``, as did the insider study,
+    while the live scanner held none — so the board approved a strategy with an exit
+    rule and the product surfaced a signal without one. The hold, the entry timing,
+    the benchmark alignment and the cost now come from
+    :mod:`libs.quant.edge_backtest`, which the live path reads too.
+
+    The altcoin side is where the i.i.d. assumption failed hardest: eight majors
+    that co-move, crowding at the same moment, held five days. 248 events live in 14
+    distinct weeks, so ``sqrt(248)`` reported t=6.40 where the weekly cluster gives
+    1.81 against a 4.19 hurdle. Same returns, wrong denominator.
     """
-    usable = [(r, d) for r, d in events if np.isfinite(r)]
-    if len(usable) < 100:
-        return {"strategy": name, "n": len(usable), "note": "sample too small — not tested"}
-
-    result = clustered_inference.analyse(
-        [r for r, _ in usable], [d for _, d in usable],
-        t_hurdle=deflated_t_stat_threshold(n_trials), hold_days=HOLD_DAYS,
+    result = edge_backtest.replay_events(
+        events, direction=direction, hold_sessions=HOLD_DAYS,
+        benchmark=benchmark, cost_bps=cost_bps, as_of=as_of,
+        t_hurdle=deflated_t_stat_threshold(n_trials), edge_id=name, carry=carry,
     )
-    row = {"strategy": name, **result.to_dict()}
-    row["events"] = [{"date": d, "excess": round(r, 6)} for r, d in sorted(usable, key=lambda x: x[1])]
-    return row
+    if len(result.trades) < 100:
+        return {"strategy": name, "n": len(result.trades),
+                "note": "sample too small — not tested"}
+    payload = result.to_dict()
+    payload["strategy"] = name
+    # The figure is a *position's* return now, not the instrument's excess, so the
+    # leg has to say which side it is. Reading "-0.68%" without knowing it is a
+    # short inverts the conclusion.
+    payload["direction"] = direction.value
+    payload["carry_included"] = carry is not None
+    return payload
 
 
 def _report(results: list[dict]) -> None:
@@ -149,29 +165,31 @@ def _report(results: list[dict]) -> None:
         if "mean_excess_pct" not in r:
             print(f"  {r['strategy']:24} n={r['n']:<5} {r.get('note','')}")
             continue
+        side = {"long": "多", "short": "空", "avoid": "避"}.get(r.get("direction", ""), "?")
         print(f"  {r['strategy']:24} n={r['n']:<5} 独立单元={r['n_clusters']:<4} "
-              f"收益 {r['mean_excess_pct']:+.2f}% 胜率 {r['win_rate']*100:.1f}% "
+              f"[{side}]收益 {r['mean_excess_pct']:+.2f}% 胜率 {r['win_rate']*100:.1f}% "
               f"t(iid)={r['t_stat_iid']:+.2f} t(聚类/{r['cluster_by']})={r['t_stat']:+.2f} "
               f"(门槛 {r['t_hurdle']}) {'✅' if r['significant'] else '❌'}")
         for warning in r.get("warnings", []):
             print(f"    ⚠ {warning}")
 
 
-def run_us(registry: HypothesisRegistry) -> list[dict]:
+def run_us(registry: HypothesisRegistry, as_of) -> list[dict]:
     print("\n=== 美股:内部人卖出集群 ===")
     try:
-        spy = fetch_us_equity_daily(US_BENCHMARK)
+        fetch_us_equity_daily(US_BENCHMARK)      # warms the store
     except DataUnavailable as exc:
         print(f"  基准不可用: {exc}")
         return []
-    bench = {d: forward_return(spy.dates, spy.closes, d, HOLD_DAYS) for d in spy.dates}
 
-    cluster_rets: list[tuple[float, str]] = []
-    single_rets: list[tuple[float, str]] = []
+    # Collect *signals*, not returns. Pricing belongs to the shared replay so this
+    # study and the live scanner cannot drift apart on what the trade actually is.
+    clusters: list[tuple[str, str]] = []
+    singles: list[tuple[str, str]] = []
     for symbol in US_UNIVERSE:
         try:
             events = fetch_insider_transactions(symbol)
-            bars = fetch_us_equity_daily(symbol)
+            fetch_us_equity_daily(symbol)        # warms the store
         except (SignalDataUnavailable, DataUnavailable):
             continue
         by_date: dict[str, int] = defaultdict(int)
@@ -179,43 +197,42 @@ def run_us(registry: HypothesisRegistry) -> list[dict]:
             if e.is_open_market_sell and e.filing_date:
                 by_date[e.filing_date] += 1
         for date, count in by_date.items():
-            r = forward_return(bars.dates, bars.closes, date, HOLD_DAYS)
-            b = bench.get(date)
-            if r is None or b is None:
-                continue
-            excess = r - b - US_COST_BPS / 1e4
-            (cluster_rets if count >= 3 else single_rets).append((excess, date))
+            (clusters if count >= 3 else singles).append((symbol, date))
         time.sleep(1.05)      # respect the provider's rate limit
 
     n = registry.n_trials
+    # The pre-registered direction is short_or_avoid, so the sell-cluster leg is
+    # priced as a short. Testing it long would be reversing a falsified hypothesis.
     results = [
-        stats_block("内部人卖出集群(≥3人同日)", cluster_rets, n),
-        stats_block("对照:单人卖出", single_rets, n),
+        stats_block("内部人卖出集群(≥3人同日)", sorted(clusters), n, as_of,
+                    direction=Direction.SHORT, cost_bps=US_COST_BPS,
+                    benchmark=US_BENCHMARK),
+        stats_block("对照:单人卖出", sorted(singles), n, as_of,
+                    direction=Direction.SHORT, cost_bps=US_COST_BPS,
+                    benchmark=US_BENCHMARK),
     ]
     _report(results)
     return results
 
 
-def run_altcoins(registry: HypothesisRegistry) -> list[dict]:
+def run_altcoins(registry: HypothesisRegistry, as_of) -> list[dict]:
     print("\n=== 山寨币:散户拥挤度 ===")
-    crowded_long: list[tuple[float, str]] = []
-    crowded_short: list[tuple[float, str]] = []
-    short_rets: list[tuple[float, str]] = []
+    crowded_long: list[tuple[str, str]] = []
+    crowded_short: list[tuple[str, str]] = []
+    funding_by_coin: dict[str, dict[str, float]] = {}
+
     for ccy in ALTS:
         try:
             positioning = fetch_retail_positioning(ccy)
-            bars = fetch_altcoin_daily(f"{ccy}-USDT")
+            fetch_altcoin_daily(f"{ccy}-USDT")        # warms the store
         except (SignalDataUnavailable, DataUnavailable):
             continue
-        # The tradable leg is a perp short, and a perp short's P&L includes
-        # funding. Crowded longs pay shorts, so ignoring it does not merely add
-        # noise — it biases the one leg we intend to trade. Missing funding
-        # history means the short leg is not measurable for that coin, never
-        # assumed to be zero.
         try:
-            funding = fetch_funding_rate_daily(f"{ccy}-USDT")
+            funding_by_coin[ccy] = fetch_funding_rate_daily(f"{ccy}-USDT")
         except DataUnavailable:
-            funding = {}
+            # No funding history means the short leg is not measurable for this
+            # coin. The replay will drop those events rather than assume zero.
+            pass
 
         ratios = [p.long_short_ratio for p in positioning]
         for i, point in enumerate(positioning):
@@ -223,25 +240,24 @@ def run_altcoins(registry: HypothesisRegistry) -> list[dict]:
                 continue
             window = np.asarray(ratios[max(0, i - 30):i], dtype=float)
             hi, lo = np.percentile(window, 80), np.percentile(window, 20)
-            r = forward_return(bars.dates, bars.closes, point.date, HOLD_DAYS)
-            if r is None:
-                continue
-            net = r - ALT_COST_BPS / 1e4
             if point.long_short_ratio > hi:
-                crowded_long.append((net, point.date))
-                received = funding_received(funding, bars.dates, point.date, HOLD_DAYS)
-                if received is not None:
-                    # Short: the price fall is the gain, funding is collected,
-                    # and the round trip is charged once.
-                    short_rets.append((-r + received - ALT_COST_BPS / 1e4, point.date))
+                crowded_long.append((f"{ccy}-USDT", point.date))
             elif point.long_short_ratio < lo:
-                crowded_short.append((net, point.date))
+                crowded_short.append((f"{ccy}-USDT", point.date))
 
     n = registry.n_trials
     results = [
-        stats_block("散户极度做多后(预期跌)", crowded_long, n),
-        stats_block("散户极度做多后 做空(含资金费)", short_rets, n),
-        stats_block("散户极度做空后(预期涨)", crowded_short, n),
+        # The spot leg: does price fall after retail crowds long? No funding, because
+        # nothing is being financed — this is the mechanism check, not the trade.
+        stats_block("散户极度做多后(预期跌)", sorted(crowded_long), n, as_of,
+                    direction=Direction.LONG, cost_bps=ALT_COST_BPS),
+        # The tradable leg: a funded perp short. Funding is part of its P&L and
+        # unmeasured funding drops the event rather than becoming zero.
+        stats_block("散户极度做多后 做空(含资金费)", sorted(crowded_long), n, as_of,
+                    direction=Direction.SHORT, cost_bps=ALT_COST_BPS,
+                    carry=funding_carry(funding_by_coin)),
+        stats_block("散户极度做空后(预期涨)", sorted(crowded_short), n, as_of,
+                    direction=Direction.LONG, cost_bps=ALT_COST_BPS),
     ]
     _report(results)
     return results
@@ -258,8 +274,8 @@ def main() -> None:
     print(f"观测时点 as_of = {manifest.as_of.isoformat()}")
     print(f"预注册 2 个假设;累计试验 {registry.n_trials}")
 
-    us_results = run_us(registry)
-    alt_results = run_altcoins(registry)
+    us_results = run_us(registry, manifest.as_of)
+    alt_results = run_altcoins(registry, manifest.as_of)
     results = us_results + alt_results
     out = Path("data/us_crypto_results.json")
     out.write_text(json.dumps({
