@@ -29,6 +29,8 @@ from pathlib import Path
 import numpy as np
 
 from libs.quant.hypothesis import Hypothesis, HypothesisRegistry, Rationale
+from libs.data import run_manifest
+from libs.quant import clustered_inference
 from libs.quant.pbo import deflated_t_stat_threshold
 
 UA = {"User-Agent": "Mozilla/5.0 (PolyBob research)"}
@@ -77,6 +79,10 @@ def main() -> None:
     print("=" * 84)
     registry = HypothesisRegistry()
     preregister(registry)
+    manifest = run_manifest.pin("btc5m_model_vs_market", params={
+        "n_windows": N_WINDOWS, "edge_threshold": EDGE_THRESHOLD, "fee": FEE,
+    })
+    print(f"观测时点 as_of = {manifest.as_of.isoformat()}")
     print(f"累计试验 {registry.n_trials}\n")
 
     now = int(time.time())
@@ -129,7 +135,14 @@ def main() -> None:
             continue
         remaining_min = max((window_start + 300 - decision_ts) / 60.0, 0.1)
         model_p = normal_cdf(math.log(current / strike) / (sigma * math.sqrt(remaining_min)))
-        samples.append((model_p, market_p, outcome_up))
+        # The window's own date travels with the sample. Without it the only
+        # available standard error is the i.i.d. one, and consecutive 5-minute
+        # windows are not independent draws: they share the same BTC price path and
+        # the same volatility regime, so the model's error is correlated within a
+        # day. This is the field whose absence left the board unable to verify this
+        # row at all ("no_per_event_data_cannot_verify_t").
+        window_date = datetime.fromtimestamp(window_start, tz=UTC).date().isoformat()
+        samples.append((model_p, market_p, outcome_up, window_date))
         if len(samples) % 25 == 0:
             print(f"  已重建 {len(samples)} 个已结算窗口…")
         time.sleep(0.15)
@@ -142,6 +155,7 @@ def main() -> None:
     model_ps = np.array([s[0] for s in samples])
     market_ps = np.array([s[1] for s in samples])
     outcomes = np.array([s[2] for s in samples])
+    dates = [s[3] for s in samples]
 
     brier_model = float(np.mean((model_ps - outcomes) ** 2))
     brier_market = float(np.mean((market_ps - outcomes) ** 2))
@@ -151,41 +165,61 @@ def main() -> None:
 
     # Trade only when the model disagrees materially; pay the spread.
     edge = model_ps - market_ps
-    trades = []
-    for m, q, o, e in zip(model_ps, market_ps, outcomes, edge):
+    trades: list[tuple[float, str]] = []
+    for q, o, e, day in zip(market_ps, outcomes, edge, dates):
         if e >= EDGE_THRESHOLD:            # model says UP is cheap -> buy UP
-            trades.append((1.0 if o == 1 else 0.0) - q - FEE)
+            trades.append(((1.0 if o == 1 else 0.0) - q - FEE, day))
         elif e <= -EDGE_THRESHOLD:         # model says UP is rich -> buy DOWN
-            trades.append((1.0 if o == 0 else 0.0) - (1.0 - q) - FEE)
-    arr = np.asarray(trades, dtype=float)
+            trades.append(((1.0 if o == 0 else 0.0) - (1.0 - q) - FEE, day))
     hurdle = deflated_t_stat_threshold(registry.n_trials)
 
-    if len(arr) < 30:
-        result = {"strategy": "btc5m_mispricing", "n": int(len(arr)),
+    if len(trades) < 30:
+        result = {"strategy": "btc5m_mispricing", "n": len(trades),
                   "note": "too few qualifying signals to conclude"}
-        print(f"\n触发交易 {len(arr)} 笔 — 样本不足,不下结论")
+        print(f"\n触发交易 {len(trades)} 笔 — 样本不足,不下结论")
     else:
-        sd = arr.std(ddof=1)
-        t = float(arr.mean() / (sd / np.sqrt(len(arr)))) if sd > 0 else 0.0
-        result = {
-            "strategy": "btc5m_mispricing", "n": int(len(arr)),
-            "mean_pnl_per_contract": round(float(arr.mean()), 4),
-            "win_rate": round(float((arr > 0).mean()), 4),
-            "t_stat": round(t, 2), "t_hurdle": round(hurdle, 2),
-            "significant": bool(abs(t) >= hurdle),
-            "brier_model": round(brier_model, 4), "brier_market": round(brier_market, 4),
-        }
-        print(f"\n触发交易 {len(arr)} 笔  每张平均盈亏 {arr.mean():+.4f}  "
-              f"胜率 {(arr>0).mean()*100:.1f}%  t={t:+.2f} (门槛 {hurdle:.2f})  "
-              f"{'✅ 显著' if result['significant'] else '❌ 不显著'}")
+        # Clustered by day: ``hold_days=1`` because a 5-minute binary settles inside
+        # the session, and the unit that is actually independent is the day, not the
+        # window. Windows minutes apart share one price path.
+        inference = clustered_inference.analyse(
+            [pnl for pnl, _ in trades], [d for _, d in trades],
+            t_hurdle=hurdle, hold_days=1,
+        )
+        result = {"strategy": "btc5m_mispricing", **inference.to_dict()}
+        # The board keys the effect size off this name for contract-priced edges,
+        # where "excess return" is per-contract P&L rather than a percentage.
+        result["mean_pnl_per_contract"] = round(inference.mean, 4)
+        result["brier_model"] = round(brier_model, 4)
+        result["brier_market"] = round(brier_market, 4)
+        # Per-event P&L and dates, so the board recomputes rather than copies.
+        result["events"] = [
+            {"date": d, "excess": round(pnl, 6)}
+            for pnl, d in sorted(trades, key=lambda x: x[1])
+        ]
+        print(f"\n触发交易 {inference.n} 笔  独立日 {inference.n_clusters}  "
+              f"每张平均盈亏 {inference.mean:+.4f}  胜率 {inference.win_rate*100:.1f}%  "
+              f"t(iid)={inference.t_iid:+.2f}  t(按日聚类)={inference.t_clustered:+.2f} "
+              f"(门槛 {hurdle:.2f})  {'✅ 显著' if inference.significant else '❌ 不显著'}")
+        for warning in inference.warnings:
+            print(f"  ⚠ {warning}")
 
     out = Path("data/btc5m_mispricing.json")
     out.write_text(json.dumps({
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "n_windows": len(samples), "edge_threshold": EDGE_THRESHOLD, "fee": FEE,
+        "hold_days": 1,          # the replay/board reads this to pick the cluster unit
+        "inference": "cluster_robust",
         "result": result,
     }, indent=2, ensure_ascii=False))
-    registry.record_result("btc5m_model_vs_market", result)
+    manifest.record_input("polymarket_windows", settled=len(samples),
+                          qualifying_trades=len(trades))
+    written = manifest.save(out)
+    registry.record_result(
+        "btc5m_model_vs_market", {k: v for k, v in result.items() if k != "events"}
+    )
+    print(f"运行清单 {written}")
+    for warning in manifest.warn_lines():
+        print(f"  ⚠ {warning}")
     print(f"写入 {out}")
 
 

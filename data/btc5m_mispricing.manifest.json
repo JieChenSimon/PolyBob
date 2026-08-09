@@ -1,0 +1,25 @@
+{
+  "experiment": "btc5m_model_vs_market",
+  "as_of": "2026-08-09T10:29:17.569938+00:00",
+  "params": {
+    "n_windows": 220,
+    "edge_threshold": 0.1,
+    "fee": 0.02
+  },
+  "code": {
+    "commit": "fb126958d842f886e3098d3ffab532dab391551c",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_sample": [
+      "scripts/btc5m_mispricing.py"
+    ]
+  },
+  "started_at": "2026-08-09T10:29:17.599255+00:00",
+  "inputs": {
+    "polymarket_windows": {
+      "settled": 220,
+      "qualifying_trades": 99
+    }
+  },
+  "reproducible": false
+}
