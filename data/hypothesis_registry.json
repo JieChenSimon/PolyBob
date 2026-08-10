@@ -387,33 +387,34 @@
           "no_prices": 43,
           "window_too_short": 13,
           "no_benchmark": 0,
-          "no_carry": 0
+          "no_carry": 0,
+          "no_risk_estimate": 68
         },
-        "measurable_rate": 0.9509,
-        "n": 1085,
+        "measurable_rate": 0.8913,
+        "n": 1017,
         "n_clusters": 9,
-        "mean_excess_pct": 3.95,
-        "median_excess_pct": 0.451,
-        "win_rate": 0.5207,
-        "t_stat": 3.63,
-        "t_stat_iid": 5.55,
+        "mean_excess_pct": 3.302,
+        "median_excess_pct": 0.795,
+        "win_rate": 0.5261,
+        "t_stat": 3.97,
+        "t_stat_iid": 4.91,
         "t_hurdle": 4.19,
         "significant": false,
         "bootstrap_ci_pct": [
-          2.19,
-          6.45
+          2.005,
+          5.176
         ],
-        "sign_test_p": 0.1816,
+        "sign_test_p": 0.1029,
         "wild_p": 0.005,
         "p_floor": 0.00391,
         "resolvable": false,
-        "skew_ratio": 8.76,
+        "skew_ratio": 4.15,
         "cluster_by": "month",
         "inference": "cluster_robust",
         "warnings": [
           "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "mean is 8.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
-          "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.18,胜率 52.1%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
+          "mean is 4.2x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+          "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.10,胜率 52.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
           "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
         "control_single_buy": {
@@ -423,37 +424,37 @@
             "no_prices": 61,
             "window_too_short": 23,
             "no_benchmark": 0,
-            "no_carry": 0
+            "no_carry": 0,
+            "no_risk_estimate": 152
           },
-          "measurable_rate": 0.9609,
-          "n": 2065,
+          "measurable_rate": 0.8902,
+          "n": 1913,
           "n_clusters": 9,
-          "mean_excess_pct": 1.778,
-          "median_excess_pct": 0.087,
-          "win_rate": 0.5056,
-          "t_stat": 5.13,
-          "t_stat_iid": 4.78,
+          "mean_excess_pct": 1.182,
+          "median_excess_pct": 0.151,
+          "win_rate": 0.506,
+          "t_stat": 1.22,
+          "t_stat_iid": 2.58,
           "t_hurdle": 4.19,
           "significant": false,
           "bootstrap_ci_pct": [
-            1.148,
-            2.469
+            -0.465,
+            3.353
           ],
-          "sign_test_p": 0.6283,
-          "wild_p": 0.005,
+          "sign_test_p": 0.615,
+          "wild_p": 0.256,
           "p_floor": 0.00391,
           "resolvable": false,
-          "skew_ratio": 20.48,
+          "skew_ratio": 7.84,
           "cluster_by": "month",
           "inference": "cluster_robust",
           "warnings": [
             "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-            "mean is 20.5x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
-            "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.63,胜率 50.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
+            "mean is 7.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+            "the 95% bootstrap interval on the mean contains zero",
             "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
           ]
-        },
-        "clustering_premise": "unsupported_control_at_least_as_strong"
+        }
       }
     },
     {
@@ -555,6 +556,15 @@
         "n_configs": 4,
         "description": "基准选择:SPY / QQQ / 全域等权横截面 / SPY与横截面各半,在真实内部人事件上各测一遍。",
         "outcome": "按先验理由选了横截面中性(小盘暴露),不是按 t 值最高的那个(50/50 混合 t=3.76)"
+      },
+      "result": null
+    },
+    {
+      "search": {
+        "search_id": "position_weighting_scheme",
+        "n_configs": 2,
+        "description": "仓位加权方式:等权 vs 按事前 60 日波动率反比配权(目标 20% 年化)。",
+        "outcome": "按先验理由选风险平价(等权会让高波动名字主导 P&L),不是按 t 值 —— 两者 t 几乎相同(3.58 vs 3.60)"
       },
       "result": null
     }

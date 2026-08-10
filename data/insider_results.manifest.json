@@ -1,6 +1,6 @@
 {
   "experiment": "insider_cluster_buy",
-  "as_of": "2026-08-09T18:24:52.725243+00:00",
+  "as_of": "2026-08-10T05:33:01.011323+00:00",
   "params": {
     "quarters": [
       [
@@ -20,17 +20,23 @@
     "cost_bps": 10.0,
     "symbol_cap": null,
     "benchmark_mode": "cross_sectional_universe_mean",
+    "weighting": "inverse_pre_signal_volatility",
+    "risk_vol_window": 60,
     "min_insiders": 2,
     "min_value_usd": 50000,
     "benchmark": "SPY"
   },
   "code": {
-    "commit": "a527994123fcb7141633307e23de7a8875fc58d6",
-    "dirty": false,
-    "dirty_files": 0,
-    "dirty_sample": []
+    "commit": "1136ad3f55f5e1660450bbb242cdc846933060f2",
+    "dirty": true,
+    "dirty_files": 3,
+    "dirty_sample": [
+      "libs/quant/edge_backtest.py",
+      "libs/quant/event_study_board.py",
+      "scripts/insider_experiment.py"
+    ]
   },
-  "started_at": "2026-08-09T18:24:52.744095+00:00",
+  "started_at": "2026-08-10T05:33:01.048201+00:00",
   "inputs": {
     "insider_filings": {
       "quarters": 3,
@@ -44,5 +50,5 @@
       "price_coverage": 0.958
     }
   },
-  "reproducible": true
+  "reproducible": false
 }

@@ -45,6 +45,7 @@ from libs.quant.pbo import deflated_t_stat_threshold
 QUARTERS = [(2025, 3), (2025, 4), (2026, 1)]
 HOLD_DAYS = 20          # insider signals are documented over weeks, not days
 COST_BPS = 10.0
+RISK_VOL_WINDOW = 60    # sessions of pre-signal history used to size each event
 # No symbol cap. There used to be ``MAX_SYMBOLS = 260``, filled with the tickers
 # carrying the *most* events — and that is a selection on the treatment variable.
 # It excluded 353 of 1,141 clusters, and every single excluded stock had exactly one
@@ -106,6 +107,11 @@ def summarise(
         # because it flattered the result — it gives a *lower* t (3.58 vs 3.67), which
         # is the honest direction: part of the old figure was beta.
         neutralise_universe=universe,
+        # Equal risk contribution, not equal weight. Equal-weighting hands the P&L to
+        # whichever names happen to be most volatile — measuring it measures a strategy
+        # nobody would run, and the portfolio layer will size by risk anyway. Volatility
+        # comes strictly from bars before the signal, so the weight is knowable then.
+        risk_scale_window=RISK_VOL_WINDOW,
     )
     if len(result.trades) < 100:
         return {"strategy": name, "n": len(result.trades),
@@ -131,6 +137,8 @@ def main() -> None:
         "quarters": QUARTERS, "hold_days": HOLD_DAYS,
         "cost_bps": COST_BPS, "symbol_cap": None,
         "benchmark_mode": "cross_sectional_universe_mean",
+        "weighting": "inverse_pre_signal_volatility",
+        "risk_vol_window": RISK_VOL_WINDOW,
         "min_insiders": 2, "min_value_usd": 50_000,
         "benchmark": US_BENCHMARK,
     })

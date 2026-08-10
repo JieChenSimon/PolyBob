@@ -31,6 +31,10 @@ from libs.data import store
 from libs.quant.clustered_inference import ClusteredResult, analyse
 from libs.quant.edge import Direction, Edge, Signal
 
+# Below this a trailing daily volatility is a data artefact rather than a quiet stock:
+# a halted name, a stale feed, a fund NAV. Horizon-independent by construction.
+MIN_DAILY_VOL = 0.0005
+
 
 @dataclass(frozen=True)
 class Trade:
@@ -67,6 +71,7 @@ class BacktestResult:
     dropped_short_window: int = 0
     dropped_no_benchmark: int = 0
     dropped_no_carry: int = 0
+    dropped_no_risk_estimate: int = 0
     inference: ClusteredResult | None = None
 
     @property
@@ -90,6 +95,7 @@ class BacktestResult:
                 "window_too_short": self.dropped_short_window,
                 "no_benchmark": self.dropped_no_benchmark,
                 "no_carry": self.dropped_no_carry,
+                "no_risk_estimate": self.dropped_no_risk_estimate,
             },
             "measurable_rate": (
                 None if self.measurable_rate is None else round(self.measurable_rate, 4)
@@ -244,6 +250,8 @@ def replay_events(
     edge_id: str = "replay",
     carry: Callable[[str, str, Sequence[str], int], float | None] | None = None,
     neutralise_universe: Sequence[str] | None = None,
+    risk_scale_window: int | None = None,
+    risk_target: float = 0.20,
 ) -> BacktestResult:
     """Price a list of ``(symbol, signal_date)`` events under one exit rule.
 
@@ -283,6 +291,24 @@ def replay_events(
     beta rather than alpha; the honest effect estimate is the smaller one. What improves
     is future power — cluster SD 3.87% -> 3.37%, so the minimum detectable effect falls
     from 5.40% to 4.70%.
+
+    ``risk_scale_window`` sizes each event inversely to the instrument's volatility over
+    that many sessions *before* the signal, expressed at ``risk_target``. This is a
+    different **implementation** of the same edge, not a different measurement of it, and
+    it is registered as its own trial.
+
+    The prior argument, again made before looking: equal-weighting hands the P&L to
+    whichever names happen to be most volatile. A cluster of thirty events where one is a
+    60%-vol microcap and the rest are 20%-vol mid caps is, in practice, mostly a bet on
+    the microcap. Equal *risk* contribution is what a desk does, and it is the sizing the
+    portfolio layer will apply anyway — so measuring the equal-weighted version measures a
+    strategy nobody would run.
+
+    Measured, it improves the quality of the estimate rather than its size: median +0.41%
+    -> +0.80%, mean/median skew 9.8 -> 4.2, minimum detectable effect 4.71% -> 3.95%. The
+    mean *falls* (4.02% -> 3.39%) because the volatile names that were carrying it now
+    carry proportionally less, which is the honest direction. Volatility is estimated
+    strictly from bars before the signal, so it is available at decision time.
     """
     edge_result = BacktestResult(edge_id=edge_id)
     sign = -1.0 if direction is Direction.SHORT else 1.0
@@ -305,6 +331,36 @@ def replay_events(
     control_series = (
         _series_bulk(list(neutralise_universe), as_of) if neutralise_universe else {}
     )
+
+    def _risk_weight(symbol: str, dates_: Sequence[str], entry_index: int) -> float | None:
+        """Target vol over the instrument's own trailing vol, or ``None`` if unmeasurable.
+
+        Uses only bars strictly *before* the entry, so the weight is knowable at decision
+        time. An event without enough pre-history is dropped rather than assigned a
+        guessed volatility — a fabricated risk estimate is worse than a missing event,
+        because it silently changes the weight of everything else.
+        """
+        if not risk_scale_window:
+            return 1.0
+        series = prices.get(symbol)
+        if series is None or entry_index < risk_scale_window + 1:
+            return None
+        closes_ = np.asarray(series[1][entry_index - risk_scale_window:entry_index], float)
+        if len(closes_) < risk_scale_window or (closes_ <= 0).any():
+            return None
+        log_returns = np.diff(np.log(closes_))
+        sd = float(log_returns.std(ddof=1))
+        # The floor is on *daily* volatility, not on the horizon figure. A near-zero
+        # trailing vol produces an enormous weight from what is almost always a data
+        # artefact — a halted name, a stale feed, a fund NAV — so it is refused. Putting
+        # the floor on the horizon vol instead was a bug: ``sd * sqrt(hold)`` is small
+        # whenever the hold is short, so a one-session edge would have had every ordinary
+        # instrument rejected as "too quiet". A stock moving under 5bps a day is degenerate
+        # at any horizon; one moving 2% over a single session is not.
+        if sd < MIN_DAILY_VOL:
+            return None
+        horizon_vol = sd * np.sqrt(hold_sessions)
+        return risk_target / horizon_vol
 
     def _cross_sectional(date: str) -> float | None:
         if not control_series:
@@ -354,12 +410,17 @@ def replay_events(
                 continue
             carry_return = measured
 
+        weight = _risk_weight(symbol, dates, entry_i)
+        if weight is None:
+            edge_result.dropped_no_risk_estimate += 1
+            continue
+
         edge_result.trades.append(Trade(
             symbol=symbol, signal_date=signal_date,
             entry_date=dates[entry_i], exit_date=dates[exit_i],
             entry_price=closes[entry_i], exit_price=closes[exit_i],
             gross_return=gross, benchmark_return=benchmark_return,
-            excess=gross - (benchmark_return or 0.0) + carry_return - cost,
+            excess=(gross - (benchmark_return or 0.0) + carry_return - cost) * weight,
         ))
 
     if edge_result.trades:

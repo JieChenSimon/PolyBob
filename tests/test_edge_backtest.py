@@ -372,3 +372,104 @@ def test_the_control_is_read_point_in_time_like_everything_else():
         neutralise_universe=universe,
     )
     assert early.trades == []                     # the event's prices were not known yet
+
+
+# ------------------------------------------------- risk-parity position weighting
+def _ramp(symbol: str, start: str, n: int, *, daily: float, then: float) -> list[str]:
+    """`n` sessions oscillating +/-`daily`, then one session moving `then`.
+
+    Oscillating rather than trending, because a constant daily growth rate has *zero*
+    return volatility — log price is linear, so its differences are identical. The first
+    version of this fixture ramped smoothly and produced sd = 0.000000, which the
+    production floor correctly refused; the fixture was wrong, not the code.
+    """
+    day = dt.date.fromisoformat(start)
+    prices: dict[str, float] = {}
+    price = 100.0
+    written = 0
+    while written < n + 2:
+        if day.weekday() < 5:
+            prices[day.isoformat()] = price
+            step = then if written == n else (daily if written % 2 == 0 else -daily)
+            price *= (1 + step)
+            written += 1
+        day += dt.timedelta(days=1)
+    _write(symbol, prices)
+    return sorted(prices)
+
+
+def test_a_volatile_name_is_sized_smaller_than_a_quiet_one():
+    """Equal weight hands the P&L to whichever names happen to be most volatile.
+
+    A cluster where one event is a 60%-vol microcap and the rest are 20%-vol mid caps is,
+    in practice, mostly a bet on the microcap. Equal *risk* contribution is what a desk
+    does — and it is the sizing the portfolio layer applies anyway, so measuring the
+    equal-weighted version measures a strategy nobody would run.
+    """
+    # Same +5% move after the signal, very different prior volatility.
+    quiet_days = _ramp("QUIET", "2026-01-05", 70, daily=0.002, then=0.05)
+    _ramp("WILD", "2026-01-05", 70, daily=0.030, then=0.05)
+    signal = quiet_days[70]
+    sized = {}
+    for symbol in ("QUIET", "WILD"):
+        result = edge_backtest.replay_events(
+            [(symbol, str(signal))], direction=Direction.LONG, hold_sessions=1,
+            benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+            risk_scale_window=60,
+        )
+        assert result.trades, symbol
+        sized[symbol] = result.trades[0].excess
+
+    # Identical raw move, so the difference is entirely the risk weight.
+    assert abs(sized["QUIET"]) > abs(sized["WILD"]) * 3
+
+
+def test_volatility_uses_only_bars_before_the_signal():
+    """The weight has to be knowable at decision time.
+
+    Estimating volatility from the holding window itself would size positions using the
+    outcome — a look-ahead that flatters exactly the events that turned out calm.
+    """
+    dates = _ramp("PIT", "2026-01-05", 70, daily=0.002, then=0.05)
+    result = edge_backtest.replay_events(
+        [("PIT", dates[70])], direction=Direction.LONG, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0, risk_scale_window=60,
+    )
+    # 0.2% daily over 60 sessions is a very low vol, so the weight is large and positive.
+    assert result.trades[0].excess > 0
+
+
+def test_an_event_without_enough_history_is_dropped_not_guessed():
+    """A fabricated risk estimate is worse than a missing event.
+
+    It silently changes the weight of everything else in the sample, so the whole result
+    shifts because of one name nobody could have sized.
+    """
+    _write("SHORTHIST", {"2026-03-02": 100.0, "2026-03-03": 105.0})
+    result = edge_backtest.replay_events(
+        [("SHORTHIST", "2026-03-02")], direction=Direction.LONG, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0, risk_scale_window=60,
+    )
+    assert result.trades == []
+    assert result.dropped_no_risk_estimate == 1
+
+
+def test_a_near_zero_volatility_does_not_produce_an_enormous_weight():
+    """A halted or barely-traded name would otherwise dominate the whole sample."""
+    dates = _ramp("FROZEN", "2026-01-05", 70, daily=0.0, then=0.05)
+    result = edge_backtest.replay_events(
+        [("FROZEN", dates[70])], direction=Direction.LONG, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0, risk_scale_window=60,
+    )
+    assert result.trades == []
+    assert result.dropped_no_risk_estimate == 1
+
+
+def test_no_window_means_equal_weight():
+    """The option must be opt-in, so existing measurements do not shift silently."""
+    _write("EW", {"2026-03-02": 100.0, "2026-03-03": 105.0})
+    result = edge_backtest.replay_events(
+        [("EW", "2026-03-02")], direction=Direction.LONG, hold_sessions=1,
+        benchmark=None, cost_bps=0.0, as_of=NOW, t_hurdle=3.0,
+    )
+    assert result.trades[0].excess == pytest.approx(0.05)

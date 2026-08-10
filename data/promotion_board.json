@@ -54,6 +54,24 @@
       "max_evidence_age_days": 90,
       "run_as_of": "2026-08-09T18:26:41.659755+00:00",
       "run_reproducible": true,
+      "out_of_sample": {
+        "available": true,
+        "split_date": "2025-05-26",
+        "in_sample": {
+          "n": 20378,
+          "n_clusters": 65,
+          "mean_pct": -2.212,
+          "t_stat": -4.16
+        },
+        "out_of_sample": {
+          "n": 20378,
+          "n_clusters": 61,
+          "mean_pct": -1.82,
+          "t_stat": -5.97
+        },
+        "sign_held": true,
+        "t_ratio": 1.44
+      },
       "evidence": "来源 data/billboard_results.json; n=40756; 独立week=125; t(聚类)=-6.61 vs t(iid)=-29.59; 证据截至 2026-07-31; 2024-03-05..2026-07-31; 持有 5 日; 逐年胜率 34.2-37.4%"
     },
     {
@@ -98,6 +116,9 @@
       "max_evidence_age_days": 90,
       "run_as_of": "2026-08-09T18:25:20.161040+00:00",
       "run_reproducible": true,
+      "out_of_sample": {
+        "available": false
+      },
       "evidence": "来源 data/us_crypto_results.json; n=248; 独立week=14; t(聚类)=1.85 vs t(iid)=6.40; 证据截至 2026-08-03; 持有 5 日"
     },
     {
@@ -140,6 +161,9 @@
       "max_evidence_age_days": 30,
       "run_as_of": "2026-08-09T18:42:15.712715+00:00",
       "run_reproducible": true,
+      "out_of_sample": {
+        "available": false
+      },
       "evidence": "来源 data/btc5m_mispricing.json; n=99; 独立day=1; t(聚类)=0.00 vs t(iid)=4.24; 证据截至 2026-08-09; 持有 1 日"
     },
     {
@@ -186,6 +210,24 @@
       "max_evidence_age_days": 180,
       "run_as_of": "2026-08-09T18:24:52.725243+00:00",
       "run_reproducible": true,
+      "out_of_sample": {
+        "available": true,
+        "split_date": "2025-11-25",
+        "in_sample": {
+          "n": 542,
+          "n_clusters": 5,
+          "mean_pct": 4.35,
+          "t_stat": 2.48
+        },
+        "out_of_sample": {
+          "n": 543,
+          "n_clusters": 5,
+          "mean_pct": 3.552,
+          "t_stat": 2.39
+        },
+        "sign_held": true,
+        "t_ratio": 0.96
+      },
       "evidence": "来源 data/insider_results.json; n=1085; 独立month=9; t(聚类)=3.63 vs t(iid)=5.55; 证据截至 2026-03-31; 2025Q3..2026Q1; 持有 20 日"
     }
   ]

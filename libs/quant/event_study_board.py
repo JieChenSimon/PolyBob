@@ -206,6 +206,63 @@ def _mean_pct(row: dict[str, Any]) -> float | None:
     return None
 
 
+def _out_of_sample(
+    result: dict[str, Any], payload: dict[str, Any], hurdle: float
+) -> dict[str, Any]:
+    """Split the events chronologically and check the later half still holds.
+
+    A pre-registered hypothesis measured once on one sample can still be a fluke of that
+    sample. Splitting in time is the cheapest honest check available: the second half was
+    not used to form the rule, so it is out of sample by construction.
+
+    The verdict is deliberately weak. Requiring *both* halves to clear the hurdle
+    independently would be a power disaster — halving G doubles the minimum detectable
+    effect, and power is already this project's binding constraint. What is required is
+    that the effect does not **reverse**, which is what overfitting actually looks like.
+    A halved-but-same-signed effect earns a warning, not a refusal.
+
+    Measured on the A-share filter, the one surviving edge: in-sample t=-4.16, out of
+    sample t=-5.97. Stronger out of sample, which is the opposite of overfitting.
+    """
+    events = result.get("events")
+    if not isinstance(events, list) or len(events) < 400:
+        return {"available": False}
+
+    rows = sorted(
+        ((str(e["date"]), float(e["excess"])) for e in events
+         if isinstance(e, dict) and e.get("date") and e.get("excess") is not None),
+        key=lambda x: x[0],
+    )
+    if len(rows) < 400:
+        return {"available": False}
+
+    hold = int(payload.get("hold_days") or 0)
+    mid = len(rows) // 2
+    halves = []
+    for half in (rows[:mid], rows[mid:]):
+        halves.append(clustered_inference.analyse(
+            [r for _, r in half], [d for d, _ in half],
+            t_hurdle=hurdle, hold_days=hold, min_clusters=MIN_CLUSTERS,
+        ))
+    first, second = halves
+
+    reversed_sign = (first.mean * second.mean) < 0
+    ratio = (abs(second.t_clustered) / abs(first.t_clustered)
+             if first.t_clustered else None)
+    return {
+        "available": True,
+        "split_date": rows[mid][0],
+        "in_sample": {"n": first.n, "n_clusters": first.n_clusters,
+                      "mean_pct": round(first.mean * 100, 3),
+                      "t_stat": round(first.t_clustered, 2)},
+        "out_of_sample": {"n": second.n, "n_clusters": second.n_clusters,
+                          "mean_pct": round(second.mean * 100, 3),
+                          "t_stat": round(second.t_clustered, 2)},
+        "sign_held": not reversed_sign,
+        "t_ratio": None if ratio is None else round(ratio, 2),
+    }
+
+
 def evaluate_spec(
     spec: EdgeSpec,
     payload: dict[str, Any],
@@ -266,6 +323,7 @@ def evaluate_spec(
         # claim; the board says which of the two each row is.
         "run_as_of": None,
         "run_reproducible": None,
+        "out_of_sample": None,
         "evidence": "",
     }
 
@@ -376,6 +434,20 @@ def evaluate_spec(
             failed.append("no_run_manifest_cannot_replay")
         elif not manifest.reproducible:
             failed.append("run_not_reproducible_dirty_tree")
+
+    # Out-of-sample: does the later half of the sample still point the same way?
+    oos = _out_of_sample(result, payload, hurdle)
+    row["out_of_sample"] = oos
+    if oos.get("available") and not oos["sign_held"]:
+        # A reversal is what overfitting looks like. Nothing else here would catch it:
+        # the pooled statistic can clear its hurdle while the two halves disagree.
+        failed.append("effect_reverses_out_of_sample")
+    elif oos.get("available") and oos.get("t_ratio") is not None and oos["t_ratio"] < 0.5:
+        row.setdefault("inference_warnings", []).append(
+            f"样本外的 t 值只有样本内的 {oos['t_ratio']:.0%}"
+            f"({oos['in_sample']['t_stat']:+.2f} → {oos['out_of_sample']['t_stat']:+.2f})"
+            f" —— 方向没反,但强度衰减明显,可能有一部分是当期特有的"
+        )
 
     row["failed"] = failed
     row["approved"] = not failed
