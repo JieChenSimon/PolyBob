@@ -282,7 +282,8 @@
           "no_prices": 0,
           "window_too_short": 2,
           "no_benchmark": 0,
-          "no_carry": 0
+          "no_carry": 0,
+          "no_risk_estimate": 0
         },
         "measurable_rate": 0.9865,
         "n": 146,
@@ -332,29 +333,30 @@
         "signals_found": 368,
         "dropped": {
           "no_prices": 0,
-          "window_too_short": 14,
+          "window_too_short": 12,
           "no_benchmark": 0,
-          "no_carry": 106
+          "no_carry": 106,
+          "no_risk_estimate": 0
         },
-        "measurable_rate": 0.6739,
-        "n": 248,
+        "measurable_rate": 0.6793,
+        "n": 250,
         "n_clusters": 14,
-        "mean_excess_pct": 3.088,
-        "median_excess_pct": 2.094,
-        "win_rate": 0.7016,
+        "mean_excess_pct": 3.055,
+        "median_excess_pct": 2.085,
+        "win_rate": 0.696,
         "t_stat": 1.85,
-        "t_stat_iid": 6.4,
+        "t_stat_iid": 6.37,
         "t_hurdle": 4.19,
         "significant": false,
         "bootstrap_ci_pct": [
-          0.308,
-          6.238
+          0.294,
+          6.175
         ],
         "sign_test_p": 0.0,
-        "wild_p": 0.0695,
+        "wild_p": 0.0705,
         "p_floor": 0.000122,
         "resolvable": false,
-        "skew_ratio": 1.48,
+        "skew_ratio": 1.46,
         "cluster_by": "week",
         "inference": "cluster_robust",
         "warnings": [
@@ -388,32 +390,32 @@
           "window_too_short": 13,
           "no_benchmark": 0,
           "no_carry": 0,
-          "no_risk_estimate": 68
+          "no_risk_estimate": 66
         },
-        "measurable_rate": 0.8913,
-        "n": 1017,
+        "measurable_rate": 0.8931,
+        "n": 1019,
         "n_clusters": 9,
-        "mean_excess_pct": 3.302,
+        "mean_excess_pct": 3.25,
         "median_excess_pct": 0.795,
-        "win_rate": 0.5261,
-        "t_stat": 3.97,
-        "t_stat_iid": 4.91,
+        "win_rate": 0.526,
+        "t_stat": 4.21,
+        "t_stat_iid": 4.8,
         "t_hurdle": 4.19,
         "significant": false,
         "bootstrap_ci_pct": [
-          2.005,
-          5.176
+          2.048,
+          5.024
         ],
-        "sign_test_p": 0.1029,
+        "sign_test_p": 0.1033,
         "wild_p": 0.005,
         "p_floor": 0.00391,
         "resolvable": false,
-        "skew_ratio": 4.15,
+        "skew_ratio": 4.09,
         "cluster_by": "month",
         "inference": "cluster_robust",
         "warnings": [
           "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "mean is 4.2x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+          "mean is 4.1x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
           "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.10,胜率 52.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
           "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
@@ -425,32 +427,32 @@
             "window_too_short": 23,
             "no_benchmark": 0,
             "no_carry": 0,
-            "no_risk_estimate": 152
+            "no_risk_estimate": 112
           },
-          "measurable_rate": 0.8902,
-          "n": 1913,
+          "measurable_rate": 0.9088,
+          "n": 1953,
           "n_clusters": 9,
-          "mean_excess_pct": 1.182,
-          "median_excess_pct": 0.151,
-          "win_rate": 0.506,
-          "t_stat": 1.22,
-          "t_stat_iid": 2.58,
+          "mean_excess_pct": 0.817,
+          "median_excess_pct": 0.223,
+          "win_rate": 0.5064,
+          "t_stat": 0.61,
+          "t_stat_iid": 1.37,
           "t_hurdle": 4.19,
           "significant": false,
           "bootstrap_ci_pct": [
-            -0.465,
-            3.353
+            -1.243,
+            4.196
           ],
-          "sign_test_p": 0.615,
-          "wild_p": 0.256,
+          "sign_test_p": 0.5871,
+          "wild_p": 0.6205,
           "p_floor": 0.00391,
           "resolvable": false,
-          "skew_ratio": 7.84,
+          "skew_ratio": 3.67,
           "cluster_by": "month",
           "inference": "cluster_robust",
           "warnings": [
             "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-            "mean is 7.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+            "mean is 3.7x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
             "the 95% bootstrap interval on the mean contains zero",
             "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
           ]
@@ -553,18 +555,27 @@
     {
       "search": {
         "search_id": "benchmark_choice_us_equity",
-        "n_configs": 4,
-        "description": "基准选择:SPY / QQQ / 全域等权横截面 / SPY与横截面各半,在真实内部人事件上各测一遍。",
-        "outcome": "按先验理由选了横截面中性(小盘暴露),不是按 t 值最高的那个(50/50 混合 t=3.76)"
+        "n_configs": 1,
+        "description": "(已并入 specification_search_us_insider —— 保留占位以免重复计数)",
+        "outcome": "see specification_search_us_insider"
       },
       "result": null
     },
     {
       "search": {
         "search_id": "position_weighting_scheme",
-        "n_configs": 2,
-        "description": "仓位加权方式:等权 vs 按事前 60 日波动率反比配权(目标 20% 年化)。",
-        "outcome": "按先验理由选风险平价(等权会让高波动名字主导 P&L),不是按 t 值 —— 两者 t 几乎相同(3.58 vs 3.60)"
+        "n_configs": 1,
+        "description": "(已并入 specification_search_us_insider)",
+        "outcome": "see specification_search_us_insider"
+      },
+      "result": null
+    },
+    {
+      "search": {
+        "search_id": "specification_search_us_insider",
+        "n_configs": 16,
+        "description": "内部人边的完整规格搜索:2 种推断(簇均值无权平均 / CRVE 三明治) × 4 种基准(SPY / QQQ / 全域横截面 / 各半) × 2 种加权(等权 / 事前波动率反比)。",
+        "outcome": "每一步都有先验理由,但序列本身是分叉路径花园:t 值被从 2.35 一路推到 4.21。16 是这条流水线上'本来可以被报告出来'的组合数,而不是我承认试过的那几个。"
       },
       "result": null
     }

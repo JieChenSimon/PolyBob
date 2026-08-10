@@ -426,3 +426,72 @@ def test_an_avoid_filter_does_not_need_a_manifest():
     row = evaluate_spec(spec, _measured(3000, -0.02, 0.02, weeks=120), 35, None)
     assert row["approved"] is True
     assert row["run_reproducible"] is None
+
+
+# ------------------------------------------- what actually defends the gate
+def test_the_hurdle_is_nearly_insensitive_to_the_trial_count():
+    """Pinning a limitation, so nobody mistakes the hurdle for a search defence.
+
+    ``3.0 + 0.5*log10(n_trials)`` is logarithmic. Registering a 16-configuration
+    specification search moved the hurdle from 4.193 to 4.203 — two thousandths of a t.
+    Going the other way, gutting the correction from 237 trials to 5 moves it only 4.19 to
+    3.35. So the hurdle cannot price a forking-paths search, whatever its name suggests,
+    and the guards that *do* bite are the cluster floor and out-of-sample behaviour.
+    """
+    from libs.quant.pbo import deflated_t_stat_threshold
+
+    assert deflated_t_stat_threshold(255) - deflated_t_stat_threshold(243) < 0.02
+    assert deflated_t_stat_threshold(237) - deflated_t_stat_threshold(5) < 0.9
+
+
+def test_a_searched_pipeline_faces_a_higher_independence_bar():
+    """The only real defence against a forking path is data the search never saw.
+
+    ``insider_cluster_buy`` had its inference method, benchmark and weighting each chosen
+    after seeing results on this sample — 16 available pipelines — and the sequence walked
+    its t from 2.35 to 4.21. Every step has a prior justification; the sequence does not.
+    So it must clear 30 independent units rather than 20, and the only way to get them is
+    calendar.
+    """
+    from libs.quant.event_study_board import (
+        MIN_CLUSTERS,
+        SEARCHED_PIPELINE_MIN_CLUSTERS,
+        SEARCHED_PIPELINES,
+    )
+
+    assert SEARCHED_PIPELINE_MIN_CLUSTERS > MIN_CLUSTERS
+    assert "insider_cluster_buy" in SEARCHED_PIPELINES
+
+    board = json.loads(BOARD_PATH.read_text())
+    row = next(r for r in board["board"] if r["strategy"] == "us_insider_cluster_buy")
+    assert row["pipeline_searched"] is True
+    assert row["cluster_floor"] == SEARCHED_PIPELINE_MIN_CLUSTERS
+    # It now clears the t-hurdle. The floor is the only thing holding it, which is the
+    # honest state and the reason the floor exists.
+    assert abs(row["t_stat"]) >= row["t_hurdle"]
+    assert row["approved"] is False
+    assert f"independent_clusters<{SEARCHED_PIPELINE_MIN_CLUSTERS}" in row["failed"]
+
+
+def test_an_unsearched_pipeline_keeps_the_ordinary_floor():
+    from libs.quant.event_study_board import MIN_CLUSTERS
+
+    board = json.loads(BOARD_PATH.read_text())
+    row = next(r for r in board["board"] if r["strategy"] == "a_share_billboard_reversal")
+    assert row["pipeline_searched"] is False
+    assert row["cluster_floor"] == MIN_CLUSTERS
+
+
+def test_the_surviving_edge_holds_out_of_sample():
+    """The only edge that changes behaviour, split in time.
+
+    In-sample t=-4.16, out of sample t=-5.97 — stronger out of sample, which is the
+    opposite of overfitting. If this ever inverts, the filter should stop being applied
+    before anyone argues about why.
+    """
+    board = json.loads(BOARD_PATH.read_text())
+    row = next(r for r in board["board"] if r["strategy"] == "a_share_billboard_reversal")
+    oos = row["out_of_sample"]
+    assert oos["available"] is True
+    assert oos["sign_held"] is True
+    assert oos["t_ratio"] > 1.0

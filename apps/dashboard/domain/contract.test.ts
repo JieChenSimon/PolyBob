@@ -57,6 +57,12 @@ describe('promotion board contract', () => {
     'wild_p',
     'p_floor',
     'resolvable',
+    // Whether this edge's measurement pipeline was searched rather than declared, and
+    // the independence bar that follows from it. The t-hurdle cannot price a forking-paths
+    // search (it moves 0.002 for a 16-configuration one), so this is what does.
+    'pipeline_searched',
+    'cluster_floor',
+    'out_of_sample',
     'n',
     'implementation',
     'evidence',

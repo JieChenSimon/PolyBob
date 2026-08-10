@@ -112,6 +112,25 @@ MIN_OBSERVATIONS = 200
 # sample period; adding more events inside the same weeks buys nothing.
 MIN_CLUSTERS = 20
 
+# Hypotheses whose measurement pipeline was searched rather than fixed in advance. The
+# t-hurdle cannot price this: ``3.0 + 0.5*log10(n_trials)`` is logarithmic, so registering
+# a 16-configuration search moved it from 4.193 to 4.203 — two thousandths of a t. Going
+# the other way, dropping from 237 trials to 5 moves it only 4.19 -> 3.35. The formula is
+# nearly insensitive to trial count by construction, which means it is *not* the defence
+# against a forking-paths search, whatever its docstring implies.
+#
+# What actually defends the gate is fresh calendar. So an edge that came out of a search
+# is held to a higher independence bar than one whose pipeline was declared up front, and
+# the only way to clear it is data that did not exist when the search was run.
+SEARCHED_PIPELINE_MIN_CLUSTERS = 30
+
+# Which hypotheses that applies to, named rather than inferred, so adding one is a visible
+# admission. ``us_insider_cluster_buy``: its inference method, benchmark and weighting were
+# each chosen after seeing results on this sample — 2 x 4 x 2 = 16 available pipelines —
+# and the sequence walked its t-statistic from 2.35 to 4.21. Every individual step has a
+# prior justification; the *sequence* does not, and that is what a forking path is.
+SEARCHED_PIPELINES: frozenset[str] = frozenset({"insider_cluster_buy"})
+
 
 # The in-scope edges, declared once. Adding a row here is a research decision;
 # it must name a pre-registered hypothesis and a raw file that carries the
@@ -324,6 +343,8 @@ def evaluate_spec(
         "run_as_of": None,
         "run_reproducible": None,
         "out_of_sample": None,
+        "cluster_floor": MIN_CLUSTERS,
+        "pipeline_searched": False,
         "evidence": "",
     }
 
@@ -389,11 +410,18 @@ def evaluate_spec(
 
     if n < MIN_OBSERVATIONS:
         failed.append(f"n<{MIN_OBSERVATIONS}")
-    if inference.n_clusters < MIN_CLUSTERS:
+    cluster_floor = (
+        SEARCHED_PIPELINE_MIN_CLUSTERS
+        if spec.hypothesis_id in SEARCHED_PIPELINES
+        else MIN_CLUSTERS
+    )
+    row["cluster_floor"] = cluster_floor
+    row["pipeline_searched"] = spec.hypothesis_id in SEARCHED_PIPELINES
+    if inference.n_clusters < cluster_floor:
         # Raw event count is not sample size when the events are dependent. An
         # edge measured over 13 independent weeks has not been tested across
         # enough distinct market conditions, however many events it contains.
-        failed.append(f"independent_clusters<{MIN_CLUSTERS}")
+        failed.append(f"independent_clusters<{cluster_floor}")
     # The pre-registered direction decides the sign. A result that lands the
     # other way falsified the hypothesis; it is not a new edge pointing the
     # other way, and treating it as one is the data-snooping this project

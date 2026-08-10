@@ -1,6 +1,6 @@
 {
   "experiment": "altcoin_retail_crowding",
-  "as_of": "2026-08-09T18:25:20.161040+00:00",
+  "as_of": "2026-08-10T05:44:32.159395+00:00",
   "params": {
     "hold_days": 5,
     "us_cost_bps": 5.0,
@@ -46,12 +46,12 @@
     "percentile_window": 30
   },
   "code": {
-    "commit": "a527994123fcb7141633307e23de7a8875fc58d6",
+    "commit": "6ef2b65b4806ddc930710cdfbb9a41ebdd4e4cb9",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-09T18:25:20.196101+00:00",
+  "started_at": "2026-08-10T05:44:32.182250+00:00",
   "inputs": {
     "us_insiders": {
       "universe": 26

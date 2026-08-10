@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-08-09T18:26:41.483310+00:00",
+  "generated_at": "2026-08-10T05:45:40.483335+00:00",
   "real_data_only": true,
   "hold_days": 5,
-  "n_trials": 241,
+  "n_trials": 243,
   "us_cost_bps": 5.0,
   "alt_cost_bps": 10.0,
   "inference": "cluster_robust",
@@ -14,7 +14,8 @@
         "no_prices": 0,
         "window_too_short": 2,
         "no_benchmark": 0,
-        "no_carry": 0
+        "no_carry": 0,
+        "no_risk_estimate": 0
       },
       "measurable_rate": 0.9865,
       "n": 146,
@@ -1074,7 +1075,8 @@
         "no_prices": 0,
         "window_too_short": 8,
         "no_benchmark": 0,
-        "no_carry": 0
+        "no_carry": 0,
+        "no_risk_estimate": 0
       },
       "measurable_rate": 0.9641,
       "n": 215,
@@ -2613,29 +2615,30 @@
       "signals_found": 368,
       "dropped": {
         "no_prices": 0,
-        "window_too_short": 14,
+        "window_too_short": 12,
         "no_benchmark": 0,
-        "no_carry": 0
+        "no_carry": 0,
+        "no_risk_estimate": 0
       },
-      "measurable_rate": 0.962,
-      "n": 354,
+      "measurable_rate": 0.9674,
+      "n": 356,
       "n_clusters": 21,
-      "mean_excess_pct": -2.072,
+      "mean_excess_pct": -2.055,
       "median_excess_pct": -1.287,
-      "win_rate": 0.3616,
-      "t_stat": -1.62,
-      "t_stat_iid": -5.68,
+      "win_rate": 0.3652,
+      "t_stat": -1.61,
+      "t_stat_iid": -5.66,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        -4.645,
-        0.117
+        -4.626,
+        0.129
       ],
       "sign_test_p": 0.0,
-      "wild_p": 0.132,
+      "wild_p": 0.1345,
       "p_floor": 9.54e-07,
       "resolvable": true,
-      "skew_ratio": 1.61,
+      "skew_ratio": 1.6,
       "cluster_by": "week",
       "inference": "cluster_robust",
       "warnings": [
@@ -5104,21 +5107,35 @@
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": -0.005983
+          "excess": 0.005264
         },
         {
           "symbol": "LTC-USDT",
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": 0.035052
+          "excess": 0.045643
         },
         {
           "symbol": "XRP-USDT",
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": -0.040722
+          "excess": -0.032555
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "date": "2026-08-04",
+          "entry_date": "2026-08-04",
+          "exit_date": "2026-08-09",
+          "excess": 0.009329
+        },
+        {
+          "symbol": "XRP-USDT",
+          "date": "2026-08-04",
+          "entry_date": "2026-08-04",
+          "exit_date": "2026-08-09",
+          "excess": -0.019663
         }
       ],
       "direction": "long",
@@ -5129,29 +5146,30 @@
       "signals_found": 368,
       "dropped": {
         "no_prices": 0,
-        "window_too_short": 14,
+        "window_too_short": 12,
         "no_benchmark": 0,
-        "no_carry": 106
+        "no_carry": 106,
+        "no_risk_estimate": 0
       },
-      "measurable_rate": 0.6739,
-      "n": 248,
+      "measurable_rate": 0.6793,
+      "n": 250,
       "n_clusters": 14,
-      "mean_excess_pct": 3.088,
-      "median_excess_pct": 2.094,
-      "win_rate": 0.7016,
+      "mean_excess_pct": 3.055,
+      "median_excess_pct": 2.085,
+      "win_rate": 0.696,
       "t_stat": 1.85,
-      "t_stat_iid": 6.4,
+      "t_stat_iid": 6.37,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        0.308,
-        6.238
+        0.294,
+        6.175
       ],
       "sign_test_p": 0.0,
-      "wild_p": 0.0695,
+      "wild_p": 0.0705,
       "p_floor": 0.000122,
       "resolvable": false,
-      "skew_ratio": 1.48,
+      "skew_ratio": 1.46,
       "cluster_by": "week",
       "inference": "cluster_robust",
       "warnings": [
@@ -6879,21 +6897,35 @@
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": 0.004881
+          "excess": -0.006367
         },
         {
           "symbol": "LTC-USDT",
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": -0.036472
+          "excess": -0.047062
         },
         {
           "symbol": "XRP-USDT",
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": 0.03886
+          "excess": 0.030693
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "date": "2026-08-04",
+          "entry_date": "2026-08-04",
+          "exit_date": "2026-08-09",
+          "excess": -0.010182
+        },
+        {
+          "symbol": "XRP-USDT",
+          "date": "2026-08-04",
+          "entry_date": "2026-08-04",
+          "exit_date": "2026-08-09",
+          "excess": 0.017671
         }
       ],
       "direction": "short",
@@ -6904,29 +6936,30 @@
       "signals_found": 276,
       "dropped": {
         "no_prices": 0,
-        "window_too_short": 8,
+        "window_too_short": 6,
         "no_benchmark": 0,
-        "no_carry": 0
+        "no_carry": 0,
+        "no_risk_estimate": 0
       },
-      "measurable_rate": 0.971,
-      "n": 268,
+      "measurable_rate": 0.9783,
+      "n": 270,
       "n_clusters": 22,
-      "mean_excess_pct": -1.054,
+      "mean_excess_pct": -1.029,
       "median_excess_pct": -0.898,
-      "win_rate": 0.4179,
-      "t_stat": -1.29,
-      "t_stat_iid": -3.06,
+      "win_rate": 0.4185,
+      "t_stat": -1.27,
+      "t_stat_iid": -3.01,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        -2.609,
-        0.552
+        -2.573,
+        0.557
       ],
-      "sign_test_p": 0.0085,
-      "wild_p": 0.247,
+      "sign_test_p": 0.0088,
+      "wild_p": 0.254,
       "p_floor": 4.77e-07,
       "resolvable": true,
-      "skew_ratio": 1.17,
+      "skew_ratio": 1.15,
       "cluster_by": "week",
       "inference": "cluster_robust",
       "warnings": [
@@ -8800,14 +8833,28 @@
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": 0.020233
+          "excess": 0.022304
         },
         {
           "symbol": "AVAX-USDT",
           "date": "2026-08-03",
           "entry_date": "2026-08-03",
           "exit_date": "2026-08-08",
-          "excess": -0.046643
+          "excess": -0.030194
+        },
+        {
+          "symbol": "ADA-USDT",
+          "date": "2026-08-04",
+          "entry_date": "2026-08-04",
+          "exit_date": "2026-08-09",
+          "excess": 0.043926
+        },
+        {
+          "symbol": "AVAX-USDT",
+          "date": "2026-08-04",
+          "entry_date": "2026-08-04",
+          "exit_date": "2026-08-09",
+          "excess": -0.016047
         }
       ],
       "direction": "long",

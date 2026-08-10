@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T05:40:23.157143+00:00",
+  "generated_at": "2026-08-10T05:44:31.775342+00:00",
   "real_data_only": true,
   "source": "SEC Form 345",
   "quarters": [
@@ -29,32 +29,32 @@
         "window_too_short": 13,
         "no_benchmark": 0,
         "no_carry": 0,
-        "no_risk_estimate": 68
+        "no_risk_estimate": 66
       },
-      "measurable_rate": 0.8913,
-      "n": 1017,
+      "measurable_rate": 0.8931,
+      "n": 1019,
       "n_clusters": 9,
-      "mean_excess_pct": 3.302,
+      "mean_excess_pct": 3.25,
       "median_excess_pct": 0.795,
-      "win_rate": 0.5261,
-      "t_stat": 3.97,
-      "t_stat_iid": 4.91,
+      "win_rate": 0.526,
+      "t_stat": 4.21,
+      "t_stat_iid": 4.8,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        2.005,
-        5.176
+        2.048,
+        5.024
       ],
-      "sign_test_p": 0.1029,
+      "sign_test_p": 0.1033,
       "wild_p": 0.005,
       "p_floor": 0.00391,
       "resolvable": false,
-      "skew_ratio": 4.15,
+      "skew_ratio": 4.09,
       "cluster_by": "month",
       "inference": "cluster_robust",
       "warnings": [
         "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "mean is 4.2x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+        "mean is 4.1x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
         "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.10,胜率 52.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
         "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
@@ -2139,6 +2139,13 @@
           "excess": -0.287593
         },
         {
+          "symbol": "GGROU",
+          "date": "2025-10-03",
+          "entry_date": "2025-10-03",
+          "exit_date": "2025-10-31",
+          "excess": 0.330476
+        },
+        {
           "symbol": "WTI",
           "date": "2025-10-03",
           "entry_date": "2025-10-03",
@@ -4195,6 +4202,13 @@
           "entry_date": "2025-12-15",
           "exit_date": "2026-01-14",
           "excess": 0.153564
+        },
+        {
+          "symbol": "CCLFX",
+          "date": "2025-12-15",
+          "entry_date": "2025-12-15",
+          "exit_date": "2026-01-14",
+          "excess": -0.794278
         },
         {
           "symbol": "CLYM",
@@ -7188,32 +7202,32 @@
         "window_too_short": 23,
         "no_benchmark": 0,
         "no_carry": 0,
-        "no_risk_estimate": 152
+        "no_risk_estimate": 112
       },
-      "measurable_rate": 0.8902,
-      "n": 1913,
+      "measurable_rate": 0.9088,
+      "n": 1953,
       "n_clusters": 9,
-      "mean_excess_pct": 1.182,
-      "median_excess_pct": 0.151,
-      "win_rate": 0.506,
-      "t_stat": 1.22,
-      "t_stat_iid": 2.58,
+      "mean_excess_pct": 0.817,
+      "median_excess_pct": 0.223,
+      "win_rate": 0.5064,
+      "t_stat": 0.61,
+      "t_stat_iid": 1.37,
       "t_hurdle": 4.19,
       "significant": false,
       "bootstrap_ci_pct": [
-        -0.465,
-        3.353
+        -1.243,
+        4.196
       ],
-      "sign_test_p": 0.615,
-      "wild_p": 0.256,
+      "sign_test_p": 0.5871,
+      "wild_p": 0.6205,
       "p_floor": 0.00391,
       "resolvable": false,
-      "skew_ratio": 7.84,
+      "skew_ratio": 3.67,
       "cluster_by": "month",
       "inference": "cluster_robust",
       "warnings": [
         "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "mean is 7.8x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
+        "mean is 3.7x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
         "the 95% bootstrap interval on the mean contains zero",
         "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
@@ -7231,6 +7245,13 @@
           "entry_date": "2025-07-01",
           "exit_date": "2025-07-30",
           "excess": 0.134957
+        },
+        {
+          "symbol": "FORFX",
+          "date": "2025-07-01",
+          "entry_date": "2025-07-01",
+          "exit_date": "2025-07-30",
+          "excess": -0.762056
         },
         {
           "symbol": "FROPX",
@@ -7275,6 +7296,13 @@
           "excess": -0.03492
         },
         {
+          "symbol": "DSCRX",
+          "date": "2025-07-02",
+          "entry_date": "2025-07-02",
+          "exit_date": "2025-07-31",
+          "excess": 0.058364
+        },
+        {
           "symbol": "PMNT",
           "date": "2025-07-02",
           "entry_date": "2025-07-02",
@@ -7296,6 +7324,13 @@
           "excess": 0.028429
         },
         {
+          "symbol": "SCISX",
+          "date": "2025-07-07",
+          "entry_date": "2025-07-07",
+          "exit_date": "2025-08-04",
+          "excess": -0.204827
+        },
+        {
           "symbol": "ORCL",
           "date": "2025-07-09",
           "entry_date": "2025-07-09",
@@ -7308,6 +7343,13 @@
           "entry_date": "2025-07-09",
           "exit_date": "2025-08-06",
           "excess": 0.046266
+        },
+        {
+          "symbol": "SCISX",
+          "date": "2025-07-09",
+          "entry_date": "2025-07-09",
+          "exit_date": "2025-08-06",
+          "excess": 0.386406
         },
         {
           "symbol": "STRW",
@@ -7324,11 +7366,32 @@
           "excess": 0.137461
         },
         {
+          "symbol": "CCLFX",
+          "date": "2025-07-14",
+          "entry_date": "2025-07-14",
+          "exit_date": "2025-08-11",
+          "excess": 0.417965
+        },
+        {
+          "symbol": "CELFX",
+          "date": "2025-07-14",
+          "entry_date": "2025-07-14",
+          "exit_date": "2025-08-11",
+          "excess": 0.34796
+        },
+        {
           "symbol": "COGT",
           "date": "2025-07-14",
           "entry_date": "2025-07-14",
           "exit_date": "2025-08-11",
           "excess": 0.007776
+        },
+        {
+          "symbol": "CPEFX",
+          "date": "2025-07-14",
+          "entry_date": "2025-07-14",
+          "exit_date": "2025-08-11",
+          "excess": 0.4064
         },
         {
           "symbol": "GRX",
@@ -7504,6 +7567,13 @@
           "entry_date": "2025-07-23",
           "exit_date": "2025-08-20",
           "excess": -0.084514
+        },
+        {
+          "symbol": "SCISX",
+          "date": "2025-07-23",
+          "entry_date": "2025-07-23",
+          "exit_date": "2025-08-20",
+          "excess": 0.584722
         },
         {
           "symbol": "SMPL",
@@ -8241,6 +8311,13 @@
           "excess": -0.212779
         },
         {
+          "symbol": "SCISX",
+          "date": "2025-08-08",
+          "entry_date": "2025-08-08",
+          "exit_date": "2025-09-08",
+          "excess": -2.196718
+        },
+        {
           "symbol": "TROX",
           "date": "2025-08-08",
           "entry_date": "2025-08-08",
@@ -8358,6 +8435,13 @@
           "entry_date": "2025-08-11",
           "exit_date": "2025-09-09",
           "excess": 0.0823
+        },
+        {
+          "symbol": "TREIX",
+          "date": "2025-08-11",
+          "entry_date": "2025-08-11",
+          "exit_date": "2025-09-09",
+          "excess": -1.37425
         },
         {
           "symbol": "ASA",
@@ -10341,6 +10425,13 @@
           "excess": -0.039697
         },
         {
+          "symbol": "PFBX",
+          "date": "2025-09-18",
+          "entry_date": "2025-09-18",
+          "exit_date": "2025-10-16",
+          "excess": 0.152443
+        },
+        {
           "symbol": "AROC",
           "date": "2025-09-19",
           "entry_date": "2025-09-19",
@@ -10600,6 +10691,13 @@
           "excess": 0.027826
         },
         {
+          "symbol": "STRUX",
+          "date": "2025-10-01",
+          "entry_date": "2025-10-01",
+          "exit_date": "2025-10-29",
+          "excess": 0.676525
+        },
+        {
           "symbol": "EARN",
           "date": "2025-10-02",
           "entry_date": "2025-10-02",
@@ -10712,6 +10810,13 @@
           "excess": -0.084213
         },
         {
+          "symbol": "SCISX",
+          "date": "2025-10-06",
+          "entry_date": "2025-10-06",
+          "exit_date": "2025-11-03",
+          "excess": 0.917026
+        },
+        {
           "symbol": "SPWH",
           "date": "2025-10-06",
           "entry_date": "2025-10-06",
@@ -10822,6 +10927,13 @@
           "entry_date": "2025-10-09",
           "exit_date": "2025-11-06",
           "excess": -0.058094
+        },
+        {
+          "symbol": "BMACX",
+          "date": "2025-10-14",
+          "entry_date": "2025-10-14",
+          "exit_date": "2025-11-11",
+          "excess": 2.445976
         },
         {
           "symbol": "GRND",
@@ -11025,6 +11137,13 @@
           "entry_date": "2025-10-23",
           "exit_date": "2025-11-20",
           "excess": 0.171894
+        },
+        {
+          "symbol": "MONIX",
+          "date": "2025-10-24",
+          "entry_date": "2025-10-24",
+          "exit_date": "2025-11-21",
+          "excess": 2.031248
         },
         {
           "symbol": "RMI",
@@ -11545,6 +11664,13 @@
           "excess": 0.080122
         },
         {
+          "symbol": "MOALX",
+          "date": "2025-11-04",
+          "entry_date": "2025-11-04",
+          "exit_date": "2025-12-03",
+          "excess": -0.504625
+        },
+        {
           "symbol": "OBK",
           "date": "2025-11-04",
           "entry_date": "2025-11-04",
@@ -11634,6 +11760,13 @@
           "entry_date": "2025-11-05",
           "exit_date": "2025-12-04",
           "excess": 0.093116
+        },
+        {
+          "symbol": "MOALX",
+          "date": "2025-11-05",
+          "entry_date": "2025-11-05",
+          "exit_date": "2025-12-04",
+          "excess": -0.488492
         },
         {
           "symbol": "MVBF",
@@ -12455,6 +12588,13 @@
           "excess": -0.127528
         },
         {
+          "symbol": "BMACX",
+          "date": "2025-11-13",
+          "entry_date": "2025-11-13",
+          "exit_date": "2025-12-12",
+          "excess": -4.641589
+        },
+        {
           "symbol": "BPRN",
           "date": "2025-11-13",
           "entry_date": "2025-11-13",
@@ -12537,6 +12677,13 @@
           "entry_date": "2025-11-13",
           "exit_date": "2025-12-12",
           "excess": -0.074521
+        },
+        {
+          "symbol": "MOALX",
+          "date": "2025-11-13",
+          "entry_date": "2025-11-13",
+          "exit_date": "2025-12-12",
+          "excess": -1.179037
         },
         {
           "symbol": "NEXT",
@@ -13666,6 +13813,13 @@
           "excess": 0.03202
         },
         {
+          "symbol": "QNBC",
+          "date": "2025-11-24",
+          "entry_date": "2025-11-24",
+          "exit_date": "2025-12-23",
+          "excess": -0.760627
+        },
+        {
           "symbol": "RPD",
           "date": "2025-11-24",
           "entry_date": "2025-11-24",
@@ -13832,6 +13986,13 @@
           "entry_date": "2025-11-25",
           "exit_date": "2025-12-24",
           "excess": -0.182699
+        },
+        {
+          "symbol": "PGIWX",
+          "date": "2025-11-25",
+          "entry_date": "2025-11-25",
+          "exit_date": "2025-12-24",
+          "excess": -0.980995
         },
         {
           "symbol": "POST",
@@ -14142,6 +14303,13 @@
           "excess": -0.061078
         },
         {
+          "symbol": "KCHV",
+          "date": "2025-12-01",
+          "entry_date": "2025-12-01",
+          "exit_date": "2025-12-30",
+          "excess": -0.52399
+        },
+        {
           "symbol": "KTTA",
           "date": "2025-12-01",
           "entry_date": "2025-12-01",
@@ -14378,6 +14546,13 @@
           "entry_date": "2025-12-04",
           "exit_date": "2026-01-05",
           "excess": -0.163164
+        },
+        {
+          "symbol": "SCISX",
+          "date": "2025-12-04",
+          "entry_date": "2025-12-04",
+          "exit_date": "2026-01-05",
+          "excess": -0.339509
         },
         {
           "symbol": "TH",
@@ -14765,11 +14940,25 @@
           "excess": -0.230873
         },
         {
+          "symbol": "ODCYX",
+          "date": "2025-12-11",
+          "entry_date": "2025-12-11",
+          "exit_date": "2026-01-12",
+          "excess": -0.646128
+        },
+        {
           "symbol": "RSG",
           "date": "2025-12-11",
           "entry_date": "2025-12-11",
           "exit_date": "2026-01-12",
           "excess": -0.064251
+        },
+        {
+          "symbol": "SCISX",
+          "date": "2025-12-11",
+          "entry_date": "2025-12-11",
+          "exit_date": "2026-01-12",
+          "excess": -0.448408
         },
         {
           "symbol": "WEST",
@@ -15204,6 +15393,13 @@
           "entry_date": "2025-12-17",
           "exit_date": "2026-01-16",
           "excess": 0.051272
+        },
+        {
+          "symbol": "SCISX",
+          "date": "2025-12-17",
+          "entry_date": "2025-12-17",
+          "exit_date": "2026-01-16",
+          "excess": -1.497152
         },
         {
           "symbol": "SCWO",
@@ -15759,6 +15955,13 @@
           "excess": -0.004719
         },
         {
+          "symbol": "MONIX",
+          "date": "2026-01-02",
+          "entry_date": "2026-01-02",
+          "exit_date": "2026-02-02",
+          "excess": -0.727314
+        },
+        {
           "symbol": "PROP",
           "date": "2026-01-02",
           "entry_date": "2026-01-02",
@@ -15913,6 +16116,13 @@
           "excess": 0.058412
         },
         {
+          "symbol": "SCISX",
+          "date": "2026-01-07",
+          "entry_date": "2026-01-07",
+          "exit_date": "2026-02-05",
+          "excess": 0.567605
+        },
+        {
           "symbol": "YYAI",
           "date": "2026-01-07",
           "entry_date": "2026-01-07",
@@ -16016,6 +16226,13 @@
           "entry_date": "2026-01-13",
           "exit_date": "2026-02-11",
           "excess": 0.224651
+        },
+        {
+          "symbol": "CCLFX",
+          "date": "2026-01-13",
+          "entry_date": "2026-01-13",
+          "exit_date": "2026-02-11",
+          "excess": 0.260271
         },
         {
           "symbol": "CLNN",
@@ -16368,6 +16585,13 @@
           "excess": 0.312453
         },
         {
+          "symbol": "SCISX",
+          "date": "2026-01-28",
+          "entry_date": "2026-01-28",
+          "exit_date": "2026-02-26",
+          "excess": 0.156037
+        },
+        {
           "symbol": "SQNS",
           "date": "2026-01-28",
           "entry_date": "2026-01-28",
@@ -16550,6 +16774,13 @@
           "excess": -0.27148
         },
         {
+          "symbol": "STRUX",
+          "date": "2026-02-03",
+          "entry_date": "2026-02-03",
+          "exit_date": "2026-03-04",
+          "excess": 0.003634
+        },
+        {
           "symbol": "SWZ",
           "date": "2026-02-03",
           "entry_date": "2026-02-03",
@@ -16597,6 +16828,13 @@
           "entry_date": "2026-02-04",
           "exit_date": "2026-03-05",
           "excess": 0.218704
+        },
+        {
+          "symbol": "MOALX",
+          "date": "2026-02-04",
+          "entry_date": "2026-02-04",
+          "exit_date": "2026-03-05",
+          "excess": 0.416607
         },
         {
           "symbol": "PCF",
@@ -16676,6 +16914,13 @@
           "excess": 0.04981
         },
         {
+          "symbol": "MIFAX",
+          "date": "2026-02-05",
+          "entry_date": "2026-02-05",
+          "exit_date": "2026-03-06",
+          "excess": 0.160237
+        },
+        {
           "symbol": "MNRO",
           "date": "2026-02-05",
           "entry_date": "2026-02-05",
@@ -16702,6 +16947,13 @@
           "entry_date": "2026-02-05",
           "exit_date": "2026-03-06",
           "excess": 0.495736
+        },
+        {
+          "symbol": "PMPEX",
+          "date": "2026-02-05",
+          "entry_date": "2026-02-05",
+          "exit_date": "2026-03-06",
+          "excess": 0.650045
         },
         {
           "symbol": "SOFI",
@@ -16947,6 +17199,13 @@
           "entry_date": "2026-02-10",
           "exit_date": "2026-03-11",
           "excess": 0.132634
+        },
+        {
+          "symbol": "PMPEX",
+          "date": "2026-02-10",
+          "entry_date": "2026-02-10",
+          "exit_date": "2026-03-11",
+          "excess": 1.437965
         },
         {
           "symbol": "PW",
@@ -17514,6 +17773,13 @@
           "entry_date": "2026-02-20",
           "exit_date": "2026-03-20",
           "excess": 0.152217
+        },
+        {
+          "symbol": "ODCYX",
+          "date": "2026-02-20",
+          "entry_date": "2026-02-20",
+          "exit_date": "2026-03-20",
+          "excess": 1.802819
         },
         {
           "symbol": "OFG",
@@ -18783,6 +19049,13 @@
           "excess": -0.101933
         },
         {
+          "symbol": "SCISX",
+          "date": "2026-03-06",
+          "entry_date": "2026-03-06",
+          "exit_date": "2026-04-06",
+          "excess": 0.216815
+        },
+        {
           "symbol": "WD",
           "date": "2026-03-06",
           "entry_date": "2026-03-06",
@@ -19525,6 +19798,13 @@
           "excess": -0.006767
         },
         {
+          "symbol": "SCISX",
+          "date": "2026-03-13",
+          "entry_date": "2026-03-13",
+          "exit_date": "2026-04-13",
+          "excess": -0.985834
+        },
+        {
           "symbol": "SRE",
           "date": "2026-03-13",
           "entry_date": "2026-03-13",
@@ -20029,6 +20309,13 @@
           "excess": -0.094407
         },
         {
+          "symbol": "CELFX",
+          "date": "2026-03-20",
+          "entry_date": "2026-03-20",
+          "exit_date": "2026-04-20",
+          "excess": -1.67328
+        },
+        {
           "symbol": "GF",
           "date": "2026-03-20",
           "entry_date": "2026-03-20",
@@ -20363,6 +20650,13 @@
           "entry_date": "2026-03-25",
           "exit_date": "2026-04-23",
           "excess": -0.031114
+        },
+        {
+          "symbol": "CPEFX",
+          "date": "2026-03-26",
+          "entry_date": "2026-03-26",
+          "exit_date": "2026-04-24",
+          "excess": -0.818756
         },
         {
           "symbol": "EZRA",

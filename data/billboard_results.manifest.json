@@ -1,18 +1,18 @@
 {
   "experiment": "billboard_attention_reversal",
-  "as_of": "2026-08-09T18:26:41.659755+00:00",
+  "as_of": "2026-08-10T05:45:40.626818+00:00",
   "params": {
     "hold_days": 5,
     "cost_bps": 30.0,
     "max_events": 50000
   },
   "code": {
-    "commit": "a527994123fcb7141633307e23de7a8875fc58d6",
+    "commit": "6ef2b65b4806ddc930710cdfbb9a41ebdd4e4cb9",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-09T18:26:41.692151+00:00",
+  "started_at": "2026-08-10T05:45:40.648382+00:00",
   "inputs": {},
   "reproducible": true
 }
