@@ -1,6 +1,6 @@
 id: PB-0011
 title: 接入 Kronos 多标的预测实验室
-state: doing
+state: done
 p: P0
 area: forecasting
 why: 将 Kronos 的可复现 K 线预测能力接入 PolyBob，同时隔离参考仓库、模型权重和未经验证的交易风险
@@ -20,4 +20,4 @@ checks:
 deps: []
 branch: pb-0011-kronos
 blocked: null
-updated: '2026-08-12T08:41:44+00:00'
+updated: '2026-08-12T08:41:59+00:00'
