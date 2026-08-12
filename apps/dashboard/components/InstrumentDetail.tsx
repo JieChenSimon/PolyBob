@@ -5,6 +5,7 @@ import Link from 'next/link';
 import USEquityAdvisor from '@/components/USEquityAdvisor';
 import VerdictBanner from '@/components/VerdictBanner';
 import WisdomSignalPanel from '@/components/WisdomSignalPanel';
+import ForecastLabPanel from '@/components/ForecastLabPanel';
 import { API_BASE } from '@/lib/config';
 import { useLanguage } from '@/lib/i18n';
 
@@ -150,6 +151,7 @@ export default function InstrumentDetail({
       ) : null}
 
       <div className="mx-auto w-full max-w-shell px-5 pb-10 md:px-8">
+        <ForecastLabPanel symbol={symbol} domain={domain} />
         <WisdomSignalPanel symbol={symbol} domain={domain} />
       </div>
     </>

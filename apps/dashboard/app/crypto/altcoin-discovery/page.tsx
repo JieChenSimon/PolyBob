@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import BestOpportunity from '@/components/BestOpportunity';
 import AltcoinDiscoveryWorkspace from '@/components/AltcoinDiscoveryWorkspace';
+import ForecastBatchScanner from '@/components/ForecastBatchScanner';
 
 export default function AltcoinDiscoveryPage() {
   return (
@@ -17,6 +18,9 @@ export default function AltcoinDiscoveryPage() {
         </Suspense>
       </div>
       <AltcoinDiscoveryWorkspace />
+      <div className="mx-auto w-full max-w-shell px-5 pb-10 md:px-8">
+        <ForecastBatchScanner domain="crypto_spot" symbols={['BTC-USDT', 'ETH-USDT', 'SOL-USDT', 'DOGE-USDT']} />
+      </div>
     </>
   );
 }

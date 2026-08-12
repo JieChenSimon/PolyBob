@@ -91,3 +91,7 @@ data/market_cache/
 # The *evidence* (data/*_results.json + manifests) stays tracked; the store is
 # the substrate those results were measured on and is regenerable.
 data/store/
+
+# Local forecasting weights. Model files are reproducible downloads and can be
+# hundreds of MB; manifests and benchmark evidence belong in Git, weights do not.
+data/models/

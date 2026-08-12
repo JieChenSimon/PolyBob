@@ -31,6 +31,9 @@ Implemented adapters:
   only prices seen so far (strictly causal, no look-ahead). Deliberately does
   NOT import from ``strategies/`` so the simulation engine has a lightweight,
   dependency-free trend strategy of its own.
+- :class:`KronosForecastLabSource` — converts a completed forecasting artifact
+  into a simulation-only signal. It is deliberately not an event-bus or intent
+  source and stamps every signal ``lab_only``.
 """
 
 from __future__ import annotations
@@ -77,6 +80,53 @@ class SignalSource(Protocol):
 
     async def on_snapshot(self, topic: str, snapshot: dict) -> list[SimSignal]:
         ...
+
+
+class KronosForecastLabSource:
+    """Translate forecast evidence into a signal for simulation only.
+
+    This class has no live topics and cannot publish an intent.  Promotion is
+    still checked by the execution boundary; the source exists so an unpromoted
+    model can accumulate honest paper evidence before asking for permission.
+    """
+
+    topics: tuple[str, ...] = ()
+
+    def __init__(self, minimum_abs_return: float = 0.005) -> None:
+        self.minimum_abs_return = max(0.0, float(minimum_abs_return))
+
+    async def on_snapshot(self, topic: str, snapshot: dict) -> list[SimSignal]:
+        return []
+
+    def signals_for_artifact(self, artifact: Any) -> list[SimSignal]:
+        status = getattr(artifact, "status", None)
+        if getattr(status, "value", status) != "ready":
+            return []
+        expected = float(getattr(artifact, "expected_return", 0.0))
+        if abs(expected) < self.minimum_abs_return:
+            return []
+        last_close = float(getattr(artifact, "last_close", 0.0))
+        if last_close <= 0:
+            return []
+        up_probability = float(getattr(artifact, "up_probability", 0.5))
+        return [
+            SimSignal(
+                instrument_id=str(artifact.instrument_id),
+                side="buy" if expected > 0 else "sell",
+                confidence=min(1.0, abs(up_probability - 0.5) * 2),
+                mid=last_close,
+                timestamp=artifact.as_of,
+                signal_meta={
+                    "source": "kronos_daily_forecast",
+                    "run_id": artifact.run_id,
+                    "model_revision": artifact.model_revision,
+                    "promotion_status": "lab_only",
+                    "trade_permission": False,
+                    "expected_return": expected,
+                    "up_probability": up_probability,
+                },
+            )
+        ]
 
 
 class FusionSignalSource:

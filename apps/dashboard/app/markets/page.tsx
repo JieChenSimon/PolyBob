@@ -4,6 +4,7 @@ import GlobalSentimentPanel from '@/components/GlobalSentimentPanel';
 import MarketNewsTerminal from '@/components/MarketNewsTerminal';
 import MarketsWorkspace from '@/components/MarketsWorkspace';
 import SectionIntro from '@/components/SectionIntro';
+import ForecastBatchScanner from '@/components/ForecastBatchScanner';
 
 export default function MarketsPage() {
   return (
@@ -27,6 +28,7 @@ export default function MarketsPage() {
         <GlobalSentimentPanel />
         <MarketNewsTerminal />
         <MarketsWorkspace />
+        <ForecastBatchScanner domain="a_share" symbols={['600519', '000858', '601318', '300750']} />
       </main>
     </>
   );

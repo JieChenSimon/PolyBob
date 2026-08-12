@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import BestOpportunity from '@/components/BestOpportunity';
 import USEquityAdvisor from '@/components/USEquityAdvisor';
 import SectionIntro from '@/components/SectionIntro';
+import ForecastBatchScanner from '@/components/ForecastBatchScanner';
 
 export default function USEquitiesPage() {
   return (
@@ -31,6 +32,7 @@ export default function USEquitiesPage() {
         <Suspense fallback={null}>
           <USEquityAdvisor />
         </Suspense>
+        <ForecastBatchScanner domain="us_equity" symbols={['AAPL', 'MSFT', 'NVDA', 'AMZN']} />
       </main>
     </>
   );

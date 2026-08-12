@@ -1,0 +1,23 @@
+id: PB-0011
+title: 接入 Kronos 多标的预测实验室
+state: doing
+p: P0
+area: forecasting
+why: 将 Kronos 的可复现 K 线预测能力接入 PolyBob，同时隔离参考仓库、模型权重和未经验证的交易风险
+checks:
+- text: Kronos-base 与对应 tokenizer 可从 PolyBob 本地非 Git 缓存加载并完成真实 MPS/CPU 推理烟测
+  done: true
+- text: 统一 K 线与预测产物契约覆盖 A股、美股、加密货币及实验性 Polymarket 适配边界
+  done: true
+- text: Kronos 推理适配器默认关闭、缺失数据 fail-closed，并有固定模型版本与确定性回归测试
+  done: true
+- text: 预测结果进入 Lab 验证与模拟信号链路，未经晋级不得授予交易权限
+  done: true
+- text: 标的详情与批量扫描提供高密度预测状态可视化，包含来源、时效、不确定性和 Lab 标识
+  done: true
+- text: 完成 Kronos-large 复现训练所需架构、数据、算力、成本与分阶段训练可行性评估
+  done: true
+deps: []
+branch: pb-0011-kronos
+blocked: null
+updated: '2026-08-12T08:41:44+00:00'

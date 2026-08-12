@@ -1,0 +1,19 @@
+{
+  "status": "research_only_random_initialization",
+  "s1_bits": 10,
+  "s2_bits": 10,
+  "n_layers": 18,
+  "d_model": 1664,
+  "n_heads": 32,
+  "ff_dim": 3072,
+  "ffn_dropout_p": 0.0,
+  "attn_dropout_p": 0.0,
+  "resid_dropout_p": 0.0,
+  "token_dropout_p": 0.0,
+  "learn_te": true,
+  "learning_rate": 0.0002,
+  "weight_decay": 0.1,
+  "warmup_steps": 15000,
+  "source": "Kronos paper tables 1 and 5",
+  "warning": "This reconstructs the public architecture, not the unavailable official weights or training corpus."
+}

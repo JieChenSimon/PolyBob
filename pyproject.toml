@@ -40,6 +40,14 @@ dependencies = [
 native = [
     "polybob-core",
 ]
+forecasting = [
+    # Kronos is an opt-in lab capability. Keep its model-loading stack out of
+    # the default API/test environment so forecasting can never widen the core
+    # startup surface accidentally.
+    "einops>=0.8.0",
+    "huggingface-hub>=0.34.0",
+    "safetensors>=0.5.0",
+]
 
 [dependency-groups]
 dev = [

@@ -129,6 +129,7 @@ from apps.api.edges_api import router as edges_router  # noqa: E402
 from apps.api.journal_api import router as journal_router  # noqa: E402
 from apps.api.portfolio_api import router as portfolio_router  # noqa: E402
 from apps.api.dev_control_api import router as dev_control_router  # noqa: E402
+from apps.api.forecasting_api import router as forecasting_router  # noqa: E402
 from apps.api.verdict_api import router as verdict_router  # noqa: E402
 from apps.api.deps import (  # noqa: E402
     cached_api_response,
@@ -774,6 +775,7 @@ app.include_router(edges_router)
 app.include_router(journal_router)
 app.include_router(portfolio_router)
 app.include_router(dev_control_router)
+app.include_router(forecasting_router)
 
 
 @app.get("/metrics")

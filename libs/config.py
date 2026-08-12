@@ -67,6 +67,10 @@ class Settings(BaseSettings):
     product_mode: str = "personal_workbench"
     enable_lab_auto_trader: bool = False
     enable_lab_backtest: bool = False
+    enable_lab_kronos_forecasting: bool = False
+    polybob_kronos_model_root: str = "data/models/kronos"
+    polybob_kronos_device: str = ""
+    polybob_kronos_paths: int = 3
 
     # Compute backend
     polybob_compute_backend: str = "python"
