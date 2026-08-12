@@ -1,6 +1,6 @@
 id: PB-0006
 title: 对齐系统验证与生产研究管线
-state: doing
+state: done
 p: P1
 area: research
 why: 验证器必须使用生产环境的横截面控制、风险权重和真实经济漂移单位。
@@ -12,4 +12,4 @@ checks:
 deps: []
 branch: codex/dashboard-navigation-performance
 blocked: null
-updated: '2026-08-12T07:05:02+00:00'
+updated: '2026-08-12T07:05:30+00:00'

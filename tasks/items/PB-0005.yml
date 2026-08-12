@@ -1,6 +1,6 @@
 id: PB-0005
 title: 建立 Git 原生精密任务系统
-state: doing
+state: done
 p: P1
 area: meta
 why: 用低 token 成本准确追踪任务、依赖、验收、阻塞和提交。
@@ -16,4 +16,4 @@ checks:
 deps: []
 branch: codex/dashboard-navigation-performance
 blocked: null
-updated: '2026-08-12T07:05:20+00:00'
+updated: '2026-08-12T07:05:30+00:00'
