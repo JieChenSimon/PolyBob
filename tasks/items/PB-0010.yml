@@ -1,0 +1,15 @@
+id: PB-0010
+title: 允许历史分支安全发布任务提交
+state: doing
+p: P1
+area: git
+why: 任务在既有分支上完成且未记录 branch 时，promote 应依据真实 trailer 提交归属安全判断
+checks:
+- text: branch 为空但当前 HEAD 包含任务关联提交时允许 fast-forward promote
+  done: true
+- text: 已记录其他分支或缺少关联提交时仍拒绝发布
+  done: true
+deps: []
+branch: codex/dashboard-navigation-performance
+blocked: null
+updated: '2026-08-12T08:03:43+00:00'

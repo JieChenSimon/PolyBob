@@ -174,6 +174,31 @@ def test_promote_rejects_diverged_target(tmp_path):
     assert "not fast-forward" in _failure(lambda: tasks.promote(task["id"], "main", "origin", True))
 
 
+def test_promote_accepts_unrecorded_legacy_branch_with_real_task_commit(tmp_path):
+    tasks = repo(tmp_path)
+    add_remote(tasks, tmp_path)
+    task = create(tasks, "Legacy branch publish")
+    tasks.move(task["id"], "doing")
+    tasks.git("switch", "-c", "legacy-work")
+    (tmp_path / "selected").write_text("yes")
+    tasks.git("add", "selected", f"tasks/items/{task['id']}.yml")
+    tasks.git("commit", "-m", "legacy task", "-m", f"PolyBob-Task: {task['id']}")
+
+    assert tasks.load(task["id"])["branch"] is None
+    assert tasks.promote(task["id"], "main", "origin", False) is None
+    assert tasks.promote(task["id"], "main", "origin", True) == "origin/main"
+
+
+def test_promote_rejects_unrecorded_task_without_associated_commit(tmp_path):
+    tasks = repo(tmp_path)
+    add_remote(tasks, tmp_path)
+    task = create(tasks, "No commit")
+    tasks.git("add", f"tasks/items/{task['id']}.yml")
+    tasks.git("commit", "-m", "track task without trailer")
+
+    assert "no commits" in _failure(lambda: tasks.promote(task["id"], "main", "origin", False))
+
+
 def test_doctor_fixes_hook_and_git_abort_ends_conflict(tmp_path):
     tasks = repo(tmp_path)
     report = tasks.doctor(fix=True)

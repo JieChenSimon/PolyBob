@@ -275,7 +275,16 @@ class DevelopmentControl:
     def promote(self, task_id: str, target: str, remote: str | None, apply: bool) -> str | None:
         task = self.load(task_id)
         branch = self.git("branch", "--show-current")
-        if task.get("branch") != branch: raise Error("current branch does not belong to task")
+        recorded_branch = task.get("branch")
+        if recorded_branch and recorded_branch != branch:
+            raise Error("current branch does not belong to task")
+        commits = self.commits(task_id)
+        if not commits:
+            raise Error(f"no commits for {task_id}")
+        if any(subprocess.run(
+                ["git", "merge-base", "--is-ancestor", commit["sha"], "HEAD"],
+                cwd=self.root, check=False, capture_output=True).returncode for commit in commits):
+            raise Error("current branch does not contain every task commit")
         if self.git("status", "--porcelain"): raise Error("worktree is not clean")
         remote = remote or self.remote()
         if not remote: raise Error("no remote")
