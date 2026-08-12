@@ -24,18 +24,21 @@ echo "║     POLYBOB COMPLETE STARTUP          ║"
 echo "╚═══════════════════════════════════════╝"
 echo ""
 
-# 检查 conda
-if ! command -v conda &> /dev/null; then
-    echo "❌ Error: conda is not installed"
+# 检查 uv
+if ! command -v uv &> /dev/null; then
+    echo "❌ Error: uv is not installed"
+    echo "   https://docs.astral.sh/uv/getting-started/installation/"
     exit 1
 fi
 
-CONDA_ENV_NAME="${CONDA_ENV_NAME:-polybob}"
-
-# 激活 conda 环境
-eval "$(conda shell.bash hook)"
-echo "🔧 Activating conda environment: $CONDA_ENV_NAME"
-conda activate "$CONDA_ENV_NAME"
+# 精确同步项目自己的 .venv；不依赖全局 Python 环境。
+echo "🔧 Syncing locked Python environment"
+UV_SYNC_ARGS=(--locked --quiet)
+if [ -n "${POLYBOB_UV_EXTRA:-}" ]; then
+    UV_SYNC_ARGS+=(--extra "$POLYBOB_UV_EXTRA")
+fi
+uv sync "${UV_SYNC_ARGS[@]}"
+export POLYBOB_AKSHARE_PYTHON="${POLYBOB_AKSHARE_PYTHON:-$PWD/.venv/bin/python}"
 
 # 检查 .env
 if [ ! -f ".env" ]; then
@@ -67,7 +70,7 @@ run_guard_require_free_port "$DASHBOARD_PORT" "Dashboard"
 # 启动 API (禁用输出缓冲)
 echo ""
 echo "🚀 Starting API server..."
-POLYBOB_API_PORT="$API_PORT" python -u -m apps.api.main &
+POLYBOB_API_PORT="$API_PORT" uv run --locked --no-sync python -u -m apps.api.main &
 API_PID=$!
 run_guard_write_pid api "$API_PID"
 echo "   API PID: $API_PID"

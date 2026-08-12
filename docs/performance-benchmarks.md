@@ -148,7 +148,7 @@ only if measured production ingestion exceeds the optimized Python budget.
 Run the standard benchmark and save JSON:
 
 ```bash
-conda run -n polybob python scripts/run_performance_benchmarks.py \
+uv run --locked python scripts/run_performance_benchmarks.py \
   --scale standard --repeats 7 --warmups 2 \
   --json-output tests/performance/results/baseline-macos-arm64.json
 ```
@@ -156,11 +156,11 @@ conda run -n polybob python scripts/run_performance_benchmarks.py \
 Run the fast regression tests:
 
 ```bash
-conda run -n polybob python -m pytest -q tests/performance/test_latency.py
+uv run --locked pytest -q tests/performance/test_latency.py
 ```
 
 Run the full Python suite:
 
 ```bash
-conda run -n polybob python -m pytest -q
+uv run --locked pytest -q
 ```

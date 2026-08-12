@@ -19,3 +19,12 @@ Append one record for every applied project-level memory write.
 - operation: add
 - status: applied
 - notes: Recorded that PolyBob's default Python environment is the conda environment named `polybob`; bootstrapped the project memory TOC and minimal memory files.
+
+## 2026-08-12T16:30:00+08:00
+- mode: project-level memory update
+- proposal_ref: user-uv-migration-20260812
+- approved_item_ids: P1
+- destinations: `./.ai/memory/engineering-rules.md`, `./.ai/memory/validation-rules.md`, `./.ai/memory/memory-write-audit.md`
+- operation: supersede
+- status: applied
+- notes: Superseded the Conda default with the repository-local uv lockfile workflow requested by the user.

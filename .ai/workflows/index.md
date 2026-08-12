@@ -2,4 +2,4 @@
 
 PolyBob 仓库级工作流路由；详细流程保存在 `workflows/`。
 
-- 任务规划、领取、阻塞、完成与 Git 关联：`workflows/task-lifecycle.md`
+- 任务、Git、分支、发布、诊断与恢复：`workflows/development-control.md`

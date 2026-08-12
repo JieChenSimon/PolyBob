@@ -11,30 +11,22 @@ cd "$(dirname "$0")"
 
 echo "Starting PolyBob..."
 
-# 检查 conda 是否安装
-if ! command -v conda &> /dev/null; then
-    echo "Error: conda is not installed"
-    echo "Please install Miniconda or Anaconda first"
-    echo "https://docs.conda.io/en/latest/miniconda.html"
+# 检查 uv 是否安装
+if ! command -v uv &> /dev/null; then
+    echo "Error: uv is not installed"
+    echo "Install uv first: https://docs.astral.sh/uv/getting-started/installation/"
     exit 1
 fi
 
-# 用项目自己的环境。原来会回退到 CONDA_DEFAULT_ENV,也就是"你碰巧激活着的那个"——
-# 在 base 里跑就 ModuleNotFoundError: structlog。start-all.sh 一直用的是 polybob。
-CONDA_ENV_NAME="${CONDA_ENV_NAME:-polybob}"
 API_PORT="${POLYBOB_API_PORT:-}"
 
-# 检查 conda 环境是否存在
-if ! conda env list | grep -q "^${CONDA_ENV_NAME} "; then
-    echo "Error: conda environment '${CONDA_ENV_NAME}' not found"
-    echo "Set CONDA_ENV_NAME to an existing environment or create it first"
-    exit 1
+# 精确同步锁文件；不依赖调用者碰巧激活的 Python 环境。
+echo "Syncing locked Python environment..."
+UV_SYNC_ARGS=(--locked --quiet)
+if [ -n "${POLYBOB_UV_EXTRA:-}" ]; then
+    UV_SYNC_ARGS+=(--extra "$POLYBOB_UV_EXTRA")
 fi
-
-# 激活 conda 环境
-echo "Activating conda environment '${CONDA_ENV_NAME}'..."
-eval "$(conda shell.bash hook)"
-conda activate "$CONDA_ENV_NAME"
+uv sync "${UV_SYNC_ARGS[@]}"
 
 # 检查 .env 文件
 if [ ! -f ".env" ]; then
@@ -56,6 +48,6 @@ run_guard_arm
 run_guard_require_free_port "$API_PORT" "API"
 
 echo "Starting API server at http://localhost:$API_PORT..."
-POLYBOB_API_PORT="$API_PORT" python -m apps.api.main &
+POLYBOB_API_PORT="$API_PORT" uv run --locked --no-sync python -m apps.api.main &
 run_guard_write_pid api "$!"
 wait

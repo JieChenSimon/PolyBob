@@ -5,7 +5,7 @@ re-runs; it reads the raw result files, recomputes the t-hurdle at the current
 trial count, and writes the board. Nothing is typed in by hand — if a row is not
 in a raw file, it does not make the board.
 
-    conda run -n polybob python scripts/event_study_board.py [--check]
+    uv run --locked python scripts/event_study_board.py [--check]
 
 ``--check`` regenerates without writing and exits non-zero if the committed
 board differs, which is what CI and the test suite use to keep the board honest.

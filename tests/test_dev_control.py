@@ -2,10 +2,10 @@ from argparse import Namespace
 from pathlib import Path
 import subprocess
 
-from scripts.task_tracker import Tasks
+from scripts.dev_control import DevelopmentControl
 
 
-def repo(tmp_path: Path) -> Tasks:
+def repo(tmp_path: Path) -> DevelopmentControl:
     subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
     subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=tmp_path, check=True)
     subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, check=True)
@@ -14,10 +14,19 @@ def repo(tmp_path: Path) -> Tasks:
     (tmp_path / "seed").write_text("x")
     subprocess.run(["git", "add", "."], cwd=tmp_path, check=True)
     subprocess.run(["git", "commit", "-qm", "seed"], cwd=tmp_path, check=True)
-    return Tasks(tmp_path)
+    subprocess.run(["git", "branch", "-M", "main"], cwd=tmp_path, check=True)
+    return DevelopmentControl(tmp_path)
 
 
-def create(tasks: Tasks, title: str = "Small task", deps=None):
+def add_remote(tasks: DevelopmentControl, tmp_path: Path) -> Path:
+    remote = tmp_path.parent / f"{tmp_path.name}-remote.git"
+    subprocess.run(["git", "init", "--bare", "-q", str(remote)], check=True)
+    subprocess.run(["git", "remote", "add", "origin", str(remote)], cwd=tmp_path, check=True)
+    subprocess.run(["git", "push", "-qu", "origin", "main"], cwd=tmp_path, check=True)
+    return remote
+
+
+def create(tasks: DevelopmentControl, title: str = "Small task", deps=None):
     return tasks.create(Namespace(title=title, why="Measured reason", check=["Tests pass"],
                                   dep=deps or [], priority="P1", area="core"))
 
@@ -103,9 +112,7 @@ def test_commit_stages_only_explicit_paths_and_adds_trailer(tmp_path):
 
 def test_push_sets_upstream_for_task_branch(tmp_path):
     tasks = repo(tmp_path)
-    remote = tmp_path.parent / f"{tmp_path.name}-remote.git"
-    subprocess.run(["git", "init", "--bare", "-q", str(remote)], check=True)
-    subprocess.run(["git", "remote", "add", "origin", str(remote)], cwd=tmp_path, check=True)
+    add_remote(tasks, tmp_path)
     task = create(tasks)
     tasks.move(task["id"], "doing")
     (tmp_path / "selected").write_text("yes")
@@ -114,6 +121,57 @@ def test_push_sets_upstream_for_task_branch(tmp_path):
     branch = tasks.git("branch", "--show-current")
     assert target == f"origin/{branch}"
     assert tasks.git("rev-parse", "--abbrev-ref", "@{u}") == f"origin/{branch}"
+
+
+def test_branch_decision_uses_remote_main_and_neutral_name(tmp_path):
+    tasks = repo(tmp_path)
+    add_remote(tasks, tmp_path)
+    task = create(tasks, "Codex branch choice")
+    action, detail = tasks.branch_plan(task["id"], fetch=True)
+    assert action == "CREATE"
+    assert detail.endswith("from origin/main")
+    name = tasks.start_branch(task["id"])
+    assert name.startswith(f"{task['id'].lower()}-")
+    assert "codex" not in name
+    assert tasks.git("rev-parse", "HEAD") == tasks.git("rev-parse", "origin/main")
+
+
+def test_branch_plan_blocks_unrelated_dirty_work(tmp_path):
+    tasks = repo(tmp_path)
+    task = create(tasks)
+    (tmp_path / "unrelated").write_text("keep")
+    assert tasks.branch_plan(task["id"])[0] == "BLOCK"
+
+
+def test_doctor_detects_unpublished_main_and_promote_is_explicit_ff(tmp_path, capsys):
+    tasks = repo(tmp_path)
+    add_remote(tasks, tmp_path)
+    task = create(tasks, "Publish branch")
+    tasks.start_branch(task["id"])
+    (tmp_path / "selected").write_text("yes")
+    head = tasks.commit(task["id"], "publishable", ["selected"])
+    assert any("use promote" in message for _, message in tasks.doctor())
+    before = tasks.git("rev-parse", "origin/main")
+    assert tasks.promote(task["id"], "main", "origin", False) is None
+    assert tasks.git("rev-parse", "origin/main") == before
+    assert "dry run" in capsys.readouterr().out
+    assert tasks.promote(task["id"], "main", "origin", True) == "origin/main"
+    tasks.git("fetch", "origin")
+    assert tasks.git("rev-parse", "origin/main") == head
+
+
+def test_promote_rejects_diverged_target(tmp_path):
+    tasks = repo(tmp_path)
+    add_remote(tasks, tmp_path)
+    task = create(tasks, "Diverged branch")
+    branch = tasks.start_branch(task["id"])
+    (tmp_path / "selected").write_text("yes")
+    tasks.commit(task["id"], "task change", ["selected"])
+    tasks.git("switch", "main")
+    (tmp_path / "base-only").write_text("remote change")
+    tasks.git("add", "base-only"); tasks.git("commit", "-m", "advance main"); tasks.git("push", "origin", "main")
+    tasks.git("switch", branch)
+    assert "not fast-forward" in _failure(lambda: tasks.promote(task["id"], "main", "origin", True))
 
 
 def test_doctor_fixes_hook_and_git_abort_ends_conflict(tmp_path):

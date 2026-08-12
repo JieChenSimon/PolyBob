@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+Kronos
+apps/dashboard/.next
+apps/dashboard/node_modules
+data/market_cache
+data/store
+node_modules
+rust/target
+**/__pycache__
+*.py[cod]
+.env
+.coverage
+.pytest_cache

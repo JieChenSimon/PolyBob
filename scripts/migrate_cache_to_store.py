@@ -10,8 +10,8 @@ every migrated row is marked ``source_migrated`` so a later reader can tell
 From here on, fetches go through the store and carry a real ``fetched_at``.
 History before this migration is best-effort; history after it is exact.
 
-    conda run -n polybob python scripts/migrate_cache_to_store.py --dry-run
-    conda run -n polybob python scripts/migrate_cache_to_store.py
+    uv run --locked python scripts/migrate_cache_to_store.py --dry-run
+    uv run --locked python scripts/migrate_cache_to_store.py
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@ five separate steps that a person has to remember in the right order:
     git commit                       # or the run cannot be replayed
     python scripts/insider_experiment.py
     python scripts/event_study_board.py
-    python -m pytest
+    uv run --locked pytest
     # ...and notice if the board moved
 
 Forgetting the first step silently produces a result that cannot grant permission.

@@ -9,7 +9,7 @@ operator finds out by opening a page and seeing an empty panel.
 So these run for real, and are marked ``real_data`` so they stay out of the
 default run:
 
-    conda run -n polybob python -m pytest -m real_data -q
+    uv run --locked pytest -m real_data -q
 
 They assert *shape and freshness*, never specific prices: a test that pins a
 price is broken by tomorrow and teaches you nothing today. What they check is

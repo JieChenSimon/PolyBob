@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small, strict, Git-native task tracker for PolyBob."""
+"""PolyBob Development Control: tasks, Git, delivery, and recovery."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ ID = re.compile(r"^PB-(\d{4})$")
 BRANCH_ID = re.compile(r"(?:^|/)(pb-\d{4})(?:-|$)", re.I)
 STATES = ("todo", "doing", "blocked", "done", "dropped")
 PRIORITIES = ("P0", "P1", "P2", "P3")
+FORBIDDEN_BRANCH_WORDS = ("codex", "claude", "openai", "chatgpt")
 MOVES = {
     "todo": {"doing", "dropped"},
     "doing": {"blocked", "done", "dropped"},
@@ -34,7 +35,7 @@ def stamp() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
-class Tasks:
+class DevelopmentControl:
     def __init__(self, root: Path):
         self.root = root
         self.directory = root / "tasks" / "items"
@@ -84,6 +85,69 @@ class Tasks:
         return [{"sha": a, "date": b, "subject": c} for line in raw.splitlines()
                 if len(parts := line.split("\t", 2)) == 3 for a, b, c in [parts]]
 
+    def remote(self) -> str | None:
+        configured = self.git("config", "--get", f"branch.{self.config().get('base', 'main')}.remote",
+                              fail=False)
+        if configured and configured != ".": return configured
+        upstream = self.git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}", fail=False)
+        if "/" in upstream: return upstream.split("/", 1)[0]
+        remotes = self.git("remote", fail=False).splitlines()
+        return remotes[0] if remotes else None
+
+    def ref_exists(self, ref: str) -> bool:
+        return subprocess.run(["git", "show-ref", "--verify", "--quiet", ref],
+                              cwd=self.root, check=False).returncode == 0
+
+    def base_ref(self, remote: str | None = None) -> str:
+        base = str(self.config().get("base", "main"))
+        remote = remote or self.remote()
+        if remote and self.ref_exists(f"refs/remotes/{remote}/{base}"):
+            return f"{remote}/{base}"
+        if self.ref_exists(f"refs/heads/{base}"):
+            return base
+        raise Error(f"base branch not found: {base}")
+
+    def branch_name(self, task: dict) -> str:
+        slug = re.sub(r"[^a-z0-9]+", "-", task["title"].lower()).strip("-")[:40] or "task"
+        forbidden = [str(value).lower() for value in self.config().get(
+            "forbidden_branch_words", FORBIDDEN_BRANCH_WORDS
+        )]
+        parts = [part for part in slug.split("-") if part and part not in forbidden]
+        return f"{task['id'].lower()}-{'-'.join(parts) or 'task'}"
+
+    def branch_plan(self, task_id: str, fetch: bool = False) -> tuple[str, str]:
+        task = self.load(task_id)
+        remote = self.remote()
+        if fetch and remote:
+            self.git("fetch", remote, "--prune")
+        current = self.git("branch", "--show-current", fail=False)
+        desired = task.get("branch") or self.branch_name(task)
+        if self.operation(): return "BLOCK", f"{self.operation()} in progress"
+        own_file = str(self.path(task["id"]).relative_to(self.root))
+        dirty = [line[3:] for line in self.git("status", "--porcelain", "--untracked-files=all", fail=False).splitlines()
+                 if line[3:] != own_file]
+        if dirty: return "BLOCK", f"worktree has unrelated changes: {len(dirty)}"
+        if current == desired: return "REUSE", desired
+        if self.ref_exists(f"refs/heads/{desired}"): return "SWITCH", desired
+        if remote and self.ref_exists(f"refs/remotes/{remote}/{desired}"):
+            return "TRACK", f"{remote}/{desired}"
+        if task.get("branch"): return "BLOCK", f"recorded branch missing: {desired}"
+        return "CREATE", f"{desired} from {self.base_ref(remote)}"
+
+    def start_branch(self, task_id: str) -> str:
+        task = self.load(task_id)
+        if task["state"] != "todo": raise Error(f"branch needs todo, got {task['state']}")
+        limit = int(self.config().get("wip", 3))
+        if sum(t["state"] == "doing" for t in self.all()) >= limit: raise Error("WIP full")
+        action, detail = self.branch_plan(task_id, fetch=True)
+        if action == "BLOCK": raise Error(detail)
+        desired = task.get("branch") or self.branch_name(task)
+        if action == "SWITCH": self.git("switch", desired)
+        elif action == "TRACK": self.git("switch", "--track", "-c", desired, detail)
+        elif action == "CREATE": self.git("switch", "--no-track", "-c", desired, detail.rsplit(" from ", 1)[1])
+        task["branch"] = desired; task["state"] = "doing"; self.save(task)
+        return desired
+
     def operation(self) -> str | None:
         checks = {
             "merge": "MERGE_HEAD", "rebase": "rebase-merge", "rebase-apply": "rebase-apply",
@@ -131,6 +195,18 @@ class Tasks:
                 elif ahead: report.append(("INFO", f"{ahead} commit(s) ready to push"))
                 elif behind: report.append(("WARN", f"behind by {behind}; fetch then merge --ff-only"))
                 else: report.append(("OK", f"in sync with {upstream}"))
+        remote = self.remote()
+        base = str(self.config().get("base", "main"))
+        target = f"{remote}/{base}" if remote else base
+        if branch and branch != base and self.ref_exists(
+                f"refs/remotes/{remote}/{base}" if remote else f"refs/heads/{base}"):
+            counts = self.git("rev-list", "--left-right", "--count", f"{target}...HEAD").split()
+            if len(counts) == 2:
+                target_only, current_only = map(int, counts)
+                if not target_only and current_only:
+                    report.append(("INFO", f"{target} is {current_only} commit(s) behind current; use promote"))
+                elif target_only and current_only:
+                    report.append(("BLOCK", f"current and {target} diverged: target +{target_only}, current +{current_only}"))
         match = BRANCH_ID.search(branch)
         if match:
             task_id = match.group(1).upper()
@@ -177,7 +253,7 @@ class Tasks:
         self.git("commit", "-m", message, "-m", f"PolyBob-Task: {task['id']}")
         return self.git("rev-parse", "HEAD")
 
-    def push(self, task_id: str, remote: str) -> str:
+    def push(self, task_id: str, remote: str | None) -> str:
         task = self.load(task_id)
         branch = self.git("branch", "--show-current")
         if not branch:
@@ -186,7 +262,8 @@ class Tasks:
             raise Error(f"task branch is {task.get('branch') or 'unset'}, current is {branch}")
         if not self.commits(task["id"]):
             raise Error(f"no commits for {task['id']}")
-        if remote not in self.git("remote").splitlines():
+        remote = remote or self.remote()
+        if not remote or remote not in self.git("remote").splitlines():
             raise Error(f"remote not found: {remote}")
         upstream = self.git("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}", fail=False)
         if upstream:
@@ -194,6 +271,29 @@ class Tasks:
         else:
             self.git("push", "--set-upstream", remote, branch)
         return f"{remote}/{branch}"
+
+    def promote(self, task_id: str, target: str, remote: str | None, apply: bool) -> str | None:
+        task = self.load(task_id)
+        branch = self.git("branch", "--show-current")
+        if task.get("branch") != branch: raise Error("current branch does not belong to task")
+        if self.git("status", "--porcelain"): raise Error("worktree is not clean")
+        remote = remote or self.remote()
+        if not remote: raise Error("no remote")
+        self.git("fetch", remote, "--prune")
+        target_ref = f"{remote}/{target}"
+        if not self.ref_exists(f"refs/remotes/{remote}/{target}"):
+            raise Error(f"remote target not found: {target_ref}")
+        target_only, current_only = map(
+            int, self.git("rev-list", "--left-right", "--count", f"{target_ref}...HEAD").split()
+        )
+        if target_only:
+            raise Error(f"not fast-forward: {target_ref} has {target_only} unique commit(s)")
+        print(f"promote plan: HEAD -> {target_ref} (+{current_only} commits)")
+        if not apply:
+            print("dry run; add --yes to apply")
+            return None
+        self.git("push", remote, f"HEAD:{target}")
+        return target_ref
 
     def abort_git(self) -> str:
         operation = self.operation()
@@ -347,7 +447,7 @@ def compact(task: dict) -> str:
     return f"{flag} {task['id']} {task['p']} {done}/{len(task['checks'])} [{task['area']}] {task['title']}"
 
 
-def show(tasks: Tasks, task: dict) -> None:
+def show(tasks: DevelopmentControl, task: dict) -> None:
     print(compact(task)); print(task["why"])
     if task["deps"]: print("deps:", " ".join(task["deps"]))
     if task.get("blocked"): print("blocked:", task["blocked"])
@@ -358,7 +458,7 @@ def show(tasks: Tasks, task: dict) -> None:
         print(f"  git {commit['sha'][:8]} {commit['date']} {commit['subject']}")
 
 
-def board(tasks: Tasks) -> None:
+def board(tasks: DevelopmentControl) -> None:
     rows = tasks.all()
     total = len(rows); done = sum(t["state"] == "done" for t in rows)
     blocked = sum(t["state"] == "blocked" for t in rows)
@@ -387,7 +487,9 @@ def parser() -> argparse.ArgumentParser:
     stop = sub.add_parser("stop"); stop.add_argument("id"); stop.add_argument("--reason", required=True)
     rollback = sub.add_parser("rollback"); rollback.add_argument("id"); rollback.add_argument("--yes", action="store_true")
     commit = sub.add_parser("commit"); commit.add_argument("id"); commit.add_argument("-m", "--message", required=True); commit.add_argument("--path", action="append", required=True)
-    push = sub.add_parser("push"); push.add_argument("id"); push.add_argument("--remote", default="origin")
+    push = sub.add_parser("push"); push.add_argument("id"); push.add_argument("--remote")
+    plan = sub.add_parser("branch-plan"); plan.add_argument("id"); plan.add_argument("--fetch", action="store_true")
+    promote = sub.add_parser("promote"); promote.add_argument("id"); promote.add_argument("--to", default="main"); promote.add_argument("--remote"); promote.add_argument("--yes", action="store_true")
     doctor = sub.add_parser("doctor"); doctor.add_argument("--fix", action="store_true"); doctor.add_argument("--fetch", action="store_true")
     abort = sub.add_parser("git-abort"); abort.add_argument("--yes", action="store_true")
     branch = sub.add_parser("branch"); branch.add_argument("id")
@@ -398,7 +500,7 @@ def parser() -> argparse.ArgumentParser:
 def main() -> int:
     args = parser().parse_args()
     root = Path(os.environ.get("POLYBOB_TASK_ROOT", Path(__file__).resolve().parents[1])).resolve()
-    tasks = Tasks(root)
+    tasks = DevelopmentControl(root)
     try:
         if args.cmd == "new": show(tasks, tasks.create(args))
         elif args.cmd == "ls":
@@ -416,19 +518,18 @@ def main() -> int:
             if task: show(tasks, task)
         elif args.cmd == "commit": print(tasks.commit(args.id, args.message, args.path)[:12])
         elif args.cmd == "push": print(tasks.push(args.id, args.remote))
+        elif args.cmd == "branch-plan":
+            action, detail = tasks.branch_plan(args.id, args.fetch); print(f"{action} {detail}")
+        elif args.cmd == "promote":
+            target = tasks.promote(args.id, args.to, args.remote, args.yes)
+            if target: print(target)
         elif args.cmd == "doctor":
             for level, message in tasks.doctor(args.fix, args.fetch): print(f"{level:<5} {message}")
         elif args.cmd == "git-abort":
             if not args.yes: raise Error("git-abort needs --yes")
             print(f"aborted {tasks.abort_git()}")
         elif args.cmd == "branch":
-            task = tasks.load(args.id)
-            if task["state"] != "todo": raise Error(f"branch needs todo, got {task['state']}")
-            limit = int(tasks.config().get("wip", 3))
-            if sum(t["state"] == "doing" for t in tasks.all()) >= limit: raise Error("WIP full")
-            name = f"codex/{task['id'].lower()}-{re.sub('[^a-z0-9]+', '-', task['title'].lower()).strip('-')[:40] or 'task'}"
-            tasks.git("switch", "-c", name); task["branch"] = name; task["state"] = "doing"
-            tasks.save(task); print(name)
+            print(tasks.start_branch(args.id))
         elif args.cmd == "validate-message":
             text = Path(args.file).read_text(); subject = text.splitlines()[0] if text.splitlines() else ""
             if not subject.startswith(("Merge ", "Revert ", "fixup! ", "squash! ")):

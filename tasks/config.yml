@@ -1,2 +1,8 @@
 schema: 1
 wip: 3
+base: main
+forbidden_branch_words:
+- codex
+- claude
+- openai
+- chatgpt

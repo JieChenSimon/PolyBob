@@ -9,8 +9,8 @@ What is *not* a cache and stays in git: ``data/*_results.json`` (the per-event
 returns the board verifies), ``data/promotion_board.json``,
 ``data/hypothesis_registry.json``. Those are evidence.
 
-    conda run -n polybob python scripts/warm_cache.py            # everything
-    conda run -n polybob python scripts/warm_cache.py --only us  # one domain
+    uv run --locked python scripts/warm_cache.py            # everything
+    uv run --locked python scripts/warm_cache.py --only us  # one domain
 
 Providers are hit politely and sequentially. A failure is reported and skipped,
 never substituted: a missing bar is missing, and the experiments already know how

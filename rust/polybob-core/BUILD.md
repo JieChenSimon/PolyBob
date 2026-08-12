@@ -9,7 +9,7 @@ and importable (see `libs/compute/backend.py::native_core_status`).
 ## Prerequisites
 
 - Rust toolchain (`cargo`, `rustc`) — install via <https://rustup.rs>.
-- `maturin` in the active Python env: `pip install "maturin>=1.7,<2.0"`.
+- `uv` plus `maturin` invoked ephemerally with `uv run --with "maturin>=1.7,<2.0"`.
 - The macOS crate links with `dynamic_lookup` (see `.cargo/config.toml`) so the
   extension resolves Python symbols at load time.
 
@@ -24,24 +24,25 @@ cargo test                 # runs the Rust unit tests in src/*.rs
 ## Build and install into the active environment
 
 ```bash
+uv sync --locked --extra native  # builds and installs the local extension
+
+# Or produce a standalone wheel:
 cd rust/polybob-core
-maturin develop --release  # builds and installs polybob_core into the current venv
-# or produce a wheel:
-maturin build --release    # wheel lands in target/wheels/
-pip install target/wheels/polybob_core-*.whl
+uv run --with "maturin>=1.7,<2.0" maturin build --release
+# wheel lands in target/wheels/; install the concrete wheel with `uv pip install`.
 ```
 
 Confirm it is active:
 
 ```bash
-python -c "from libs.compute import native_core_status; print(native_core_status())"
+uv run --locked python -c "from libs.compute import native_core_status; print(native_core_status())"
 # -> {'native_core_built': True, 'status': 'native core built', ...}
 ```
 
 Then run the profiled hot loop against both backends:
 
 ```bash
-python -c "from libs.compute import benchmark_rolling_zscore; print(benchmark_rolling_zscore())"
+uv run --locked python -c "from libs.compute import benchmark_rolling_zscore; print(benchmark_rolling_zscore())"
 ```
 
 ## Using the native core at runtime

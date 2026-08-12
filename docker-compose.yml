@@ -16,6 +16,8 @@ services:
       - redis
     volumes:
       - .:/app
+      # Keep the image's Linux virtualenv instead of shadowing it with the host one.
+      - /app/.venv
     command: python -m apps.api.main
 
   # PostgreSQL

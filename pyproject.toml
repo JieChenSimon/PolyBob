@@ -9,25 +9,26 @@ requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.27.0",
+    "starlette>=0.46.0",
     "pydantic>=2.5.0",
     "pydantic-settings>=2.1.0",
-    "sqlalchemy>=2.0.25",
     "asyncpg>=0.29.0",
-    "redis>=5.0.1",
     "httpx>=0.26.0",
+    "requests>=2.31.0",
     "websockets>=12.0",
-    "python-dotenv>=1.0.0",
     "structlog>=24.1.0",
     "prometheus-client>=0.19.0",
     "anthropic>=0.18.0",
     "pyyaml>=6.0",
+    "rich>=13.7.0",
     "numpy>=1.26.0",
     "numba>=0.59.0",
     "scipy>=1.11.0",
     "pandas>=2.1.0",
     # The bitemporal store (libs/data/store.py). Parquet for append-only
-    # observation history, DuckDB for the as-of window query that makes
-    # look-ahead structurally unavailable, pytz for DuckDB's tz-aware timestamps.
+    # observation history and DuckDB for the as-of window query that makes
+    # look-ahead structurally unavailable. DuckDB dynamically imports pytz
+    # when returning timezone-aware Python values.
     "pyarrow>=15.0.0",
     "duckdb>=1.0.0",
     "pytz>=2024.1",
@@ -36,14 +37,22 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+native = [
+    "polybob-core",
+]
+
+[dependency-groups]
 dev = [
     "pytest>=7.4.0",
     "pytest-asyncio>=0.23.0",
     "pytest-cov>=4.1.0",
-    "black>=24.1.0",
-    "ruff>=0.1.0",
-    "mypy>=1.8.0",
 ]
+
+[tool.uv]
+required-version = ">=0.11.0,<0.12.0"
+
+[tool.uv.sources]
+polybob-core = { path = "rust/polybob-core" }
 
 [build-system]
 requires = ["hatchling"]
@@ -53,20 +62,9 @@ build-backend = "hatchling.build"
 only-include = [
     "apps",
     "libs",
-    "services",
+    "modules",
     "strategies",
 ]
-
-[tool.black]
-line-length = 100
-target-version = ["py311"]
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-
-[tool.mypy]
-python_version = "3.11"
-strict = true
-warn_return_any = true
-warn_unused_configs = true
+exclude = [
+    "apps/dashboard/**",
+]

@@ -10,14 +10,18 @@ Read the project memory files in this order:
 4. `./.ai/memory/ui-ux-rules.md`
 5. `./.ai/memory/change-logics.md`
 
-For non-trivial implementation or fixes, autonomously use the task system: run
-`python scripts/task_tracker.py board`, reuse or create one task, and track its
+For non-trivial implementation or fixes, autonomously use PolyBob Development
+Control: run `uv run --locked python scripts/dev_control.py board`, reuse or create one task, and track its
 state. Skip read-only analysis and trivial one-line edits. Follow
-`./.ai/workflows/workflows/task-lifecycle.md` and validate against
-`./.ai/constraints/constraints/task-system-integrity.md`. Never automatically
+`./.ai/workflows/workflows/development-control.md` and validate against
+`./.ai/constraints/constraints/development-control-integrity.md`. Never automatically
 commit or run `rollback --yes`; actual rollback requires explicit user approval.
-Use task-system `commit` and `push` only when the user asks for those Git actions.
+Use Development Control `commit` and `push` only when the user asks for those Git actions.
 For Git problems, run `doctor` first; never auto force-push, reset, or discard changes.
+New branches must use neutral `pb-NNNN-short-title` names and must not contain
+Codex, Claude, OpenAI, ChatGPT, or other agent/product branding. Use
+`branch-plan --fetch` before branching and `promote` to verify whether work has
+reached `main`.
 
 Load `./.ai/memory/memory-write-audit.md` only when reviewing write history or migration records.
 

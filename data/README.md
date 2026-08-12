@@ -61,7 +61,7 @@ hypothesis_registry → scripts/*_experiment.py → *_results.json  →  promoti
 **永远不要手改这个文件。** 重跑任何实验后执行：
 
 ```bash
-conda run -n polybob python scripts/event_study_board.py
+uv run --locked python scripts/event_study_board.py
 ```
 
 `tests/test_event_study_board.py::test_committed_board_matches_the_evidence`

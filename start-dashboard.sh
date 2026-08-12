@@ -13,6 +13,15 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DASHBOARD_DIR="$ROOT_DIR/apps/dashboard"
 DASHBOARD_PORT="${POLYBOB_DASHBOARD_PORT:-}"
 
+if ! command -v uv &> /dev/null; then
+    echo "Error: uv is not installed"
+    echo "Install uv first: https://docs.astral.sh/uv/getting-started/installation/"
+    exit 1
+fi
+
+uv sync --locked --quiet
+export POLYBOB_AKSHARE_PYTHON="${POLYBOB_AKSHARE_PYTHON:-$ROOT_DIR/.venv/bin/python}"
+
 if [ -f "$ROOT_DIR/.env" ]; then
     set -a
     # shellcheck disable=SC1091

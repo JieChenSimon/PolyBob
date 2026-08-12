@@ -143,8 +143,7 @@ strategies = manager.list_strategies()
 所有策略已通过单元测试:
 
 ```bash
-conda activate polybob
-python -m pytest tests/test_strategies.py -v
+uv run --locked pytest tests/test_strategies.py -v
 ```
 
 测试覆盖:
@@ -254,6 +253,5 @@ strategies/
 
 安装依赖:
 ```bash
-conda activate polybob
-conda install -c conda-forge anthropic pyyaml structlog pytest pytest-asyncio
+uv sync --locked
 ```

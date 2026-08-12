@@ -47,7 +47,7 @@ ANTHROPIC_API_KEY=your_api_key_here
 
 需要安装依赖:
 ```bash
-pip install anthropic
+uv sync --locked
 ```
 
 ## 使用示例

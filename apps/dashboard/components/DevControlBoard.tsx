@@ -21,6 +21,7 @@ type Task = {
   updated: string;
   progress: { done: number; total: number };
   commits: Array<{ sha: string; date: string; subject: string }>;
+  delivery: 'uncommitted' | 'local' | 'pushed' | 'main';
 };
 type Payload = {
   tasks: Task[];
@@ -35,13 +36,13 @@ const tone: Record<State, string> = {
   done: 'border-emerald-500', dropped: 'border-stone-300 opacity-60',
 };
 
-export default function TaskBoard() {
+export default function DevControlBoard() {
   const { language } = useLanguage();
   const zh = language === 'zh';
   const query = useQuery<Payload>({
     queryKey: ['task-board'],
     queryFn: async ({ signal }) => {
-      const response = await fetch(`${API_BASE}/api/tasks`, { signal });
+      const response = await fetch(`${API_BASE}/api/dev-control`, { signal });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return response.json();
     },
@@ -50,7 +51,7 @@ export default function TaskBoard() {
 
   if (query.isPending) return <LoadingSkeleton count={5} />;
   if (query.isError || !query.data) {
-    return <ErrorState title={zh ? '无法读取任务' : 'Could not load tasks'} message="/api/tasks" />;
+    return <ErrorState title={zh ? '无法读取开发控制状态' : 'Could not load development control'} message="/api/dev-control" />;
   }
   const data = query.data;
   const open = data.tasks.length - data.counts.done - data.counts.dropped;
@@ -115,6 +116,9 @@ function TaskCard({ task, zh }: { task: Task; zh: boolean }) {
       </div>
       <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-stone-400">
         <span>{task.area}</span>
+        <span className={`font-mono font-semibold ${task.delivery === 'main' ? 'text-emerald-600' : task.delivery === 'pushed' ? 'text-sky-600' : task.delivery === 'local' ? 'text-amber-600' : 'text-stone-400'}`}>
+          {task.delivery.toUpperCase()}
+        </span>
         {task.deps.length ? <span>{zh ? '依赖' : 'deps'} {task.deps.join(', ')}</span> : null}
         {task.commits.length ? <span className="font-mono">git {task.commits[0].sha}</span> : null}
       </div>

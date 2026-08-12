@@ -1,0 +1,19 @@
+id: PB-0009
+title: 迁移 Python 环境到 uv
+state: doing
+p: P1
+area: tooling
+why: 以跨平台锁文件和项目内虚拟环境替代 Conda，提升迁移与复现能力且保持运行行为不变
+checks:
+- text: pyproject 与 uv.lock 能在 Python 3.11 上完成锁定安装
+  done: true
+- text: 本地启动、CI 与 Docker 使用 uv 且不再依赖 Conda
+  done: true
+- text: 现有 Python 完整测试、API 启动烟测和 dashboard 构建全部通过
+  done: true
+- text: 活跃文档与项目规则只提供 uv 工作流
+  done: true
+deps: []
+branch: null
+blocked: null
+updated: '2026-08-12T07:41:41+00:00'

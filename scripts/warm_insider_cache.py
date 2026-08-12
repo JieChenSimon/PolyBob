@@ -5,7 +5,7 @@ twenty-day window costs a few thousand requests and takes minutes — fine for a
 scheduled job, unacceptable inside a page load. Run this once a day (after the
 US close, when EDGAR has published the day's index):
 
-    conda run -n polybob python scripts/warm_insider_cache.py
+    uv run --locked python scripts/warm_insider_cache.py
 
 A past day's filings never change, so each day is fetched exactly once. The
 first run fills the whole window; later runs fetch only the new day.

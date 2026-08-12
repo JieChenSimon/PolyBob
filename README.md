@@ -14,12 +14,27 @@ PolyBob 按三层维护：
 
 ## Quick Start
 
-默认 Python 环境是 conda 中的 `polybob`。
+Python 环境由 `uv` 根据 `pyproject.toml` 和 `uv.lock` 管理，固定使用 Python 3.11，
+虚拟环境位于项目内的 `.venv`。
+首次使用先按 [uv 官方安装说明](https://docs.astral.sh/uv/getting-started/installation/) 安装 `uv`。
 
 ```bash
-conda env create -f environment.yml
-conda activate polybob
-python -m pip install -e '.[dev]'
+uv sync --locked
+```
+
+之后无需激活环境，统一用 `uv run` 执行 Python 命令。
+
+环境文件分布：
+
+- `pyproject.toml`、`uv.lock`、`.python-version` 位于仓库根目录并进入 Git；
+- 实际安装包位于根目录 `.venv/`，该目录不进入 Git，可随时由锁文件重建；
+- uv 管理的 Python 解释器和下载缓存位于用户级 uv 目录，可供多个项目复用，不属于项目源码。
+
+可选 Rust 计算加速不会成为基础迁移的系统依赖；需要时安装仓库内的 native extra：
+
+```bash
+uv sync --locked --extra native
+POLYBOB_UV_EXTRA=native ./start.sh
 ```
 
 配置环境变量：
@@ -41,8 +56,7 @@ POLYBOB_FINNHUB_REQUESTS_PER_MINUTE=55
 股票页的“盘口线索”不伪造订单簿。A 股使用 Eastmoney/AkShare 同源的真实五档盘口字段；如果真实五档请求失败，就显示盘口不可用，不用买一卖一或 K 线拼假盘口。这个路径不需要像 Futu OpenD 那样长期运行本地服务。
 
 ```bash
-conda activate polybob
-python -m pip install akshare
+uv run --locked python -c "import akshare; print(akshare.__version__)"
 ```
 
 如需让 dashboard 明确使用某个 Python：
@@ -56,7 +70,7 @@ POLYBOB_AKSHARE_PYTHON=/path/to/python
 启动 API：
 
 ```bash
-python -m apps.api.main
+uv run --locked python -m apps.api.main
 ```
 
 启动 dashboard：
@@ -106,7 +120,7 @@ Dashboard 首页是 Daily Brief：先回答今天该看什么、哪些信号需�
 BTC demo auto trader 默认关闭。需要实验时显式开启：
 
 ```bash
-ENABLE_LAB_AUTO_TRADER=true python -m apps.api.main
+ENABLE_LAB_AUTO_TRADER=true uv run --locked python -m apps.api.main
 ```
 
 关闭时：
@@ -115,7 +129,7 @@ ENABLE_LAB_AUTO_TRADER=true python -m apps.api.main
 - `/api/trading/start` 返回 403；
 - overview / risk 不会初始化 demo 引擎，也不会为 demo 拉取 Binance 报价。
 - 如果真实 portfolio ledger 尚未配置，overview / risk 返回 `portfolio_status: not_configured`，并将 exposure / leverage / PnL 保持为 unknown，而不是回退为 0。
-- `services/api_server` 是 archive 入口，不再提供可运行交易 API；当前 API 入口是 `python -m apps.api.main`。
+- `attic/services/api_server` 是 archive 入口，不再提供可运行交易 API；当前 API 入口是 `uv run --locked python -m apps.api.main`。
 
 ## Project Structure
 
@@ -123,7 +137,7 @@ ENABLE_LAB_AUTO_TRADER=true python -m apps.api.main
 apps/
   api/                  FastAPI core entrypoint
   dashboard/            Next.js personal workbench
-services/
+modules/
   market_discovery/     Polymarket market discovery
   realtime_ingestor/    CLOB realtime ingestion
   feature_engine/       Market feature aggregation
@@ -162,7 +176,7 @@ This store is not connected to the API startup path yet.
 ## Validation
 
 ```bash
-conda run -n polybob python -m pytest -q
+uv run --locked pytest -q
 cd apps/dashboard && npm run build
 ```
 

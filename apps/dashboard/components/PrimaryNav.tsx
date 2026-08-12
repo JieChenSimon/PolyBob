@@ -16,7 +16,7 @@ const navItems = [
   { href: '/polymarket', label: { en: 'Polymarket', zh: 'Polymarket' }, aliases: ['/btc-5m'] },
   { href: '/crypto', label: { en: 'Crypto', zh: '加密货币' } },
   { href: '/us-equities', label: { en: 'Equities', zh: '股票观察' }, prefetch: false },
-  { href: '/tasks', label: { en: 'Tasks', zh: '任务' } },
+  { href: '/dev-control', label: { en: 'Control', zh: '开发控制' } },
   // 执行台 / 模拟盘 / 风险运营 / 策略中心 moved to attic/ — they were four tabs
   // of operating surface for zero tradable edges. The shape of a page is a
   // promise, and blanking its numbers does not withdraw it. The scoreboard and

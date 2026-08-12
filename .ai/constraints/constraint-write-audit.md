@@ -35,3 +35,48 @@
 - operation: update
 - status: approved-by-explicit-request
 - notes: 增加显式路径 commit、校验 push、Git doctor、安全修复和未完成操作终止能力。
+
+## 2026-08-12T07:45:00Z
+
+- proposal_ref: user-branch-decision-neutral-naming
+- approved_item_ids: branch-decision-and-neutral-naming
+- destinations: `AGENTS.md`, `.ai/workflows/workflows/task-lifecycle.md`, `.ai/constraints/constraints/task-system-integrity.md`
+- operation: update
+- status: approved-by-explicit-request
+- notes: 自动决策复用/新建/发布分支；新分支禁止代理或产品品牌词，main 发布仅限显式 fast-forward。
+
+## 2026-08-12T08:00:00Z
+
+- proposal_ref: user-kronos-reference-exclusion
+- approved_item_ids: kronos-external-reference-boundary
+- destinations: `.git/info/exclude`, `.ai/constraints/constraints/task-system-integrity.md`
+- operation: update
+- status: approved-by-explicit-request
+- notes: Kronos 是用户单独 clone 的参考仓库，不参与 PolyBob 的追踪、修改、提交、推送、回滚或测试。
+
+## 2026-08-12T08:15:00Z
+
+- proposal_ref: user-rename-expanded-control-system
+- approved_item_ids: development-control-naming
+- destinations: CLI、API、dashboard、workflow、constraints、tests、documentation
+- operation: rename
+- status: approved-by-explicit-request
+- notes: 系统正式命名为 PolyBob Development Control；tasks/PB/trailer 作为兼容数据协议保留。
+
+## 2026-08-12T08:30:00Z
+
+- proposal_ref: user-uv-migration-no-regression
+- approved_item_ids: python-environment-reproducibility-and-compatibility
+- destinations: `.ai/constraints/constraints/python-environment-integrity.md`, `.ai/constraints/index.md`
+- operation: create
+- status: approved-by-explicit-request
+- notes: 用户明确要求以 uv 替代 Conda、提高迁移性，并保证切换不影响项目行为。
+
+## 2026-08-12T09:00:00Z
+
+- proposal_ref: user-uv-functional-and-dependency-audit
+- approved_item_ids: direct-dependency-usage-evidence
+- destinations: `.ai/constraints/constraints/python-environment-integrity.md`, `tests/test_python_environment.py`
+- operation: update
+- status: approved-by-explicit-request
+- notes: 用户要求核验全部功能、删除真实冗余依赖，并防止直接依赖和传递依赖继续漂移。

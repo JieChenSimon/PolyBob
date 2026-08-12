@@ -128,7 +128,7 @@ from apps.api.btc_five_minute import router as btc_five_minute_router  # noqa: E
 from apps.api.edges_api import router as edges_router  # noqa: E402
 from apps.api.journal_api import router as journal_router  # noqa: E402
 from apps.api.portfolio_api import router as portfolio_router  # noqa: E402
-from apps.api.tasks_api import router as tasks_router  # noqa: E402
+from apps.api.dev_control_api import router as dev_control_router  # noqa: E402
 from apps.api.verdict_api import router as verdict_router  # noqa: E402
 from apps.api.deps import (  # noqa: E402
     cached_api_response,
@@ -773,7 +773,7 @@ app.include_router(verdict_router)
 app.include_router(edges_router)
 app.include_router(journal_router)
 app.include_router(portfolio_router)
-app.include_router(tasks_router)
+app.include_router(dev_control_router)
 
 
 @app.get("/metrics")
