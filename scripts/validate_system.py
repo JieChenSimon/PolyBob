@@ -44,7 +44,7 @@ import datetime as dt
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import numpy as np
 
@@ -59,10 +59,15 @@ OUT_PATH = Path("data/system_validation.json")
 
 # The real gate's parameters. Validation must use the production numbers or it is
 # validating something else.
+# The *production* pipeline, not a simplified stand-in. The harness previously scored with
+# SPY-excess and equal weighting while the insider experiment had moved to a cross-sectional
+# control and risk-parity sizing — so its calibration described a configuration nobody runs,
+# which is precisely the criticism this project makes of measuring equal-weighted returns.
 HOLD_SESSIONS = 20
 COST_BPS = 10.0
-BENCHMARK = "SPY"
 MIN_CLUSTERS = 20
+RISK_VOL_WINDOW = 60          # matches scripts/insider_experiment.py
+NEUTRALISE = True             # cross-sectional control rather than an index benchmark
 
 
 @dataclass
@@ -137,7 +142,8 @@ def _session_dates(symbol: str, as_of: dt.datetime) -> list[str]:
     return [str(d) for d in frame[store.EVENT_DATE].tolist()]
 
 
-def _price(events: list[tuple[str, str]], as_of: dt.datetime, hurdle: float):
+def _price(events: list[tuple[str, str]], as_of: dt.datetime, hurdle: float,
+           universe: Sequence[str] | None = None):
     """Run the events through the *production* replay once.
 
     Split from scoring because pricing is the expensive half — it reads every symbol's
@@ -147,20 +153,32 @@ def _price(events: list[tuple[str, str]], as_of: dt.datetime, hurdle: float):
     """
     result = edge_backtest.replay_events(
         events, direction=Direction.LONG, hold_sessions=HOLD_SESSIONS,
-        benchmark=BENCHMARK, cost_bps=COST_BPS, as_of=as_of,
+        benchmark=None, cost_bps=COST_BPS, as_of=as_of,
         t_hurdle=hurdle, edge_id="validation",
+        neutralise_universe=universe if NEUTRALISE else None,
+        risk_scale_window=RISK_VOL_WINDOW,
     )
     if len(result.trades) < 100:
         return None
-    return ([t.excess for t in result.trades], [t.signal_date for t in result.trades])
+    # Weights travel with the returns. A power study injects a *raw economic* edge, and the
+    # pipeline scales raw returns by ``0.20/vol`` — so adding a fixed amount to the already
+    # scaled return would inject a different edge for every event, and a smaller one on
+    # exactly the volatile names where an edge is hardest to detect. The first version of
+    # this harness did that and reported the gate as having no resolution at all.
+    return (
+        [t.excess for t in result.trades],
+        [t.signal_date for t in result.trades],
+        [t.risk_weight for t in result.trades],
+    )
 
 
 def _score_priced(priced, hurdle: float, *, drift: float = 0.0) -> TrialOutcome | None:
     """Score already-priced returns, optionally with a known drift injected."""
     if priced is None:
         return None
-    excesses, dates = priced
-    inference = analyse([e + drift for e in excesses], dates,
+    excesses, dates, weights = priced
+    # ``(raw + drift) * weight == excess + drift * weight``.
+    inference = analyse([e + drift * w for e, w in zip(excesses, weights)], dates,
                         t_hurdle=hurdle, hold_days=HOLD_SESSIONS,
                         min_clusters=MIN_CLUSTERS)
     # The i.i.d. verdict the project used to reach, on identical returns. The only
@@ -254,12 +272,12 @@ def main() -> None:
     print(f"\n{'─'*82}\n1-2. 负对照:假边应该几乎全被拒绝\n{'─'*82}")
     for i in range(args.trials):
         uniform = _random_events(rng, universe, calendars, args.events, bunch_weeks=None)
-        outcome = _score_priced(_price(uniform, as_of, hurdle), hurdle)
+        outcome = _score_priced(_price(uniform, as_of, hurdle, universe), hurdle)
         if outcome:
             experiments[0].trials.append(outcome)
 
         bunched = _random_events(rng, universe, calendars, args.events, bunch_weeks=6)
-        outcome = _score_priced(_price(bunched, as_of, hurdle), hurdle)
+        outcome = _score_priced(_price(bunched, as_of, hurdle, universe), hurdle)
         if outcome:
             experiments[1].trials.append(outcome)
 
@@ -268,7 +286,7 @@ def main() -> None:
         # where simulation shows the asymptotic test rejecting at 10-13% against a
         # nominal 5%. Measuring the false-positive rate *there* is the point.
         few = _random_events(rng, universe, calendars, args.events, bunch_weeks=3)
-        priced = _price(few, as_of, hurdle)
+        priced = _price(few, as_of, hurdle, universe)
         outcome = _score_priced(priced, hurdle)
         if outcome and outcome.n_clusters <= 12:
             experiments[2].trials.append(outcome)
@@ -282,7 +300,7 @@ def main() -> None:
     # Price each synthetic edge once, then re-score it at every drift level.
     base_priced = [
         _price(_random_events(rng, universe, calendars, args.events, bunch_weeks=None),
-               as_of, hurdle)
+               as_of, hurdle, universe)
         for _ in range(reps)
     ]
     base_priced = [p for p in base_priced if p is not None]
@@ -351,6 +369,9 @@ def main() -> None:
         "universe_size": len(universe),
         "real_bars": total_bars,
         "events_per_trial": args.events,
+        "pipeline": {"benchmark": "cross_sectional_universe_mean" if NEUTRALISE else "SPY",
+                     "weighting": f"inverse_vol_{RISK_VOL_WINDOW}d",
+                     "hold_sessions": HOLD_SESSIONS, "cost_bps": COST_BPS},
         "seed": args.seed,
         "experiments": rows,
         "power_curve": power_curve,
@@ -385,7 +406,7 @@ def _lookahead_experiment(universe, calendars, as_of, hurdle, rng) -> dict[str, 
     if len(cheating) < 100:
         return {"lines": ["真实历史里符合条件的作弊样本不足,跳过"], "available": False}
 
-    peeked = _score_priced(_price(cheating, as_of, hurdle), hurdle)
+    peeked = _score_priced(_price(cheating, as_of, hurdle, universe), hurdle)
     if peeked is None:
         return {"lines": ["无法定价作弊样本"], "available": False}
 

@@ -1,0 +1,15 @@
+id: PB-0006
+title: 对齐系统验证与生产研究管线
+state: doing
+p: P1
+area: research
+why: 验证器必须使用生产环境的横截面控制、风险权重和真实经济漂移单位。
+checks:
+- text: 验证输出记录生产 benchmark、权重、持有期与成本
+  done: true
+- text: 完整 Python 回归通过
+  done: true
+deps: []
+branch: codex/dashboard-navigation-performance
+blocked: null
+updated: '2026-08-12T07:05:02+00:00'

@@ -49,6 +49,11 @@ class Trade:
     gross_return: float           # signed by direction, before benchmark and cost
     benchmark_return: float | None
     excess: float                 # what the statistics are computed on
+    # Position weight applied to reach ``excess``. 1.0 under equal weighting. Exposed
+    # because anything reasoning in *raw return* units — a power study injecting a known
+    # economic edge, say — has to undo the scaling, and guessing at it silently changes
+    # what is being measured.
+    risk_weight: float = 1.0
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -421,6 +426,7 @@ def replay_events(
             entry_price=closes[entry_i], exit_price=closes[exit_i],
             gross_return=gross, benchmark_return=benchmark_return,
             excess=(gross - (benchmark_return or 0.0) + carry_return - cost) * weight,
+            risk_weight=weight,
         ))
 
     if edge_result.trades:
