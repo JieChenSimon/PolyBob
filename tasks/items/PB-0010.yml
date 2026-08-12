@@ -1,6 +1,6 @@
 id: PB-0010
 title: 允许历史分支安全发布任务提交
-state: doing
+state: done
 p: P1
 area: git
 why: 任务在既有分支上完成且未记录 branch 时，promote 应依据真实 trailer 提交归属安全判断
