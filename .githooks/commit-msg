@@ -1,0 +1,2 @@
+#!/bin/sh
+exec python scripts/task_tracker.py validate-message "$1"

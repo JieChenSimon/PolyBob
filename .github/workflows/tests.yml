@@ -34,6 +34,9 @@ jobs:
       run: |
         pytest -v --cov=libs --cov=strategies --cov-report=xml
 
+    - name: Validate task graph
+      run: python scripts/task_tracker.py validate
+
     - name: Run backtest validation
       run: |
         pytest tests/backtest/ -v -m backtest
