@@ -1,6 +1,6 @@
 id: PB-0007
 title: 完善分支决策与主分支发布
-state: doing
+state: done
 p: P1
 area: git
 why: 任务系统应选择正确基线、复用或新建中性命名分支，并识别功能分支尚未进入 main。
@@ -16,4 +16,4 @@ checks:
 deps: []
 branch: null
 blocked: null
-updated: '2026-08-12T07:19:41+00:00'
+updated: '2026-08-12T08:01:54+00:00'

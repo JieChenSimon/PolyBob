@@ -1,6 +1,6 @@
 id: PB-0008
 title: 重命名为 PolyBob 开发控制系统
-state: doing
+state: done
 p: P1
 area: meta
 why: 现有能力已覆盖任务、Git、发布、诊断与恢复，任务追踪器名称不能准确表达系统边界。
@@ -14,4 +14,4 @@ checks:
 deps: []
 branch: null
 blocked: null
-updated: '2026-08-12T07:23:33+00:00'
+updated: '2026-08-12T08:01:54+00:00'

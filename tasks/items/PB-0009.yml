@@ -1,6 +1,6 @@
 id: PB-0009
 title: 迁移 Python 环境到 uv
-state: doing
+state: done
 p: P1
 area: tooling
 why: 以跨平台锁文件和项目内虚拟环境替代 Conda，提升迁移与复现能力且保持运行行为不变
@@ -16,4 +16,4 @@ checks:
 deps: []
 branch: null
 blocked: null
-updated: '2026-08-12T07:41:41+00:00'
+updated: '2026-08-12T08:01:54+00:00'
