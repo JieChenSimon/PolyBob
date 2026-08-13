@@ -1,0 +1,24 @@
+id: PB-0012
+title: 重构量化工作台与单标的 Kronos 控制
+state: doing
+p: P0
+area: platform
+why: 把股票与加密标的页面从卡片堆叠改为高密度、可验证的研究工作台，并建立按标的持久启停和运行 Kronos 的安全闭环
+checks:
+- text: 完成前后端量化系统差距审计并将本轮边界记录为可验证设计
+  done: true
+- text: 单标的 Kronos 状态在服务端持久化，API 对未启用标的 fail-closed
+  done: true
+- text: 美股、A股和加密标的页可独立启用、关闭和运行 Kronos，始终保持 Lab 与交易权限隔离
+  done: true
+- text: 股票类别页与单标的页职责清晰，首屏展示价格、来源、时效、结论、图表和 Kronos 状态
+  done: true
+- text: 桌面与移动布局通过真实浏览器检查，切换标的不显示上一标的旧数据
+  done: true
+- text: Python 测试、Dashboard 测试与生产构建全部通过
+  done: true
+deps:
+- PB-0011
+branch: pb-0012-kronos
+blocked: null
+updated: '2026-08-13T06:23:42+00:00'

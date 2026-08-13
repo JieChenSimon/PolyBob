@@ -84,17 +84,15 @@ export default function InstrumentDetail({
   return (
     <>
       <div className="mx-auto w-full max-w-shell px-5 pt-6 md:px-8">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <div>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               href={back.href}
               className="text-xs text-stone-500 underline decoration-stone-300 hover:text-stone-800"
             >
               {zh ? back.zh : back.en}
             </Link>
-            <h1 className="mt-1 font-mono text-3xl font-bold tracking-[-0.02em] text-stone-950">
-              {symbol}
-            </h1>
+            <span className="mono text-sm font-semibold text-stone-900">{symbol}</span>
           </div>
           <Link
             href="/journal"
@@ -151,7 +149,7 @@ export default function InstrumentDetail({
       ) : null}
 
       <div className="mx-auto w-full max-w-shell px-5 pb-10 md:px-8">
-        <ForecastLabPanel symbol={symbol} domain={domain} />
+        {!hasEmbeddedVerdict ? <ForecastLabPanel symbol={symbol} domain={domain} /> : null}
         <WisdomSignalPanel symbol={symbol} domain={domain} />
       </div>
     </>

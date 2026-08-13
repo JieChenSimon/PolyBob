@@ -717,6 +717,8 @@ interface VerdictBannerProps {
    * panel's own selection is what the reader is looking at.
    */
   embedded?: boolean;
+  /** Keep the first viewport dense; full evidence remains one click away. */
+  compact?: boolean;
 }
 
 /**
@@ -746,6 +748,7 @@ function VerdictBannerInner({
   domain = 'auto',
   notApplicable,
   embedded = false,
+  compact = false,
 }: VerdictBannerProps & {
   /** Fallback instrument when the URL does not name one. */
   symbol: string;
@@ -829,7 +832,7 @@ function VerdictBannerInner({
   return (
     <section
       aria-label={zh ? '投资准则判定' : 'Investment principle verdict'}
-      className={`mb-6 rounded-xl border-2 ${style} overflow-hidden`}
+      className={`mb-4 overflow-hidden rounded-md border ${style}`}
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4">
         <div className="min-w-0">
@@ -932,37 +935,41 @@ function VerdictBannerInner({
         </details>
       ) : null}
 
-      {data ? (
-        <ul className="divide-y divide-stone-200/70 border-t border-stone-200/70 bg-white/60">
-          {data.checks.map((check) => {
-            const mark = STATUS_MARK[check.status] ?? STATUS_MARK.unknown;
-            return (
-              <li key={check.key} className="flex gap-3 px-5 py-2.5">
-                <span
-                  className={`mt-0.5 font-mono text-sm font-bold ${mark.tone}`}
-                  aria-label={check.status}
-                >
-                  {mark.icon}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-xs font-semibold text-stone-700">
-                    {zh ? check.question_zh : check.question_en}
-                  </span>
-                  <span className="mt-0.5 block text-xs leading-5 text-stone-600">
-                    {zh ? check.finding_zh : check.finding_en}
-                  </span>
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+      {data ? compact ? (
+        <details className="border-t border-stone-200/70 bg-white/60">
+          <summary className="cursor-pointer px-5 py-2 text-[11px] font-medium text-stone-600 hover:bg-stone-50">
+            {zh ? `展开 ${data.checks.length} 项证据检查` : `Show ${data.checks.length} evidence checks`}
+          </summary>
+          <VerdictChecks checks={data.checks} zh={zh} />
+        </details>
+      ) : <VerdictChecks checks={data.checks} zh={zh} /> : null}
 
-      <p className="border-t border-stone-200/70 px-5 py-2 text-[11px] leading-5 text-stone-500">
+      {!compact ? <p className="border-t border-stone-200/70 px-5 py-2 text-[11px] leading-5 text-stone-500">
         {zh
           ? '「犯错并不可怕，可怕的是不知自己犯了错，知错却不肯认错就更加不可救药。」——判定默认是「等待」，多数时候什么都不做才是对的。'
           : '"Being wrong is not the danger — not knowing you are wrong is." The default verdict is WAIT; most of the time, doing nothing is correct.'}
-      </p>
+      </p> : null}
     </section>
+  );
+}
+
+function VerdictChecks({ checks, zh }: { checks: Check[]; zh: boolean }) {
+  return (
+    <ul className="divide-y divide-stone-200/70 border-t border-stone-200/70 bg-white/60">
+      {checks.map((check) => {
+        const mark = STATUS_MARK[check.status] ?? STATUS_MARK.unknown;
+        return (
+          <li key={check.key} className="flex gap-3 px-5 py-2.5">
+            <span className={`mt-0.5 font-mono text-sm font-bold ${mark.tone}`} aria-label={check.status}>
+              {mark.icon}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-xs font-semibold text-stone-700">{zh ? check.question_zh : check.question_en}</span>
+              <span className="mt-0.5 block text-xs leading-5 text-stone-600">{zh ? check.finding_zh : check.finding_en}</span>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

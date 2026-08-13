@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import VerdictBanner from '@/components/VerdictBanner';
+import ForecastLabPanel from '@/components/ForecastLabPanel';
 import { domainForSymbol, instrumentHref } from '@/lib/instrument';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -523,6 +524,7 @@ export default function USEquityAdvisor({
   // selecting here navigates there.
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [mobileView, setMobileView] = useState<'detail' | 'list'>('detail');
   const selectedSymbol = (
     symbolOverride || searchParams?.get('symbol') || 'NVDA'
   ).toUpperCase();
@@ -537,6 +539,7 @@ export default function USEquityAdvisor({
       const params = new URLSearchParams(searchParams?.toString() ?? '');
       params.set('symbol', clean);
       router.replace(`?${params.toString()}`, { scroll: false });
+      setMobileView('detail');
     },
     [router, searchParams, selectedSymbol],
   );
@@ -547,6 +550,7 @@ export default function USEquityAdvisor({
   const [favorites, setFavorites] = useState<string[]>([]);
   const [chartMode, setChartMode] = useState<ChartMode>('all_intraday');
   const [page, setPage] = useState(1);
+  const urlNamedSymbol = Boolean(symbolOverride || searchParams?.get('symbol'));
 
   const marketObservations = useMemo(() => {
     return observations.filter((item) => item.market === selectedMarket);
@@ -584,7 +588,7 @@ export default function USEquityAdvisor({
     if (urlNamedSymbol) return;
     const nextSymbol = observations.find((item) => item.market === selectedMarket)?.symbol || 'NVDA';
     setSelectedSymbol(nextSymbol);
-  }, [selectedMarket]);
+  }, [selectedMarket, setSelectedSymbol, urlNamedSymbol]);
 
   const activeQuoteQuery = useQuery<QuotePayload>({
     queryKey: ['equities', 'quotes', 'active', selectedSymbol],
@@ -676,7 +680,6 @@ export default function USEquityAdvisor({
   // small and mid caps — SCTX, FSBC, CLBK are exactly the tickers it fires on
   // and none of them are in the list. Overriding an explicit ?symbol= with the
   // first list item meant clicking through from 今日机会 landed you on AAPL.
-  const urlNamedSymbol = Boolean(symbolOverride || searchParams?.get('symbol'));
   useEffect(() => {
     if (urlNamedSymbol || filteredObservations.length === 0) {
       return;
@@ -807,14 +810,33 @@ export default function USEquityAdvisor({
     <div className="w-full min-w-0 overflow-hidden rounded-md border border-stone-200 bg-white text-stone-900 shadow-[0_1px_2px_rgba(28,25,23,0.04)]">
       <TerminalHeader language={language} quoteState={quoteState} />
 
+      {!hideList ? (
+        <div className="grid grid-cols-2 border-t border-stone-200 bg-stone-50 p-1 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileView('detail')}
+            className={`rounded px-3 py-2 text-xs font-semibold ${mobileView === 'detail' ? 'bg-white text-sky-700 shadow-sm' : 'text-stone-500'}`}
+          >
+            {language === 'zh' ? `${selected.symbol} 详情` : `${selected.symbol} detail`}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileView('list')}
+            className={`rounded px-3 py-2 text-xs font-semibold ${mobileView === 'list' ? 'bg-white text-sky-700 shadow-sm' : 'text-stone-500'}`}
+          >
+            {language === 'zh' ? '股票池' : 'Watchlist'}
+          </button>
+        </div>
+      ) : null}
+
       <div
         className={
           hideList
-            ? 'grid border-t border-stone-200 xl:grid-cols-[minmax(0,1fr),minmax(280px,330px)]'
-            : 'grid border-t border-stone-200 lg:grid-cols-[minmax(260px,300px),minmax(0,1fr)] xl:grid-cols-[minmax(260px,300px),minmax(0,1fr),minmax(280px,330px)]'
+            ? 'border-t border-stone-200'
+            : 'grid border-t border-stone-200 lg:grid-cols-[minmax(250px,280px),minmax(0,1fr)]'
         }
       >
-        <div className={hideList ? 'hidden' : 'order-2 lg:order-none'}>
+        <div className={hideList ? 'hidden' : `${mobileView === 'list' ? 'block' : 'hidden'} lg:block`}>
           <ObservationRail
             categories={categories}
             favoriteSet={favoriteSet}
@@ -841,7 +863,12 @@ export default function USEquityAdvisor({
           />
         </div>
 
-        <section className="order-1 min-w-0 border-t border-stone-200 bg-white lg:order-none lg:border-l lg:border-t-0">
+        <section className={`${!hideList && mobileView === 'list' ? 'hidden' : 'block'} min-w-0 bg-white lg:block lg:border-l`}>
+          <ForecastLabPanel
+            key={`${selected.market}:${selected.symbol}`}
+            symbol={selected.symbol}
+            domain={selected.market === 'CN' ? 'a_share' : 'us_equity'}
+          />
           <EquityDecisionHeader
             advice={technicalAdvice}
             favoriteSet={favoriteSet}
@@ -861,11 +888,8 @@ export default function USEquityAdvisor({
           <QuotePanel item={selected} quote={selectedQuote} quoteState={quoteState} text={text} />
           <OrderBookPanel item={selected} orderBookState={orderBookState} text={text} />
           <MovingAveragePanel item={selected} technicalState={technicalState} text={text} />
-        </section>
-
-        <aside className="order-3 border-t border-stone-200 bg-white lg:order-none lg:col-span-2 xl:col-span-1 xl:border-l xl:border-t-0">
           <GuardrailPanel quoteState={quoteState} technicalState={technicalState} text={text} />
-        </aside>
+        </section>
       </div>
     </div>
   );
@@ -895,9 +919,9 @@ function TerminalHeader({
         <div className="mono text-[11px] font-semibold uppercase text-amber-600">
           {text.lab}
         </div>
-        <h1 className="mt-1 text-2xl font-semibold text-stone-900">
+        <div className="mt-1 text-lg font-semibold text-stone-900">
           {text.terminal}
-        </h1>
+        </div>
       </div>
       <div className="hidden min-w-0 grid-cols-3 gap-2 text-right md:grid">
         <TapeMetric label={text.quote} value={providerStatus} tone={quoteState.error ? 'red' : anyRealtime ? 'green' : 'amber'} />
@@ -1194,7 +1218,7 @@ function EquityDecisionHeader({
             reader meets it first.
           */}
           <div className="mt-4">
-            <VerdictBanner symbol={item.symbol} domain={verdictDomain} embedded />
+            <VerdictBanner symbol={item.symbol} domain={verdictDomain} embedded compact />
           </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr),auto] sm:items-end">
@@ -1545,28 +1569,27 @@ function GuardrailPanel({
   text: typeof uiText.zh;
 }) {
   return (
-    <div className="grid gap-0">
-      <section className="border-b border-stone-200 p-4">
+    <div className="grid border-t border-stone-200 bg-stone-50 lg:grid-cols-3">
+      <section className="border-b border-stone-200 p-4 lg:border-b-0 lg:border-r">
         <PanelTitle title={text.portfolioNotConfigured} code="GATE" />
-        <div className="mt-4 grid gap-3">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <TerminalStat label={text.observationOnly} value={text.configured} tone="good" />
-          <TerminalStat label={text.noAdvice} value={text.notConfigured} tone="bad" />
           <TerminalStat label={text.portfolioNotConfigured} value={text.notConfigured} tone="bad" />
         </div>
       </section>
 
-      <section className="border-b border-stone-200 p-4">
+      <section className="border-b border-stone-200 p-4 lg:border-b-0 lg:border-r">
         <PanelTitle title={text.provider} code="SRC" />
-        <div className="mt-4 grid gap-3">
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <TerminalStat label={text.quote} value={quoteState.provider.toUpperCase()} />
           <TerminalStat label={text.technicalSource} value={technicalState.provider || '--'} />
-          <TerminalStat label={text.timestamp} value={quoteState.timestamp || '--'} />
         </div>
+        <div className="mono mt-2 truncate text-[10px] text-stone-500">{quoteState.timestamp || '--'}</div>
       </section>
 
       <section className="p-4">
         <PanelTitle title="REAL" code="RULE" />
-        <div className="mt-4 rounded border border-stone-200 bg-white p-4 text-sm leading-6 text-stone-600">
+        <div className="mt-3 text-xs leading-5 text-stone-600">
           {text.realOnlyRule}
         </div>
       </section>

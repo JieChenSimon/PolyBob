@@ -26,6 +26,25 @@ ENABLE_LAB_KRONOS_FORECASTING=true \
 uv run --extra forecasting --locked uvicorn apps.api.main:app --port 18000
 ```
 
+Engine availability is only the outer kill switch. Every instrument is still
+disabled by default and must be enabled independently from its workbench row or
+instrument page. The setting is stored in the local PolyBob SQLite fact store;
+missing rows are disabled, and the forecasting API rejects a run before market
+data is fetched unless that exact `domain:symbol` is enabled. Enabling an
+instrument never grants trade permission.
+
+New clients start expensive inference with `POST /api/forecasting/runs`. The
+older GET endpoint remains only for compatibility and enforces the same gates.
+
+Each completed run also returns an `explanation` object. It contains a short
+history for the fan chart, deterministic input-state summaries, an unchanged
+last-close baseline, historical-validation state and an explicit interval
+breach rule. `causal_attribution_available` is always false: descriptive OHLCV
+statistics must never be presented as reasons the transformer made a forecast.
+Until at least 100 paths are sampled, the dashboard shows the integer path
+count rather than labelling it as a probability. Missing walk-forward evidence
+is displayed as `UNKNOWN`, never inferred from a single run.
+
 ## Local artifacts
 
 | Artifact | Revision | SHA-256 | Size |
