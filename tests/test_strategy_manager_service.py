@@ -89,3 +89,30 @@ async def test_scanning_strategy_start_returns_without_blocking(tmp_path):
     assert stopped["status"] == "stopped"
     assert created["instance_id"] not in manager._tasks
     await manager.stop()
+
+
+@pytest.mark.asyncio
+async def test_scanning_strategy_failure_is_reflected_in_instance(tmp_path):
+    manager = StrategyManagerService(db_path=tmp_path / "strategy.sqlite3")
+    await manager.start()
+
+    class FailingStrategy:
+        async def start(self):
+            await asyncio.sleep(0)
+            raise RuntimeError("provider unavailable")
+
+        async def stop(self):
+            return None
+
+    import asyncio
+    manager._factories["altcoin_retail_crowding"] = lambda config, deps: FailingStrategy()
+    created = await manager.create_instance(strategy_id="altcoin_retail_crowding")
+    await manager.start_instance(created["instance_id"])
+    await asyncio.sleep(0)
+    await asyncio.sleep(0)
+
+    failed = manager.get_instance(created["instance_id"])
+    assert failed is not None
+    assert failed.status == "error"
+    assert failed.error == "provider unavailable"
+    await manager.stop()

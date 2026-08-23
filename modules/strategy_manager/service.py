@@ -297,6 +297,9 @@ class StrategyManagerService:
             startup.result()
         else:
             self._tasks[instance_id] = startup
+            startup.add_done_callback(
+                lambda task, runtime_id=instance_id: self._handle_task_done(runtime_id, task)
+            )
 
         instance.strategy = strategy
         instance.status = "running"
@@ -354,3 +357,20 @@ class StrategyManagerService:
 
     def _persist(self, instance: StrategyInstanceRecord) -> None:
         self.instance_store.save(instance.to_dict())
+
+    def _handle_task_done(self, instance_id: str, task: asyncio.Task[Any]) -> None:
+        """Reflect an unexpected long-running strategy failure in the control plane."""
+        if task.cancelled():
+            return
+        self._tasks.pop(instance_id, None)
+        instance = self.instances.get(instance_id)
+        if instance is None:
+            return
+        try:
+            task.result()
+        except Exception as exc:  # noqa: BLE001 - surface runtime failure to the operator
+            instance.status = "error"
+            instance.error = str(exc) or exc.__class__.__name__
+            instance.strategy = None
+            instance.updated_at = datetime.utcnow()
+            self._persist(instance)
