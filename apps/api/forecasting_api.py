@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import asyncio
+import datetime as dt
+import json
 import math
 import statistics
 from typing import Literal
@@ -127,6 +129,48 @@ def _input_state(frame: CanonicalBarFrame) -> dict:
     }
 
 
+def _settle_due_forecasts(frame: CanonicalBarFrame, domain: str) -> None:
+    """Settle terminal forecasts only when the observed bar is available."""
+    store = get_instrument_store()
+    closes = {bar.timestamp.isoformat(): bar.close for bar in frame.bars}
+    latest = frame.bars[-1].timestamp
+    for row in store.pending_runs(domain, frame.instrument_id):
+        artifact = json.loads(row["artifact_json"])
+        points = artifact.get("points") or []
+        if not points:
+            store.settle_run(row["run_id"], status="unknown", evaluation={"reason": "no forecast points"})
+            continue
+        terminal = points[-1]
+        target = terminal.get("timestamp")
+        try:
+            target_time = dt.datetime.fromisoformat(target)
+        except (TypeError, ValueError):
+            store.settle_run(row["run_id"], status="unknown", evaluation={"reason": "invalid target timestamp"})
+            continue
+        if target_time > latest:
+            continue
+        actual = closes.get(target)
+        if actual is None:
+            store.settle_run(row["run_id"], status="unknown", evaluation={"target": target, "reason": "target bar unavailable"})
+            continue
+        last_close = float(artifact["last_close"])
+        actual_return = actual / last_close - 1.0 if last_close > 0 else None
+        p10 = float(terminal["close_p10"])
+        p90 = float(terminal["close_p90"])
+        store.settle_run(
+            row["run_id"],
+            status="settled",
+            evaluation={
+                "target": target,
+                "actual_close": actual,
+                "actual_return": actual_return,
+                "model_expected_return": artifact.get("expected_return"),
+                "baseline_expected_return": 0.0,
+                "interval_breach": not p10 <= actual <= p90,
+            },
+        )
+
+
 @router.get("/status")
 async def forecast_status(verify: bool = False):
     state = await asyncio.to_thread(get_lab().readiness, verify_hashes=verify)
@@ -221,8 +265,16 @@ async def _run_forecast(symbol: str, domain: str, horizon: int | None):
             )
         selected_horizon = horizon if horizon is not None else setting.horizon
         frame = await asyncio.to_thread(_frame, symbol, clean_domain)
+        await asyncio.to_thread(_settle_due_forecasts, frame, clean_domain)
         artifact = await asyncio.to_thread(
             get_lab().forecast, frame, horizon=selected_horizon
+        )
+        await asyncio.to_thread(
+            get_instrument_store().save_run,
+            artifact.run_id,
+            clean_domain,
+            frame.instrument_id,
+            artifact.to_dict(),
         )
     except ForecastUnavailable as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -248,11 +300,20 @@ async def _run_forecast(symbol: str, domain: str, horizon: int | None):
     registry = get_registry()
     promoted = registry.is_promoted(strategy, frame.instrument_id)
     calibrated = artifact.calibration_status == "calibrated"
-    payload["trade_permission"] = promoted and calibrated
+    lineage = payload.get("lineage") or {}
+    lineage_complete = bool(
+        artifact.run_id
+        and lineage.get("input_hash")
+        and lineage.get("model_hash")
+        and lineage.get("data_batch")
+        and lineage.get("parameters")
+    )
+    payload["lineage_complete"] = lineage_complete
+    payload["trade_permission"] = promoted and calibrated and lineage_complete
     payload["gate_reason"] = (
         registry.reason_blocked(strategy, frame.instrument_id)
         if not promoted
-        else "forecast artifact is uncalibrated; promotion alone cannot validate this run"
+        else "forecast artifact is uncalibrated or missing complete lineage; promotion alone cannot validate this run"
     )
     return payload
 

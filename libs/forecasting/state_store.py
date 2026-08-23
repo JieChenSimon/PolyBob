@@ -23,6 +23,19 @@ CREATE TABLE IF NOT EXISTS forecast_instrument_settings (
 )
 """
 
+_CREATE_RUNS_TABLE = """
+CREATE TABLE IF NOT EXISTS forecast_runs (
+    run_id TEXT PRIMARY KEY,
+    domain TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    artifact_json TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    evaluation_json TEXT,
+    created_at TEXT NOT NULL,
+    settled_at TEXT
+)
+"""
+
 
 def normalize_instrument(domain: str, symbol: str) -> tuple[str, str]:
     clean_domain = domain.strip().lower()
@@ -59,7 +72,35 @@ class ForecastInstrumentStore:
     def _connect(self):
         connection = fact_store.connect(fact_store._ensure_schema(self._db_path))
         connection.execute(_CREATE_TABLE)
+        connection.execute(_CREATE_RUNS_TABLE)
         return connection
+
+    def save_run(self, run_id: str, domain: str, symbol: str, artifact: dict) -> None:
+        now = datetime.now(UTC).isoformat()
+        with self._connect() as connection:
+            connection.execute(
+                """INSERT INTO forecast_runs(run_id, domain, symbol, artifact_json, created_at)
+                   VALUES (?, ?, ?, ?, ?)
+                   ON CONFLICT(run_id) DO NOTHING""",
+                (run_id, domain, symbol, json.dumps(artifact, sort_keys=True), now),
+            )
+
+    def pending_runs(self, domain: str, symbol: str) -> list[dict]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM forecast_runs WHERE domain=? AND symbol=? AND status='pending' ORDER BY created_at",
+                (domain, symbol),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def settle_run(self, run_id: str, *, status: str, evaluation: dict) -> None:
+        if status not in {"settled", "unknown"}:
+            raise ValueError(f"unsupported forecast settlement status: {status}")
+        with self._connect() as connection:
+            connection.execute(
+                "UPDATE forecast_runs SET status=?, evaluation_json=?, settled_at=? WHERE run_id=? AND status='pending'",
+                (status, json.dumps(evaluation, sort_keys=True), datetime.now(UTC).isoformat(), run_id),
+            )
 
     def get(self, domain: str, symbol: str) -> ForecastInstrumentSetting:
         domain, symbol = normalize_instrument(domain, symbol)

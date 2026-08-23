@@ -272,6 +272,29 @@ class KronosLab:
         terminal_closes = [float(path.iloc[-1]["close"]) for path in paths]
         expected_return = percentile(terminal_closes, 0.5) / last_close - 1
         up_probability = sum(value > last_close for value in terminal_closes) / len(terminal_closes)
+        input_hash = hashlib.sha256(
+            json.dumps(
+                {
+                    "instrument_id": frame.instrument_id,
+                    "source": frame.source,
+                    "fetched_at": frame.fetched_at.isoformat(),
+                    "bars": [
+                        {
+                            "timestamp": bar.timestamp.isoformat(),
+                            "open": bar.open,
+                            "high": bar.high,
+                            "low": bar.low,
+                            "close": bar.close,
+                            "volume": bar.volume,
+                            "amount": bar.amount,
+                        }
+                        for bar in context
+                    ],
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode()
+        ).hexdigest()
         identity = (
             f"{frame.instrument_id}|{frame.interval.value}|{context[-1].timestamp.isoformat()}|"
             f"{MODEL_REVISION}|{horizon}|{self.config.paths}"
@@ -297,6 +320,7 @@ class KronosLab:
             expected_return=expected_return,
             up_probability=up_probability,
             points=tuple(points),
+            input_hash=input_hash,
             generated_at=dt.datetime.now(dt.UTC),
         )
 

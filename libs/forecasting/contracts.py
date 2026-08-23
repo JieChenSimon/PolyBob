@@ -8,6 +8,7 @@ turn an unknown market observation into zero.
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import math
 from dataclasses import asdict, dataclass
 from enum import Enum
@@ -176,6 +177,7 @@ class ForecastArtifact:
     expected_return: float
     up_probability: float
     points: tuple[ForecastPoint, ...]
+    input_hash: str
     calibration_status: str = "uncalibrated"
     promotion_status: str = "lab_only"
     blocked_reason: str | None = None
@@ -190,6 +192,26 @@ class ForecastArtifact:
         payload["generated_at"] = self.generated_at.isoformat() if self.generated_at else None
         for point in payload["points"]:
             point["timestamp"] = point["timestamp"].isoformat()
+        payload["lineage"] = {
+            "run_id": self.run_id,
+            "input_hash": self.input_hash,
+            "data_batch": {
+                "source": self.source,
+                "instrument_id": self.instrument_id,
+                "as_of": self.as_of.isoformat(),
+                "context_rows": self.context_rows,
+                "interval": self.interval.value,
+            },
+            "model_hash": hashlib.sha256(
+                f"{self.model_id}|{self.model_revision}|{self.tokenizer_id}|{self.tokenizer_revision}".encode()
+            ).hexdigest(),
+            "parameters": {
+                "horizon": self.horizon,
+                "paths": self.paths,
+                "feature_mode": self.feature_mode,
+                "calendar_quality": self.calendar_quality,
+            },
+        }
         return payload
 
 
