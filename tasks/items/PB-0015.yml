@@ -1,6 +1,6 @@
 id: PB-0015
 title: 统一研究与 Kronos 预测证据账本
-state: doing
+state: done
 p: P0
 area: research
 why: 让假设、数据、代码、模型、预测、到期结果和晋级结论共享可重放 lineage
