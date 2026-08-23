@@ -60,12 +60,21 @@ def _get(url: str, timeout: float = 20.0):
         urllib.request.Request(url, headers=UA), timeout=timeout).read())
 
 
-def btc_minute_closes(start_ms: int, end_ms: int) -> list[tuple[int, float]]:
-    """Real 1-minute BTC closes covering a window (OKX; Binance is geo-blocked)."""
+def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]]:
+    """Completed 1-minute BTC bars available before ``end_ms``.
+
+    OKX timestamps identify the bar *open*.  A bar at ``end_ms`` is still
+    forming at the decision instant, so including its close would leak up to
+    one minute of future information into the model.
+    """
     url = ("https://www.okx.com/api/v5/market/history-candles"
            f"?instId=BTC-USDT&bar=1m&limit=300&after={end_ms}")
     rows = _get(url).get("data", [])
-    out = [(int(r[0]), float(r[4])) for r in rows if start_ms - 3_600_000 <= int(r[0]) <= end_ms]
+    out = [
+        (int(r[0]), float(r[5]), float(r[4]))
+        for r in rows
+        if start_ms - 3_600_000 <= int(r[0]) < end_ms
+    ]
     return sorted(out)
 
 
@@ -121,14 +130,16 @@ def main() -> None:
         market_p = float(quotes[-1]["p"])
 
         # Model probability from real BTC minute data at the same instant.
-        closes = btc_minute_closes(window_start * 1000, decision_ts * 1000)
-        if len(closes) < 25:
+        bars = btc_minute_bars(window_start * 1000, decision_ts * 1000)
+        if len(bars) < 25:
             continue
-        strike = next((c for t, c in closes if t >= window_start * 1000), None)
-        current = closes[-1][1]
+        # The binary contract's reference is the first price of the 5-minute
+        # bucket. Keep this identical to btc5m_calibration.py (which uses opens).
+        strike = next((o for t, o, _ in bars if t == window_start * 1000), None)
+        current = bars[-1][2]
         if strike is None or strike <= 0:
             continue
-        prices = np.array([c for _, c in closes[-30:]], dtype=float)
+        prices = np.array([c for _, _, c in bars[-30:]], dtype=float)
         logret = np.diff(np.log(prices))
         sigma = float(logret.std(ddof=1)) if len(logret) > 5 else 0.0
         if sigma <= 0:
