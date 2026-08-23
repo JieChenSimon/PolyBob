@@ -3,6 +3,7 @@ import BtcFiveMinuteWorkbenchClient from '@/components/BtcFiveMinuteWorkbenchCli
 import VerdictBanner from '@/components/VerdictBanner';
 import SectionIntro from '@/components/SectionIntro';
 import { WorkbenchPageHeader } from '@/components/WorkbenchChrome';
+import AssetTerminalFrame from '@/components/AssetTerminalFrame';
 
 export default function PolymarketPage() {
   return (
@@ -17,7 +18,9 @@ export default function PolymarketPage() {
         }}
       />
 
-      <main className="mx-auto mt-6 grid w-full max-w-shell gap-5 px-5 pb-10 md:mt-8 md:px-8">
+      <main className="workbench-main">
+        <AssetTerminalFrame asset="PREDICTION MARKET" title="BTC 5m Up / Down" subtitle="Five-minute binary market context, calibration and real CLOB state; not spot BTC." symbol="BTC-5M" source="Polymarket CLOB" links={[{ href: '/btc-5m', label: 'BTC 5m', meta: 'Up / Down binary' }, { href: '/markets', label: 'Prediction Markets', meta: 'Event instruments' }]}>
+        <div className="grid gap-5">
         {/*
           This page trades a five-minute Polymarket binary, not spot BTC. The
           banner used to judge BTC-USDT daily bars here — a different
@@ -60,6 +63,8 @@ export default function PolymarketPage() {
             describe a five-minute binary — and then a panel of BTC *spot* daily
             buy signals, stops and position sizes appeared underneath it, which
             cancelled the disclaimer it had just made. Spot BTC has its own page. */}
+        </div>
+        </AssetTerminalFrame>
       </main>
     </>
   );
