@@ -6,9 +6,9 @@ area: quant
 why: 把全部已覆盖标的接入统一的真实历史回放、模拟成交、统计门禁和失败归因闭环，避免只凭单次结果优化策略
 checks:
 - text: 覆盖数据集与标的清单均来自本地真实数据并记录 PIT/来源/缺口，不使用合成数据作策略结论
-  done: false
+  done: true
 - text: 历史回放使用与模拟盘相同的信号、成交、费用、滑点、资金费和风险账本，并支持断点/重跑/审计
-  done: false
+  done: true
 - text: 每个策略×标的输出样本、收益、回撤、成本、换手、稳定性、样本外和多重检验结果，UNKNOWN/数据不足必须阻断通过
   done: false
 - text: 失败结果生成可解释归因和受约束候选参数，候选必须在独立样本外复测后才可进入下一轮
@@ -16,6 +16,6 @@ checks:
 - text: 流水线可被单条命令运行，自动持久化报告、版本、数据快照、参数和任务状态；测试覆盖通过
   done: false
 deps: []
-branch: null
+branch: pb-0027-real-data-pipeline
 blocked: null
-updated: '2026-08-23T20:51:28+00:00'
+updated: '2026-08-23T21:41:35+00:00'

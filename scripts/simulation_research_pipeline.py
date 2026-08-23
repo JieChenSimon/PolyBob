@@ -309,7 +309,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "optimization_trace": {
             "selection": "calibration OOS mean return only; selected candidate is diagnostic, not promoted",
             "failure_feedback": "each full-result verdict emits bounded next-step actions; no live strategy mutation occurs",
-            "multiple_testing": "candidate family count is recorded; DSR/PBO promotion remains outside this runner",
+            "multiple_testing": "candidate family count and PBO are recorded; DSR observed statistic and promotion remain outside this runner",
         },
         "multiple_testing": {
             "n_trials": len(MOMENTUM_CANDIDATES),
