@@ -1,6 +1,6 @@
 id: PB-0019
 title: 建立可靠任务调度、特征快照与数据 SLO
-state: doing
+state: done
 p: P1
 area: platform
 why: 将页面触发和内存任务改为可恢复、可取消、可观测的本地生产线
@@ -15,4 +15,4 @@ deps:
 - PB-0014
 branch: pb-0019-scheduler-slo
 blocked: null
-updated: '2026-08-23T20:20:47+00:00'
+updated: '2026-08-23T20:20:48+00:00'
