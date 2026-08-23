@@ -3,6 +3,7 @@ import AccountPanel from '@/components/AccountPanel';
 import EdgeScoreboard from '@/components/EdgeScoreboard';
 import TodaysEdges from '@/components/TodaysEdges';
 import { WorkbenchPageHeader } from '@/components/WorkbenchChrome';
+import PendingActionsPanel from '@/components/PendingActionsPanel';
 
 export default function OverviewPage() {
   return (
@@ -23,6 +24,7 @@ export default function OverviewPage() {
             day out of thousands, so a "type a symbol and I will tell you no"
             workflow requires you to already know the answer. */}
         <TodaysEdges />
+        <PendingActionsPanel />
         <EdgeScoreboard />
         <AccountPanel />
         <OverviewWorkspace />

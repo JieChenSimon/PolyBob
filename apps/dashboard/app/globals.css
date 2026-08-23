@@ -242,6 +242,25 @@
   .status-unknown { @apply border-rose-200 bg-rose-50 text-rose-700; }
   .status-neutral { @apply border-stone-200 bg-stone-50 text-stone-700; }
   .status-settings { @apply ml-auto text-stone-500 underline decoration-stone-300 underline-offset-2 hover:text-sky-700; }
+
+  .data-trust-bar {
+    @apply flex min-w-0 flex-wrap items-center gap-2 rounded border px-2 py-1 text-[10px];
+  }
+  .data-trust-label { @apply font-mono font-semibold tracking-[0.08em] text-stone-400; }
+  .data-trust-state { @apply font-mono font-semibold; }
+  .data-trust-reason { @apply max-w-48 truncate text-stone-500; }
+  .data-trust-available { @apply border-emerald-200 bg-emerald-50; }
+  .data-trust-available .data-trust-state { @apply text-emerald-700; }
+  .data-trust-degraded { @apply border-amber-200 bg-amber-50; }
+  .data-trust-degraded .data-trust-state { @apply text-amber-700; }
+  .data-trust-unknown, .data-trust-blocked { @apply border-rose-200 bg-rose-50; }
+  .data-trust-unknown .data-trust-state, .data-trust-blocked .data-trust-state { @apply text-rose-700; }
+  .data-trust-disabled { @apply border-stone-200 bg-stone-50; }
+  .data-trust-disabled .data-trust-state { @apply text-stone-500; }
+  .action-dot { @apply h-2.5 w-2.5 shrink-0 rounded-full; }
+  .action-warning { @apply bg-amber-500; }
+  .action-danger { @apply bg-rose-500; }
+  .action-neutral { @apply bg-sky-500; }
 }
 
 ::-webkit-scrollbar {
