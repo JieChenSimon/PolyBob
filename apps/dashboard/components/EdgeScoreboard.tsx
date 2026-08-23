@@ -251,8 +251,12 @@ export default function EdgeScoreboard() {
   // Approved is not tradable. An avoidance filter is a real finding that earns
   // nothing and cannot be shorted in its market; counting it here is what made
   // the desk look three edges deep when it is two.
-  const tradable = records.filter((r) => r.approved && r.role === 'trade');
-  const avoidFilters = records.filter((r) => r.approved && r.role === 'avoid');
+  // Keep the display gate identical to PromotionRecord.tradable and
+  // PromotionRecord.is_avoid_filter. An approved row can lose permission when
+  // its evidence shelf life expires; showing it as tradable here would make the
+  // dashboard disagree with the intent API's fail-closed decision.
+  const tradable = records.filter((r) => r.approved && r.role === 'trade' && !r.evidence_expired);
+  const avoidFilters = records.filter((r) => r.approved && r.role === 'avoid' && !r.evidence_expired);
   const hasAny = tradable.length + avoidFilters.length > 0;
 
   return (

@@ -52,3 +52,40 @@ async def test_strategy_manager_create_and_delete_instance():
     assert manager.get_instance(created["instance_id"]) is None
 
     await manager.stop()
+
+
+@pytest.mark.asyncio
+async def test_strategy_instance_survives_manager_restart(tmp_path):
+    db_path = tmp_path / "strategy.sqlite3"
+    first = StrategyManagerService(db_path=db_path)
+    await first.start()
+    created = await first.create_instance(
+        strategy_id="spread_reversion_v1",
+        name="Durable Paper",
+        config={"spread_threshold_bps": 220.0},
+    )
+    await first.stop()
+
+    second = StrategyManagerService(db_path=db_path)
+    await second.start()
+    restored = second.get_instance(created["instance_id"])
+    assert restored is not None
+    assert restored.status == "stopped"
+    assert restored.config["spread_threshold_bps"] == 220.0
+    await second.stop()
+
+
+@pytest.mark.asyncio
+async def test_scanning_strategy_start_returns_without_blocking(tmp_path):
+    manager = StrategyManagerService(db_path=tmp_path / "strategy.sqlite3")
+    await manager.start()
+    created = await manager.create_instance(strategy_id="altcoin_retail_crowding")
+
+    started = await manager.start_instance(created["instance_id"])
+    assert started["status"] == "running"
+    assert created["instance_id"] in manager._tasks
+
+    stopped = await manager.stop_instance(created["instance_id"])
+    assert stopped["status"] == "stopped"
+    assert created["instance_id"] not in manager._tasks
+    await manager.stop()

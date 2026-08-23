@@ -8,6 +8,8 @@ Strategy Manager Service - 策略管理服务
 """
 from __future__ import annotations
 
+import asyncio
+import contextlib
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -18,6 +20,7 @@ import structlog
 import yaml
 
 from libs.events import get_event_bus, Topics
+from libs.db.strategy_instances import StrategyInstanceStore
 from strategies.ai_enhanced_prediction_v1 import AIEnhancedPredictionV1
 from strategies.altcoin_retail_crowding import AltcoinRetailCrowding
 from strategies.cross_market_dislocation_v1 import CrossMarketDislocationV1
@@ -94,12 +97,15 @@ class StrategyInstanceRecord:
 class StrategyManagerService:
     """策略管理服务"""
 
-    def __init__(self, strategy_dir: str | Path | None = None, dependencies: dict[str, Any] | None = None):
+    def __init__(self, strategy_dir: str | Path | None = None, dependencies: dict[str, Any] | None = None,
+                 db_path: str | Path | None = None):
         self.event_bus = get_event_bus()
         self.strategy_dir = Path(strategy_dir or Path(__file__).parent.parent.parent / "strategies")
         self.dependencies = dependencies or {}
         self.templates: dict[str, StrategyTemplateRecord] = {}
         self.instances: dict[str, StrategyInstanceRecord] = {}
+        self._tasks: dict[str, asyncio.Task[Any]] = {}
+        self.instance_store = StrategyInstanceStore(db_path)
         self._running = False
         self._factories: dict[str, StrategyFactory] = {
             "cross_market_dislocation_v1": lambda config, deps: CrossMarketDislocationV1(config),
@@ -128,6 +134,7 @@ class StrategyManagerService:
         logger.info("starting_strategy_manager_service")
         self._running = True
         self._load_templates()
+        self._restore_instances()
         self._seed_default_instances()
 
     async def stop(self):
@@ -138,6 +145,23 @@ class StrategyManagerService:
         for instance in list(self.instances.values()):
             if instance.status == "running":
                 await self.stop_instance(instance.instance_id)
+
+    def _restore_instances(self) -> None:
+        """Restore persisted records as stopped; start always remains explicit."""
+        for stored in self.instance_store.list():
+            if stored["strategy_id"] not in self.templates:
+                continue
+            self.instances[stored["instance_id"]] = StrategyInstanceRecord(
+                instance_id=stored["instance_id"], strategy_id=stored["strategy_id"],
+                name=stored["name"], config=stored["config"], risk_limits=stored["risk_limits"],
+                environment=stored["environment"],
+                created_at=datetime.fromisoformat(stored["created_at"]),
+                updated_at=datetime.fromisoformat(stored["updated_at"]),
+                last_started_at=(datetime.fromisoformat(stored["last_started_at"])
+                                 if stored["last_started_at"] else None),
+                last_stopped_at=(datetime.fromisoformat(stored["last_stopped_at"])
+                                 if stored["last_stopped_at"] else None),
+            )
 
     def _load_templates(self):
         """从 YAML 模板目录加载策略模板。"""
@@ -186,6 +210,7 @@ class StrategyManagerService:
                 config=dict(template.parameters),
                 risk_limits=dict(template.risk_limits),
             )
+            self._persist(self.instances[instance_id])
 
     def _derive_family(self, strategy_id: str) -> str:
         if strategy_id.startswith("cross_market") or "spread" in strategy_id:
@@ -248,6 +273,7 @@ class StrategyManagerService:
             environment=environment,
         )
         self.instances[instance_id] = instance
+        self._persist(instance)
 
         await self.event_bus.publish(
             Topics.STRATEGY_INSTANCE_CREATED,
@@ -265,13 +291,19 @@ class StrategyManagerService:
             raise ValueError(f"No strategy factory registered for {instance.strategy_id}")
 
         strategy = factory(dict(instance.config), self.dependencies)
-        await strategy.start()
+        startup = asyncio.create_task(strategy.start())
+        await asyncio.sleep(0)
+        if startup.done():
+            startup.result()
+        else:
+            self._tasks[instance_id] = startup
 
         instance.strategy = strategy
         instance.status = "running"
         instance.error = None
         instance.last_started_at = datetime.utcnow()
         instance.updated_at = datetime.utcnow()
+        self._persist(instance)
 
         await self.event_bus.publish(
             Topics.STRATEGY_INSTANCE_STARTED,
@@ -284,10 +316,17 @@ class StrategyManagerService:
         if instance.strategy is not None and hasattr(instance.strategy, "stop"):
             await instance.strategy.stop()
 
+        task = self._tasks.pop(instance_id, None)
+        if task is not None and not task.done():
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
+
         instance.strategy = None
         instance.status = "stopped"
         instance.last_stopped_at = datetime.utcnow()
         instance.updated_at = datetime.utcnow()
+        self._persist(instance)
 
         await self.event_bus.publish(
             Topics.STRATEGY_INSTANCE_STOPPED,
@@ -300,6 +339,7 @@ class StrategyManagerService:
         if instance.status == "running":
             await self.stop_instance(instance_id)
         del self.instances[instance_id]
+        self.instance_store.delete(instance_id)
 
         await self.event_bus.publish(
             Topics.STRATEGY_INSTANCE_DELETED,
@@ -311,3 +351,6 @@ class StrategyManagerService:
         if instance is None:
             raise ValueError(f"Unknown strategy instance: {instance_id}")
         return instance
+
+    def _persist(self, instance: StrategyInstanceRecord) -> None:
+        self.instance_store.save(instance.to_dict())
