@@ -1,15 +1,15 @@
 id: PB-0004
 title: 归档未使用的操作型前端组件
-state: todo
+state: doing
 p: P2
 area: dashboard
 why: 四个已撤下导航的旧工作台组件仍留在正式源码，造成能力边界歧义。
 checks:
 - text: 未引用组件进入 archive 或明确的 lab 边界
-  done: false
+  done: true
 - text: 前端测试和生产构建通过
-  done: false
+  done: true
 deps: []
-branch: null
+branch: pb-0004-archive-ui
 blocked: null
-updated: '2026-08-12T06:50:00+00:00'
+updated: '2026-08-23T20:22:33+00:00'
