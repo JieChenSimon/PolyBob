@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 
 // The primary rail is deliberately compact; specialized Lab/Archive routes
@@ -23,6 +24,7 @@ const navItems = [
 export default function PrimaryNav() {
   const pathname = usePathname();
   const { language, setLanguage } = useLanguage();
+  const [mobileOpen, setMobileOpen] = useState(false);
   const terminalRoute = ['/us-equities', '/a-shares', '/crypto', '/btc-5m', '/polymarket'].some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
@@ -45,8 +47,9 @@ export default function PrimaryNav() {
         </Link>
 
         <div
+          id="primary-nav-links"
           role="list"
-          className="order-3 -mx-5 flex w-[calc(100%+40px)] min-w-0 gap-1 overflow-x-auto px-5 md:order-2 md:mx-0 md:w-auto md:flex-1 md:px-0"
+          className={`order-3 -mx-5 w-[calc(100%+40px)] min-w-0 gap-1 overflow-x-auto px-5 md:order-2 md:mx-0 md:flex md:w-auto md:flex-1 md:px-0 ${mobileOpen ? 'flex' : 'hidden'}`}
         >
           {navItems.map((item) => {
             const active = pathname === item.href
@@ -69,6 +72,16 @@ export default function PrimaryNav() {
             );
           })}
         </div>
+
+        <button
+          type="button"
+          onClick={() => setMobileOpen((open) => !open)}
+          aria-expanded={mobileOpen}
+          aria-controls="primary-nav-links"
+          className={`order-2 rounded-md border px-2.5 py-1 text-xs font-semibold md:hidden ${terminalRoute ? 'border-slate-700 text-slate-300' : 'border-stone-200 text-stone-600'}`}
+        >
+          {language === 'zh' ? '菜单' : 'Menu'}
+        </button>
 
         <button
           type="button"

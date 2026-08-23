@@ -72,6 +72,16 @@ export default function BtcCalibrationPanel() {
 
   const gate = query.data?.gate_status ?? null;
   const thresholds = query.data?.thresholds ?? null;
+  if (query.isPending) {
+    return <section className="panel mb-5 border-l-4 border-slate-500 px-5 py-4 text-sm text-slate-400">{zh ? '正在读取校准证据…' : 'Loading calibration evidence…'}</section>;
+  }
+  if (query.isError) {
+    return <section className="panel mb-5 border-l-4 border-amber-500 px-5 py-4" role="status">
+      <div className="eyebrow">{zh ? '校准台' : 'Calibration'}</div>
+      <h2 className="mt-1 text-base font-semibold text-stone-900">{zh ? '校准证据暂不可用' : 'Calibration evidence unavailable'}</h2>
+      <p className="mt-1 text-xs leading-5 text-stone-600">{zh ? '未读取到本轮研究快照；不显示旧统计，也不生成交易动作。' : 'The current research snapshot could not be read; stale statistics and trade actions are withheld.'}</p>
+    </section>;
+  }
   if (!gate) return null;
 
   const n = gate.n;

@@ -288,7 +288,15 @@ const observations: EquityObservation[] = [
 
 const sourceNote = 'Coverage: Nasdaq-100, personal US names such as AAOI, and selected A-share watchlist names. Nasdaq list checked Jun 10, 2026.';
 const sourceNoteZh = '覆盖范围：Nasdaq-100、AAOI 等个人美股观察池，以及精选 A 股观察池。Nasdaq 清单核对日期：2026-06-10。';
+const cnSourceNote = 'A-share watchlist: Shanghai/Shenzhen symbols with exchange suffixes; quote, chart and technical providers are shown per module.';
+const cnSourceNoteZh = 'A 股观察池：使用沪深交易所后缀标识；行情、图表、技术指标按模块显示实际来源。';
 const favoritesStorageKey = 'polybob-us-equity-favorites';
+
+function canonicalEquitySymbol(value: string, market: Market): string {
+  const clean = value.trim().toUpperCase();
+  if (market !== 'CN' || !/^\d{6}$/.test(clean)) return clean;
+  return /^[568]/.test(clean) ? `${clean}.SH` : `${clean}.SZ`;
+}
 
 const uiText = {
   zh: {
@@ -528,27 +536,27 @@ export default function USEquityAdvisor({
   // selecting here navigates there.
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [selectedMarket, setSelectedMarket] = useState<Market>(initialMarket);
   const [mobileView, setMobileView] = useState<'detail' | 'list'>('detail');
   const selectedSymbol = (
-    symbolOverride || searchParams?.get('symbol') || (initialMarket === 'CN' ? '600519' : 'NVDA')
-  ).toUpperCase();
+      canonicalEquitySymbol(symbolOverride || searchParams?.get('symbol') || (initialMarket === 'CN' ? '600519.SH' : 'NVDA'), initialMarket)
+  );
   // Selecting a name stays on this page and swaps the detail panel, which is
   // what the quote, chart, moving averages, order book and technical read are
   // for. Navigating away on click removed all of that behind a page with only a
   // verdict on it — the selection UI and the detail UI belong together.
   const setSelectedSymbol = useCallback(
     (next: string) => {
-      const clean = (next || '').trim().toUpperCase();
+      const clean = canonicalEquitySymbol(next, selectedMarket);
       if (!clean || clean === selectedSymbol) return;
       const params = new URLSearchParams(searchParams?.toString() ?? '');
       params.set('symbol', clean);
       router.replace(`?${params.toString()}`, { scroll: false });
       setMobileView('detail');
     },
-    [router, searchParams, selectedSymbol],
+    [router, searchParams, selectedMarket, selectedSymbol],
   );
   const [query, setQuery] = useState('');
-  const [selectedMarket, setSelectedMarket] = useState<Market>(initialMarket);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -670,14 +678,14 @@ export default function USEquityAdvisor({
     const quotes = [...(batch?.quotes ?? []), ...(active?.quotes ?? [])];
     return {
       bySymbol: Object.fromEntries(quotes.map((quote) => [quote.symbol, quote])),
-      provider: active?.provider ?? batch?.provider ?? 'nasdaq',
+      provider: active?.provider ?? batch?.provider ?? (selectedMarket === 'CN' ? 'sina' : 'nasdaq'),
       timestamp: active?.timestamp ?? batch?.timestamp ?? null,
       loading: batchQuoteQuery.isPending && activeQuoteQuery.isPending,
       error: batchQuoteQuery.error instanceof Error
         ? batchQuoteQuery.error.message
         : activeQuoteQuery.error instanceof Error ? activeQuoteQuery.error.message : null,
     };
-  }, [activeQuoteQuery.data, activeQuoteQuery.error, activeQuoteQuery.isPending, batchQuoteQuery.data, batchQuoteQuery.error, batchQuoteQuery.isPending]);
+  }, [activeQuoteQuery.data, activeQuoteQuery.error, activeQuoteQuery.isPending, batchQuoteQuery.data, batchQuoteQuery.error, batchQuoteQuery.isPending, selectedMarket]);
 
   // Only snap to the first row when the URL named nothing. The watchlist is a
   // hardcoded Nasdaq-100 style universe, but the insider-cluster edge lives in
@@ -812,7 +820,7 @@ export default function USEquityAdvisor({
 
   return (
     <div className="w-full min-w-0 overflow-hidden rounded-md border border-stone-200 bg-white text-stone-900 shadow-[0_1px_2px_rgba(28,25,23,0.04)]">
-      <TerminalHeader language={language} quoteState={quoteState} />
+      {!hideList ? <TerminalHeader language={language} quoteState={quoteState} /> : null}
 
       {!hideList ? (
         <div className="grid grid-cols-2 border-t border-stone-200 bg-stone-50 p-1 lg:hidden">
@@ -856,7 +864,7 @@ export default function USEquityAdvisor({
             lockMarket={lockMarket}
             selectedSymbol={selected.symbol}
             text={text}
-            totalCount={observations.length}
+            totalCount={marketObservations.length}
             totalPages={pagination.totalPages}
             onCategoryChange={setSelectedCategory}
             onFavoritesOnlyChange={setFavoritesOnly}
@@ -869,11 +877,6 @@ export default function USEquityAdvisor({
         </div>
 
         <section className={`${!hideList && mobileView === 'list' ? 'hidden' : 'block'} min-w-0 bg-white lg:block lg:border-l`}>
-          <ForecastLabPanel
-            key={`${selected.market}:${selected.symbol}`}
-            symbol={selected.symbol}
-            domain={selected.market === 'CN' ? 'a_share' : 'us_equity'}
-          />
           <EquityDecisionHeader
             advice={technicalAdvice}
             favoriteSet={favoriteSet}
@@ -894,6 +897,11 @@ export default function USEquityAdvisor({
           <OrderBookPanel item={selected} orderBookState={orderBookState} text={text} />
           <MovingAveragePanel item={selected} technicalState={technicalState} text={text} />
           <GuardrailPanel quoteState={quoteState} technicalState={technicalState} text={text} />
+          <ForecastLabPanel
+            key={`${selected.market}:${selected.symbol}`}
+            symbol={selected.symbol}
+            domain={selected.market === 'CN' ? 'a_share' : 'us_equity'}
+          />
         </section>
       </div>
     </div>
@@ -1072,7 +1080,11 @@ const ObservationRail = memo(function ObservationRail({
             })}
           </div>
         </div>
-        <div className="mt-2 text-[11px] leading-4 text-stone-500">{language === 'zh' ? sourceNoteZh : sourceNote}</div>
+        <div className="mt-2 text-[11px] leading-4 text-stone-500">
+          {selectedMarket === 'CN'
+            ? (language === 'zh' ? cnSourceNoteZh : cnSourceNote)
+            : (language === 'zh' ? sourceNoteZh : sourceNote)}
+        </div>
       </div>
       <div className="divide-y divide-[#e7e5e4]">
         {filteredObservations.map((item) => {

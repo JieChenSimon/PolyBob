@@ -1,8 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'next/navigation';
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import {
   STATUS_LABELS,
@@ -65,6 +65,8 @@ const copy = {
 
 export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialPayload?: unknown } = {}) {
   const { language } = useLanguage();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const requestedSymbol = searchParams?.get('symbol')?.toUpperCase() ?? null;
   const t = copy[language];
@@ -98,6 +100,16 @@ export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialP
   const [selectedId, setSelectedId] = useState<string | null>(() => workbench.candidates[0]?.assetId ?? null);
   const [showHealth, setShowHealth] = useState(false);
   const [mobileView, setMobileView] = useState<'list' | 'detail'>('list');
+
+  const selectAsset = useCallback((assetId: string) => {
+    const candidate = workbench.candidates.find((item) => item.assetId === assetId);
+    setSelectedId(assetId);
+    setMobileView('detail');
+    if (!candidate) return;
+    const params = new URLSearchParams(searchParams?.toString() ?? '');
+    params.set('symbol', candidate.futuresSymbol || `${candidate.symbol}-USDT`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [pathname, router, searchParams, workbench.candidates]);
 
   const chains = useMemo(() => [...new Set(workbench.candidates.map((item) => item.chainId))], [workbench.candidates]);
   const filtered = useMemo(() => sortCandidates(workbench.candidates.filter((item) => {
@@ -191,10 +203,7 @@ export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialP
         selectedId={selectedId}
         horizon={horizon}
         language={language}
-        onSelect={(assetId) => {
-          setSelectedId(assetId);
-          setMobileView('detail');
-        }}
+        onSelect={selectAsset}
       />
 
       <section className="flex flex-wrap items-center gap-2 border-b border-stone-200 bg-white px-3 py-2">
@@ -219,7 +228,7 @@ export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialP
       <section className="grid min-h-[560px] md:grid-cols-[minmax(0,1.6fr)_minmax(360px,1fr)]">
         <div className={`${mobileView === 'detail' ? 'hidden' : 'block'} min-w-0 border-stone-200 md:block md:border-r`}>
           <div className="terminal-section-title"><span>{t.candidates}</span><span>{filtered.length} / {workbench.candidates.length}</span></div>
-          <CandidateTable candidates={candidatePage.items} selectedId={selectedId} horizon={horizon} language={language} onSelect={(assetId) => { setSelectedId(assetId); setMobileView('detail'); }} />
+          <CandidateTable candidates={candidatePage.items} selectedId={selectedId} horizon={horizon} language={language} onSelect={selectAsset} />
           {filtered.length > 0 && (
             <div className="flex items-center justify-between border-t border-stone-200 bg-white px-3 py-2 text-xs">
               <button type="button" className="terminal-button" disabled={candidatePage.page === 1} onClick={() => setPage(candidatePage.page - 1)}>{t.previous}</button>

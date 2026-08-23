@@ -4,7 +4,6 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import DataTrustBar, { type DataTrustState } from '@/components/ui/DataTrustBar';
 import { useLanguage } from '@/lib/i18n';
-import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE } from '@/lib/config';
@@ -38,10 +37,7 @@ export default function AssetTerminalFrame({
   const zh = language === 'zh';
   const searchParams = useSearchParams();
   const querySymbol = searchParams?.get('symbol');
-  const [activeSymbol, setActiveSymbol] = useState((querySymbol || symbol || title).toUpperCase());
-  useEffect(() => {
-    setActiveSymbol((querySymbol || symbol || title).toUpperCase());
-  }, [querySymbol, symbol, title]);
+  const activeSymbol = (querySymbol || symbol || title).toUpperCase();
   const capabilitiesQuery = useQuery<{ rows?: Array<{ capability_id: string; state: DataTrustState; truth?: string }> }>({
     queryKey: ['asset-terminal-capabilities'],
     queryFn: async ({ signal }) => {
@@ -112,12 +108,12 @@ export default function AssetTerminalFrame({
         <aside className="terminal-dock">
           <div className="terminal-section-label">{zh ? '研究与风险' : 'RESEARCH & RISK'}</div>
           <div className="terminal-dock-card">
-            <div className="terminal-card-label">{zh ? '研究门禁' : 'RESEARCH GATE'}</div>
+            <div className="terminal-card-label">{activeSymbol} · {zh ? '研究门禁' : 'RESEARCH GATE'}</div>
             <strong className="terminal-unknown">{researchRuntime?.state?.toUpperCase() || 'UNKNOWN'}</strong>
             <p>{researchRuntime?.truth || (zh ? '尚无标的级样本外校准结论。' : 'No instrument-level out-of-sample calibration is available.')}</p>
           </div>
           <div className="terminal-dock-card">
-            <div className="terminal-card-label">{zh ? '执行权限' : 'EXECUTION PERMISSION'}</div>
+            <div className="terminal-card-label">{activeSymbol} · {zh ? '执行权限' : 'EXECUTION PERMISSION'}</div>
             <strong className={paperExecution?.state === 'available' ? 'terminal-available' : 'terminal-blocked'}>{paperExecution?.state?.toUpperCase() || (zh ? '已阻断' : 'BLOCKED')}</strong>
             <p>{paperExecution?.truth || (zh ? '研究页面不会自动获得交易权限。' : 'Research pages never inherit execution permission.')}</p>
           </div>

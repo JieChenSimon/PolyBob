@@ -22,8 +22,8 @@ export default function PolymarketPage() {
           symbol="BTC-USDT"
           domain="altcoin"
           notApplicable={{
-            zh: '本页是 5 分钟二元合约,不是现货。投资准则判定基于日线趋势、量价与事件型优势,时间尺度和赔付结构都对不上——BTC-5m 目前也没有任何通过门禁的优势(t=3.45 < 门槛 3.77)。这里不拿现货日线的结论冒充本标的的判定。',
-            en: 'This page trades a five-minute binary, not spot. The verdict framework reads daily trend, volume and event edges — a different timeframe and payoff — and BTC-5m has no gate-approved edge either (t=3.45 vs a 3.77 hurdle). A spot daily conclusion will not be presented as this instrument’s verdict.',
+            zh: '本页是 5 分钟二元合约，不是现货。现货日线趋势、量价与事件型优势不适用于本合约；当前 5m 研究状态以校准台返回的最新证据为准，未通过门禁时不会生成交易结论。',
+            en: 'This page trades a five-minute binary, not spot. Spot daily trend, volume and event edges do not apply here; the calibration panel is the source of truth for the latest 5m research state, and no trade conclusion is generated before the gate clears.',
           }}
         />
         <section className="panel px-5 py-4">

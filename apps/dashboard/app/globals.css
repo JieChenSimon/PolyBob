@@ -338,8 +338,10 @@
   }
   @media (max-width: 700px) {
     .terminal-frame-topbar, .terminal-instrument-bar { @apply flex-col items-start; }
-    .terminal-layout { @apply block; }
-    .terminal-watchlist { @apply border-b border-r-0 border-slate-700; }
+    .terminal-layout { @apply flex flex-col; }
+    .terminal-main { @apply order-1; }
+    .terminal-watchlist { @apply order-2 border-b border-r-0 border-slate-700; }
+    .terminal-dock { @apply order-3; }
     .terminal-link-list { @apply grid-cols-2; }
   }
 }
