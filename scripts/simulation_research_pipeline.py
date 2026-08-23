@@ -93,7 +93,8 @@ def _bars(symbol: str, *, as_of: datetime, start: str | None, end: str | None) -
 async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str, Any],
                       *, db_path: Path, name: str) -> dict[str, Any]:
     if len(rows) < MIN_ROWS:
-        return {"symbol": symbol, "status": "BLOCKED", "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
+        return {"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
+                "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
     clock = ReplayClock(rows[0]["event_at"])
     service = SimulationService(
         db_path,
@@ -211,21 +212,35 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     split = _parse_date(args.split) or start + (end - start) * 0.7
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    calibration = all_symbols[:min(args.optimization_symbols, len(all_symbols))]
-    candidates: list[dict[str, Any]] = []
-    for config in MOMENTUM_CANDIDATES:
-        candidates.append(await _evaluate_candidate(calibration, config, as_of=as_of,
-                                                     split=split, output_dir=output_dir,
-                                                     label=config["id"]))
-    eligible = [item for item in candidates if item["score_oos_mean_return"] is not None]
-    selected = max(eligible, key=lambda item: item["score_oos_mean_return"]) if eligible else None
+    by_domain = {domain: [symbol for symbol in all_symbols if _domain(symbol) == domain]
+                 for domain in ("a_share", "us_equity", "crypto")}
+    calibration_by_domain = {
+        domain: symbols[:min(args.optimization_symbols, len(symbols))]
+        for domain, symbols in by_domain.items()
+    }
+    candidates: dict[str, list[dict[str, Any]]] = {}
+    selected_by_domain: dict[str, dict[str, Any] | None] = {}
+    for domain, calibration in calibration_by_domain.items():
+        candidates[domain] = []
+        for config in MOMENTUM_CANDIDATES:
+            candidates[domain].append(await _evaluate_candidate(
+                calibration, config, as_of=as_of, split=split, output_dir=output_dir,
+                label=f"{domain}-{config['id']}"))
+        eligible = [item for item in candidates[domain] if item["score_oos_mean_return"] is not None]
+        selected_by_domain[domain] = max(
+            eligible, key=lambda item: item["score_oos_mean_return"]
+        ) if eligible else None
     full_results: list[dict[str, Any]] = []
-    if selected is not None:
-        for symbol in all_symbols:
-            rows = _bars(symbol, as_of=as_of, start=None, end=None)
-            db_path = output_dir / f"full-{symbol}-{uuid.uuid4().hex[:8]}.sqlite3"
-            full_results.append(await _run_symbol(symbol, rows, selected["candidate"],
-                                                   db_path=db_path, name=f"full:{symbol}"))
+    for symbol in all_symbols:
+        selected = selected_by_domain[_domain(symbol)]
+        if selected is None:
+            full_results.append({"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
+                                 "reason": "no calibration candidate with OOS data"})
+            continue
+        rows = _bars(symbol, as_of=as_of, start=None, end=None)
+        db_path = output_dir / f"full-{symbol}-{uuid.uuid4().hex[:8]}.sqlite3"
+        full_results.append(await _run_symbol(symbol, rows, selected["candidate"],
+                                               db_path=db_path, name=f"full:{symbol}"))
     for item in full_results:
         item["verdict"], item["reasons"] = _verdict(item)
         item["optimization_action"] = _optimization_action(item["reasons"])
@@ -245,7 +260,11 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "real_data_only": True, "data_coverage": coverage,
         "universe": {"count": len(all_symbols), "domains": {d: sum(_domain(s) == d for s in all_symbols)
                                                                   for d in ("a_share", "us_equity", "crypto")}},
-        "calibration": candidates, "selected_candidate": selected and selected["candidate"],
+        "calibration": candidates,
+        "selected_candidate": {
+            domain: selected["candidate"] if selected else None
+            for domain, selected in selected_by_domain.items()
+        },
         "optimization_trace": {
             "selection": "calibration OOS mean return only; selected candidate is diagnostic, not promoted",
             "failure_feedback": "each full-result verdict emits bounded next-step actions; no live strategy mutation occurs",
