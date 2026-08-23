@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardMarket } from '@/lib/types';
 import FreshnessBadge from '@/components/ui/FreshnessBadge';
+import DataTrustBar from '@/components/ui/DataTrustBar';
 
 interface MarketDetailProps {
   market: DashboardMarket | null;
@@ -151,6 +152,15 @@ export default function MarketDetail({ market }: MarketDetailProps) {
             <div className="mono">{zh ? '资产 ID' : 'Asset ID'}: {market.primary_asset_id || '--'}</div>
             <div>{zh ? '结束' : 'Ends'}: {formatTime(market.end_time)}</div>
           </div>
+        </div>
+        <div className="mt-4">
+          <DataTrustBar
+            source="Polymarket"
+            observedAt={features?.timestamp}
+            state={features ? 'available' : 'unknown'}
+            reason={!features ? (zh ? '盘口特征尚未到达' : 'Order-book features are not available yet') : null}
+            staleMs={60_000}
+          />
         </div>
       </div>
 

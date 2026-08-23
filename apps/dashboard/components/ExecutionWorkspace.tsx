@@ -7,8 +7,10 @@ import ErrorState from '@/components/ui/ErrorState';
 import { useLanguage } from '@/lib/i18n';
 import { requireSuccessfulMutation } from '@/lib/mutationResponse';
 import { formatNumber, formatSigned } from '@/lib/format';
+import DataTrustBar from '@/components/ui/DataTrustBar';
 
 interface ExecutionStatus {
+  timestamp?: string;
   status: {
     running: boolean;
     enabled?: boolean;
@@ -105,6 +107,9 @@ export default function ExecutionWorkspace() {
               ? '核心路径只展示策略意图、风险检查、basket 状态和 paper 执行记录。实验性手动样例被单独隔离，不参与默认判断。'
               : 'The core path focuses on strategy intents, risk checks, basket state, and paper execution records. Experimental manual samples are isolated from the default decision flow.'}
           </p>
+          <div className="mt-4">
+            <DataTrustBar source="PolyBob execution read model" observedAt={data?.timestamp} state={executionQuery.isError ? 'degraded' : data ? 'available' : 'unknown'} reason={executionQuery.isError ? (zh ? '执行状态接口不可用' : 'Execution status API unavailable') : null} />
+          </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <Metric title={zh ? '执行模式' : 'Execution Mode'} value={formatMode(data?.status.mode, zh)} />
             <Metric title={zh ? '持仓' : 'Position'} value={data ? `${formatNumber(data.status.position, 4)} BTC` : 'UNKNOWN'} />

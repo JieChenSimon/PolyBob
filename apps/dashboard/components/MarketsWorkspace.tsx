@@ -9,6 +9,7 @@ import MarketList from '@/components/MarketList';
 import { API_BASE } from '@/lib/config';
 import { useLanguage } from '@/lib/i18n';
 import { DashboardMarket, MarketFeatures } from '@/lib/types';
+import DataTrustBar from '@/components/ui/DataTrustBar';
 
 type RawDashboardMarket = Omit<DashboardMarket, 'features'> & { features: unknown };
 
@@ -119,6 +120,14 @@ export default function MarketsWorkspace() {
         />
       ) : null}
     <div className="grid gap-6 xl:grid-cols-[380px,minmax(0,1fr)]">
+      <div className="xl:col-span-2">
+        <DataTrustBar
+          source="Polymarket"
+          observedAt={selectedMarket?.features?.timestamp}
+          state={marketsQuery.isError ? 'degraded' : marketsQuery.data ? 'available' : 'unknown'}
+          reason={marketsQuery.isError ? (zh ? '市场观察接口不可用' : 'Market observation API unavailable') : null}
+        />
+      </div>
       <div className="order-2 xl:order-1">
         <MarketList
           markets={visibleMarkets}

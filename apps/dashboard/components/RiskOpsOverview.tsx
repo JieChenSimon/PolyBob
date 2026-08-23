@@ -5,6 +5,7 @@ import { API_BASE } from '@/lib/config';
 import ErrorState from '@/components/ui/ErrorState';
 import { useLanguage } from '@/lib/i18n';
 import { DistributionAlert, OnchainSummary, OnchainTransferEvent, OnchainWatchAddress } from '@/lib/types';
+import DataTrustBar from '@/components/ui/DataTrustBar';
 
 interface RiskSummary {
   alert_level: string;
@@ -98,6 +99,9 @@ export default function RiskOpsOverview() {
             <Metric label={zh ? '严重链上' : 'Critical Onchain'} value={summary ? String(summary.critical_onchain_alerts) : '--'} />
             <Metric label={zh ? '近期 CEX 流量' : 'Recent CEX Flow'} value={summary ? formatUsd(summary.recent_cex_flow_usd) : '--'} />
             <Metric label={zh ? '服务数量' : 'Service Count'} value={summary ? String(summary.services.length) : '--'} />
+          </div>
+          <div className="mt-5">
+            <DataTrustBar source="PolyBob risk read model" observedAt={onchainSummary?.timestamp} state={summaryQuery.isError ? 'degraded' : summary ? 'available' : 'unknown'} reason={summaryQuery.isError ? (zh ? '风险快照接口不可用' : 'Risk summary API unavailable') : null} />
           </div>
         </div>
 
