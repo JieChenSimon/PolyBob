@@ -1,6 +1,6 @@
 id: PB-0025
 title: 运行时资源与关闭可靠性加固
-state: doing
+state: done
 p: P1
 area: platform
 why: 避免后台任务、事件订阅、原始日志和高频写盘在长时间运行或关闭时泄漏资源
@@ -14,4 +14,4 @@ checks:
 deps: []
 branch: pb-0025-runtime-reliability
 blocked: null
-updated: '2026-08-23T20:02:51+00:00'
+updated: '2026-08-23T20:02:56+00:00'
