@@ -61,6 +61,9 @@ export default function AssetTerminalFrame({
         </div>
         <div className="terminal-top-actions">
           <span className="terminal-mode">{zh ? '研究工作台' : 'RESEARCH WORKSPACE'}</span>
+          <Link href={`/simulation?symbol=${encodeURIComponent(activeSymbol)}`} className="terminal-action">
+            {zh ? '开启模拟' : 'Paper test'}
+          </Link>
           <Link href="/settings" className="terminal-action">{zh ? '边界' : 'Boundaries'}</Link>
         </div>
       </div>

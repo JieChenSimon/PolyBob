@@ -25,6 +25,7 @@ from libs.config import get_settings
 from libs import metrics as ops_metrics
 from libs.db import fact_store
 from libs.db.execution_ledger import ExecutionLedger, UnknownExecutionAccount
+from libs.db.simulation_runtime import SimulationRuntimeStore
 from libs.db.repositories import BasketRepository, DecisionRepository, IntentRepository
 from libs.data.http_client import close_async_clients
 from modules.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
@@ -116,6 +117,7 @@ altcoin_discovery: AltcoinDiscoveryService | None = None
 knowledge_ingestion: KnowledgeIngestionService | None = None
 market_news_service: KnowledgeIngestionService | None = None
 simulation_service: SimulationService | None = None
+simulation_runtime_store: SimulationRuntimeStore | None = None
 trading_engine = None
 execution_ledger: ExecutionLedger | None = None
 PAPER_EXECUTION_ACCOUNT_ID = "paper-main"
@@ -213,6 +215,10 @@ def lab_auto_trader_enabled() -> bool:
 
 
 def lab_backtest_enabled() -> bool:
+    if simulation_runtime_store is not None:
+        state = simulation_runtime_store.read()
+        if state is not None:
+            return state["enabled"]
     return get_settings().enable_lab_backtest
 
 
@@ -553,7 +559,7 @@ async def collect_dashboard_markets(limit: int = 36) -> list[dict]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    global market_discovery, realtime_ingestor, feature_engine, strategy_manager, basket_executor, intent_execution_service, pair_feature_engine, onchain_monitor, altcoin_discovery, knowledge_ingestion, market_news_service, simulation_service, execution_ledger
+    global market_discovery, realtime_ingestor, feature_engine, strategy_manager, basket_executor, intent_execution_service, pair_feature_engine, onchain_monitor, altcoin_discovery, knowledge_ingestion, market_news_service, simulation_service, simulation_runtime_store, execution_ledger
 
     logger.info("starting_polybob")
 
@@ -750,10 +756,14 @@ async def lifespan(app: FastAPI):
 
     # Paper-trading simulation service is Lab-only and must not start merely
     # because the API process starts.
-    if settings.enable_lab_backtest:
+    simulation_runtime_store = SimulationRuntimeStore(settings.polybob_db_path)
+    runtime_state = simulation_runtime_store.read()
+    simulation_enabled = runtime_state["enabled"] if runtime_state is not None else settings.enable_lab_backtest
+    simulation_auto_run = runtime_state["auto_run"] if runtime_state is not None else False
+    if simulation_enabled:
         try:
             simulation_service = SimulationService(settings.polybob_db_path)
-            await simulation_service.start()
+            await simulation_service.start(auto_run=simulation_auto_run)
             await simulation_service.restore_state()
         except Exception as exc:
             simulation_service = None
@@ -764,7 +774,7 @@ async def lifespan(app: FastAPI):
             raise RuntimeError("lab simulation failed to start") from exc
     else:
         simulation_service = None
-        logger.info("simulation_service_disabled", capability="paper_simulation")
+        logger.info("simulation_service_disabled", capability="paper_simulation", source="runtime_control")
 
     logger.info("polybob_started")
 
@@ -775,6 +785,7 @@ async def lifespan(app: FastAPI):
 
     if simulation_service:
         await simulation_service.stop()
+    simulation_service = None
 
     if feature_engine:
         await feature_engine.stop()
@@ -1512,6 +1523,80 @@ async def cancel_execution_basket(basket_id: str):
 
 
 _PLACEHOLDER_MARKET_ID_RE = re.compile(r"^MARKET_ID_\d+$")
+
+
+def _simulation_runtime_store() -> SimulationRuntimeStore:
+    global simulation_runtime_store
+    if simulation_runtime_store is None:
+        simulation_runtime_store = SimulationRuntimeStore(get_settings().polybob_db_path)
+    return simulation_runtime_store
+
+
+@app.get("/api/simulation/status")
+async def get_simulation_status():
+    """Return the operator-facing Paper Lab state.
+
+    This endpoint remains available while the Lab is disabled so the frontend
+    can render an explicit enable action instead of treating a 403 as a blank
+    or broken page.
+    """
+    store = _simulation_runtime_store()
+    persisted = await asyncio.to_thread(store.read)
+    settings = get_settings()
+    enabled = persisted["enabled"] if persisted is not None else settings.enable_lab_backtest
+    auto_run = persisted["auto_run"] if persisted is not None else False
+    return {
+        "enabled": bool(enabled),
+        "running": simulation_service is not None,
+        "auto_run": bool(auto_run),
+        "mode": "paper",
+        "trade_permission": False,
+        "source": "real_event_bus_when_available",
+        "truth": "Paper results are research evidence, not a profitability guarantee.",
+    }
+
+
+@app.post("/api/simulation/status")
+async def set_simulation_status(payload: dict | None = None):
+    """Enable/disable the Paper Lab and its bounded auto-runner from the UI."""
+    global simulation_service
+    payload = payload or {}
+    store = _simulation_runtime_store()
+    current = await asyncio.to_thread(store.read)
+    settings = get_settings()
+    enabled = bool(payload.get("enabled", current["enabled"] if current else settings.enable_lab_backtest))
+    auto_run = bool(payload.get("auto_run", current["auto_run"] if current else False))
+
+    if enabled and simulation_service is None:
+        try:
+            simulation_service = SimulationService(settings.polybob_db_path)
+            await simulation_service.start(auto_run=auto_run)
+            await simulation_service.restore_state()
+        except Exception as exc:
+            simulation_service = None
+            raise HTTPException(status_code=503, detail=f"Paper Lab could not start: {exc}") from exc
+    elif not enabled and simulation_service is not None:
+        # Pause, rather than terminate, active experiments. This preserves the
+        # audit trail and lets the operator resume them later.
+        for record in simulation_service.store.list_runs():
+            if record.status == "running":
+                try:
+                    await simulation_service.pause_run(record.run_id)
+                except Exception as exc:
+                    logger.warning("simulation_pause_on_disable_failed", run_id=record.run_id, error=str(exc))
+        await simulation_service.stop()
+        simulation_service = None
+
+    if simulation_service is not None:
+        await simulation_service.set_auto_run(auto_run)
+    saved = await asyncio.to_thread(store.write, enabled=enabled, auto_run=auto_run)
+    return {
+        **saved,
+        "running": simulation_service is not None,
+        "mode": "paper",
+        "trade_permission": False,
+        "source": "real_event_bus_when_available",
+    }
 
 
 async def _live_market_universe(count: int) -> list[str]:

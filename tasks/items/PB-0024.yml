@@ -1,0 +1,17 @@
+id: PB-0024
+title: Paper Lab 前端控制与自动实验闭环
+state: doing
+p: P1
+area: dashboard
+why: 让操作员可以从前端启停可恢复的 Paper Lab，并在真实行情上运行受限自动实验
+checks:
+- text: 模拟盘状态可通过 API 与前端启用、停用、恢复，停用只暂停不删除运行
+  done: true
+- text: 自动运行只启动显式标记的 Paper run，且不获得真实交易权限
+  done: true
+- text: 前端构建与后端模拟盘接口测试通过，数据可信状态和反馈护栏可见
+  done: true
+deps: []
+branch: pb-0024-paper-lab-control
+blocked: null
+updated: '2026-08-23T19:56:30+00:00'

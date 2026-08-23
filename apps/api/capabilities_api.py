@@ -34,6 +34,13 @@ def capability_inventory() -> list[Capability]:
     settings = get_settings()
     registry = get_registry()
     approved_trade_count = len(registry.promoted_pairs())
+    # Import lazily to avoid the capability router creating an application
+    # import cycle. The Paper Lab endpoint is the runtime source of truth when
+    # an operator has enabled it from the frontend.
+    from apps.api import main as api_main
+
+    simulation_enabled = api_main.lab_backtest_enabled()
+    simulation_running = api_main.simulation_service is not None
 
     kronos_enabled = settings.enable_lab_kronos_forecasting
     portfolio_configured = settings.polybob_account_equity is not None
@@ -132,12 +139,12 @@ def capability_inventory() -> list[Capability]:
             "simulation",
             "Research simulation",
             "lab",
-            "disabled" if not settings.enable_lab_backtest else "degraded",
-            (),
+            "available" if simulation_running else ("degraded" if simulation_enabled else "disabled"),
+            ("/simulation",),
             ("/api/simulation",),
             False,
-            "Research comparison only; not execution-grade paper trading.",
-            ("calibrated fills and costs", "canonical portfolio ledger"),
+            "Paper-only research comparison driven by the configured market event bus; never live execution.",
+            ("runtime service is not started",) if simulation_enabled and not simulation_running else (),
         ),
         Capability(
             "auto_trader",

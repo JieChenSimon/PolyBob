@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 import apps.api.main as api
 from modules.simulation import SimulationService
+from libs.db.simulation_runtime import SimulationRuntimeStore
 
 
 @pytest.fixture
@@ -15,10 +16,11 @@ def sim_api(monkeypatch, tmp_path):
     """Real SimulationService on a tmp DB, injected into the app (no lifespan)."""
     service = SimulationService(tmp_path / "sim.sqlite3", equity_poll_seconds=3600)
     monkeypatch.setattr(api, "simulation_service", service)
+    monkeypatch.setattr(api, "simulation_runtime_store", SimulationRuntimeStore(tmp_path / "sim.sqlite3"))
     monkeypatch.setattr(
         api,
         "get_settings",
-        lambda: type("Settings", (), {"enable_lab_backtest": True})(),
+        lambda: type("Settings", (), {"enable_lab_backtest": True, "polybob_db_path": tmp_path / "sim.sqlite3"})(),
     )
     # TestClient without a context manager does not run the lifespan, so no
     # network-bound services start; only the injected simulation service is used.
@@ -59,6 +61,26 @@ def test_create_and_list_runs_envelope(sim_api):
     assert "metrics" in run
     assert run["metrics"]["trade_count"] == 0
     assert run["metrics"]["win_rate"] is None
+
+
+def test_runtime_control_is_paper_only_and_pauses_on_disable(sim_api):
+    client, service = sim_api
+    status = client.get("/api/simulation/status")
+    assert status.status_code == 200
+    assert status.json()["enabled"] is True
+    assert status.json()["trade_permission"] is False
+
+    run_id = create_run(client)
+    assert client.post(f"/api/simulation/runs/{run_id}/start").status_code == 200
+    changed = client.post("/api/simulation/status", json={"auto_run": True})
+    assert changed.status_code == 200
+    assert changed.json()["auto_run"] is True
+    assert changed.json()["trade_permission"] is False
+
+    disabled = client.post("/api/simulation/status", json={"enabled": False})
+    assert disabled.status_code == 200
+    assert disabled.json()["running"] is False
+    assert service.store.get_run(run_id).status == "paused"
 
 
 def test_create_run_validation_errors(sim_api):

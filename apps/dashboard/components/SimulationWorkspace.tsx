@@ -106,6 +106,16 @@ interface SimulationPreset {
   focus: string;
 }
 
+interface SimulationRuntimeStatus {
+  enabled: boolean;
+  running: boolean;
+  auto_run: boolean;
+  mode: 'paper';
+  trade_permission: false;
+  source?: string;
+  truth?: string;
+}
+
 const SIMULATION_QUERY_PREFIX = ['simulation'] as const;
 const SIMULATION_REFETCH_MS = 15_000;
 const SIMULATION_STALE_MS = 12_000;
@@ -122,12 +132,26 @@ export default function SimulationWorkspace() {
   const { language } = useLanguage();
   const zh = language === 'zh';
   const queryClient = useQueryClient();
+  const [initialSymbol, setInitialSymbol] = useState('');
 
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [mutationError, setMutationError] = useState<string | null>(null);
   const [feedbackConfirming, setFeedbackConfirming] = useState(false);
   const [feedbackResult, setFeedbackResult] = useState<FeedbackResult | null>(null);
+
+  const runtimeQuery = useQuery<SimulationRuntimeStatus>({
+    queryKey: [...SIMULATION_QUERY_PREFIX, 'runtime'],
+    queryFn: ({ signal }) => fetchJson<SimulationRuntimeStatus>('/api/simulation/status', signal),
+    refetchInterval: 5_000,
+    staleTime: 2_000,
+  });
+  const runtime = runtimeQuery.data;
+
+  useEffect(() => {
+    const symbol = new URLSearchParams(window.location.search).get('symbol');
+    if (symbol) setInitialSymbol(symbol.trim().toUpperCase());
+  }, []);
 
   const runsQuery = useQuery<SimulationRun[]>({
     queryKey: [...SIMULATION_QUERY_PREFIX, 'runs'],
@@ -137,6 +161,7 @@ export default function SimulationWorkspace() {
     },
     refetchInterval: SIMULATION_REFETCH_MS,
     staleTime: SIMULATION_STALE_MS,
+    enabled: runtime?.enabled === true,
   });
   const runs = runsQuery.data ?? [];
   const activeRunId = selectedRunId ?? runs[0]?.run_id ?? null;
@@ -159,6 +184,24 @@ export default function SimulationWorkspace() {
 
   const invalidateSimulation = () =>
     queryClient.invalidateQueries({ queryKey: SIMULATION_QUERY_PREFIX });
+
+  const setRuntime = async (payload: { enabled?: boolean; auto_run?: boolean }) => {
+    setBusyAction('runtime');
+    setMutationError(null);
+    try {
+      await requireSuccessfulMutation(fetch(`${API_BASE}/api/simulation/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }));
+      await queryClient.invalidateQueries({ queryKey: [...SIMULATION_QUERY_PREFIX, 'runtime'] });
+      await invalidateSimulation();
+    } catch (error) {
+      setMutationError(error instanceof Error ? error.message : 'unknown error');
+    } finally {
+      setBusyAction(null);
+    }
+  };
 
   const runLifecycleAction = async (runId: string, action: 'start' | 'pause' | 'stop') => {
     setBusyAction(`${runId}:${action}`);
@@ -195,6 +238,44 @@ export default function SimulationWorkspace() {
 
   return (
     <>
+      <Card className="mb-5">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className={`h-2.5 w-2.5 rounded-full ${runtime?.enabled ? 'bg-emerald-500' : 'bg-stone-300'}`} />
+              <strong className="text-sm text-stone-900">
+                {runtime?.enabled ? (zh ? '模拟盘已启用' : 'Paper Lab enabled') : (zh ? '模拟盘未启用' : 'Paper Lab disabled')}
+              </strong>
+              <StatusBadge tone="neutral">PAPER ONLY</StatusBadge>
+            </div>
+            <p className="mt-1 text-xs text-stone-500">
+              {zh
+                ? '真实行情驱动、虚拟资金、真实费用与滑点；不会提交真实订单。自动反馈只在达到样本门槛后调整策略权重。'
+                : 'Real-market driven with paper capital, fees and slippage; no live orders. Feedback only adjusts weights after sample guardrails pass.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void setRuntime({ enabled: !runtime?.enabled })}
+              disabled={busyAction === 'runtime' || runtimeQuery.isLoading}
+              className={`rounded-lg px-3 py-2 text-xs font-semibold text-white transition disabled:opacity-50 ${runtime?.enabled ? 'bg-stone-700 hover:bg-stone-900' : 'bg-emerald-600 hover:bg-emerald-700'}`}
+            >
+              {runtime?.enabled ? (zh ? '停用并暂停运行' : 'Disable & pause') : (zh ? '启用模拟盘' : 'Enable Paper Lab')}
+            </button>
+            <label className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs ${runtime?.enabled ? 'border-stone-200 text-stone-700' : 'border-stone-100 text-stone-400'}`}>
+              <input
+                type="checkbox"
+                checked={runtime?.auto_run ?? false}
+                disabled={!runtime?.enabled || busyAction === 'runtime'}
+                onChange={(event) => void setRuntime({ auto_run: event.target.checked })}
+              />
+              {zh ? '自动运行标记为 Auto 的实验' : 'Auto-start runs marked Auto'}
+            </label>
+          </div>
+        </div>
+        {mutationError ? <div className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">{mutationError}</div> : null}
+      </Card>
       {runsQuery.isError ? (
         <ErrorState
           className="mb-5"
@@ -207,7 +288,7 @@ export default function SimulationWorkspace() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr),minmax(0,1.15fr)]">
         <div className="space-y-6">
-          <CreateRunCard zh={zh} onCreated={(runId) => {
+          <CreateRunCard zh={zh} enabled={runtime?.enabled === true} initialSymbol={initialSymbol} onCreated={(runId) => {
             if (runId) {
               setSelectedRunId(runId);
             }
@@ -342,20 +423,26 @@ function RunListItem({
 
 function CreateRunCard({
   zh,
+  enabled,
+  initialSymbol,
   onCreated,
 }: {
   zh: boolean;
+  enabled: boolean;
+  initialSymbol: string;
   onCreated: (runId: string | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [strategyId, setStrategyId] = useState('');
-  const [universeRaw, setUniverseRaw] = useState('');
+  const [universeRaw, setUniverseRaw] = useState(initialSymbol);
   const [capitalRaw, setCapitalRaw] = useState('10000');
   const [presetId, setPresetId] = useState('');
   const [presetConfig, setPresetConfig] = useState<Record<string, unknown> | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [autoStart, setAutoStart] = useState(false);
+  const [autoFeedback, setAutoFeedback] = useState(false);
 
   const catalogQuery = useQuery<StrategyTemplate[]>({
     queryKey: [...SIMULATION_QUERY_PREFIX, 'strategy-catalog'],
@@ -427,17 +514,26 @@ function CreateRunCard({
           initial_capital: initialCapital,
           // A preset supplies tuned config (position size, slippage penalty…);
           // the visible fields above override strategy/universe/name as edited.
-          ...(presetConfig ? { config: presetConfig } : {}),
+          config: {
+            ...(presetConfig ?? {}),
+            auto_run: autoStart,
+            auto_feedback: autoFeedback,
+          },
         }),
       }));
       const payload = await response.json().catch(() => null) as
         | { run_id?: string; run?: { run_id?: string } }
         | null;
       const createdId = payload?.run?.run_id ?? payload?.run_id ?? null;
+      if (createdId && autoStart) {
+        await requireSuccessfulMutation(fetch(`${API_BASE}/api/simulation/runs/${createdId}/start`, { method: 'POST' }));
+      }
       setName('');
-      setUniverseRaw('');
+      setUniverseRaw(initialSymbol);
       setPresetId('');
       setPresetConfig(null);
+      setAutoStart(false);
+      setAutoFeedback(false);
       setOpen(false);
       onCreated(createdId);
     } catch (error) {
@@ -503,6 +599,17 @@ function CreateRunCard({
               </div>
             ) : null}
           </label>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className={`flex items-start gap-2 rounded-lg border p-3 text-xs ${enabled ? 'border-stone-200 text-stone-700' : 'border-stone-100 text-stone-400'}`}>
+              <input type="checkbox" checked={autoStart} disabled={!enabled} onChange={(event) => setAutoStart(event.target.checked)} />
+              <span><strong className="block">{zh ? '自动启动' : 'Auto-start'}</strong>{zh ? '服务开启后自动进入 running。' : 'Start this run when the Paper Lab runner is enabled.'}</span>
+            </label>
+            <label className={`flex items-start gap-2 rounded-lg border p-3 text-xs ${enabled ? 'border-sky-200 text-stone-700' : 'border-stone-100 text-stone-400'}`}>
+              <input type="checkbox" checked={autoFeedback} disabled={!enabled} onChange={(event) => setAutoFeedback(event.target.checked)} />
+              <span><strong className="block">{zh ? '受限自适应反馈' : 'Guarded adaptive feedback'}</strong>{zh ? '达到最小平仓样本后才调整融合权重。' : 'Adjust fusion weights only after the minimum closed-trade sample.'}</span>
+            </label>
+          </div>
 
           <label className="block">
             <span className="text-xs font-medium uppercase tracking-[0.12em] text-stone-500">
@@ -581,10 +688,10 @@ function CreateRunCard({
             <button
               type="button"
               onClick={() => void submit()}
-              disabled={submitting}
+              disabled={submitting || !enabled}
               className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700 disabled:opacity-50"
             >
-              {submitting ? (zh ? '创建中…' : 'Creating…') : (zh ? '创建运行' : 'Create Run')}
+              {!enabled ? (zh ? '先启用模拟盘' : 'Enable Paper Lab first') : submitting ? (zh ? '创建中…' : 'Creating…') : (zh ? '创建运行' : 'Create Run')}
             </button>
           </div>
         </div>

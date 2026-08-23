@@ -94,6 +94,7 @@ DEFAULT_RUN_CONFIG: dict[str, Any] = {
     "equity_interval_minutes": 5.0,
     # Feedback guardrails (see modules/simulation/metrics.py docstring).
     "auto_feedback": False,
+    "auto_run": False,
     "feedback_min_closed_trades": sim_metrics.DEFAULT_MIN_CLOSED_TRADES,
     "feedback_max_weight_delta": sim_metrics.DEFAULT_MAX_WEIGHT_DELTA,
 }
@@ -197,15 +198,18 @@ class SimulationService:
         self._active_routes: dict[tuple[str, str], set[str]] = {}
         self._running = False
         self._equity_task: asyncio.Task | None = None
+        self._auto_run = False
+        self._auto_run_task: asyncio.Task | None = None
 
     # ------------------------------------------------------------- lifecycle
 
-    async def start(self) -> None:
+    async def start(self, *, auto_run: bool = False) -> None:
         logger.info("starting_simulation_service")
         self._running = True
         await self.event_bus.subscribe(Topics.FEATURE_SNAPSHOT, self._on_feature_snapshot)
         await self.event_bus.subscribe(Topics.PAIR_SNAPSHOT, self._on_pair_snapshot)
         self._equity_task = asyncio.create_task(self._equity_loop())
+        await self.set_auto_run(auto_run)
 
     async def stop(self) -> None:
         logger.info("stopping_simulation_service")
@@ -217,8 +221,48 @@ class SimulationService:
             except asyncio.CancelledError:
                 pass
             self._equity_task = None
+        if self._auto_run_task is not None:
+            self._auto_run_task.cancel()
+            try:
+                await self._auto_run_task
+            except asyncio.CancelledError:
+                pass
+            self._auto_run_task = None
         await self.event_bus.unsubscribe(Topics.FEATURE_SNAPSHOT, self._on_feature_snapshot)
         await self.event_bus.unsubscribe(Topics.PAIR_SNAPSHOT, self._on_pair_snapshot)
+
+    async def set_auto_run(self, enabled: bool) -> None:
+        """Enable the bounded Paper Lab runner.
+
+        Only runs explicitly created with ``config.auto_run`` are eligible.
+        The runner starts paused runs; it never creates a run, changes a
+        strategy outside the simulation service, or submits an order.
+        """
+        self._auto_run = bool(enabled)
+        if not self._running:
+            return
+        if enabled and self._auto_run_task is None:
+            self._auto_run_task = asyncio.create_task(self._auto_run_loop())
+        elif not enabled and self._auto_run_task is not None:
+            self._auto_run_task.cancel()
+            try:
+                await self._auto_run_task
+            except asyncio.CancelledError:
+                pass
+            self._auto_run_task = None
+
+    async def _auto_run_loop(self) -> None:
+        while self._running and self._auto_run:
+            try:
+                for active in list(self._active.values()):
+                    if active.record.status == "paused" and bool(active.config_value("auto_run")):
+                        await self.start_run(active.record.run_id)
+                await asyncio.sleep(30.0)
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                logger.error("sim_auto_run_loop_error", error=str(exc), exc_info=True)
+                await asyncio.sleep(30.0)
 
     async def restore_state(self) -> None:
         """Reload non-stopped runs from SQLite and resume their bindings."""
