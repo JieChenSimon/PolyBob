@@ -1,6 +1,6 @@
 id: PB-0002
 title: 收窄 API 默认启动面
-state: doing
+state: done
 p: P1
 area: api
 why: 当前启动研究、模拟、执行和抓取服务，超出窄而可靠的核心路径。
