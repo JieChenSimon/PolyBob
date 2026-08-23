@@ -326,3 +326,17 @@ PolyBob 已具备较完整的研究工作台原型、能力边界和测试基础
 阶段验收：Python `952 passed, 5 skipped, 10 deselected, 1 warning`；Dashboard `74 passed`；`npm run build` 通过；Development Control `OK 22 tasks`。提交为 `a1b7ea6`，已推送 `pb-0012-kronos`。
 
 尚未完成的下一阶段仍包括：统一 typed read models 和 DataTrustBar、Daily Brief 待处理队列、Markets 选中标的联动、ExecutionLedger canonical 接入、PIT/OOS 真实证据、真实 Paper Broker、Worker/checkpoint 和完整视觉回归基线。
+
+## 2026-08-24 专业工作台改版第二阶段
+
+继续核对后发现，策略中心虽然属于核心导航，但其按钮仍可能在 capability matrix 未同步或明确 `blocked` 时发起创建实例、启动/停止实例、提交 intent 和创建 Lab intent。这与后端的 fail-closed 能力边界不一致，属于真实的产品安全/信任问题。
+
+本阶段已修复：
+
+- StrategyCatalog 接入 `/api/capabilities`，策略运行和 Paper 执行分别显示 `DataTrustBar`。
+- 能力矩阵不可用时，策略控制动作默认禁用并显示 UNKNOWN；不能把“没有能力数据”当作允许执行。
+- `strategy_runtime` 非 `available` 时禁止创建、启动、停止和删除实例。
+- `paper_execution` 非 `available` 时禁止提交 intent 和创建手动 Lab intent，并明确展示只读观察边界。
+- `FreshnessBadge` 继承当前语言，避免英文模式下可信度状态回退为中文。
+
+第二阶段回归结果：Dashboard `74 passed`；`npm run build` 通过；Python capability/lab 边界回归 `6 passed`；`git diff --check` 通过。该阶段只收紧了前端动作边界，没有把 blocked 能力伪装成已实现的 Paper Broker 或 canonical fill ledger。

@@ -7,6 +7,7 @@ import ErrorState from '@/components/ui/ErrorState';
 import { useLanguage } from '@/lib/i18n';
 import { requireSuccessfulMutation } from '@/lib/mutationResponse';
 import { StrategyInstance, StrategyIntent, StrategyTemplate } from '@/lib/types';
+import DataTrustBar from '@/components/ui/DataTrustBar';
 
 interface PairSnapshot {
   pair_id: string;
@@ -19,6 +20,13 @@ interface PairUniverseEntry {
   pair_id: string;
   left: { venue: string; symbol: string };
   right: { venue: string; symbol: string };
+}
+
+interface CapabilityRow {
+  capability_id: string;
+  state: 'available' | 'disabled' | 'degraded' | 'unknown' | 'blocked';
+  truth: string;
+  missing?: string[];
 }
 
 const STRATEGY_QUERY_PREFIX = ['strategies', 'catalog-workspace'] as const;
@@ -54,11 +62,29 @@ export default function StrategyCatalog() {
   const intentsQuery = useStrategyQuery<StrategyIntent>('intents', '/api/strategies/intents', 'intents');
   const pairSnapshotsQuery = useStrategyQuery<PairSnapshot>('pair-snapshots', '/api/pairs/snapshots', 'snapshots');
   const pairUniverseQuery = useStrategyQuery<PairUniverseEntry>('pair-universe', '/api/pairs/universe', 'pairs');
+  const capabilityQuery = useQuery<{ rows?: CapabilityRow[] }>({
+    queryKey: ['workbench-capabilities'],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`${API_BASE}/api/capabilities`, { signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    },
+    staleTime: 20_000,
+    refetchInterval: 30_000,
+  });
   const strategies = catalogQuery.data ?? [];
   const instances = instancesQuery.data ?? [];
   const intents = intentsQuery.data ?? [];
   const pairSnapshots = pairSnapshotsQuery.data ?? [];
   const pairUniverse = pairUniverseQuery.data ?? [];
+  const capabilities = capabilityQuery.data?.rows ?? [];
+  const strategyRuntime = capabilities.find((row) => row.capability_id === 'strategy_runtime');
+  const paperExecution = capabilities.find((row) => row.capability_id === 'paper_execution');
+  const strategyActionsBlocked = capabilityQuery.isError || !capabilityQuery.data || strategyRuntime?.state !== 'available';
+  const executionActionsBlocked = capabilityQuery.isError || !capabilityQuery.data || paperExecution?.state !== 'available';
+  const capabilityReason = capabilityQuery.isError
+    ? (zh ? '能力矩阵不可用；为避免误操作，策略控制动作已暂时禁用。' : 'Capability matrix is unavailable; strategy controls are disabled to avoid unsafe actions.')
+    : strategyRuntime?.truth || (zh ? '策略运行能力当前未开放。' : 'Strategy runtime is not currently enabled.');
 
   const refetchStrategyState = () =>
     queryClient.invalidateQueries({ queryKey: STRATEGY_QUERY_PREFIX });
@@ -174,6 +200,18 @@ export default function StrategyCatalog() {
     ) : null}
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr),minmax(0,0.8fr)]">
       <div className="space-y-6">
+        <div className="grid gap-3 md:grid-cols-2">
+          <DataTrustBar
+            source="Capability Matrix"
+            state={strategyRuntime?.state ?? (capabilityQuery.isError ? 'unknown' : 'unknown')}
+            reason={capabilityReason}
+          />
+          <DataTrustBar
+            source="Paper Execution"
+            state={paperExecution?.state ?? (capabilityQuery.isError ? 'unknown' : 'unknown')}
+            reason={paperExecution?.truth ?? (zh ? '执行能力状态未知。' : 'Execution capability state is unknown.')}
+          />
+        </div>
         <div className="panel overflow-hidden">
           <div className="border-b border-stone-200 px-6 py-5 md:px-8">
             <div className="text-lg font-bold tracking-[-0.04em] text-stone-900">
@@ -220,7 +258,8 @@ export default function StrategyCatalog() {
                 <div className="mt-5 flex justify-end">
                   <button
                     onClick={() => createInstance(strategy.strategy_id)}
-                    disabled={busyId === strategy.strategy_id}
+                    disabled={strategyActionsBlocked || busyId === strategy.strategy_id}
+                    title={strategyActionsBlocked ? capabilityReason : undefined}
                     className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700 disabled:opacity-50"
                   >
                     {zh ? '创建 Paper 实例' : 'Create Paper Instance'}
@@ -277,21 +316,24 @@ export default function StrategyCatalog() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'start')}
-                    disabled={instance.status === 'running' || busyId === instance.instance_id}
+                    disabled={strategyActionsBlocked || instance.status === 'running' || busyId === instance.instance_id}
+                    title={strategyActionsBlocked ? capabilityReason : undefined}
                     className="rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
                     {zh ? '启动' : 'Start'}
                   </button>
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'stop')}
-                    disabled={instance.status !== 'running' || busyId === instance.instance_id}
+                    disabled={strategyActionsBlocked || instance.status !== 'running' || busyId === instance.instance_id}
+                    title={strategyActionsBlocked ? capabilityReason : undefined}
                     className="rounded-full bg-amber-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
                     {zh ? '停止' : 'Stop'}
                   </button>
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'delete')}
-                    disabled={busyId === instance.instance_id}
+                    disabled={strategyActionsBlocked || busyId === instance.instance_id}
+                    title={strategyActionsBlocked ? capabilityReason : undefined}
                     className="rounded-full bg-rose-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
                     {zh ? '删除' : 'Delete'}
@@ -426,7 +468,8 @@ export default function StrategyCatalog() {
                   <div className="mt-4 flex justify-end">
                     <button
                       onClick={() => submitIntent(intent.intent_id)}
-                      disabled={intent.status === 'submitted' || busyId === intent.intent_id}
+                      disabled={executionActionsBlocked || intent.status === 'submitted' || busyId === intent.intent_id}
+                      title={executionActionsBlocked ? (paperExecution?.truth ?? undefined) : undefined}
                       className="rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                     >
                       {zh ? '提交到执行' : 'Submit To Execution'}
@@ -456,13 +499,19 @@ export default function StrategyCatalog() {
           <div className="px-4 py-4">
             <button
               onClick={createLabIntent}
-              disabled={busyId === 'lab-intent'}
+              disabled={executionActionsBlocked || busyId === 'lab-intent'}
+              title={executionActionsBlocked ? (paperExecution?.truth ?? undefined) : undefined}
               className="rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
               {busyId === 'lab-intent'
                 ? (zh ? '创建中' : 'Creating')
                 : (zh ? '创建实验 Intent' : 'Create Lab Intent')}
             </button>
+            {executionActionsBlocked ? (
+              <p className="mt-3 text-xs leading-5 text-stone-500">
+                {zh ? '当前为只读观察：能力矩阵未开放 Paper 执行，实验 Intent 不会被创建。' : 'Read-only observation: paper execution is not enabled in the capability matrix, so lab intents cannot be created.'}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

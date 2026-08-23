@@ -34,6 +34,7 @@ export default function DataTrustBar({
       <FreshnessBadge
         source={source}
         timestamp={observedAt}
+        language={zh ? 'zh' : 'en'}
         status={state === 'available' ? undefined : state === 'blocked' ? 'critical' : state === 'disabled' ? 'unknown' : state}
         staleMs={staleMs}
       />
