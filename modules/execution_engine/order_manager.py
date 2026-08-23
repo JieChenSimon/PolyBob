@@ -21,6 +21,8 @@ class Order:
     filled_at: datetime = None
     exchange_order_id: str = None
     filled_size: float = 0.0
+    fill_id: str = None
+    fill_price: float = None
     error: str = None
 
 class OrderManager:
@@ -56,6 +58,8 @@ class OrderManager:
         if order_id in self.orders:
             self.orders[order_id].status = OrderStatus.FILLED
             self.orders[order_id].filled_size = self.orders[order_id].size
+            self.orders[order_id].fill_id = f"{order_id}:fill"
+            self.orders[order_id].fill_price = self.orders[order_id].price
             self.orders[order_id].filled_at = datetime.now()
             return True
         return False

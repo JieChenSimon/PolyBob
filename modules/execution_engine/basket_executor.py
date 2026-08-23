@@ -9,6 +9,7 @@ import uuid
 import structlog
 
 from libs.db.repositories import BasketRepository
+from libs.db.execution_ledger import ExecutionLedger, FillCommand
 from libs.events import Topics, get_event_bus
 from libs.schemas import ExecutionVenue, OrderBasket, OrderLeg, OrderStatus
 from .contract_executor import ContractExecutor
@@ -44,10 +45,14 @@ class BasketExecutor:
         self,
         executors: dict[ExecutionVenue, ContractExecutor],
         basket_repository: BasketRepository | None = None,
+        execution_ledger: ExecutionLedger | None = None,
+        ledger_account_id: str = "paper-main",
     ):
         self.executors = executors
         self.event_bus = get_event_bus()
         self.basket_repository = basket_repository
+        self.execution_ledger = execution_ledger
+        self.ledger_account_id = ledger_account_id
         self.baskets: dict[str, OrderBasket] = {}
 
     async def _persist(self, operation, *args, **kwargs) -> None:
@@ -240,6 +245,7 @@ class BasketExecutor:
                 else None
             )
             await self._persist_leg(basket_id, leg_index, leg, fill=fill)
+            await self._record_ledger_fill(basket_id, leg, order_state)
 
             await self.event_bus.publish(
                 Topics.ORDER_LEG_UPDATED,
@@ -348,6 +354,7 @@ class BasketExecutor:
                         state.get("exchange_order_id") or leg.exchange_order_id
                     )
                     leg.error = state.get("error")
+                    await self._record_ledger_fill(basket_id, leg, state)
             await self._persist_leg(basket_id, leg_index, leg)
         basket.status = self._derive_basket_status(basket)
         if self.basket_repository is not None:
@@ -373,6 +380,55 @@ class BasketExecutor:
             payload=leg.model_dump(mode="json"),
             fill=fill,
         )
+
+    async def _record_ledger_fill(
+        self,
+        basket_id: str,
+        leg: OrderLeg,
+        order_state: dict[str, Any] | None,
+    ) -> None:
+        """Write only venue-confirmed, explicitly identified fills.
+
+        A filled status alone is insufficient: without a stable fill id and
+        execution price, a recovery pass could duplicate or misprice the
+        canonical ledger. Such states remain visible on the basket but are
+        deliberately not treated as accounted fills.
+        """
+        if self.execution_ledger is None or not order_state:
+            return
+        fill_id = order_state.get("fill_id")
+        fill_price = order_state.get("fill_price")
+        filled_quantity = order_state.get("filled_size")
+        if not fill_id or fill_price is None or not filled_quantity or not leg.client_order_id:
+            return
+        try:
+            command = FillCommand(
+                fill_id=str(fill_id),
+                account_id=self.ledger_account_id,
+                order_id=str(leg.client_order_id),
+                instrument_id=leg.symbol,
+                side=leg.side,
+                quantity=filled_quantity,
+                price=fill_price,
+                fee=order_state.get("fee", order_state.get("commission", 0)),
+                currency=str(order_state.get("currency", "USD")),
+                executed_at=order_state.get("filled_at") or order_state.get("executed_at"),
+                metadata={
+                    "basket_id": basket_id,
+                    "leg_id": leg.leg_id,
+                    "venue": leg.venue.value,
+                    "exchange_order_id": leg.exchange_order_id,
+                },
+            )
+            await asyncio.to_thread(self.execution_ledger.apply_fill, command)
+        except Exception as exc:
+            leg.error = f"execution ledger write failed: {exc}"
+            logger.error(
+                "execution_ledger_fill_write_failed",
+                basket_id=basket_id,
+                leg_id=leg.leg_id,
+                error=str(exc) or exc.__class__.__name__,
+            )
 
     def list_baskets(self) -> list[dict[str, Any]]:
         return [self.serialize_basket(basket) for basket in self.baskets.values()]

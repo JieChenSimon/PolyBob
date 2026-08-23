@@ -626,6 +626,7 @@ async def lifespan(app: FastAPI):
 
     basket_executor = BasketExecutor(
         basket_repository=basket_repository,
+        execution_ledger=execution_ledger,
         executors={
             ExecutionVenue.BINANCE: ContractExecutor(
                 BinanceClient(paper_trading=True),

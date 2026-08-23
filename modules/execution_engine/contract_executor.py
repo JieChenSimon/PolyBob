@@ -59,6 +59,8 @@ class ContractExecutor:
             "price": order.price,
             "size": order.size,
             "filled_size": order.filled_size,
+            "fill_id": order.fill_id,
+            "fill_price": order.fill_price,
             "status": order.status.value,
             "exchange_order_id": order.exchange_order_id,
             "error": order.error,
@@ -101,6 +103,8 @@ class ContractExecutor:
             "filled_size": float(
                 venue_order.get("executedQty", venue_order.get("filled_size", 0.0)) or 0.0
             ),
+            "fill_id": venue_order.get("fill_id") or venue_order.get("trade_id"),
+            "fill_price": venue_order.get("avgPrice") or venue_order.get("average_price") or venue_order.get("fill_price"),
         }
 
     def get_position(self, symbol: str) -> Optional[Dict]:

@@ -354,3 +354,17 @@ PolyBob 已具备较完整的研究工作台原型、能力边界和测试基础
 - 新增 API 边界测试，覆盖已配置且投影一致、未初始化两种状态。
 
 第三阶段回归结果：Python `954 passed, 5 skipped, 10 deselected, 1 warning`；Dashboard `74 passed`；`npm run build` 通过；执行/账本相关回归 `27 passed`。这仍不等于 BasketExecutor 已自动把所有 venue fill 写入 canonical ledger；真实 Paper Broker、外部成交恢复和 reconcile 仍保持未完成。
+
+## 2026-08-24 成交入账第四阶段
+
+继续核对 BasketExecutor 的成交与恢复路径后，确认此前虽已有 ExecutionLedger，但 BasketExecutor 没有向它写入成交；同时现有订单状态缺少稳定的 fill ID 和显式成交价，直接入账会造成部分成交重复或把请求限价误当成交价。
+
+本阶段已修复：
+
+- OrderManager/ContractExecutor 增加显式 `fill_id`、`fill_price` 传递；模拟成交也生成稳定 fill ID，恢复路径优先读取 venue 返回的成交价字段。
+- BasketExecutor 仅在 ledger 已配置、fill ID、成交价、成交数量和 client order ID 全部存在时写入 canonical ledger。
+- Ledger 写入使用 `ExecutionLedger.apply_fill` 的幂等语义；重复 reconcile 不会重复增加仓位。
+- 缺少关键成交事实时不猜测、不使用 limit price 补齐，保持 ledger 未入账并保留可见的执行状态。
+- 新增真实 basket→fill→ledger→reconcile 回归，验证成交入账和恢复幂等。
+
+第四阶段回归结果：Python `955 passed, 5 skipped, 10 deselected, 1 warning`；Dashboard `74 passed`；`npm run build` 通过。仍未宣称已完成真实 venue 的多 fill 分摊、手续费/资金费率完整映射、跨进程 reconcile worker 或 Paper Broker 撮合模型。
