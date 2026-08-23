@@ -28,6 +28,7 @@ travel together and the board can refuse a result whose manifest is missing.
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import subprocess
 from dataclasses import dataclass, field
@@ -99,6 +100,13 @@ def _code_state() -> dict[str, Any]:
     }
 
 
+def _stable_hash(value: Any) -> str:
+    """Hash lineage metadata without depending on dictionary insertion order."""
+    encoded = json.dumps(value, ensure_ascii=False, sort_keys=True, default=str,
+                         separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
 @dataclass
 class RunManifest:
     """Everything needed to run this experiment again and get the same answer."""
@@ -130,6 +138,23 @@ class RunManifest:
             pass
         self.inputs[dataset] = facts
 
+    @property
+    def input_hash(self) -> str:
+        """Stable identity of the declared data batches and their contracts."""
+        return _stable_hash(self.inputs)
+
+    @property
+    def model_hash(self) -> str | None:
+        """Stable model identity when a model/version is declared in params."""
+        model = {key: self.params[key] for key in sorted(self.params)
+                 if "model" in key.lower() or "tokenizer" in key.lower()}
+        return _stable_hash(model) if model else None
+
+    @property
+    def has_lineage(self) -> bool:
+        """Whether this run has code, data and model lineage declarations."""
+        return bool(self.reproducible and self.inputs and self.input_hash and self.model_hash)
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "experiment": self.experiment,
@@ -138,6 +163,11 @@ class RunManifest:
             "code": self.code,
             "started_at": self.started_at.isoformat(),
             "inputs": self.inputs,
+            "lineage": {
+                "input_hash": self.input_hash,
+                "model_hash": self.model_hash,
+                "has_lineage": self.has_lineage,
+            },
             "reproducible": self.reproducible,
         }
 
