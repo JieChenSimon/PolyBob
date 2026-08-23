@@ -3,7 +3,7 @@ import "./globals.css";
 import PrimaryNav from "@/components/PrimaryNav";
 import NavigationPerformanceMonitor from "@/components/NavigationPerformanceMonitor";
 import { WorkbenchQueryProvider } from "@/lib/queryProvider";
-import { CoreNavigation, WorkbenchStatusStrip } from "@/components/WorkbenchChrome";
+import { WorkbenchStatusStrip } from "@/components/WorkbenchChrome";
 import LanguageDocumentSync from "@/components/LanguageDocumentSync";
 
 export const metadata: Metadata = {
@@ -26,7 +26,6 @@ export default function RootLayout({
           <NavigationPerformanceMonitor />
           <LanguageDocumentSync />
           <PrimaryNav />
-          <CoreNavigation />
           <WorkbenchStatusStrip />
           <div id="main-content" tabIndex={-1} className="outline-none">
             {children}

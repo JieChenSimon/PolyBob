@@ -12,7 +12,7 @@ export default function MarketsPage() {
     <>
       <WorkbenchPageHeader eyebrow={{ zh: '核心工作区', en: 'Core Workspace' }} title={{ zh: '预测市场', en: 'Prediction Markets' }} description={{ zh: '查看 Polymarket 事件标的、盘口、流动性和市场数据可信度。股票与加密资产在各自工作区独立分析。', en: 'Review Polymarket event instruments, order books, liquidity and data trust. Equities and crypto live in dedicated workspaces.' }} />
 
-      <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
+      <main className="mx-auto mt-4 w-full max-w-shell px-5 pb-10 md:mt-5 md:px-8">
         <section className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Asset workspaces">
           {[
             ['/us-equities', '美股 / US Equities'],

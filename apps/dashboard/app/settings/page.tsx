@@ -13,7 +13,7 @@ export default function SettingsPage() {
         }}
       />
 
-      <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
+      <main className="mx-auto mt-4 w-full max-w-shell px-5 pb-10 md:mt-5 md:px-8">
         <SettingsOverview />
       </main>
     </>

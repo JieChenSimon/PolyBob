@@ -17,7 +17,7 @@ export default function OverviewPage() {
         }}
       />
 
-      <main className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
+      <main className="mx-auto mt-4 w-full max-w-shell px-5 pb-10 md:mt-5 md:px-8">
         {/* Opportunities before inventory. The scoreboard says which edges
             exist; this says where they are firing today, and for an event edge
             that is the only actionable form — the US edge fires on ~5 tickers a
