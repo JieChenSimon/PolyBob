@@ -311,3 +311,18 @@ PolyBob 已具备较完整的研究工作台原型、能力边界和测试基础
 - 单进程并发幂等和 Journal 状态一致性已验证；跨进程数据库原子幂等、外部 venue 下单后的查询恢复、canonical fill ledger 接入仍未完成。
 - Paper Execution 的默认边界已收紧，但未宣称已经具备真实 Paper Broker 的撮合、部分成交、费用、cancel race 和组合 NAV 能力；该结论仍由 PB-0018 承担。
 - 量化 real-data/PIT/OOS/供应商证据没有因代码回归而自动变成 PASS，仍保持 UNKNOWN/BLOCKED。
+
+## 2026-08-24 专业工作台改版第一阶段
+
+基于 Hyperliquid、IBKR TWS、Coinbase Advanced 的官方资料和五角色 agent team 复核，已完成第一阶段 UI/UX 垂直切片：
+
+- 主导航收敛为 Daily Brief、Markets、Equities、Strategies、Execution、Risk Ops、Settings；旧专用入口保留兼容，不再与 Core 主路径争夺层级。
+- 新增 `/strategies`、`/execution`、`/risk-ops` 和 `/equities` 路由；已有策略、执行、风险组件正式可达。
+- 新增统一 Workbench Chrome：页面职责标题、Core/Lab/Archive 标签、运行能力状态条、选中工作区导航。
+- Daily Brief、Markets、Equities 统一页面契约；执行/API 不可用时明确显示 UNKNOWN，不再写“占位数值”。
+- 增加浏览器桌面和 390px 移动 smoke：核心路由无 404、无应用错误、无横向溢出。
+- 增加文档语言同步，英文切换不会继续把 `html lang` 固定为中文。
+
+阶段验收：Python `952 passed, 5 skipped, 10 deselected, 1 warning`；Dashboard `74 passed`；`npm run build` 通过；Development Control `OK 22 tasks`。提交为 `a1b7ea6`，已推送 `pb-0012-kronos`。
+
+尚未完成的下一阶段仍包括：统一 typed read models 和 DataTrustBar、Daily Brief 待处理队列、Markets 选中标的联动、ExecutionLedger canonical 接入、PIT/OOS 真实证据、真实 Paper Broker、Worker/checkpoint 和完整视觉回归基线。
