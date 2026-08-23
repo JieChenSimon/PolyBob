@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-23T19:13:51.782624+00:00",
+  "generated_at": "2026-08-23T19:21:12.061569+00:00",
   "real_data_only": true,
-  "n_windows": 218,
+  "n_windows": 219,
   "edge_threshold": 0.1,
   "fee": 0.02,
   "collection_status": "complete",
@@ -10,17 +10,17 @@
   "inference": "cluster_robust",
   "result": {
     "strategy": "btc5m_mispricing",
-    "n": 218,
+    "n": 219,
     "n_clusters": 1,
-    "mean_excess_pct": -5.8,
+    "mean_excess_pct": -5.936,
     "median_excess_pct": -38.5,
-    "win_rate": 0.4679,
+    "win_rate": 0.4658,
     "t_stat": 0.0,
-    "t_stat_iid": -1.75,
+    "t_stat_iid": -1.8,
     "t_hurdle": 4.2,
     "significant": false,
     "bootstrap_ci_pct": null,
-    "sign_test_p": 0.3786,
+    "sign_test_p": 0.3442,
     "wild_p": null,
     "p_floor": null,
     "resolvable": false,
@@ -32,9 +32,9 @@
       "only one independence cluster — no inference is possible",
       "only 1 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
     ],
-    "mean_pnl_per_contract": -0.058,
-    "brier_model": 0.5321,
-    "brier_market": 0.2387,
+    "mean_pnl_per_contract": -0.0594,
+    "brier_model": 0.5342,
+    "brier_market": 0.2381,
     "events": [
       {
         "date": "2026-08-23",
@@ -907,6 +907,10 @@
       {
         "date": "2026-08-23",
         "excess": 0.475
+      },
+      {
+        "date": "2026-08-23",
+        "excess": -0.355
       }
     ]
   }
