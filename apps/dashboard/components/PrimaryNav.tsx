@@ -9,8 +9,11 @@ import { useLanguage } from '@/lib/i18n';
 // operator's daily workflow.
 const navItems = [
   { href: '/overview', label: { en: 'Daily Brief', zh: '每日简报' } },
-  { href: '/markets', label: { en: 'Markets', zh: '市场观察' }, prefetch: false },
-  { href: '/equities', label: { en: 'Equities', zh: '股票观察' }, prefetch: false, aliases: ['/us-equities'] },
+  { href: '/markets', label: { en: 'Prediction Markets', zh: '预测市场' }, prefetch: false },
+  { href: '/us-equities', label: { en: 'US Equities', zh: '美股' }, prefetch: false, aliases: ['/equities'] },
+  { href: '/a-shares', label: { en: 'A-Shares', zh: 'A股' }, prefetch: false },
+  { href: '/crypto/altcoin-discovery', label: { en: 'Crypto', zh: '加密货币' }, prefetch: false, aliases: ['/crypto'] },
+  { href: '/btc-5m', label: { en: 'BTC 5m', zh: 'BTC 5分钟' }, prefetch: false, aliases: ['/polymarket'] },
   { href: '/strategies', label: { en: 'Strategies', zh: '策略中心' } },
   { href: '/execution', label: { en: 'Execution', zh: '执行台' } },
   { href: '/risk-ops', label: { en: 'Risk Ops', zh: '风险运营' } },

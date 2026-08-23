@@ -508,11 +508,15 @@ const uiText = {
 export default function USEquityAdvisor({
   symbol: symbolOverride,
   hideList = false,
+  initialMarket = 'US',
+  lockMarket = false,
 }: {
   /** Pin the panel to one instrument (used by that instrument's own page). */
   symbol?: string;
   /** Hide the watchlist rail when the page is already about a single name. */
   hideList?: boolean;
+  initialMarket?: Market;
+  lockMarket?: boolean;
 } = {}) {
   const { language } = useLanguage();
   const text = uiText[language];
@@ -526,7 +530,7 @@ export default function USEquityAdvisor({
   const router = useRouter();
   const [mobileView, setMobileView] = useState<'detail' | 'list'>('detail');
   const selectedSymbol = (
-    symbolOverride || searchParams?.get('symbol') || 'NVDA'
+    symbolOverride || searchParams?.get('symbol') || (initialMarket === 'CN' ? '600519' : 'NVDA')
   ).toUpperCase();
   // Selecting a name stays on this page and swaps the detail panel, which is
   // what the quote, chart, moving averages, order book and technical read are
@@ -544,7 +548,7 @@ export default function USEquityAdvisor({
     [router, searchParams, selectedSymbol],
   );
   const [query, setQuery] = useState('');
-  const [selectedMarket, setSelectedMarket] = useState<Market>('US');
+  const [selectedMarket, setSelectedMarket] = useState<Market>(initialMarket);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -849,6 +853,7 @@ export default function USEquityAdvisor({
             quoteState={quoteState}
             selectedCategory={selectedCategory}
             selectedMarket={selectedMarket}
+            lockMarket={lockMarket}
             selectedSymbol={selected.symbol}
             text={text}
             totalCount={observations.length}
@@ -960,6 +965,7 @@ const ObservationRail = memo(function ObservationRail({
   quoteState,
   selectedCategory,
   selectedMarket,
+  lockMarket,
   selectedSymbol,
   text,
   totalCount,
@@ -983,6 +989,7 @@ const ObservationRail = memo(function ObservationRail({
   quoteState: QuoteState;
   selectedCategory: string;
   selectedMarket: Market;
+  lockMarket: boolean;
   selectedSymbol: string;
   text: typeof uiText.zh;
   totalCount: number;
@@ -1013,7 +1020,7 @@ const ObservationRail = memo(function ObservationRail({
           placeholder={text.search}
           className="mono mt-3 w-full rounded border border-stone-200 bg-white px-3 py-2 text-xs text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-sky-500"
         />
-        <div className="mt-3">
+        {!lockMarket ? <div className="mt-3">
           <div className="mono mb-2 text-[10px] uppercase text-stone-500">{text.market}</div>
           <div className="grid grid-cols-2 gap-2">
             {(['US', 'CN'] as Market[]).map((market) => {
@@ -1032,7 +1039,7 @@ const ObservationRail = memo(function ObservationRail({
               );
             })}
           </div>
-        </div>
+        </div> : null}
         <div className="mt-3 flex items-center justify-between gap-2">
           <button
             type="button"

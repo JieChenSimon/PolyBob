@@ -368,3 +368,17 @@ PolyBob 已具备较完整的研究工作台原型、能力边界和测试基础
 - 新增真实 basket→fill→ledger→reconcile 回归，验证成交入账和恢复幂等。
 
 第四阶段回归结果：Python `955 passed, 5 skipped, 10 deselected, 1 warning`；Dashboard `74 passed`；`npm run build` 通过。仍未宣称已完成真实 venue 的多 fill 分摊、手续费/资金费率完整映射、跨进程 reconcile worker 或 Paper Broker 撮合模型。
+
+## 2026-08-24 资产工作区接入第五阶段
+
+前端运行态核对确认：美股、A 股、加密货币和 BTC 5m 的页面/API 原本大多存在，但被压缩主导航隐藏；`/markets` 同时承载 Polymarket、A 股回避信号和 A 股预测扫描，导致用户误以为跨资产工作区没有接入。
+
+本阶段已修复：
+
+- 主导航新增并直达 US Equities、A-Shares、Crypto、BTC 5m；旧 `/equities`、`/crypto`、`/btc-5m` 路由继续兼容。
+- 新增独立 `/a-shares` 工作区；美股和 A 股页面分别锁定资产范围，避免通过同一页面切换后产生上下文误解。
+- Crypto 和 BTC 5m 页面增加统一 Workbench 页面契约和 Core 标识。
+- `/markets` 明确更名为 Prediction Markets，保留 Polymarket 数据链路，并提供四个资产工作区的显式跳转卡片。
+- PrimaryNav 测试更新，确保新增资产入口不会被回归删除。
+
+第五阶段回归结果：Dashboard `74 passed`；`npm run build` 通过；生成路由包含 `/a-shares`、`/crypto/altcoin-discovery`、`/btc-5m` 和原有 instrument detail 路由。当前数据是否可见仍取决于 API/provider 运行状态；API 未启动时前端必须显示 UNKNOWN/degraded，而不是伪造行情。

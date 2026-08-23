@@ -2,10 +2,12 @@ import BtcCalibrationPanel from '@/components/BtcCalibrationPanel';
 import BtcFiveMinuteWorkbenchClient from '@/components/BtcFiveMinuteWorkbenchClient';
 import VerdictBanner from '@/components/VerdictBanner';
 import SectionIntro from '@/components/SectionIntro';
+import { WorkbenchPageHeader } from '@/components/WorkbenchChrome';
 
 export default function PolymarketPage() {
   return (
     <>
+      <WorkbenchPageHeader eyebrow={{ zh: '核心工作区', en: 'Core Workspace' }} title={{ zh: 'BTC 5分钟', en: 'BTC 5m' }} description={{ zh: '独立查看 BTC 5 分钟二元盘口、校准状态和研究工作台；它不是现货 BTC 页面。', en: 'Review the BTC five-minute binary order book, calibration state and research workbench; this is not spot BTC.' }} />
       <SectionIntro
         eyebrow={{ zh: '真实盘口', en: 'Real Order Books' }}
         title={{ zh: 'Polymarket', en: 'Polymarket' }}
