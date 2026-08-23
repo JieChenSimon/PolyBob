@@ -676,11 +676,15 @@ async def lifespan(app: FastAPI):
     await basket_executor.restore_state()
     await intent_execution_service.restore_state()
 
-    pair_feature_engine = PairFeatureEngineService(
-        pair_definitions=load_pair_definitions(),
-        poll_interval_seconds=5.0,
-    )
-    await pair_feature_engine.start()
+    if settings.enable_lab_pair_features or settings.enable_lab_backtest:
+        pair_feature_engine = PairFeatureEngineService(
+            pair_definitions=load_pair_definitions(),
+            poll_interval_seconds=5.0,
+        )
+        await pair_feature_engine.start()
+    else:
+        pair_feature_engine = None
+        logger.info("pair_feature_engine_disabled", capability="lab_pair_features")
     onchain_monitor = OnchainMonitorService.from_yaml(ONCHAIN_WATCHLIST_PATH)
     await onchain_monitor.start()
 
@@ -689,26 +693,31 @@ async def lifespan(app: FastAPI):
         proxy=settings.polybob_outbound_proxy or None,
         timeout_seconds=settings.discovery_request_timeout_seconds,
     )
-    altcoin_discovery = AltcoinDiscoveryService(
-        alpha_provider=BinanceAlphaProvider(
-            discovery_client,
-            base_url=settings.binance_alpha_api_url,
-            market_base_url=settings.binance_alpha_market_api_url,
-        ),
-        futures_provider=BinanceFuturesProvider(
-            discovery_client,
-            base_url=settings.binance_futures_api_url,
-            websocket_url=settings.binance_futures_ws_api_url,
-            proxy=settings.polybob_outbound_proxy or None,
-        ),
-        min_coverage=settings.discovery_min_coverage,
-        max_cashout_risk=settings.discovery_max_cashout_risk,
-        min_pump_potential=settings.discovery_min_pump_potential,
-        min_liquidity_usd=settings.discovery_min_liquidity_usd,
-        min_volume_24h_usd=settings.discovery_min_volume_24h_usd,
-        http_client=discovery_client,
-    )
-    await altcoin_discovery.start()
+    if settings.enable_lab_altcoin_discovery:
+        altcoin_discovery = AltcoinDiscoveryService(
+            alpha_provider=BinanceAlphaProvider(
+                discovery_client,
+                base_url=settings.binance_alpha_api_url,
+                market_base_url=settings.binance_alpha_market_api_url,
+            ),
+            futures_provider=BinanceFuturesProvider(
+                discovery_client,
+                base_url=settings.binance_futures_api_url,
+                websocket_url=settings.binance_futures_ws_api_url,
+                proxy=settings.polybob_outbound_proxy or None,
+            ),
+            min_coverage=settings.discovery_min_coverage,
+            max_cashout_risk=settings.discovery_max_cashout_risk,
+            min_pump_potential=settings.discovery_min_pump_potential,
+            min_liquidity_usd=settings.discovery_min_liquidity_usd,
+            min_volume_24h_usd=settings.discovery_min_volume_24h_usd,
+            http_client=discovery_client,
+        )
+        await altcoin_discovery.start()
+    else:
+        altcoin_discovery = None
+        await discovery_client.aclose()
+        logger.info("altcoin_discovery_disabled", capability="lab_altcoin_discovery")
 
     knowledge_ingestion = KnowledgeIngestionService(
         store=KnowledgeStore(settings.polybob_db_path),

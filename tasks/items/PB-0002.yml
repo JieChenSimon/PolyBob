@@ -1,15 +1,15 @@
 id: PB-0002
 title: 收窄 API 默认启动面
-state: todo
+state: doing
 p: P1
 area: api
 why: 当前启动研究、模拟、执行和抓取服务，超出窄而可靠的核心路径。
 checks:
 - text: lab 与非首屏服务默认不启动
-  done: false
+  done: true
 - text: 核心路由启动与降级测试通过
-  done: false
+  done: true
 deps: []
-branch: null
+branch: pb-0002-minimal-api-start
 blocked: null
-updated: '2026-08-12T06:50:00+00:00'
+updated: '2026-08-23T20:07:54+00:00'

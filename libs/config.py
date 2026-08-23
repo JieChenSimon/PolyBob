@@ -79,6 +79,8 @@ class Settings(BaseSettings):
     enable_lab_backtest: bool = False
     enable_lab_paper_execution: bool = False
     enable_lab_kronos_forecasting: bool = False
+    enable_lab_pair_features: bool = False
+    enable_lab_altcoin_discovery: bool = False
     polybob_kronos_model_root: str = "data/models/kronos"
     polybob_kronos_device: str = ""
     polybob_kronos_paths: int = 3
