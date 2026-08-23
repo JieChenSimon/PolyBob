@@ -1,6 +1,6 @@
 id: PB-0022
 title: 建设高阶风险、TCA 与适配器认证
-state: doing
+state: done
 p: P2
 area: quant
 why: 在可信账本、paper 成交和已晋级策略出现后建设机构级高级能力
@@ -15,4 +15,4 @@ deps:
 - PB-0018
 branch: pb-0022-risk-tca-cert
 blocked: null
-updated: '2026-08-23T20:24:24+00:00'
+updated: '2026-08-23T20:24:29+00:00'
