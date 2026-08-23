@@ -1,6 +1,6 @@
 id: PB-0016
 title: 统一回测内核与样本外验证
-state: doing
+state: done
 p: P0
 area: research
 why: 淘汰相互冲突的 toy 回测逻辑并建立无前视的可信评估
