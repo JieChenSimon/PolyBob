@@ -382,6 +382,23 @@ async def test_event_bus_feeds_running_runs_only(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_snapshot_routing_indexes_topic_and_instrument(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="indexed",
+        strategy_id="spread_reversion_v1",
+        universe=["m1"],
+        initial_capital=1000,
+        config=RUN_CONFIG,
+    )
+    run_id = run["run_id"]
+    assert run_id in service._active_routes[(Topics.FEATURE_SNAPSHOT, "m1")]
+    assert (Topics.FEATURE_SNAPSHOT, "m2") not in service._active_routes
+    await service.stop_run(run_id)
+    assert (Topics.FEATURE_SNAPSHOT, "m1") not in service._active_routes
+
+
+@pytest.mark.asyncio
 async def test_restart_recovery_resumes_runs_and_positions(tmp_path):
     service = make_service(tmp_path)
     run = await service.create_run(

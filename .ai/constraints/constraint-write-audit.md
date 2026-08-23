@@ -80,3 +80,12 @@
 - operation: update
 - status: approved-by-explicit-request
 - notes: 用户要求核验全部功能、删除真实冗余依赖，并防止直接依赖和传递依赖继续漂移。
+
+## 2026-08-23T19:42:02Z
+
+- proposal_ref: user-polybob-complete-system-requirements
+- approved_item_ids: product-research-data-paper-ui-continuation-integrity
+- destinations: `.ai/constraints/index.md`, `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: create
+- status: approved-by-explicit-request
+- notes: 汇总用户对真实数据、量化证据、模拟盘、前端工作台、任务持续推进和安全边界的硬要求；收益目标被转译为必须验证正期望、未证明则 UNKNOWN，不构成盈利保证。

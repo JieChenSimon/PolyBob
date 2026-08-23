@@ -55,6 +55,7 @@ import json
 import os
 import re
 import tempfile
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -298,6 +299,7 @@ def write(
                 os.link(pending, destination)
             except FileExistsError:
                 return 0
+            _FILES_CACHE.clear()
             return len(records)
         finally:
             if pending is not None:
@@ -307,6 +309,7 @@ def write(
     # and two fetches in the same second still land in different files.
     name = f"{stamp.strftime('%Y%m%dT%H%M%S%f')}.parquet"
     pq.write_table(pa.Table.from_pylist(records), target / name, compression="zstd")
+    _FILES_CACHE.clear()
     return len(records)
 
 
@@ -319,6 +322,8 @@ def write(
 # validation harness issued ~100k connections before this was noticed. Connections are
 # cheap individually and ruinous in aggregate, which is the usual shape of this bug.
 _CONNECTION: Any = None
+_FILES_CACHE: dict[tuple[str, str, tuple[str, ...] | None], tuple[float, list[str]]] = {}
+_FILES_CACHE_TTL_SECONDS = 2.0
 
 
 def _connect():
@@ -340,17 +345,26 @@ def close() -> None:
             _CONNECTION.close()
         finally:
             _CONNECTION = None
+    _FILES_CACHE.clear()
 
 
 def _files(ds: Dataset, symbols: Iterable[str] | None) -> list[str]:
+    normalized_symbols = None if symbols is None else tuple(sorted(str(symbol) for symbol in symbols))
+    cache_key = (str(STORE_ROOT), ds.name, normalized_symbols)
+    cached = _FILES_CACHE.get(cache_key)
+    if cached is not None and cached[0] > time.monotonic():
+        return cached[1]
     base = ds.path()
     if not base.exists():
         return []
-    if symbols is None:
-        return [str(p) for p in sorted(base.rglob("*.parquet"))]
+    if normalized_symbols is None:
+        files = [str(p) for p in sorted(base.rglob("*.parquet"))]
+        _FILES_CACHE[cache_key] = (time.monotonic() + _FILES_CACHE_TTL_SECONDS, files)
+        return files
     out: list[str] = []
-    for symbol in symbols:
+    for symbol in normalized_symbols:
         out.extend(str(p) for p in sorted(ds.path(symbol).glob("*.parquet")))
+    _FILES_CACHE[cache_key] = (time.monotonic() + _FILES_CACHE_TTL_SECONDS, out)
     return out
 
 

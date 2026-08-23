@@ -26,6 +26,10 @@ RAW_ROOT = ROOT / "raw"
 PART_ROOT = ROOT / "parts"
 MANIFEST = ROOT / "manifest.jsonl"
 _SAFE = re.compile(r"[^A-Za-z0-9._-]+")
+_MANIFEST_CACHE_KEY: tuple[str, int] | None = None
+_MANIFEST_CACHE: list[dict[str, Any]] = []
+_RAW_DIGEST_CACHE_KEY: tuple[str, int] | None = None
+_RAW_DIGESTS: set[str] = set()
 
 
 def _safe(value: Any) -> str:
@@ -83,9 +87,19 @@ def record_raw(
     }
     # A duplicate response is still useful in the cache but does not create a
     # second manifest row; the content hash is the idempotency key.
-    if not any(item.get("kind") == "raw" and item.get("sha256") == digest
-               for item in read_manifest()):
+    global _RAW_DIGEST_CACHE_KEY, _RAW_DIGESTS
+    manifest_entries = read_manifest()
+    stat = MANIFEST.stat() if MANIFEST.exists() else None
+    manifest_key = (str(MANIFEST), stat.st_mtime_ns if stat else -1)
+    if manifest_key != _RAW_DIGEST_CACHE_KEY:
+        _RAW_DIGESTS = {
+            str(item.get("sha256")) for item in manifest_entries
+            if item.get("kind") == "raw" and item.get("sha256")
+        }
+        _RAW_DIGEST_CACHE_KEY = manifest_key
+    if digest not in _RAW_DIGESTS:
         _append_manifest(entry)
+        _RAW_DIGESTS.add(digest)
     return entry
 
 
@@ -146,8 +160,13 @@ def write_records(
 
 
 def read_manifest() -> list[dict[str, Any]]:
+    global _MANIFEST_CACHE_KEY, _MANIFEST_CACHE
     if not MANIFEST.exists():
         return []
+    stat = MANIFEST.stat()
+    key = (str(MANIFEST), stat.st_mtime_ns)
+    if key == _MANIFEST_CACHE_KEY:
+        return _MANIFEST_CACHE
     entries: list[dict[str, Any]] = []
     for line in MANIFEST.read_text(encoding="utf-8").splitlines():
         try:
@@ -156,6 +175,8 @@ def read_manifest() -> list[dict[str, Any]]:
                 entries.append(value)
         except ValueError:
             continue
+    _MANIFEST_CACHE_KEY = key
+    _MANIFEST_CACHE = entries
     return entries
 
 

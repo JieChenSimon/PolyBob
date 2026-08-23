@@ -192,6 +192,9 @@ class SimulationService:
         self.source_factories = source_factories or _default_source_factories()
         self.equity_poll_seconds = equity_poll_seconds
         self._active: dict[str, _ActiveRun] = {}
+        # Snapshot routing index: a live feed should not scan every run when
+        # only a small subset subscribes to this instrument/topic.
+        self._active_routes: dict[tuple[str, str], set[str]] = {}
         self._running = False
         self._equity_task: asyncio.Task | None = None
 
@@ -227,7 +230,9 @@ class SimulationService:
             if record.run_id in self._active:
                 continue
             try:
-                self._active[record.run_id] = self._bind(record)
+                active = self._bind(record)
+                self._active[record.run_id] = active
+                self._index_active(active)
                 restored += 1
             except Exception as exc:
                 logger.warning(
@@ -243,6 +248,22 @@ class SimulationService:
         if factory is None:
             raise ValueError(f"No simulation source for strategy: {record.strategy_id}")
         return _ActiveRun(record, factory(dict(record.config), self.store.db_path))
+
+    def _index_active(self, active: _ActiveRun) -> None:
+        for topic in getattr(active.source, "topics", ()):
+            for instrument in active.record.universe:
+                self._active_routes.setdefault((topic, str(instrument)), set()).add(active.record.run_id)
+
+    def _unindex_active(self, active: _ActiveRun) -> None:
+        for topic in getattr(active.source, "topics", ()):
+            for instrument in active.record.universe:
+                key = (topic, str(instrument))
+                run_ids = self._active_routes.get(key)
+                if run_ids is None:
+                    continue
+                run_ids.discard(active.record.run_id)
+                if not run_ids:
+                    self._active_routes.pop(key, None)
 
     # ------------------------------------------------------------ run admin
 
@@ -285,6 +306,7 @@ class SimulationService:
             f"paper:{record.run_id}", initial_cash=record.initial_capital,
         )
         self._active[record.run_id] = active
+        self._index_active(active)
         await self._audit("sim.run.created", record.run_id, {
             "strategy_id": strategy_id,
             "universe": record.universe,
@@ -305,6 +327,7 @@ class SimulationService:
         )
         active = self._active.pop(run_id, None)
         if active is not None:
+            self._unindex_active(active)
             await self._record_equity(active)
         record = active.record if active else await asyncio.to_thread(self.store.get_run, run_id)
         if record is not None:
@@ -328,6 +351,7 @@ class SimulationService:
             active.record = updated
         elif status in ("running", "paused"):
             self._active[run_id] = self._bind(updated)
+            self._index_active(self._active[run_id])
         await self._audit(f"sim.run.{status}", run_id, {"from": record.status})
         return updated.to_dict()
 
@@ -383,12 +407,12 @@ class SimulationService:
         key = snapshot.get("market_id") or snapshot.get("pair_id")
         if key is None:
             return
-        for active in list(self._active.values()):
+        run_ids = self._active_routes.get((topic, str(key)), ())
+        for run_id in tuple(run_ids):
+            active = self._active.get(run_id)
+            if active is None:
+                continue
             if active.record.status != "running":
-                continue
-            if topic not in getattr(active.source, "topics", ()):
-                continue
-            if str(key) not in active.record.universe:
                 continue
             # Marks follow every snapshot, not only the ones that happen to
             # produce a signal. They used to be written inside _process_signal,

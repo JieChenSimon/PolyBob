@@ -41,6 +41,7 @@ def main() -> int:
                               coverage=store.coverage(store.DAILY_BARS))
     for domain, symbols in DOMAINS.items():
         rows = []
+        usable = []
         for symbol in symbols:
             try:
                 frame = store.read(store.DAILY_BARS, symbol, as_of=now)
@@ -51,16 +52,13 @@ def main() -> int:
             result = walk_forward_symbol(
                 symbol, prices, candidates=CANDIDATES, cost_bps=COST_BPS[domain],
             )
+            usable.append(result)
             rows.append({"symbol": result.symbol, "status": result.status,
                          "oos_return": result.oos_return, "oos_sharpe": result.oos_sharpe,
                          "oos_max_drawdown": result.oos_max_drawdown,
                          "baseline_return": result.baseline_return,
                          "folds": len(result.folds),
                          "selected_params": list(result.selected_params)})
-        usable = [
-            walk_forward_symbol(r["symbol"], store.read(store.DAILY_BARS, r["symbol"], as_of=now)["close"].dropna().astype(float).tolist(), candidates=CANDIDATES, cost_bps=COST_BPS[domain])
-            for r in rows if r.get("oos_return") is not None
-        ]
         report["domains"][domain] = {"symbols": rows, "portfolio": aggregate_portfolio(usable)}
     out = Path("data/quant_pipeline_results.json")
     out.write_text(json.dumps(report, indent=2, ensure_ascii=False, default=str) + "\n")
