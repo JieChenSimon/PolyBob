@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-23T19:09:39.980087+00:00",
+  "generated_at": "2026-08-23T19:13:51.782624+00:00",
   "real_data_only": true,
   "n_trials": 255,
   "t_hurdle": 4.2,
   "sources": {
     "data/billboard_results.json": "2026-08-10T05:45:48.301411+00:00",
-    "data/btc5m_mispricing.json": "2026-08-23T19:09:39.980087+00:00",
+    "data/btc5m_mispricing.json": "2026-08-23T19:13:51.782624+00:00",
     "data/insider_results.json": "2026-08-10T05:44:31.775342+00:00",
     "data/us_crypto_results.json": "2026-08-10T05:45:40.483335+00:00"
   },
@@ -144,7 +144,6 @@
         "independent_clusters<20",
         "wrong_sign_vs_preregistration",
         "unresolvable_at_1_clusters",
-        "run_not_reproducible_dirty_tree",
         "no_pit_contract_cannot_trade"
       ],
       "notes": "旗舰标的:必须和别的边用同一条门槛,不因投入大而放宽。",
@@ -168,8 +167,8 @@
       ],
       "evidence_end": "2026-08-23",
       "max_evidence_age_days": 30,
-      "run_as_of": "2026-08-23T19:05:21.706478+00:00",
-      "run_reproducible": false,
+      "run_as_of": "2026-08-23T19:13:50.620176+00:00",
+      "run_reproducible": true,
       "pit_status": "unknown",
       "out_of_sample": {
         "available": false
