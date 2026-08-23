@@ -10,8 +10,8 @@ checks:
 - text: 公司行动与交易日历进入回测和 Kronos 输入，非严格 PIT 数据不能晋级交易
   done: true
 - text: 重复 provider payload 不新增 observation 文件且压实前后查询一致
-  done: false
+  done: true
 deps: []
 branch: null
 blocked: null
-updated: '2026-08-13T06:39:02+00:00'
+updated: '2026-08-23T19:35:36+00:00'
