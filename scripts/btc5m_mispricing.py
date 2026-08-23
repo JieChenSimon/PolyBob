@@ -22,7 +22,6 @@ from __future__ import annotations
 import json
 import math
 import time
-import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -30,10 +29,15 @@ import numpy as np
 
 from libs.quant.hypothesis import Hypothesis, HypothesisRegistry, Rationale
 from libs.data import run_manifest
+from libs.data.http_client import HttpFetchError
+from libs.data.resilient import FetchPolicy, fetch_cached_bytes, load_checkpoint, save_checkpoint
 from libs.quant import clustered_inference
 from libs.quant.pbo import deflated_t_stat_threshold
 
 UA = {"User-Agent": "Mozilla/5.0 (PolyBob research)"}
+CACHE_DIR = Path("data/market_cache/btc5m")
+CHECKPOINT = CACHE_DIR / "collection_checkpoint.json"
+COLLECTOR_SPEC = "btc5m-v3-completed-bar-open-strike-cache-checkpoint"
 N_WINDOWS = 220           # settled 5-minute windows to reconstruct
 EDGE_THRESHOLD = 0.10     # model must disagree with the market by >= 10 points
 FEE = 0.02                # round-trip spread/fee assumption, in probability terms
@@ -56,8 +60,13 @@ def preregister(registry: HypothesisRegistry) -> None:
 
 
 def _get(url: str, timeout: float = 20.0):
-    return json.loads(urllib.request.urlopen(
-        urllib.request.Request(url, headers=UA), timeout=timeout).read())
+    raw = fetch_cached_bytes(
+        url, cache_dir=CACHE_DIR / "responses",
+        policy=FetchPolicy(attempts=4, timeout_seconds=timeout,
+                           initial_backoff_seconds=0.5, max_backoff_seconds=10.0),
+        headers=UA,
+    )
+    return json.loads(raw)
 
 
 def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]]:
@@ -97,15 +106,29 @@ def main() -> None:
     now = int(time.time())
     base = (now // 300) * 300
     samples: list[tuple[float, float, int]] = []   # (model_p, market_p, outcome_up)
+    checkpoint = load_checkpoint(CHECKPOINT, spec=COLLECTOR_SPEC)
+    saved_samples = checkpoint.get("samples", [])
+    if isinstance(saved_samples, list):
+        samples = [tuple(item) for item in saved_samples if isinstance(item, list) and len(item) == 4]
+    completed = checkpoint.setdefault("items", {})
+    provider_failures = int(checkpoint.get("provider_failures", 0))
 
     for i in range(1, N_WINDOWS + 1):
         window_start = base - i * 300
+        key = str(window_start)
+        if key in completed:
+            continue
         try:
             event = _get(f"https://gamma-api.polymarket.com/events/slug/btc-updown-5m-{window_start}")
-        except Exception:  # noqa: BLE001 - window may not exist
+        except HttpFetchError:
+            provider_failures += 1
+            save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
+                                         "samples": [list(s) for s in samples],
+                                         "provider_failures": provider_failures})
             continue
         markets = event.get("markets") or []
         if not markets:
+            completed[key] = "no_market"
             continue
         market = markets[0]
         if not market.get("closed"):
@@ -115,6 +138,7 @@ def main() -> None:
             outcome_up = 1 if float(outcome_prices[0]) > 0.5 else 0
             token = json.loads(market.get("clobTokenIds", "[]"))[0]
         except (ValueError, IndexError, TypeError):
+            completed[key] = "invalid_market"
             continue
 
         # Market quote roughly 2 minutes into the window.
@@ -122,7 +146,8 @@ def main() -> None:
         try:
             history = _get(f"https://clob.polymarket.com/prices-history"
                            f"?market={token}&interval=max&fidelity=1").get("history", [])
-        except Exception:  # noqa: BLE001
+        except HttpFetchError:
+            provider_failures += 1
             continue
         quotes = [h for h in history if h.get("t", 0) <= decision_ts]
         if not quotes:
@@ -130,8 +155,13 @@ def main() -> None:
         market_p = float(quotes[-1]["p"])
 
         # Model probability from real BTC minute data at the same instant.
-        bars = btc_minute_bars(window_start * 1000, decision_ts * 1000)
+        try:
+            bars = btc_minute_bars(window_start * 1000, decision_ts * 1000)
+        except HttpFetchError:
+            provider_failures += 1
+            continue
         if len(bars) < 25:
+            completed[key] = "insufficient_bars"
             continue
         # The binary contract's reference is the first price of the 5-minute
         # bucket. Keep this identical to btc5m_calibration.py (which uses opens).
@@ -154,11 +184,15 @@ def main() -> None:
         # row at all ("no_per_event_data_cannot_verify_t").
         window_date = datetime.fromtimestamp(window_start, tz=UTC).date().isoformat()
         samples.append((model_p, market_p, outcome_up, window_date))
+        completed[key] = "sample"
+        save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
+                                     "samples": [list(s) for s in samples],
+                                     "provider_failures": provider_failures})
         if len(samples) % 25 == 0:
             print(f"  已重建 {len(samples)} 个已结算窗口…")
         time.sleep(0.15)
 
-    print(f"\n可用已结算窗口: {len(samples)}")
+    print(f"\n可用已结算窗口: {len(samples)}，提供方失败: {provider_failures}")
     if len(samples) < 60:
         print("样本不足,不做结论(遵守真实数据规则,不用模拟数据凑)")
         return
@@ -218,6 +252,8 @@ def main() -> None:
     out.write_text(json.dumps({
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "n_windows": len(samples), "edge_threshold": EDGE_THRESHOLD, "fee": FEE,
+        "collection_status": "complete" if provider_failures == 0 else "partial",
+        "provider_failures": provider_failures,
         "hold_days": 1,          # the replay/board reads this to pick the cluster unit
         "inference": "cluster_robust",
         "result": result,

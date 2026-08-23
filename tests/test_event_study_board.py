@@ -121,6 +121,16 @@ def test_a_source_without_per_event_data_cannot_be_approved():
     assert row["t_stat"] is None
 
 
+def test_partial_collector_output_cannot_be_approved():
+    payload = _measured(1000, 0.04, 0.01, weeks=30)
+    payload["collection_status"] = "partial"
+    payload["provider_failures"] = 2
+    row = evaluate_spec(_SPEC, payload, 35, _clean_manifest())
+    assert row["approved"] is False
+    assert "collection_partial" in row["failed"]
+    assert "provider_failures_present" in row["failed"]
+
+
 def test_avoid_rows_never_grant_trade_permission():
     registry = PromotionRegistry(BOARD_PATH)
     board = json.loads(BOARD_PATH.read_text())

@@ -366,6 +366,15 @@ def evaluate_spec(
 
     failed: list[str] = []
 
+    # A resumable collector is allowed to publish a partial observation file so
+    # operators can inspect progress, but partial data can never grant a trade
+    # permission.  Without this guard, an interrupted run with enough rows could
+    # accidentally look like a completed study.
+    if payload.get("collection_status") not in (None, "complete"):
+        failed.append(f"collection_{payload.get('collection_status')}")
+    if payload.get("provider_failures"):
+        failed.append("provider_failures_present")
+
     # Recompute the statistic here rather than trusting the file's. This is the
     # one number that decides whether real money may be committed, so the board
     # derives it from the returns themselves at its own hurdle.

@@ -28,7 +28,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from libs.data.http_client import HttpFetchError, http_get_bytes
+from libs.data.http_client import HttpFetchError
+from libs.data.resilient import FetchPolicy, fetch_cached_bytes
 
 CACHE_DIR = Path("data/market_cache/sec")
 _BASE = "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets"
@@ -78,12 +79,20 @@ def _download_quarter(year: int, quarter: int) -> bytes:
         return cache.read_bytes()
     url = f"{_BASE}/{year}q{quarter}_form345.zip"
     try:
-        # Multi-megabyte zip: streamed so the body is not buffered twice.
-        payload = http_get_bytes(url, timeout=120, headers={"User-Agent": _UA}, stream=True)
+        # Multi-megabyte zip: streamed and retried; the durable cache means a
+        # later run never re-downloads quarters that already completed.
+        payload = fetch_cached_bytes(
+            url, cache_dir=CACHE_DIR / "responses",
+            policy=FetchPolicy(attempts=5, timeout_seconds=120.0,
+                               initial_backoff_seconds=2.0, max_backoff_seconds=30.0),
+            headers={"User-Agent": _UA}, stream=True,
+        )
     except HttpFetchError as exc:
         raise SecDataUnavailable(f"{year}Q{quarter}: {exc}") from exc
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache.write_bytes(payload)
+    tmp = cache.with_suffix(".tmp")
+    tmp.write_bytes(payload)
+    tmp.replace(cache)
     time.sleep(0.2)          # stay well inside the SEC's rate limit
     return payload
 
