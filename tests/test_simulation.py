@@ -348,6 +348,33 @@ async def test_no_fill_on_degraded_or_stale_book(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_historical_clock_reuses_paper_fill_path_without_wall_clock_staleness(tmp_path):
+    """Historical replay must use the event clock, not reject every old bar."""
+    clock = [datetime(2020, 1, 1, tzinfo=UTC)]
+    service = SimulationService(
+        tmp_path / "historical.sqlite3",
+        clock=lambda: clock[0],
+        equity_poll_seconds=3600,
+    )
+    run = await service.create_run(
+        name="historical-clock",
+        strategy_id="momentum_dualma_v1",
+        universe=["m1"],
+        initial_capital=10_000.0,
+        config={"fast_window": 1, "slow_window": 2, "min_separation_bps": 0.0,
+                "cooldown_seconds": 0.0},
+    )
+    await service.start_run(run["run_id"])
+    for index, close in enumerate((100.0, 101.0, 102.0)):
+        clock[0] = datetime(2020, 1, 1 + index, tzinfo=UTC)
+        await service._on_feature_snapshot({
+            "market_id": "m1", "timestamp": clock[0], "mid_price": close,
+        })
+
+    assert service.store.list_trades(run["run_id"]), "the historical event should be tradable"
+
+
+@pytest.mark.asyncio
 async def test_event_bus_feeds_running_runs_only(tmp_path):
     service = make_service(tmp_path)
     await service.start()

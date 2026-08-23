@@ -179,6 +179,7 @@ class SimulationService:
         equity_poll_seconds: float = 30.0,
         registry: ExperimentRegistry | None = None,
         ledger: ExecutionLedger | None = None,
+        clock: Callable[[], datetime] | None = None,
     ):
         self.store = SimulationStore(db_path)
         self.event_bus = get_event_bus()
@@ -200,6 +201,14 @@ class SimulationService:
         self._equity_task: asyncio.Task | None = None
         self._auto_run = False
         self._auto_run_task: asyncio.Task | None = None
+        # Production uses wall-clock time. Historical replay injects the event
+        # clock so the exact same stale-data, cooldown and equity logic is used
+        # without treating every historical signal as years old.
+        self._clock = clock or (lambda: datetime.now(UTC))
+
+    def _now(self) -> datetime:
+        value = self._clock()
+        return value if value.tzinfo else value.replace(tzinfo=UTC)
 
     # ------------------------------------------------------------- lifecycle
 
@@ -481,15 +490,11 @@ class SimulationService:
 
     # ----------------------------------------------------------- trade logic
 
-    @staticmethod
-    def _age_seconds(timestamp: datetime | None) -> float | None:
+    def _age_seconds(self, timestamp: datetime | None) -> float | None:
         if timestamp is None:
             return None
-        if timestamp.tzinfo is None:
-            now = datetime.utcnow()
-        else:
-            now = datetime.now(UTC)
-        return (now - timestamp).total_seconds()
+        observed = timestamp if timestamp.tzinfo else timestamp.replace(tzinfo=UTC)
+        return (self._now() - observed).total_seconds()
 
     def _fill_price(
         self, active: _ActiveRun, signal: SimSignal, size: float
@@ -541,7 +546,7 @@ class SimulationService:
             return
         active.marks[key] = float(mid)
         stamp = snapshot.get("timestamp")
-        active.mark_times[key] = stamp if isinstance(stamp, datetime) else datetime.now(UTC)
+        active.mark_times[key] = stamp if isinstance(stamp, datetime) else self._now()
 
     async def _apply_funding(self, active: _ActiveRun, snapshot: dict) -> None:
         """Book exchange funding from a real snapshot exactly once."""
@@ -593,7 +598,7 @@ class SimulationService:
         notionals: dict[str, float] = {}
         degraded = False
         limit = float(active.config_value("max_staleness_seconds"))
-        now = datetime.now(UTC)
+        now = self._now()
         for position in positions:
             mark = active.marks.get(position.instrument_id)
             seen = active.mark_times.get(position.instrument_id)
@@ -630,7 +635,7 @@ class SimulationService:
                 return
 
             # Per-instrument cooldown against trade spam on 5s snapshots.
-            now = datetime.now(UTC)
+            now = self._now()
             last = active.last_trade_at.get(instrument)
             if last is not None and (now - last).total_seconds() < float(
                 active.config_value("cooldown_seconds")
@@ -750,7 +755,7 @@ class SimulationService:
 
     async def _record_equity(self, active: _ActiveRun) -> None:
         equity, gross, _, degraded = await asyncio.to_thread(self._equity_snapshot, active)
-        now = datetime.now(UTC)
+        now = self._now()
         await asyncio.to_thread(
             self.store.append_equity_point,
             active.record.run_id,
@@ -766,7 +771,7 @@ class SimulationService:
         while self._running:
             try:
                 await asyncio.sleep(self.equity_poll_seconds)
-                now = datetime.now(UTC)
+                now = self._now()
                 for active in list(self._active.values()):
                     if active.record.status != "running":
                         continue
