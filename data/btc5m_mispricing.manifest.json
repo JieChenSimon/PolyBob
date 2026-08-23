@@ -1,23 +1,25 @@
 {
   "experiment": "btc5m_model_vs_market",
-  "as_of": "2026-08-09T18:42:15.712715+00:00",
+  "as_of": "2026-08-23T19:05:21.706478+00:00",
   "params": {
     "n_windows": 220,
     "edge_threshold": 0.1,
     "fee": 0.02
   },
   "code": {
-    "commit": "854aa94d7c77c72847d6d136cc96c4074b7f2168",
-    "dirty": false,
-    "dirty_files": 0,
-    "dirty_sample": []
+    "commit": "bb917a354c3b7a1ab0d7a73a92e2b47099fe7e54",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_sample": [
+      "apps/dashboard/output/"
+    ]
   },
-  "started_at": "2026-08-09T18:42:15.731264+00:00",
+  "started_at": "2026-08-23T19:05:21.733404+00:00",
   "inputs": {
     "polymarket_windows": {
       "settled": 218,
-      "qualifying_trades": 99
+      "qualifying_trades": 218
     }
   },
-  "reproducible": true
+  "reproducible": false
 }

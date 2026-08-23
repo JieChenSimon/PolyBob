@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-08-23T19:09:46.985262+00:00",
+  "real_data_only": true,
+  "runs": [
+    {
+      "key": "btc5m",
+      "script": "scripts/btc5m_mispricing.py",
+      "result": "data/btc5m_mispricing.json",
+      "returncode": 0,
+      "result_exists": true
+    }
+  ],
+  "board_returncode": 0,
+  "promotion_allowed": false,
+  "note": "This report orchestrates research only; no live order path exists."
+}
