@@ -13,6 +13,7 @@ const coreLinks = [
   { href: '/markets', zh: '市场观察', en: 'Markets' },
   { href: '/equities', zh: '股票观察', en: 'Equities', aliases: ['/us-equities'] },
   { href: '/strategies', zh: '策略中心', en: 'Strategies' },
+  { href: '/simulation', zh: '模拟盘', en: 'Paper Lab' },
   { href: '/execution', zh: '执行台', en: 'Execution' },
   { href: '/risk-ops', zh: '风险运营', en: 'Risk Ops' },
 ];

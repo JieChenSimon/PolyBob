@@ -16,6 +16,7 @@ const navItems = [
   { href: '/crypto/altcoin-discovery', label: { en: 'Crypto', zh: '加密货币' }, prefetch: false, aliases: ['/crypto'] },
   { href: '/btc-5m', label: { en: 'BTC 5m', zh: 'BTC 5分钟' }, prefetch: false, aliases: ['/polymarket'] },
   { href: '/strategies', label: { en: 'Strategies', zh: '策略中心' } },
+  { href: '/simulation', label: { en: 'Paper Lab', zh: '模拟盘' } },
   { href: '/execution', label: { en: 'Execution', zh: '执行台' } },
   { href: '/risk-ops', label: { en: 'Risk Ops', zh: '风险运营' } },
   { href: '/settings', label: { en: 'Settings', zh: '设置' } },
