@@ -2,7 +2,10 @@
 历史数据回放器
 """
 import asyncio
+import csv
+import json
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import List, Dict, Any
 import structlog
 
@@ -22,16 +25,60 @@ class HistoricalDataReplayer:
         self._sorted_cache_key: tuple | None = None
 
     def load_data(self):
-        """从数据源加载历史数据"""
-        # TODO: 实现从不同数据源加载
-        # - PostgreSQL
-        # - Parquet文件
-        # - CSV文件
-        logger.info("loading_historical_data",
-                   source=self.data_source,
-                   start=self.start_date,
-                   end=self.end_date)
-        pass
+        """Load replay events from a local JSON/JSONL/CSV/Parquet file.
+
+        The previous method was a no-op, so callers could report a successful
+        replay of zero events. This loader is intentionally local and explicit:
+        missing files, malformed timestamps, and unsupported schemas fail closed
+        instead of producing an empty market.
+        """
+        path = Path(self.data_source)
+        if not path.exists():
+            raise FileNotFoundError(f"historical data not found: {path}")
+        suffix = path.suffix.lower()
+        if suffix == ".json":
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            rows = payload.get("events") if isinstance(payload, dict) else payload
+        elif suffix in {".jsonl", ".ndjson"}:
+            rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        elif suffix == ".csv":
+            with path.open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+        elif suffix in {".parquet", ".pq"}:
+            try:
+                import pandas as pd
+                rows = pd.read_parquet(path).to_dict(orient="records")
+            except ImportError as exc:
+                raise RuntimeError("Parquet replay requires pandas/pyarrow") from exc
+        else:
+            raise ValueError(f"unsupported historical data format: {suffix}")
+        if not isinstance(rows, list):
+            raise ValueError("historical data must be a list of event records")
+
+        events: list[Dict[str, Any]] = []
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict) or "timestamp" not in row:
+                raise ValueError(f"event {index} needs a timestamp")
+            timestamp = row["timestamp"]
+            if not isinstance(timestamp, datetime):
+                timestamp = datetime.fromisoformat(str(timestamp).replace("Z", "+00:00"))
+            if timestamp < self.start_date or timestamp > self.end_date:
+                continue
+            topic = row.get("topic")
+            if not topic:
+                raise ValueError(f"event {index} needs a topic")
+            data = row.get("data", row.get("payload"))
+            if data is None:
+                raise ValueError(f"event {index} needs data or payload")
+            events.append({"timestamp": timestamp, "topic": str(topic), "data": data})
+        if not events:
+            raise ValueError("historical data contains no events in requested range")
+        self.events = events
+        self._sorted_events_cache = None
+        self._sorted_cache_key = None
+        logger.info("historical_data_loaded", source=str(path), events=len(events),
+                    start=self.start_date, end=self.end_date)
+        return events
 
     def _get_sorted_events(self) -> List[Dict[str, Any]]:
         """Return events ordered by timestamp without copying when possible.

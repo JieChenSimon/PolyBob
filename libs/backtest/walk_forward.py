@@ -50,15 +50,22 @@ class WalkForwardAnalyzer:
         start_date: datetime,
         end_date: datetime
     ) -> List[WalkForwardWindow]:
-        """生成滚动窗口"""
+        """生成严格因果的滚动窗口。
+
+        ``purge_days`` removes the tail of the training sample before the
+        forecast boundary. ``embargo_days`` then leaves a genuine gap between
+        the last training observation and the first test observation. The old
+        implementation subtracted and immediately added the same purge value,
+        which made the effective gap zero and silently defeated the contract.
+        """
         windows = []
         current = start_date
 
         while True:
+            raw_train_end = current + timedelta(days=30 * self.train_months)
             train_start = current
-            train_end = current + timedelta(days=30 * self.train_months)
-            train_end = train_end - timedelta(days=self.purge_days)
-            test_start = train_end + timedelta(days=self.purge_days)
+            train_end = raw_train_end - timedelta(days=self.purge_days)
+            test_start = raw_train_end + timedelta(days=self.embargo_days)
             test_end = test_start + timedelta(days=30 * self.test_months)
 
             if test_end > end_date:
@@ -71,7 +78,7 @@ class WalkForwardAnalyzer:
                 test_end=test_end
             ))
 
-            current += timedelta(days=30 * self.step_months + self.embargo_days)
+            current += timedelta(days=30 * self.step_months)
 
         return windows
 

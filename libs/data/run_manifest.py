@@ -57,6 +57,11 @@ _CODE_FILES = ("pyproject.toml", "pytest.ini")
 
 
 def _is_code(path: str) -> bool:
+    # Visual QA artifacts are workspace outputs, not executable source. Treating
+    # them as code made an otherwise committed research run dirty whenever a
+    # screenshot existed under apps/dashboard/output/.
+    if path.startswith(("apps/dashboard/output/", "apps/dashboard/.next/")):
+        return False
     return path.startswith(_CODE_DIRS) or path in _CODE_FILES
 
 

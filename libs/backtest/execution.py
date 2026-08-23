@@ -9,6 +9,7 @@ from typing import Optional
 from datetime import datetime
 import structlog
 import numpy as np
+from enum import StrEnum
 
 from libs.schemas import Side
 
@@ -54,6 +55,96 @@ class Execution:
     timestamp: datetime
     slippage: float
     latency_ms: float = 0.0
+
+
+class TimeInForce(StrEnum):
+    """Supported paper order lifecycles."""
+
+    GTC = "GTC"
+    IOC = "IOC"
+    FOK = "FOK"
+
+
+@dataclass
+class PaperOrder:
+    order_id: str
+    market_id: str
+    side: Side
+    quantity: float
+    limit_price: float | None
+    time_in_force: TimeInForce
+    remaining: float
+    status: str = "open"
+    filled_quantity: float = 0.0
+
+
+class PaperBroker:
+    """Deterministic order lifecycle model for real-market paper feeds.
+
+    ``on_market`` must be called with the latest real BBO/depth snapshot. It
+    models limit crossing, partial fills, IOC/FOK behavior, fees/slippage via
+    :class:`SimulatedExecutor`, and cancel-vs-fill ordering. It never submits to
+    a venue; callers may pass resulting executions to the authoritative ledger.
+    """
+
+    def __init__(self, config: ExecutionConfig | None = None):
+        self.executor = SimulatedExecutor(config)
+        self.orders: dict[str, PaperOrder] = {}
+        self.executions: list[Execution] = []
+
+    def submit_order(
+        self, *, order_id: str, market_id: str, side: Side, quantity: float,
+        limit_price: float | None = None,
+        time_in_force: TimeInForce = TimeInForce.GTC,
+    ) -> PaperOrder:
+        if order_id in self.orders:
+            raise ValueError(f"duplicate order_id: {order_id}")
+        if quantity <= 0 or (limit_price is not None and limit_price <= 0):
+            raise ValueError("quantity and limit_price must be positive")
+        order = PaperOrder(order_id, market_id, side, float(quantity), limit_price,
+                           TimeInForce(time_in_force), float(quantity))
+        self.orders[order_id] = order
+        return order
+
+    async def cancel_order(self, order_id: str) -> PaperOrder:
+        order = self.orders[order_id]
+        if order.status == "open":
+            order.status = "cancelled"
+        return order
+
+    async def on_market(self, market_id: str, state: MarketState) -> list[Execution]:
+        """Match all eligible orders against one real snapshot."""
+        fills: list[Execution] = []
+        for order in list(self.orders.values()):
+            if order.market_id != market_id or order.status != "open":
+                continue
+            buying = "buy" in order.side.value.lower()
+            touch = state.best_ask if buying else state.best_bid
+            depth = state.ask_depth if buying else state.bid_depth
+            crosses = order.limit_price is None or (
+                touch <= order.limit_price if buying else touch >= order.limit_price
+            )
+            if not crosses or depth <= 0:
+                if order.time_in_force in (TimeInForce.IOC, TimeInForce.FOK):
+                    order.status = "cancelled"
+                continue
+            if order.time_in_force is TimeInForce.FOK and depth < order.remaining:
+                order.status = "cancelled"
+                continue
+            fill_size = min(order.remaining, depth)
+            execution = await self.executor.execute_order(
+                order.order_id, order.market_id, order.side, touch, fill_size, state
+            )
+            if execution is None:
+                continue
+            order.remaining -= execution.size
+            order.filled_quantity += execution.size
+            order.status = "filled" if order.remaining <= 1e-12 else (
+                "cancelled" if order.time_in_force is TimeInForce.IOC else "partial"
+            )
+            self.executions.append(execution)
+            fills.append(execution)
+        return fills
 
 
 class SlippageModel:
