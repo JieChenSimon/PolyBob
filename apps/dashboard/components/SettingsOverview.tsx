@@ -26,8 +26,23 @@ interface CapabilityPayload {
   rows: Capability[];
 }
 
+interface RuntimePayload {
+  timestamp: string;
+  product_mode: string;
+  config: Record<string, string | number | boolean>;
+  data_sources: Array<{ id: string; state: State; refresh_seconds: number | string }>;
+  services: Array<{ name: string; status: string; tier?: string }>;
+  portfolio: { state: string; truth: string };
+}
+
 async function loadCapabilities(signal?: AbortSignal): Promise<CapabilityPayload> {
   const response = await fetch(`${API_BASE}/api/capabilities`, { signal });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+async function loadRuntime(signal?: AbortSignal): Promise<RuntimePayload> {
+  const response = await fetch(`${API_BASE}/api/runtime/status`, { signal });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
   return response.json();
 }
@@ -48,6 +63,12 @@ export default function SettingsOverview() {
     queryFn: ({ signal }) => loadCapabilities(signal),
     staleTime: 15_000,
   });
+  const runtimeQuery = useQuery({
+    queryKey: ['runtime-status'],
+    queryFn: ({ signal }) => loadRuntime(signal),
+    staleTime: 5_000,
+    refetchInterval: 15_000,
+  });
 
   if (query.isError) {
     return (
@@ -61,8 +82,30 @@ export default function SettingsOverview() {
   }
 
   const rows = query.data?.rows ?? [];
+  const runtime = runtimeQuery.data;
   return (
     <div className="space-y-5">
+      <section className="grid gap-4 md:grid-cols-3" aria-label={zh ? '真实运行配置' : 'Live runtime configuration'}>
+        <div className="panel p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.12em] text-stone-500">{zh ? '数据源' : 'Data Sources'}</div>
+          <div className="mt-3 space-y-2 text-sm text-stone-700">
+            {(runtime?.data_sources ?? []).map((source) => <div key={source.id} className="flex justify-between gap-3"><span>{source.id}</span><span className="font-mono text-xs">{source.state}</span></div>)}
+          </div>
+        </div>
+        <div className="panel p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.12em] text-stone-500">{zh ? '持久化与刷新' : 'Persistence & Refresh'}</div>
+          <div className="mt-3 space-y-2 text-sm text-stone-700">
+            <div className="flex justify-between gap-3"><span>{zh ? '数据库' : 'Database'}</span><span className="max-w-[12rem] truncate font-mono text-xs">{String(runtime?.config.database_path ?? 'unknown')}</span></div>
+            <div className="flex justify-between gap-3"><span>{zh ? '盘口日志' : 'Book log'}</span><span className="font-mono text-xs">{runtime?.config.book_log_enabled ? 'bounded' : 'disabled'}</span></div>
+            <div className="flex justify-between gap-3"><span>{zh ? '更新时间' : 'Updated'}</span><span className="font-mono text-xs">{runtime?.timestamp ? new Date(runtime.timestamp).toLocaleTimeString() : 'unknown'}</span></div>
+          </div>
+        </div>
+        <div className="panel p-4">
+          <div className="text-xs font-bold uppercase tracking-[0.12em] text-stone-500">{zh ? 'Portfolio' : 'Portfolio'}</div>
+          <div className="mt-3 text-sm font-semibold text-stone-900">{runtime?.portfolio.state ?? 'unknown'}</div>
+          <p className="mt-1 text-xs leading-5 text-stone-500">{runtime?.portfolio.truth ?? (zh ? '无法读取真实状态。' : 'Live state unavailable.')}</p>
+        </div>
+      </section>
       <section className="panel overflow-hidden" aria-label={zh ? '系统运行边界' : 'System runtime boundary'}>
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 px-5 py-4">
           <div>

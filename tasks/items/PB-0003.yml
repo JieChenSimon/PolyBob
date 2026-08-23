@@ -1,16 +1,16 @@
 id: PB-0003
 title: 把设置页改为真实运行状态
-state: todo
+state: doing
 p: P1
 area: dashboard
 why: 当前设置页只有说明文字，无法判断 provider、端口、密钥和 lab 状态。
 checks:
 - text: 显示数据源、配置、刷新和 portfolio 状态
-  done: false
+  done: true
 - text: unknown 与未配置状态明确且中英文一致
-  done: false
+  done: true
 deps:
 - PB-0002
-branch: null
+branch: pb-0003-live-settings
 blocked: null
-updated: '2026-08-12T06:50:00+00:00'
+updated: '2026-08-23T20:09:20+00:00'

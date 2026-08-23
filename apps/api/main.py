@@ -901,6 +901,41 @@ async def root():
     }
 
 
+@app.get("/api/runtime/status")
+async def runtime_status():
+    """Expose operator-relevant runtime truth without returning secrets."""
+    settings = get_settings()
+    return {
+        "timestamp": datetime.utcnow().isoformat(),
+        "product_mode": settings.product_mode,
+        "config": {
+            "api_host": settings.polybob_api_host,
+            "api_port": settings.polybob_api_port,
+            "database_path": settings.polybob_db_path,
+            "account_equity_configured": settings.polybob_account_equity is not None,
+            "book_log_enabled": settings.polybob_book_log_enabled,
+            "book_log_retention_days": settings.polybob_book_log_retention_days,
+            "book_log_max_rows": settings.polybob_book_log_max_rows,
+            "lab_backtest_enabled": lab_backtest_enabled(),
+            "lab_pair_features_enabled": settings.enable_lab_pair_features,
+            "lab_altcoin_discovery_enabled": settings.enable_lab_altcoin_discovery,
+        },
+        "data_sources": [
+            {"id": "polymarket_discovery", "state": "available" if market_discovery else "unknown", "refresh_seconds": 300},
+            {"id": "polymarket_realtime", "state": "available" if realtime_ingestor else "unknown", "refresh_seconds": "stream"},
+            {"id": "feature_snapshots", "state": "available" if feature_engine else "unknown", "refresh_seconds": 5},
+            {"id": "altcoin_discovery", "state": "available" if altcoin_discovery else "disabled", "refresh_seconds": 60},
+        ],
+        "services": get_service_health(),
+        "portfolio": {
+            "state": "configured" if settings.polybob_account_equity is not None else "unknown",
+            "truth": "Account equity is not configured; sizing and total portfolio PnL remain unknown."
+            if settings.polybob_account_equity is None
+            else "Configured account equity is available to the risk layer.",
+        },
+    }
+
+
 @app.get("/markets/watchlist")
 async def get_watchlist():
     """获取 watchlist"""
