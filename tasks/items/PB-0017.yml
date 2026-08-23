@@ -10,8 +10,8 @@ checks:
 - text: 统一订单与多腿状态机，重启后先对账且撤单失败不得报告成功
   done: true
 - text: 持久化不可用、行情过期或持仓未知时执行 fail-closed 且不存在 basket 旁路
-  done: false
+  done: true
 deps: []
-branch: pb-0012-kronos
+branch: pb-0017-ledger-fail-closed
 blocked: null
-updated: '2026-08-23T16:42:33+00:00'
+updated: '2026-08-23T20:17:25+00:00'
