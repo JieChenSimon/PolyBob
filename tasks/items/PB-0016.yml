@@ -1,18 +1,18 @@
 id: PB-0016
 title: 统一回测内核与样本外验证
-state: todo
+state: doing
 p: P0
 area: research
 why: 淘汰相互冲突的 toy 回测逻辑并建立无前视的可信评估
 checks:
 - text: 唯一回测内核正确处理成交、费用、持仓、PnL、缺失价格和卖空约束
-  done: false
+  done: true
 - text: 事件按可交易生效时间成交并支持 purge、embargo 和真正 walk-forward
-  done: false
+  done: true
 - text: 旧回测入口被迁移或明确归档且回归测试覆盖关键会计不变量
   done: false
 deps:
 - PB-0014
-branch: null
+branch: pb-0016-unified-backtest
 blocked: null
-updated: '2026-08-13T06:20:19+00:00'
+updated: '2026-08-23T20:16:22+00:00'
