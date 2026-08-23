@@ -2,13 +2,13 @@ import OverviewWorkspace from '@/components/OverviewWorkspace';
 import AccountPanel from '@/components/AccountPanel';
 import EdgeScoreboard from '@/components/EdgeScoreboard';
 import TodaysEdges from '@/components/TodaysEdges';
-import SectionIntro from '@/components/SectionIntro';
+import { WorkbenchPageHeader } from '@/components/WorkbenchChrome';
 
 export default function OverviewPage() {
   return (
     <>
-      <SectionIntro
-        eyebrow={{ zh: '核心路径', en: 'Core Path' }}
+      <WorkbenchPageHeader
+        eyebrow={{ zh: '核心工作区', en: 'Core Workspace' }}
         title={{ zh: '每日简报', en: 'Daily Brief' }}
         description={{
           zh: '先看今天哪些标的触发了已验证的边，再看记分牌、市场与风险；实验模块不占用首页判断流。',

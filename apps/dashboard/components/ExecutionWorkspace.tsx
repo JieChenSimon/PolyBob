@@ -89,7 +89,7 @@ export default function ExecutionWorkspace() {
       <ErrorState
         className="mb-5"
         title={zh ? '执行数据加载失败' : 'Failed to load execution state'}
-        message={zh ? '无法连接 PolyBob API，以下为占位数值。' : 'Cannot reach the PolyBob API; placeholders are shown below.'}
+        message={zh ? '无法连接 PolyBob API，执行状态为未知；请先恢复连接。' : 'Cannot reach the PolyBob API; execution state is UNKNOWN until the connection is restored.'}
         onRetry={() => void executionQuery.refetch()}
         retryLabel={zh ? '重试' : 'Retry'}
       />
@@ -107,9 +107,9 @@ export default function ExecutionWorkspace() {
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <Metric title={zh ? '执行模式' : 'Execution Mode'} value={formatMode(data?.status.mode, zh)} />
-            <Metric title={zh ? '持仓' : 'Position'} value={`${formatNumber(data?.status.position, 4)} BTC`} />
-            <Metric title={zh ? '总资产' : 'Total Value'} value={data?.status ? `$${formatNumber(data.status.total_value, 2)}` : '--'} />
-            <Metric title={zh ? '盈亏' : 'PnL'} value={data?.status ? `${formatSigned(data.status.pnl, 2)} (${formatNumber(data.status.pnl_pct, 2)}%)` : '--'} />
+            <Metric title={zh ? '持仓' : 'Position'} value={data ? `${formatNumber(data.status.position, 4)} BTC` : 'UNKNOWN'} />
+            <Metric title={zh ? '总资产' : 'Total Value'} value={data ? `$${formatNumber(data.status.total_value, 2)}` : 'UNKNOWN'} />
+            <Metric title={zh ? '盈亏' : 'PnL'} value={data ? `${formatSigned(data.status.pnl, 2)} (${formatNumber(data.status.pnl_pct, 2)}%)` : 'UNKNOWN'} />
           </div>
         </div>
 

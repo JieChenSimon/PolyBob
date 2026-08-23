@@ -41,7 +41,7 @@ export default function OverviewWorkspace() {
         <ErrorState
           className="mb-5"
           title={zh ? '简报数据加载失败' : 'Failed to load the daily brief'}
-          message={zh ? '无法连接 PolyBob API，下方显示占位内容。' : 'Cannot reach the PolyBob API; placeholders are shown below.'}
+          message={zh ? '无法连接 PolyBob API，相关状态为未知；请先恢复连接。' : 'Cannot reach the PolyBob API; affected states are UNKNOWN until the connection is restored.'}
           onRetry={() => void overviewQuery.refetch()}
           retryLabel={zh ? '重试' : 'Retry'}
         />
