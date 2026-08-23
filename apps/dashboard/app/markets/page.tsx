@@ -31,9 +31,12 @@ export default function MarketsPage() {
             title={{ zh: 'A股今天要回避哪些', en: 'Which A-shares to avoid today' }}
           />
         </Suspense>
+        {/* The selected market and order-book decision come before broad
+            context. Sentiment/news are supporting evidence, not a gate that
+            pushes the actionable queue below the first viewport. */}
+        <MarketsWorkspace />
         <GlobalSentimentPanel />
         <MarketNewsTerminal />
-        <MarketsWorkspace />
         <ForecastBatchScanner domain="a_share" symbols={['600519.SH', '000858.SZ', '601318.SH', '300750.SZ']} />
       </main>
     </>

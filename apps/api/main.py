@@ -1549,7 +1549,15 @@ async def get_execution_status():
         performance = await get_trading_performance()
         baskets = require_basket_executor().list_baskets()
         intents = require_intent_execution_service().list_intents()
-        pair_snapshots = require_pair_feature_engine().list_snapshots()
+        # Pair features are an optional lab capability. The execution desk
+        # must remain readable when that capability is disabled; an absent
+        # provider is UNKNOWN, not an HTTP 500 for the whole execution view.
+        try:
+            pair_snapshots = require_pair_feature_engine().list_snapshots()
+            pair_feature_state = "available"
+        except RuntimeError:
+            pair_snapshots = []
+            pair_feature_state = "unknown"
         onchain_summary = require_onchain_monitor().get_summary()
         return {
             "status": status,
@@ -1557,6 +1565,7 @@ async def get_execution_status():
             "intents": intents,
             "baskets": baskets,
             "pair_snapshots": pair_snapshots,
+            "pair_feature_state": pair_feature_state,
             "onchain_summary": onchain_summary,
             "ledger": ledger_status(),
             "timestamp": datetime.utcnow().isoformat(),

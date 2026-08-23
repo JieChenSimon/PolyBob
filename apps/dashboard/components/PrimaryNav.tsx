@@ -43,7 +43,7 @@ export default function PrimaryNav() {
         >
           <span className={`text-base font-bold tracking-[-0.02em] ${terminalRoute ? 'text-slate-100' : 'text-stone-900'}`}>PolyBob</span>
           <span className={`hidden text-xs sm:inline ${terminalRoute ? 'text-slate-500' : 'text-stone-400'}`}>
-            {language === 'zh' ? '个人市场工作台' : 'Market Workbench'}
+            {language === 'zh' ? '量化交易工作台' : 'Quant Trading Workbench'}
           </span>
         </Link>
 

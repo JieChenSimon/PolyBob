@@ -271,7 +271,10 @@ class FeatureEngineService:
         alerts = []
 
         # 检查价差异常
-        if features.spread_bps > self.spread_threshold_bps:
+        # A one-sided book has no measurable spread. Keep it UNKNOWN instead
+        # of letting ``None`` escape into the live event loop and repeatedly
+        # fail the feature handler while the feed is recovering.
+        if features.spread_bps is not None and features.spread_bps > self.spread_threshold_bps:
             alerts.append({
                 "type": "spread_anomaly",
                 "market_id": features.market_id,

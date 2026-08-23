@@ -463,7 +463,10 @@ function CreateRunCard({
       return Array.isArray(payload.presets) ? payload.presets : [];
     },
     staleTime: 5 * 60_000,
-    enabled: open,
+    // The API intentionally returns 403 while Paper Lab is disabled. Avoid
+    // polling a known-blocked capability so the disabled state stays quiet in
+    // the browser console and the form can explain the required next action.
+    enabled: open && enabled,
   });
   const presets = presetsQuery.data ?? [];
   const activePreset = presets.find((p) => p.id === presetId) ?? null;

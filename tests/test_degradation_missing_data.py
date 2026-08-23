@@ -190,6 +190,25 @@ def test_one_sided_book_clears_mid_and_spread_instead_of_keeping_stale_values():
     assert features.last_update == one_sided.timestamp
 
 
+@pytest.mark.asyncio
+async def test_one_sided_book_does_not_raise_in_anomaly_checks():
+    """Missing spread must be a quiet degraded state, not a handler error."""
+    engine = FeatureEngineService()
+    features = MarketFeatures("market-1")
+    features.update_from_orderbook(
+        OrderbookTick(
+            market_id="market-1",
+            timestamp=datetime(2026, 7, 1, 12, 0, 0),
+            bid_price=0.90,
+            ask_price=None,
+            bid_size=10.0,
+            ask_size=None,
+        )
+    )
+
+    await engine._check_anomalies(features)
+
+
 def test_feature_gate_blocks_snapshot_without_a_mid_price():
     engine = FeatureEngineService()
     now = datetime.utcnow()

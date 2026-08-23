@@ -8,7 +8,7 @@ import LanguageDocumentSync from "@/components/LanguageDocumentSync";
 
 export const metadata: Metadata = {
   title: "PolyBob Workbench",
-  description: "Personal market research and paper execution workbench",
+  description: "Quantitative trading workbench for real-data strategy validation and execution readiness",
 };
 
 export default function RootLayout({
