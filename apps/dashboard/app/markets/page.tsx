@@ -34,7 +34,7 @@ export default function MarketsPage() {
         <GlobalSentimentPanel />
         <MarketNewsTerminal />
         <MarketsWorkspace />
-        <ForecastBatchScanner domain="a_share" symbols={['600519', '000858', '601318', '300750']} />
+        <ForecastBatchScanner domain="a_share" symbols={['600519.SH', '000858.SZ', '601318.SH', '300750.SZ']} />
       </main>
     </>
   );

@@ -168,7 +168,7 @@ export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialP
   const detailError = detailQuery.isError ? t.detailError : null;
 
   return (
-    <main className="crypto-workbench panel mx-auto mt-5 w-[calc(100%-24px)] max-w-shell overflow-hidden text-stone-900 md:mt-6 md:w-full">
+    <section aria-label={language === 'zh' ? '山寨币发现工作台' : 'Altcoin discovery workbench'} className="crypto-workbench panel mx-auto mt-5 w-[calc(100%-24px)] max-w-shell overflow-hidden text-stone-900 md:mt-6 md:w-full">
       <header className="border-b border-stone-200 bg-stone-50 px-4 py-3 md:px-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -269,7 +269,7 @@ export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialP
           ) : <div className="p-8 text-sm text-stone-500">{t.noSelection}</div>}
         </div>
       </section>
-    </main>
+    </section>
   );
 }
 
