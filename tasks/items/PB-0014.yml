@@ -1,6 +1,6 @@
 id: PB-0014
 title: 建立 PIT 数据合同与标的时间基础
-state: doing
+state: done
 p: P0
 area: data
 why: 修复标的身份、事件生效时间、交易日历、公司行动和数据版本语义缺口
@@ -14,4 +14,4 @@ checks:
 deps: []
 branch: null
 blocked: null
-updated: '2026-08-23T19:35:36+00:00'
+updated: '2026-08-23T19:38:42+00:00'

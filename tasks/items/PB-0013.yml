@@ -1,6 +1,6 @@
 id: PB-0013
 title: 建立系统能力边界与可信状态矩阵
-state: doing
+state: done
 p: P0
 area: platform
 why: 统一 Core、Lab、Archive 边界并消除未接线能力造成的专业化错觉
@@ -12,4 +12,4 @@ checks:
 deps: []
 branch: null
 blocked: null
-updated: '2026-08-13T06:39:02+00:00'
+updated: '2026-08-23T19:38:51+00:00'
