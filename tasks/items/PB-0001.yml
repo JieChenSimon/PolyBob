@@ -1,6 +1,6 @@
 id: PB-0001
 title: 修复 Python wheel 运行时模块缺失
-state: doing
+state: done
 p: P0
 area: packaging
 why: wheel 未包含 modules，正式安装可能无法启动 API。
