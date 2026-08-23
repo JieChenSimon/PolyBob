@@ -50,6 +50,8 @@ class Settings(BaseSettings):
     # Raw order-book event log (append-only, for deterministic replay).
     # Off by default: raw event capture grows disk usage steadily.
     polybob_book_log_enabled: bool = False
+    polybob_book_log_retention_days: int = 7
+    polybob_book_log_max_rows: int = 500_000
 
     # Risk Management
     max_position_size: float = 1000.0

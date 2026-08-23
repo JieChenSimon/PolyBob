@@ -1,0 +1,17 @@
+id: PB-0025
+title: 运行时资源与关闭可靠性加固
+state: doing
+p: P1
+area: platform
+why: 避免后台任务、事件订阅、原始日志和高频写盘在长时间运行或关闭时泄漏资源
+checks:
+- text: 所有 API 生命周期后台任务可被取消并等待完成，事件订阅与网络客户端关闭后不残留
+  done: true
+- text: 原始事件日志具备有界缓存、批量写入和可配置保留策略，持续运行不会无限增长
+  done: true
+- text: 高负载与优雅关闭测试通过，确认无遗留 asyncio 任务和资源泄漏
+  done: true
+deps: []
+branch: pb-0025-runtime-reliability
+blocked: null
+updated: '2026-08-23T20:02:51+00:00'

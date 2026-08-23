@@ -34,6 +34,7 @@ class MarketDiscoveryService:
         self.watchlist: Set[str] = set()
         self.markets: Dict[str, Market] = {}
         self._running = False
+        self._scan_task: asyncio.Task | None = None
 
     async def start(self):
         """启动服务"""
@@ -41,12 +42,19 @@ class MarketDiscoveryService:
         self._running = True
 
         # 启动定期扫描任务
-        asyncio.create_task(self._scan_markets_loop())
+        self._scan_task = asyncio.create_task(self._scan_markets_loop())
 
     async def stop(self):
         """停止服务"""
         logger.info("stopping_market_discovery_service")
         self._running = False
+        if self._scan_task is not None:
+            self._scan_task.cancel()
+            try:
+                await self._scan_task
+            except asyncio.CancelledError:
+                pass
+            self._scan_task = None
         await self.client.close()
 
     async def _scan_markets_loop(self):

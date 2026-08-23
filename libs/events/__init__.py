@@ -101,6 +101,7 @@ class EventBus:
 
     async def unsubscribe(self, topic: str, handler: Callable):
         """取消订阅"""
+        task = None
         async with self._lock:
             subs = self._subscribers.get(topic, [])
             for sub in list(subs):
@@ -108,6 +109,12 @@ class EventBus:
                     subs.remove(sub)
                     if sub.task is not None and not sub.task.done():
                         sub.task.cancel()
+                        task = sub.task
+        if task is not None:
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
     async def publish(self, topic: str, data: Any):
         """发布事件（入队；关键主题在队满时对生产者施加背压，行情主题合并/丢弃）"""

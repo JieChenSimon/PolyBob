@@ -10,6 +10,7 @@ import logging
 import sys
 import structlog
 from contextlib import asynccontextmanager
+import contextlib
 from pathlib import Path
 from typing import Any
 
@@ -119,6 +120,7 @@ market_news_service: KnowledgeIngestionService | None = None
 simulation_service: SimulationService | None = None
 simulation_runtime_store: SimulationRuntimeStore | None = None
 trading_engine = None
+trading_task: asyncio.Task | None = None
 execution_ledger: ExecutionLedger | None = None
 PAPER_EXECUTION_ACCOUNT_ID = "paper-main"
 PAIR_UNIVERSE_PATH = Path(__file__).parent.parent.parent / "config" / "pair_universe.yaml"
@@ -559,7 +561,7 @@ async def collect_dashboard_markets(limit: int = 36) -> list[dict]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    global market_discovery, realtime_ingestor, feature_engine, strategy_manager, basket_executor, intent_execution_service, pair_feature_engine, onchain_monitor, altcoin_discovery, knowledge_ingestion, market_news_service, simulation_service, simulation_runtime_store, execution_ledger
+    global market_discovery, realtime_ingestor, feature_engine, strategy_manager, basket_executor, intent_execution_service, pair_feature_engine, onchain_monitor, altcoin_discovery, knowledge_ingestion, market_news_service, simulation_service, simulation_runtime_store, execution_ledger, trading_task
 
     logger.info("starting_polybob")
 
@@ -577,7 +579,11 @@ async def lifespan(app: FastAPI):
         try:
             from libs.db.book_log import BookEventLog
 
-            book_log = BookEventLog(db_path=get_settings().polybob_db_path)
+            book_log = BookEventLog(
+                db_path=get_settings().polybob_db_path,
+                retention_days=settings.polybob_book_log_retention_days,
+                max_rows=settings.polybob_book_log_max_rows,
+            )
             logger.info("book_log_enabled", db_path=get_settings().polybob_db_path)
         except Exception as exc:
             logger.warning("book_log_unavailable", error=str(exc) or exc.__class__.__name__)
@@ -787,6 +793,14 @@ async def lifespan(app: FastAPI):
         await simulation_service.stop()
     simulation_service = None
 
+    if trading_engine is not None:
+        trading_engine.stop()
+    if trading_task is not None:
+        trading_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await trading_task
+        trading_task = None
+
     if feature_engine:
         await feature_engine.stop()
 
@@ -815,6 +829,10 @@ async def lifespan(app: FastAPI):
 
     await close_shared_http_client()
     await close_async_clients()
+    from libs.events import get_event_bus
+    await get_event_bus().close()
+    ops_metrics.stop_loop_lag_monitor()
+    fact_store.close_writer_connections()
 
     logger.info("polybob_stopped")
 
@@ -2052,6 +2070,7 @@ async def backtest_results_alias():
 @app.post("/api/trading/start")
 async def start_trading():
     """启动模拟交易引擎。"""
+    global trading_task
     if not lab_auto_trader_enabled():
         raise HTTPException(
             status_code=403,
@@ -2060,7 +2079,7 @@ async def start_trading():
 
     engine = get_trading_engine()
     if not engine.running:
-        asyncio.create_task(engine.run())
+        trading_task = asyncio.create_task(engine.run())
 
     return {"status": "started", "timestamp": datetime.now().isoformat()}
 
@@ -2068,11 +2087,17 @@ async def start_trading():
 @app.post("/api/trading/stop")
 async def stop_trading():
     """停止模拟交易引擎。"""
+    global trading_task
     if not lab_auto_trader_enabled():
         return {"status": "disabled", "timestamp": datetime.now().isoformat()}
 
     engine = get_trading_engine()
     engine.stop()
+    if trading_task is not None:
+        trading_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await trading_task
+        trading_task = None
     return {"status": "stopped", "timestamp": datetime.now().isoformat()}
 
 

@@ -1,6 +1,6 @@
 """Order-book platform tests: reducer, raw event log, replay, ingestor wiring."""
 import asyncio
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -186,6 +186,19 @@ class TestOrderbookTickCompat:
 
 
 class TestBookEventLog:
+    def test_retention_prunes_old_rows(self, tmp_path):
+        log = BookEventLog(
+            db_path=tmp_path / "book.sqlite3",
+            retention_days=1,
+            max_rows=100,
+        )
+        now = datetime.now(UTC)
+        log.log_event(asset_id="a", event_type="book", payload={"old": True}, receive_ts=now - timedelta(days=2))
+        log.log_event(asset_id="a", event_type="book", payload={"old": False}, receive_ts=now)
+        log._last_prune_monotonic = -3601.0
+        records = list(log.read_events("a"))
+        assert [record.payload["old"] for record in records] == [False]
+
     def test_write_read_round_trip(self, tmp_path):
         log = BookEventLog(db_path=tmp_path / "book.sqlite3")
         log.log_event(

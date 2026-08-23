@@ -81,11 +81,16 @@ class BookEventLog:
         flush_max_events: int = 200,
         flush_interval_seconds: float = 2.0,
         max_buffer_events: int = 10_000,
+        retention_days: int = 0,
+        max_rows: int = 500_000,
     ) -> None:
         self._db_path = db_path
         self.flush_max_events = max(1, flush_max_events)
         self.flush_interval_seconds = flush_interval_seconds
         self.max_buffer_events = max(1, max_buffer_events)
+        self.retention_days = max(0, int(retention_days))
+        self.max_rows = max(1, int(max_rows))
+        self._last_prune_monotonic = 0.0
 
         self._buffer: list[tuple] = []
         self._lock = threading.Lock()
@@ -173,7 +178,31 @@ class BookEventLog:
                 """,
                 rows,
             )
+            self._prune_if_due(connection)
         return len(rows)
+
+    def _prune_if_due(self, connection) -> None:
+        """Bound the append-only log by age and row count.
+
+        Raw capture is useful for replay, but an unbounded SQLite file is not a
+        safe default for a long-running workstation. Pruning is done in the
+        same transaction as a batch flush and at most hourly.
+        """
+        import time
+        now = time.monotonic()
+        if now - self._last_prune_monotonic < 3600.0:
+            return
+        self._last_prune_monotonic = now
+        if self.retention_days > 0:
+            connection.execute(
+                "DELETE FROM raw_book_events WHERE julianday(receive_ts) < julianday('now', ?)",
+                (f"-{self.retention_days} days",),
+            )
+        connection.execute(
+            """DELETE FROM raw_book_events
+               WHERE id NOT IN (SELECT id FROM raw_book_events ORDER BY id DESC LIMIT ?)""",
+            (self.max_rows,),
+        )
 
     # -- read path ---------------------------------------------------------
 

@@ -196,6 +196,7 @@ class FeatureEngineService:
         self.event_bus = get_event_bus()
         self.features: Dict[str, MarketFeatures] = {}
         self._running = False
+        self._snapshot_task: asyncio.Task | None = None
 
         # 异常阈值
         self.spread_threshold_bps = 200.0  # 价差超过200bps告警
@@ -223,12 +224,21 @@ class FeatureEngineService:
         await self.event_bus.subscribe(Topics.TRADE_TICK, self._on_trade_tick)
 
         # 启动定期快照任务
-        asyncio.create_task(self._snapshot_loop())
+        self._snapshot_task = asyncio.create_task(self._snapshot_loop())
 
     async def stop(self):
         """停止服务"""
         logger.info("stopping_feature_engine_service")
         self._running = False
+        await self.event_bus.unsubscribe(Topics.ORDERBOOK_TICK, self._on_orderbook_tick)
+        await self.event_bus.unsubscribe(Topics.TRADE_TICK, self._on_trade_tick)
+        if self._snapshot_task is not None:
+            self._snapshot_task.cancel()
+            try:
+                await self._snapshot_task
+            except asyncio.CancelledError:
+                pass
+            self._snapshot_task = None
 
     async def _on_orderbook_tick(self, orderbook: OrderbookTick):
         """处理订单簿更新"""

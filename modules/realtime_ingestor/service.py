@@ -99,6 +99,7 @@ class RealtimeIngestorService:
                 await self._ws_task
             self._ws_task = None
         await self.rest_client.close()
+        await self.event_bus.unsubscribe(Topics.MARKET_DISCOVERED, self._on_market_discovered)
         if self.book_log is not None:
             await self.book_log.stop()
 

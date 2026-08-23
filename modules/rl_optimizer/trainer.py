@@ -38,6 +38,7 @@ class ContinuousTrainer:
         self.model_dir.mkdir(parents=True, exist_ok=True)
         self.current_version = 0
         self.ab_test_enabled = False
+        self._training_task: asyncio.Task | None = None
 
         # 性能监控
         self.metrics = {
@@ -56,7 +57,7 @@ class ContinuousTrainer:
         await self.event_bus.subscribe(Topics.TRADE_TICK, self._on_market_data)
 
         # 启动定时训练任务
-        asyncio.create_task(self._training_loop())
+        self._training_task = asyncio.create_task(self._training_loop())
 
         # 加载最新模型
         await self._load_latest_model()
@@ -65,6 +66,15 @@ class ContinuousTrainer:
         """停止训练"""
         logger.info("stopping_continuous_trainer")
         self.is_training = False
+        await self.event_bus.unsubscribe(Topics.ORDERBOOK_TICK, self._on_market_data)
+        await self.event_bus.unsubscribe(Topics.TRADE_TICK, self._on_market_data)
+        if self._training_task is not None:
+            self._training_task.cancel()
+            try:
+                await self._training_task
+            except asyncio.CancelledError:
+                pass
+            self._training_task = None
 
     async def _on_market_data(self, data):
         """接收市场数据"""

@@ -57,6 +57,7 @@ class StrategyEngineService:
         """停止服务"""
         logger.info("stopping_strategy_engine")
         self._running = False
+        await self.event_bus.unsubscribe(Topics.FEATURE_SNAPSHOT, self._on_feature_snapshot)
 
     async def _on_feature_snapshot(self, features: dict):
         """处理特征快照 - 优化版本"""
