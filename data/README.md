@@ -74,3 +74,19 @@ uv run --locked python scripts/event_study_board.py
 - `market_cache/sec_daily/` — EDGAR **每日**申报里解析出的集群买入事件，按天一个文件。
   过去的一天不会变，所以只抓一次。由 `scripts/warm_insider_cache.py` 预热；
   verdict 路径**只读缓存不抓取**（冷启动要几千个请求，不能发生在页面加载里）。
+
+## 本地真实数据集
+
+后续 provider 响应会同时归档到 `data/datasets/raw/`，按 SHA-256 内容寻址并写入
+`data/datasets/manifest.jsonl`；相同响应只保存一份，重新抓到的不同内容会形成新的
+观测记录。标准化的 BTC 1m/5m、盘口和其他任意时间粒度数据写入
+`data/datasets/parts/` 的 Parquet 分区，日线、资金费、多空比、SEC 和公司行动继续
+由 bitemporal store 管理。运行：
+
+```bash
+uv run --locked python scripts/migrate_cache_to_store.py
+uv run --locked python scripts/catalog_datasets.py
+```
+
+目录中的原始响应不是策略结果；每个结果仍必须引用 dataset、source、event_at、
+observed_at、哈希和 PIT 合同，才能进入研究晋级门禁。

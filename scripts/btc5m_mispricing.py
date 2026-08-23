@@ -31,6 +31,7 @@ from libs.quant.hypothesis import Hypothesis, HypothesisRegistry, Rationale
 from libs.data import run_manifest
 from libs.data.http_client import HttpFetchError
 from libs.data.resilient import FetchPolicy, fetch_cached_bytes, load_checkpoint, save_checkpoint
+from libs.data.data_lake import write_records
 from libs.quant import clustered_inference
 from libs.quant.pbo import deflated_t_stat_threshold
 
@@ -65,6 +66,7 @@ def _get(url: str, timeout: float = 20.0):
         policy=FetchPolicy(attempts=4, timeout_seconds=timeout,
                            initial_backoff_seconds=0.5, max_backoff_seconds=10.0),
         headers=UA,
+        dataset="btc5m_provider_raw", source=url.split('/')[2],
     )
     return json.loads(raw)
 
@@ -193,6 +195,22 @@ def main() -> None:
         time.sleep(0.15)
 
     print(f"\n可用已结算窗口: {len(samples)}，提供方失败: {provider_failures}")
+    write_records(
+        "btc5m_settled_windows",
+        [
+            {
+                "symbol": "BTC-USDT",
+                "event_at": f"{day}T00:00:00+00:00",
+                "model_probability": model_p,
+                "market_probability": market_p,
+                "outcome_up": outcome,
+                "source": "polymarket_gamma_clob_okx",
+            }
+            for model_p, market_p, outcome, day in samples
+        ],
+        source="polymarket_gamma_clob_okx",
+        partition_by=("symbol",),
+    )
     if len(samples) < 60:
         print("样本不足,不做结论(遵守真实数据规则,不用模拟数据凑)")
         return

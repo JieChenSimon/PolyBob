@@ -40,6 +40,8 @@ def fetch_cached_bytes(
     headers: dict[str, str] | None = None,
     stream: bool = False,
     fetcher: Callable[..., bytes] = http_get_bytes,
+    dataset: str | None = None,
+    source: str | None = None,
 ) -> bytes:
     """Fetch an immutable provider response, reusing a verified local copy."""
     policy = policy or FetchPolicy()
@@ -48,7 +50,11 @@ def fetch_cached_bytes(
     payload_path = root / f"{key}.body"
     meta_path = root / f"{key}.json"
     if payload_path.exists() and payload_path.stat().st_size > 0:
-        return payload_path.read_bytes()
+        payload = payload_path.read_bytes()
+        if dataset:
+            from libs.data.data_lake import record_raw
+            record_raw(dataset, payload, source=source or url.split('/')[2], request=url)
+        return payload
 
     root.mkdir(parents=True, exist_ok=True)
     last_error: Exception | None = None
@@ -65,6 +71,9 @@ def fetch_cached_bytes(
             tmp = payload_path.with_suffix(".body.tmp")
             tmp.write_bytes(payload)
             tmp.replace(payload_path)
+            if dataset:
+                from libs.data.data_lake import record_raw
+                record_raw(dataset, payload, source=source or url.split('/')[2], request=url)
             meta_path.write_text(json.dumps({
                 "url": url,
                 "sha256": hashlib.sha256(payload).hexdigest(),

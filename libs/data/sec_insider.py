@@ -86,6 +86,7 @@ def _download_quarter(year: int, quarter: int) -> bytes:
             policy=FetchPolicy(attempts=5, timeout_seconds=120.0,
                                initial_backoff_seconds=2.0, max_backoff_seconds=30.0),
             headers={"User-Agent": _UA}, stream=True,
+            dataset="sec_form345_raw", source="sec.gov",
         )
     except HttpFetchError as exc:
         raise SecDataUnavailable(f"{year}Q{quarter}: {exc}") from exc

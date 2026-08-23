@@ -65,7 +65,13 @@ class DailyBars:
 def _http_get(url: str, timeout: float = 20.0) -> bytes:
     """Fetch over the shared pooled session — see libs/data/http_client.py."""
     try:
-        return http_get_bytes(url, timeout=timeout, headers={"User-Agent": _UA})
+        payload = http_get_bytes(url, timeout=timeout, headers={"User-Agent": _UA})
+        from libs.data.data_lake import record_raw
+        record_raw(
+            "market_provider_raw", payload,
+            source=url.split("/")[2], request=url,
+        )
+        return payload
     except HttpFetchError as exc:
         raise DataUnavailable(str(exc)) from exc
 

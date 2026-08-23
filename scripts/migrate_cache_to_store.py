@@ -23,6 +23,7 @@ import re
 from pathlib import Path
 
 from libs.data import store
+from libs.data import data_lake
 
 CACHE_DIR = Path("data/market_cache")
 
@@ -204,6 +205,14 @@ def main() -> None:
     migrated = skipped = rows_total = 0
     per_dataset: dict[str, int] = {}
     for path in files:
+        if not args.dry_run:
+            # Preserve the original provider response before normalizing it.
+            # The file mtime is the only honest historical observation time
+            # available for this legacy cache.
+            data_lake.record_raw(
+                "legacy_market_cache", path.read_bytes(),
+                source="legacy_cache", request=str(path), observed_at=_mtime(path),
+            )
         parsed = None
         ds = None
         for candidate_ds, fn in PARSERS:
@@ -220,7 +229,10 @@ def main() -> None:
             continue
         symbol, rows = parsed
         if not args.dry_run:
-            store.write(ds, symbol, rows, fetched_at=_mtime(path))
+            store.write(
+                ds, symbol, rows, fetched_at=_mtime(path),
+                deduplicate_payload=True,
+            )
         migrated += 1
         rows_total += len(rows)
         per_dataset[ds.name] = per_dataset.get(ds.name, 0) + len(rows)
