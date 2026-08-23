@@ -180,9 +180,15 @@ def cost_stress_test(
 class PromotionCheck:
     name: str
     passed: bool
-    value: float
+    value: float | None
     threshold: float
     detail: str
+    status: str = ""
+
+    @property
+    def evidence_status(self) -> str:
+        """Return a tri-state status without treating missing evidence as a fail."""
+        return self.status or ("pass" if self.passed else "fail")
 
 
 @dataclass(frozen=True)
@@ -194,6 +200,13 @@ class PromotionDecision:
     def failed_checks(self) -> list[PromotionCheck]:
         return [c for c in self.checks if not c.passed]
 
+    @property
+    def status(self) -> str:
+        """Overall evidence state; UNKNOWN is never promoted as a failure/pass."""
+        if any(c.evidence_status == "unknown" for c in self.checks):
+            return "unknown"
+        return "pass" if self.approved else "fail"
+
     def to_dict(self) -> dict:
         return {
             "approved": self.approved,
@@ -204,9 +217,11 @@ class PromotionDecision:
                     "value": c.value,
                     "threshold": c.threshold,
                     "detail": c.detail,
+                    "status": c.evidence_status,
                 }
                 for c in self.checks
             ],
+            "status": self.status,
         }
 
 
@@ -257,7 +272,7 @@ class PromotionGate:
             )
         )
 
-        # 3) Cost-stress (only if a cost-parameterised return fn is provided).
+        # 3) Cost-stress is mandatory. Missing evidence is UNKNOWN, never skipped.
         if cost_returns_fn is not None:
             stress = cost_stress_test(
                 cost_returns_fn,
@@ -274,8 +289,19 @@ class PromotionGate:
                     detail=stress.reason,
                 )
             )
+        else:
+            checks.append(
+                PromotionCheck(
+                    name="cost_stress",
+                    passed=False,
+                    value=None,
+                    threshold=self.cost_min_sharpe,
+                    detail="cost-parameterised returns were not supplied; evidence is unknown",
+                    status="unknown",
+                )
+            )
 
-        # 4) Out-of-sample stability (walk-forward), if supplied.
+        # 4) OOS stability is mandatory. Missing evidence is UNKNOWN, never skipped.
         if oos_stability_rate is not None:
             checks.append(
                 PromotionCheck(
@@ -286,8 +312,19 @@ class PromotionGate:
                     detail=f"{oos_stability_rate:.0%} of walk-forward windows stable",
                 )
             )
+        else:
+            checks.append(
+                PromotionCheck(
+                    name="oos_stability",
+                    passed=False,
+                    value=None,
+                    threshold=self.min_oos_stability_rate,
+                    detail="walk-forward OOS stability was not supplied; evidence is unknown",
+                    status="unknown",
+                )
+            )
 
-        approved = all(c.passed for c in checks)
+        approved = all(c.passed and c.evidence_status == "pass" for c in checks)
         return PromotionDecision(approved=approved, checks=checks)
 
 

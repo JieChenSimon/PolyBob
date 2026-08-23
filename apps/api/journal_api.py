@@ -111,6 +111,8 @@ async def fill_journal_entry(entry_id: str, payload: dict | None = None):
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=f"没有这条日志：{entry_id}") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     clear_api_response_cache()
     return entry.to_dict()
 
@@ -132,6 +134,8 @@ async def close_journal_entry(entry_id: str, payload: dict | None = None):
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=f"没有这条日志：{entry_id}") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     clear_api_response_cache()
     return entry.to_dict()
 
@@ -146,6 +150,8 @@ async def abandon_journal_entry(entry_id: str, payload: dict | None = None):
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=f"没有这条日志：{entry_id}") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     clear_api_response_cache()
     return entry.to_dict()
 

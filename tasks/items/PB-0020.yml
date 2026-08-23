@@ -1,0 +1,19 @@
+id: PB-0020
+title: 建立投资案例驱动的专业工作台
+state: todo
+p: P1
+area: dashboard
+why: 把分散页面收敛为发现、证据、决策、paper 行动和复盘的操作流程
+checks:
+- text: Daily Brief 展示真实待处理事项、风险异常、到期预测和失败任务
+  done: false
+- text: 单标的页面展示来源、时效、PIT、模型版本、基线和历史校准而非故事化解释
+  done: false
+- text: 桌面与移动端 Core、Lab、Archive 清晰且所有改变路由通过测试与浏览器冒烟
+  done: false
+deps:
+- PB-0015
+- PB-0017
+branch: null
+blocked: null
+updated: '2026-08-13T06:20:19+00:00'

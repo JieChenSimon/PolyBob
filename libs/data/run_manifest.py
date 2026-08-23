@@ -112,6 +112,17 @@ class RunManifest:
         whether the data moved or the code did, which are two very different
         problems and were indistinguishable before.
         """
+        # Known store datasets carry their machine-readable time/PIT/price
+        # contract into the run automatically. A board can therefore enforce
+        # provenance without trusting every experiment author to copy metadata.
+        try:
+            from libs.data.store import dataset as declared_dataset
+
+            facts.setdefault("data_contract", declared_dataset(dataset).contract())
+        except KeyError:
+            # External inputs remain allowed, but are not silently classified as
+            # strict PIT. A trade gate will require an explicit contract.
+            pass
         self.inputs[dataset] = facts
 
     def to_dict(self) -> dict[str, Any]:

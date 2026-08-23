@@ -93,7 +93,7 @@ export default function ForecastBatchScanner({
                 <tr key={row.symbol}>
                   <td className="mono px-4 py-2 font-semibold text-stone-900">{row.symbol}</td>
                   <td className="mono px-3 py-2 text-violet-700">{row.status}</td>
-                  <td className={`mono px-3 py-2 ${(row.expected_return || 0) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{row.expected_return === undefined ? '--' : `${row.expected_return >= 0 ? '+' : ''}${(row.expected_return * 100).toFixed(2)}%`}</td>
+                  <td className={`mono px-3 py-2 ${typeof row.expected_return !== 'number' ? 'text-stone-400' : row.expected_return >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{typeof row.expected_return !== 'number' ? 'UNKNOWN' : `${row.expected_return >= 0 ? '+' : ''}${(row.expected_return * 100).toFixed(2)}%`}</td>
                   <td className="mono px-3 py-2 text-stone-700">{row.up_probability === undefined ? '--' : `${(row.up_probability * 100).toFixed(0)}% / n=${row.paths}`}</td>
                   <td className="mono px-3 py-2 text-[10px] text-stone-500">{row.reason || `${row.as_of?.slice(0, 10)} · ${row.source}`}</td>
                   <td className="mono px-3 py-2 font-semibold text-amber-600">DENIED</td>

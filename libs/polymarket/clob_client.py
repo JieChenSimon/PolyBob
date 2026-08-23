@@ -1,6 +1,7 @@
 """Polymarket CLOB API客户端"""
-import httpx
 from typing import Optional, Dict
+
+from libs.data.http_client import http_request_json
 
 class PolymarketClient:
     def __init__(self):
@@ -11,17 +12,13 @@ class PolymarketClient:
         """获取市场列表"""
         url = f"{self.gamma_url}/markets"
         params = {"limit": limit, "closed": False, "active": True}
-        r = httpx.get(url, params=params, timeout=10)
-        r.raise_for_status()
-        return r.json()
+        return http_request_json("GET", url, params=params, timeout=10)
 
     def get_orderbook(self, token_id: str):
         """获取订单簿"""
         url = f"{self.base_url}/book"
         params = {"token_id": token_id}
-        r = httpx.get(url, params=params, timeout=10)
-        r.raise_for_status()
-        return r.json()
+        return http_request_json("GET", url, params=params, timeout=10)
 
     def get_best_prices(self, token_id: str) -> Optional[Dict]:
         """获取最优价格"""

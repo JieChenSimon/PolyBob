@@ -158,7 +158,29 @@ def _clean_manifest():
 
     m = run_manifest.pin("test")
     m.code = {"commit": "0" * 40, "dirty": False, "dirty_files": 0}
+    m.inputs["synthetic"] = {
+        "data_contract": {
+            "dataset": "synthetic",
+            "instrument": "symbol",
+            "effective_at": "event_date",
+            "observed_at": "fetched_at",
+            "pit_level": "historical_point_in_time",
+            "strict_historical_pit": True,
+            "price_basis": "raw",
+        }
+    }
     return m
+
+
+def test_trade_row_using_non_strict_pit_data_is_refused():
+    manifest = _clean_manifest()
+    manifest.inputs["synthetic"]["data_contract"]["strict_historical_pit"] = False
+    row = evaluate_spec(
+        _SPEC, _measured(1000, 0.04, 0.02, weeks=30), 4, manifest,
+    )
+    assert row["approved"] is False
+    assert row["pit_status"] == "non_strict"
+    assert "non_strict_pit_data_cannot_trade" in row["failed"]
 
 
 def _payload(**row):

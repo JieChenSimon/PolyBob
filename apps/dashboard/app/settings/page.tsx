@@ -8,8 +8,8 @@ export default function SettingsPage() {
         eyebrow={{ zh: '运行边界', en: 'Runtime Bounds' }}
         title={{ zh: '设置', en: 'Settings' }}
         description={{
-          zh: '记录核心路径、数据源、lab 边界和策略配置入口。',
-          en: 'Core path, data sources, lab boundaries, and strategy configuration entry points.',
+          zh: '直接读取后端能力矩阵；明确哪些可用、降级、未知、阻塞或仅供实验。',
+          en: 'Live backend truth for available, degraded, unknown, blocked, and experimental capabilities.',
         }}
       />
 

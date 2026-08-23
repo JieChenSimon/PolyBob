@@ -121,6 +121,17 @@ def test_gate_rejects_on_short_sample():
     assert any(c.name == "min_observations" and not c.passed for c in decision.checks)
 
 
+def test_gate_does_not_skip_missing_cost_or_oos_evidence():
+    decision = PromotionGate(n_trials=1, min_dsr=0.0).evaluate(
+        _returns(0.001, 0.005, 200, seed=15)
+    )
+    checks = {check.name: check for check in decision.checks}
+    assert decision.approved is False
+    assert decision.status == "unknown"
+    assert checks["cost_stress"].evidence_status == "unknown"
+    assert checks["oos_stability"].evidence_status == "unknown"
+
+
 def test_annualized_sharpe_scales():
     r = _returns(0.001, 0.01, 1000, seed=14)
     assert annualized_sharpe(r, 252) == pytest.approx(

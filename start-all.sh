@@ -106,7 +106,7 @@ DASHBOARD_MODE="${DASHBOARD_MODE:-prod}"
 
 if [ ! -d "node_modules" ]; then
     echo "📦 Installing dashboard dependencies..."
-    npm install
+    npm ci
 fi
 
 if [ "$DASHBOARD_MODE" = "dev" ]; then

@@ -197,6 +197,12 @@ class TradeJournal:
         entry = self.get(entry_id)
         if entry is None:
             raise KeyError(entry_id)
+        if entry.actual_entry is not None or entry.status in {"open", "closed"}:
+            raise ValueError(
+                f"journal entry {entry_id} already has an entry fill; refusing to duplicate fees"
+            )
+        if entry.status in {"abandoned"}:
+            raise ValueError(f"journal entry {entry_id} is {entry.status}")
         entry.actual_entry = float(price)
         entry.entry_filled_at = (filled_at or datetime.now(UTC)).isoformat()
         entry.fees += float(fees)
@@ -221,6 +227,14 @@ class TradeJournal:
         entry = self.get(entry_id)
         if entry is None:
             raise KeyError(entry_id)
+        if entry.status == "closed" or entry.actual_exit is not None:
+            raise ValueError(
+                f"journal entry {entry_id} is already closed; refusing to duplicate exit fees"
+            )
+        if entry.actual_entry is None or entry.status != "open":
+            raise ValueError(
+                f"journal entry {entry_id} is not an open filled position"
+            )
         entry.actual_exit = float(price)
         entry.exit_filled_at = (closed_at or datetime.now(UTC)).isoformat()
         entry.exit_reason = reason
@@ -248,6 +262,12 @@ class TradeJournal:
         entry = self.get(entry_id)
         if entry is None:
             raise KeyError(entry_id)
+        if entry.status == "abandoned":
+            return entry
+        if entry.status != "planned" or entry.actual_entry is not None:
+            raise ValueError(
+                f"journal entry {entry_id} is {entry.status}; only planned entries can be abandoned"
+            )
         entry.status = "abandoned"
         entry.note = note or entry.note
         self._update(entry)

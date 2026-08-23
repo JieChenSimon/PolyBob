@@ -32,6 +32,7 @@ import threading
 from typing import Any, Mapping
 
 import requests
+import httpx
 from requests.adapters import HTTPAdapter
 
 DEFAULT_UA = "Mozilla/5.0 (PolyBob real-data research)"
@@ -40,9 +41,12 @@ DEFAULT_UA = "Mozilla/5.0 (PolyBob real-data research)"
 # Tencent and the SEC, which is every provider this project talks to.
 POOL_CONNECTIONS = 4
 POOL_MAXSIZE = 8
+ASYNC_POOL_MAX_CONNECTIONS = 8
+ASYNC_POOL_MAX_KEEPALIVE = 4
 
 _session: requests.Session | None = None
 _lock = threading.Lock()
+_async_clients: set[httpx.AsyncClient] = set()
 
 
 class HttpFetchError(RuntimeError):
@@ -75,6 +79,37 @@ def close_session() -> None:
         if _session is not None:
             _session.close()
             _session = None
+
+
+def build_bounded_async_client(
+    *,
+    timeout: httpx.Timeout | float = 20.0,
+    headers: Mapping[str, str] | None = None,
+    follow_redirects: bool = False,
+    proxy: str | None = None,
+) -> httpx.AsyncClient:
+    """Create a provider client with the project's bounded pool contract."""
+    client = httpx.AsyncClient(
+        timeout=timeout,
+        limits=httpx.Limits(
+            max_connections=ASYNC_POOL_MAX_CONNECTIONS,
+            max_keepalive_connections=ASYNC_POOL_MAX_KEEPALIVE,
+        ),
+        headers=dict(headers or {"User-Agent": DEFAULT_UA}),
+        follow_redirects=follow_redirects,
+        proxy=proxy,
+    )
+    _async_clients.add(client)
+    return client
+
+
+async def close_async_clients() -> None:
+    """Close clients created by :func:`build_bounded_async_client`."""
+    clients = tuple(_async_clients)
+    _async_clients.clear()
+    for client in clients:
+        if not client.is_closed:
+            await client.aclose()
 
 
 atexit.register(close_session)
@@ -126,6 +161,31 @@ def http_get_json(
         raise HttpFetchError(f"{url} -> invalid JSON: {exc}") from exc
 
 
+def http_request_json(
+    method: str,
+    url: str,
+    *,
+    timeout: float = 20.0,
+    headers: Mapping[str, str] | None = None,
+    params: Mapping[str, Any] | None = None,
+    json: Any = None,
+) -> Any:
+    """Issue one bounded synchronous provider request and decode JSON."""
+    try:
+        with get_session().request(
+            method,
+            url,
+            timeout=timeout,
+            headers=dict(headers or {}),
+            params=params,
+            json=json,
+        ) as response:
+            response.raise_for_status()
+            return response.json()
+    except (requests.RequestException, ValueError) as exc:
+        raise HttpFetchError(f"{url} -> {type(exc).__name__}: {exc}") from exc
+
+
 def pool_stats() -> dict[str, int]:
     """How many connection pools and idle sockets the session is holding.
 
@@ -162,10 +222,15 @@ def pool_stats() -> dict[str, int]:
 
 __all__ = [
     "DEFAULT_UA",
+    "ASYNC_POOL_MAX_CONNECTIONS",
+    "ASYNC_POOL_MAX_KEEPALIVE",
     "HttpFetchError",
+    "build_bounded_async_client",
+    "close_async_clients",
     "close_session",
     "get_session",
     "http_get_bytes",
     "http_get_json",
+    "http_request_json",
     "pool_stats",
 ]

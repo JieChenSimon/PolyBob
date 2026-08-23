@@ -22,6 +22,10 @@ from .basket_executor import BasketExecutor
 logger = structlog.get_logger()
 
 
+class IntentPersistenceError(RuntimeError):
+    """An intent state transition could not be durably recorded."""
+
+
 class StrategyNotPromoted(PermissionError):
     """Raised when a strategy without a gate-approved edge tries to trade."""
 
@@ -54,9 +58,21 @@ class IntentExecutionService:
         self.intent_errors: dict[str, str] = {}
         self._recent_signatures: dict[str, datetime] = {}
         self._idempotency_keys: dict[str, str] = {}
+        # SQLite uniqueness protects persisted replays, but two concurrent
+        # coroutines can still pass an in-memory lookup before either writes.
+        # Serialize economic intent claims within this process.
+        self._intent_create_lock = asyncio.Lock()
+        self._intent_submit_locks: dict[str, asyncio.Lock] = {}
+
+    def _submit_lock(self, intent_id: str) -> asyncio.Lock:
+        lock = self._intent_submit_locks.get(intent_id)
+        if lock is None:
+            lock = asyncio.Lock()
+            self._intent_submit_locks[intent_id] = lock
+        return lock
 
     async def _persist(self, operation, *args, **kwargs) -> None:
-        """Run a repository write off the event loop; never crash the hot path."""
+        """Run a repository write off the event loop and fail closed on error."""
         try:
             await asyncio.to_thread(operation, *args, **kwargs)
         except Exception as exc:
@@ -65,6 +81,9 @@ class IntentExecutionService:
                 operation=getattr(operation, "__name__", str(operation)),
                 error=str(exc) or exc.__class__.__name__,
             )
+            raise IntentPersistenceError(
+                f"intent persistence failed during {getattr(operation, '__name__', operation)}"
+            ) from exc
 
     async def restore_state(self) -> int:
         """Reload persisted intents into the in-memory hot cache.
@@ -102,11 +121,25 @@ class IntentExecutionService:
                 self.intent_errors[record.intent_id] = record.error
             if record.idempotency_key:
                 self._idempotency_keys[record.intent_id] = record.idempotency_key
-                if record.status == "submitted":
+                if record.status in {
+                    "submitted",
+                    "partially_filled",
+                    "reconciling",
+                    "unknown",
+                }:
                     timestamp = self._parse_naive_utc(record.updated_at)
                     if timestamp is not None:
                         self._recent_signatures[record.idempotency_key] = timestamp
             restored += 1
+
+        # A persisted "submitted" intent is not proof that its venue orders are
+        # still working after process loss. Basket recovery first moves every
+        # non-terminal leg to RECONCILING; mirror that uncertainty at the parent.
+        for intent_id, basket_id in list(self.intent_baskets.items()):
+            basket = self.basket_executor.get_basket(basket_id)
+            if basket and basket["status"] == "reconciling":
+                self.intent_status[intent_id] = "reconciling"
+                await self._persist_status(intent_id, "reconciling", basket_id=basket_id)
 
         logger.info("intent_state_restored", count=restored)
         return restored
@@ -146,6 +179,27 @@ class IntentExecutionService:
         )
 
     async def create_intent(
+        self,
+        strategy_id: str,
+        rationale: str,
+        expected_edge_bps: float,
+        confidence: float,
+        legs: list[dict[str, Any]],
+        metadata: dict[str, str] | None = None,
+        idempotency_key: str | None = None,
+    ) -> dict[str, Any]:
+        async with self._intent_create_lock:
+            return await self._create_intent_unlocked(
+                strategy_id=strategy_id,
+                rationale=rationale,
+                expected_edge_bps=expected_edge_bps,
+                confidence=confidence,
+                legs=legs,
+                metadata=metadata,
+                idempotency_key=idempotency_key,
+            )
+
+    async def _create_intent_unlocked(
         self,
         strategy_id: str,
         rationale: str,
@@ -296,9 +350,13 @@ class IntentExecutionService:
         )
 
     async def submit_intent(self, intent_id: str) -> dict[str, Any]:
+        async with self._submit_lock(intent_id):
+            return await self._submit_intent_unlocked(intent_id)
+
+    async def _submit_intent_unlocked(self, intent_id: str) -> dict[str, Any]:
         intent = self.intents[intent_id]
         status = self.intent_status.get(intent_id, "created")
-        if status == "submitted":
+        if status != "created":
             return self.serialize_intent(intent)
 
         signature = self._intent_signature(intent)
@@ -313,7 +371,17 @@ class IntentExecutionService:
             return self.serialize_intent(intent)
 
         open_intents = sum(
-            1 for value in self.intent_status.values() if value in {"created", "submitted"}
+            1
+            for value in self.intent_status.values()
+            if value
+            in {
+                "created",
+                "submitting",
+                "submitted",
+                "partially_filled",
+                "reconciling",
+                "unknown",
+            }
         )
         if open_intents > self.max_open_intents:
             self.intent_status[intent_id] = "risk_rejected"
@@ -344,16 +412,48 @@ class IntentExecutionService:
                 for leg in intent.legs
             ],
         )
-        self.intent_status[intent_id] = "submitted"
+        intent_status = str(basket["status"])
+        self.intent_status[intent_id] = intent_status
         self.intent_baskets[intent_id] = basket["basket_id"]
-        self.intent_errors.pop(intent_id, None)
+        if intent_status in {"partial_failure", "cancel_failed", "unknown"}:
+            self.intent_errors[intent_id] = f"basket ended in {intent_status}"
+        else:
+            self.intent_errors.pop(intent_id, None)
         self._recent_signatures[signature] = now
         self._idempotency_keys.setdefault(intent_id, signature)
         await self._persist_status(
             intent_id,
-            "submitted",
+            intent_status,
+            error=self.intent_errors.get(intent_id),
             basket_id=basket["basket_id"],
             idempotency_key=signature,
+        )
+        return self.serialize_intent(intent)
+
+    async def reconcile_intent(self, intent_id: str) -> dict[str, Any]:
+        """Reconcile the child basket and mirror its state at the intent level."""
+        intent = self.intents[intent_id]
+        basket_id = self.intent_baskets.get(intent_id)
+        if basket_id is None:
+            self.intent_status[intent_id] = "unknown"
+            self.intent_errors[intent_id] = "intent has no basket to reconcile"
+            await self._persist_status(
+                intent_id, "unknown", error=self.intent_errors[intent_id]
+            )
+            return self.serialize_intent(intent)
+
+        basket = await self.basket_executor.reconcile_basket(basket_id)
+        status = str(basket["status"])
+        self.intent_status[intent_id] = status
+        if status in {"partial_failure", "cancel_failed", "unknown"}:
+            self.intent_errors[intent_id] = f"basket ended in {status}"
+        else:
+            self.intent_errors.pop(intent_id, None)
+        await self._persist_status(
+            intent_id,
+            status,
+            error=self.intent_errors.get(intent_id),
+            basket_id=basket_id,
         )
         return self.serialize_intent(intent)
 

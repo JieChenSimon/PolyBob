@@ -50,9 +50,11 @@ volumes here are small: 300MB of raw JSON becomes tens of MB of Parquet.
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import os
 import re
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Sequence
@@ -111,16 +113,42 @@ class Dataset:
     name: str
     value_columns: tuple[str, ...]
     description: str
+    instrument_column: str = "symbol"
+    effective_at_column: str = EVENT_DATE
+    observed_at_column: str = FETCHED_AT
+    pit_level: str = "collected_observation_time"
+    price_basis: str = "not_applicable"
+    strict_historical_pit: bool = False
 
     def path(self, symbol: str | None = None) -> Path:
         base = STORE_ROOT / _safe(self.name)
         return base if symbol is None else base / f"symbol={_safe(symbol)}"
 
+    def contract(self) -> dict[str, Any]:
+        """Machine-readable time and price semantics for this dataset.
+
+        ``collected_observation_time`` is intentionally narrower than
+        ``historical_point_in_time``: the store can replay vintages observed since
+        collection began, but a history first downloaded today does not become
+        knowledge that existed years ago merely because its event dates are old.
+        """
+        return {
+            "dataset": self.name,
+            "instrument": self.instrument_column,
+            "effective_at": self.effective_at_column,
+            "observed_at": self.observed_at_column,
+            "pit_level": self.pit_level,
+            "strict_historical_pit": self.strict_historical_pit,
+            "price_basis": self.price_basis,
+            "value_columns": list(self.value_columns),
+        }
+
 
 DAILY_BARS = Dataset(
     "daily_bars",
-    ("open", "high", "low", "close", "volume", "source"),
+    ("open", "high", "low", "close", "volume", "source", "price_basis"),
     "日线 OHLCV。缺失的字段保持 None,不用 close 顶替、不填 0。",
+    price_basis="row_declared",
 )
 FUNDING_RATES = Dataset(
     "funding_rates", ("rate", "source"),
@@ -135,8 +163,23 @@ POSITIONING = Dataset(
     "positioning", ("long_short_ratio", "source"),
     "交易所公布的多空账户比。",
 )
+CORPORATE_ACTIONS = Dataset(
+    "corporate_actions",
+    (
+        "action_type", "ratio", "cash_amount", "currency", "source",
+        "price_basis_before", "price_basis_after",
+    ),
+    "公司行动。event_date 是行动生效日；拆股 ratio 是每一旧股获得的新股数量。",
+    price_basis="action_declared",
+)
 
-DATASETS: tuple[Dataset, ...] = (DAILY_BARS, FUNDING_RATES, INSIDER_FILINGS, POSITIONING)
+DATASETS: tuple[Dataset, ...] = (
+    DAILY_BARS,
+    FUNDING_RATES,
+    INSIDER_FILINGS,
+    POSITIONING,
+    CORPORATE_ACTIONS,
+)
 
 
 def dataset(name: str) -> Dataset:
@@ -144,6 +187,50 @@ def dataset(name: str) -> Dataset:
         if d.name == name:
             return d
     raise KeyError(f"unknown dataset '{name}'; declared: {', '.join(d.name for d in DATASETS)}")
+
+
+def dataset_contracts() -> dict[str, dict[str, Any]]:
+    """Return every declared dataset contract keyed by dataset name."""
+    return {declared.name: declared.contract() for declared in DATASETS}
+
+
+def _payload_digest(ds: Dataset, symbol: str, records: Sequence[dict[str, Any]]) -> str:
+    """Stable identity for one provider payload, excluding observation time."""
+
+    def encode(value: Any) -> Any:
+        if isinstance(value, (dt.datetime, dt.date)):
+            return value.isoformat()
+        if hasattr(value, "item"):
+            try:
+                return value.item()
+            except (TypeError, ValueError):
+                pass
+        return value
+
+    canonical_rows = [
+        {
+            key: encode(value)
+            for key, value in sorted(record.items())
+            if key != FETCHED_AT
+        }
+        for record in records
+    ]
+    canonical_rows.sort(
+        key=lambda row: (str(row.get(EVENT_DATE, "")), str(row.get(ds.instrument_column, symbol)))
+    )
+    payload = {
+        "dataset": ds.name,
+        "instrument": symbol,
+        "rows": canonical_rows,
+    }
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode()
+    return hashlib.sha256(encoded).hexdigest()
 
 
 # --------------------------------------------------------------------- writing
@@ -155,14 +242,18 @@ def write(
     rows: Sequence[dict[str, Any]],
     *,
     fetched_at: dt.datetime | None = None,
+    deduplicate_payload: bool = False,
 ) -> int:
-    """Append observations. Never overwrites, never deduplicates away history.
+    """Append observations without overwriting an earlier data vintage.
 
-    Each call writes one Parquet file stamped with a single ``fetched_at``. If the
-    same ``event_date`` was already stored, both rows survive: the reader resolves
+    Each distinct observation writes one Parquet file stamped with a single
+    ``fetched_at``. If the same ``event_date`` was already stored with changed
+    content, both rows survive: the reader resolves
     to the latest observation at or before its ``as_of``, so a provider restating
     the past becomes something you can see and measure rather than a silent edit
-    to your own history.
+    to your own history. Provider mirrors may opt into payload idempotency: an
+    identical full payload is then a retry/cache hit rather than a new vintage,
+    while any content change still appends a distinct observation.
     """
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -187,6 +278,31 @@ def write(
 
     target = ds.path(symbol)
     target.mkdir(parents=True, exist_ok=True)
+    if deduplicate_payload:
+        # A content-addressed filename is the cross-process idempotency key. Each
+        # writer first creates a private Parquet file and then atomically links it
+        # into place; exactly one concurrent writer can win, and the winner's
+        # fetched_at remains the first local observation of this payload.
+        digest = _payload_digest(ds, symbol, records)
+        destination = target / f"payload-{digest}.parquet"
+        if destination.exists():
+            return 0
+        pending: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                dir=target, prefix=".pending-", suffix=".parquet", delete=False
+            ) as handle:
+                pending = Path(handle.name)
+            pq.write_table(pa.Table.from_pylist(records), pending, compression="zstd")
+            try:
+                os.link(pending, destination)
+            except FileExistsError:
+                return 0
+            return len(records)
+        finally:
+            if pending is not None:
+                pending.unlink(missing_ok=True)
+
     # Filename carries the observation time, so the partition is self-describing
     # and two fetches in the same second still land in different files.
     name = f"{stamp.strftime('%Y%m%dT%H%M%S%f')}.parquet"
@@ -364,8 +480,8 @@ def symbols(ds: Dataset | str) -> list[str]:
 
 
 __all__ = [
-    "DAILY_BARS", "DATASETS", "EVENT_DATE", "FETCHED_AT", "FUNDING_RATES",
+    "CORPORATE_ACTIONS", "DAILY_BARS", "DATASETS", "EVENT_DATE", "FETCHED_AT", "FUNDING_RATES",
     "INSIDER_FILINGS", "POSITIONING", "STORE_ROOT", "Dataset", "StoreError",
-    "close", "coverage", "dataset", "now_utc", "read", "restatements", "symbols",
+    "close", "coverage", "dataset", "dataset_contracts", "now_utc", "read", "restatements", "symbols",
     "write",
 ]

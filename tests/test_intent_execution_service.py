@@ -135,3 +135,44 @@ def test_intent_execution_service_blocks_duplicate_submission(promoted_strategy)
 
     assert blocked["status"] == "duplicate_blocked"
     assert blocked["error"] is not None
+
+
+def test_parent_intent_reflects_multileg_partial_failure(promoted_strategy):
+    executors = {
+        ExecutionVenue.BINANCE: ContractExecutor(
+            BinanceClient(paper_trading=True), paper_trading=True
+        ),
+        ExecutionVenue.HYPERLIQUID: ContractExecutor(
+            HyperliquidClient(), paper_trading=True, available=False
+        ),
+    }
+    service = IntentExecutionService(BasketExecutor(executors))
+    created = asyncio.run(
+        service.create_intent(
+            strategy_id="spread_arbitrage_v1",
+            rationale="one venue unavailable",
+            expected_edge_bps=15.0,
+            confidence=0.75,
+            legs=[
+                {
+                    "venue": "binance",
+                    "symbol": "BTCUSDT",
+                    "side": "buy",
+                    "quantity": 0.01,
+                    "limit_price": 65000,
+                },
+                {
+                    "venue": "hyperliquid",
+                    "symbol": "BTC",
+                    "side": "sell",
+                    "quantity": 0.01,
+                    "limit_price": 65010,
+                },
+            ],
+        )
+    )
+
+    result = asyncio.run(service.submit_intent(created["intent_id"]))
+
+    assert result["status"] == "partial_failure"
+    assert result["error"] == "basket ended in partial_failure"

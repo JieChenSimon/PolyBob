@@ -45,7 +45,14 @@ export default function BtcFiveMinuteWorkbenchClient({
     queryFn: async ({ signal }) => {
       const qs = indicators && indicators.length ? `?indicators=${encodeURIComponent(indicators.join(','))}` : '';
       const response = await fetch(`${API_BASE}/api/polymarket/btc-5m/workbench${qs}`, { signal });
-      return parseBtcFiveMinuteWorkbench(await response.json());
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        const detail = payload && typeof payload === 'object' && 'detail' in payload
+          ? String(payload.detail)
+          : `HTTP ${response.status}`;
+        throw new Error(detail);
+      }
+      return parseBtcFiveMinuteWorkbench(payload);
     },
     initialData: initialWorkbench,
     initialDataUpdatedAt: initialUpdatedAt ? Date.parse(initialUpdatedAt) : undefined,

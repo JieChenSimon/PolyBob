@@ -20,6 +20,14 @@ class Settings(BaseSettings):
     polybob_prometheus_port: int = 19090
     polybob_grafana_port: int = 13000
 
+    # The API is a single-operator local workbench. Keep the default listener
+    # loopback-only; container deployment overrides this inside the container
+    # while docker-compose keeps the host port loopback-only.
+    polybob_api_host: str = "127.0.0.1"
+    polybob_cors_origins: str = (
+        "http://127.0.0.1:13001,http://localhost:13001"
+    )
+
     # Database
     database_url: str = "postgresql+asyncpg://user:password@localhost:15432/polybob"
     timescale_url: str = "postgresql+asyncpg://user:password@localhost:15432/polybob_timeseries"
@@ -67,6 +75,7 @@ class Settings(BaseSettings):
     product_mode: str = "personal_workbench"
     enable_lab_auto_trader: bool = False
     enable_lab_backtest: bool = False
+    enable_lab_paper_execution: bool = False
     enable_lab_kronos_forecasting: bool = False
     polybob_kronos_model_root: str = "data/models/kronos"
     polybob_kronos_device: str = ""

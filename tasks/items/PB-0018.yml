@@ -1,0 +1,18 @@
+id: PB-0018
+title: 构建可信 Paper Broker 与组合风控
+state: todo
+p: P1
+area: execution
+why: 在权威账本之上验证真实订单生命周期、仓位决策和风险阻断
+checks:
+- text: paper broker 支持限价、部分成交、IOC/FOK、延迟、费用和 cancel race 且可复现
+  done: false
+- text: 组合快照可核对 cash、NAV、gross/net、杠杆和集中度
+  done: false
+- text: 仓位数量引用 sizing decision，kill switch 和日亏损等门禁真实阻断
+  done: false
+deps:
+- PB-0017
+branch: null
+blocked: null
+updated: '2026-08-13T06:20:19+00:00'

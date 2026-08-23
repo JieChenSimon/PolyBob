@@ -32,6 +32,7 @@ class ContractExecutor:
             self.order_manager.submit_order(order_id)
             return order_id
         except Exception as e:
+            self.order_manager.reject_order(order_id, str(e))
             raise Exception(f"交易执行失败: {e}")
 
     def cancel_trade(self, order_id: str) -> bool:
@@ -57,8 +58,49 @@ class ContractExecutor:
             "side": order.side,
             "price": order.price,
             "size": order.size,
+            "filled_size": order.filled_size,
             "status": order.status.value,
+            "exchange_order_id": order.exchange_order_id,
+            "error": order.error,
             "created_at": order.created_at.isoformat()
+        }
+
+    def reconcile_trade(
+        self,
+        order_id: str,
+        *,
+        exchange_order_id: str | None = None,
+        symbol: str | None = None,
+    ) -> Optional[Dict]:
+        """Query local/venue truth after recovery; return None when unknowable."""
+        local = self.get_order_status(order_id)
+        if local is not None:
+            return local
+        if not exchange_order_id:
+            return None
+        venue_order = self.client.get_order(exchange_order_id, symbol)
+        if not venue_order:
+            return None
+        raw_status = str(venue_order.get("status", "UNKNOWN")).upper()
+        status_map = {
+            "NEW": OrderStatus.OPEN,
+            "OPEN": OrderStatus.OPEN,
+            "PARTIALLY_FILLED": OrderStatus.PARTIALLY_FILLED,
+            "FILLED": OrderStatus.FILLED,
+            "CANCELED": OrderStatus.CANCELLED,
+            "CANCELLED": OrderStatus.CANCELLED,
+            "REJECTED": OrderStatus.REJECTED,
+            "EXPIRED": OrderStatus.EXPIRED,
+        }
+        status = status_map.get(raw_status, OrderStatus.UNKNOWN)
+        return {
+            "order_id": order_id,
+            "exchange_order_id": exchange_order_id,
+            "symbol": symbol,
+            "status": status.value,
+            "filled_size": float(
+                venue_order.get("executedQty", venue_order.get("filled_size", 0.0)) or 0.0
+            ),
         }
 
     def get_position(self, symbol: str) -> Optional[Dict]:

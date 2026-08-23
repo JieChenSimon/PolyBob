@@ -1,0 +1,17 @@
+id: PB-0017
+title: 建立权威执行账本与恢复对账
+state: doing
+p: P0
+area: execution
+why: 把 intent、order、fill、cash、position、PnL 和 journal 收敛为单一事实链
+checks:
+- text: fill、现金、仓位、费用与已实现 PnL 原子且幂等写入，账本重放结果一致
+  done: true
+- text: 统一订单与多腿状态机，重启后先对账且撤单失败不得报告成功
+  done: true
+- text: 持久化不可用、行情过期或持仓未知时执行 fail-closed 且不存在 basket 旁路
+  done: false
+deps: []
+branch: pb-0012-kronos
+blocked: null
+updated: '2026-08-23T16:42:33+00:00'

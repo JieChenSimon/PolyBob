@@ -2,6 +2,8 @@
 import asyncio
 import json
 
+import pytest
+
 from libs.crypto.binance_client import BinanceClient
 from libs.crypto.hyperliquid_client import HyperliquidClient
 from libs.db import connect
@@ -106,7 +108,7 @@ def test_restart_recovers_intents_baskets_and_errors(tmp_path, promoted_strategy
 
     recovered_submitted = fresh_intent_service.get_intent(submitted["intent_id"])
     assert recovered_submitted is not None
-    assert recovered_submitted["status"] == "submitted"
+    assert recovered_submitted["status"] == "reconciling"
     assert recovered_submitted["basket_id"] == submitted["basket_id"]
     assert [leg["symbol"] for leg in recovered_submitted["legs"]] == ["BTCUSDT", "BTC"]
 
@@ -117,12 +119,26 @@ def test_restart_recovers_intents_baskets_and_errors(tmp_path, promoted_strategy
 
     recovered_basket = fresh_basket_executor.get_basket(submitted["basket_id"])
     assert recovered_basket is not None
-    assert recovered_basket["status"] == "submitted"
+    assert recovered_basket["status"] == "reconciling"
     assert recovered_basket["parent_intent_id"] == submitted["intent_id"]
     assert len(recovered_basket["legs"]) == 2
     for leg in recovered_basket["legs"]:
-        assert leg["status"] == "submitted"
+        assert leg["status"] == "reconciling"
         assert leg["client_order_id"] is not None
+
+    # Reconciliation cannot find the prior process's in-memory paper order.
+    # It must report uncertainty, never silently restore "submitted".
+    reconciled_intent = asyncio.run(
+        fresh_intent_service.reconcile_intent(submitted["intent_id"])
+    )
+    assert reconciled_intent["status"] == "unknown"
+    assert reconciled_intent["error"] == "basket ended in unknown"
+    reconciled = fresh_basket_executor.get_basket(submitted["basket_id"])
+    assert reconciled is not None
+    assert reconciled["status"] == "unknown"
+    by_venue = {leg["venue"]: leg for leg in reconciled["legs"]}
+    assert by_venue["binance"]["status"] == "unknown"
+    assert by_venue["binance"]["error"] == "venue order state unavailable"
 
 
 def test_duplicate_idempotency_key_returns_original_intent(tmp_path, promoted_strategy):
@@ -218,10 +234,10 @@ def test_corrupted_db_degrades_to_empty_state(tmp_path, promoted_strategy):
     assert intent_service.list_intents() == []
     assert basket_executor.list_baskets() == []
 
-    # The service keeps working in memory even though persistence fails.
-    intent = create_spread_intent(intent_service)
-    submitted = asyncio.run(intent_service.submit_intent(intent["intent_id"]))
-    assert submitted["status"] == "submitted"
+    # A corrupted durable store must block execution rather than create an
+    # order that cannot survive restart.
+    with pytest.raises(RuntimeError, match="persistence failed"):
+        create_spread_intent(intent_service)
 
 
 def test_missing_db_starts_empty_and_bootstraps_schema(tmp_path, promoted_strategy):

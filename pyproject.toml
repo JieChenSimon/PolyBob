@@ -72,6 +72,8 @@ only-include = [
     "libs",
     "modules",
     "strategies",
+    "config",
+    "data",
 ]
 exclude = [
     "apps/dashboard/**",

@@ -77,6 +77,13 @@ function statusToTone(status: string | null | undefined): FreshnessTone | null {
   }
 }
 
+function statusLabel(status: string | null | undefined, language: 'zh' | 'en'): string | null {
+  const labels = language === 'zh'
+    ? { realtime: '实时', delayed: '延迟', stale: '旧快照', last_close: '最后收盘', unknown: '未知' }
+    : { realtime: 'realtime', delayed: 'delayed', stale: 'stale snapshot', last_close: 'last close', unknown: 'unknown' };
+  return status && status in labels ? labels[status as keyof typeof labels] : null;
+}
+
 function ageToTone(ageMs: number | null, freshMs: number, staleMs: number): FreshnessTone {
   if (ageMs === null) {
     return 'neutral';
@@ -122,7 +129,8 @@ export default function FreshnessBadge({
   const tone: FreshnessTone =
     statusTone && severity[statusTone] >= severity[ageTone] ? statusTone : ageTone;
 
-  const ageText = label ?? formatAge(resolvedAge);
+  const explicitStatus = statusLabel(status, language);
+  const ageText = label ?? explicitStatus ?? formatAge(resolvedAge);
   const sourceText = source ? source.toUpperCase() : null;
 
   if (!sourceText && ageText === null && !status) {
@@ -131,7 +139,7 @@ export default function FreshnessBadge({
 
   const unavailable = tone === 'danger' && resolvedAge === null;
   const unknownText = language === 'zh' ? '无数据' : 'no data';
-  const bodyText = ageText ?? (unavailable ? unknownText : status ?? unknownText);
+  const bodyText = ageText ?? (unavailable ? unknownText : explicitStatus ?? unknownText);
 
   const ariaAge = ageText ? (language === 'zh' ? `更新于 ${ageText}前` : `updated ${ageText} ago`) : '';
   const ariaLabel = [

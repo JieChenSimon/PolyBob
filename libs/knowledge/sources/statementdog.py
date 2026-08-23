@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 
 import httpx
 
+from libs.data.http_client import build_bounded_async_client
 from libs.knowledge.models import KnowledgeDocument, utc_now
 from libs.knowledge.sources.base import DiscoveredUrl, SourceRefreshResult
 
@@ -291,5 +292,5 @@ class StatementDogSource:
             "User-Agent": "PolyBobResearchBot/0.1 (+authorized local research ingestion)",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
-        self.client = httpx.AsyncClient(headers=headers, follow_redirects=True)
+        self.client = build_bounded_async_client(headers=headers, follow_redirects=True)
         return self.client

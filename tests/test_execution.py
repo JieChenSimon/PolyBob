@@ -76,3 +76,33 @@ def test_basket_executor_submit_and_cancel():
 
     cancelled = asyncio.run(basket_executor.cancel_basket(basket["basket_id"]))
     assert cancelled["status"] == "cancelled"
+
+
+def test_cancel_failure_is_never_reported_as_cancelled():
+    executor = ContractExecutor(
+        BinanceClient(paper_trading=True),
+        paper_trading=True,
+        venue=ExecutionVenue.BINANCE.value,
+    )
+    basket_executor = BasketExecutor({ExecutionVenue.BINANCE: executor})
+    basket = asyncio.run(
+        basket_executor.submit_basket(
+            parent_intent_id="test_intent",
+            legs=[
+                {
+                    "venue": "binance",
+                    "symbol": "BTCUSDT",
+                    "side": "buy",
+                    "quantity": 0.01,
+                    "limit_price": 65000,
+                }
+            ],
+        )
+    )
+    executor.cancel_trade = lambda order_id: False
+
+    result = asyncio.run(basket_executor.cancel_basket(basket["basket_id"]))
+
+    assert result["status"] == "cancel_failed"
+    assert result["legs"][0]["status"] == "cancel_failed"
+    assert result["legs"][0]["error"] == "venue did not confirm cancellation"

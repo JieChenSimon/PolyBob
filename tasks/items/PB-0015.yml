@@ -1,0 +1,18 @@
+id: PB-0015
+title: 统一研究与 Kronos 预测证据账本
+state: todo
+p: P0
+area: research
+why: 让假设、数据、代码、模型、预测、到期结果和晋级结论共享可重放 lineage
+checks:
+- text: 每次研究与预测有唯一 run_id、输入哈希、数据批次、模型哈希和完整参数
+  done: false
+- text: 到期预测自动结算并与 naive 基线比较，样本不足显示 UNKNOWN
+  done: false
+- text: 缺少 lineage 的结果无法晋级
+  done: false
+deps:
+- PB-0014
+branch: null
+blocked: null
+updated: '2026-08-13T06:20:19+00:00'

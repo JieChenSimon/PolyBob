@@ -59,6 +59,7 @@ class BacktestConfig:
     use_dynamic_slippage: bool = True  # 默认启用动态滑点
     market_depth: float = 100000.0  # 市场深度
     enable_vectorization: bool = True  # 启用向量化计算
+    allow_short: bool = False  # explicit margin/borrow contract required
 
 
 class BacktestEngine:
@@ -104,6 +105,8 @@ class BacktestEngine:
             self.positions[market_id] = current_pos + size
             self.capital -= total_cost
         else:
+            if not self.config.allow_short and current_pos < size:
+                return False
             self.positions[market_id] = current_pos - size
             self.capital += notional - fee
 
@@ -119,8 +122,11 @@ class BacktestEngine:
 
     def update_equity(self, timestamp: datetime, market_prices: Dict[str, float]):
         """更新权益曲线"""
+        missing = [mid for mid in self.positions if mid not in market_prices]
+        if missing:
+            raise ValueError(f"missing mark price for {', '.join(sorted(missing))}")
         position_value = sum(
-            qty * market_prices.get(mid, 0.0)
+            qty * market_prices[mid]
             for mid, qty in self.positions.items()
         )
         total_equity = self.capital + position_value

@@ -1,0 +1,15 @@
+id: PB-0013
+title: 建立系统能力边界与可信状态矩阵
+state: doing
+p: P0
+area: platform
+why: 统一 Core、Lab、Archive 边界并消除未接线能力造成的专业化错觉
+checks:
+- text: 所有页面与 API 能力标注 Core、Lab 或 Archive，且文档与运行状态一致
+  done: true
+- text: 未配置、未知、实验性能力不得显示为可交易或生产就绪
+  done: true
+deps: []
+branch: null
+blocked: null
+updated: '2026-08-13T06:39:02+00:00'

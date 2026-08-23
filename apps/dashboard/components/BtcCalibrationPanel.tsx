@@ -74,8 +74,8 @@ export default function BtcCalibrationPanel() {
   const thresholds = query.data?.thresholds ?? null;
   if (!gate) return null;
 
-  const n = gate.n ?? 0;
-  const progress = Math.min(100, Math.round((n / TARGET_N) * 100));
+  const n = gate.n;
+  const progress = typeof n === 'number' ? Math.min(100, Math.round((n / TARGET_N) * 100)) : null;
   const modelBeatsMarket =
     gate.brier_model !== null && gate.brier_market !== null && gate.brier_model < gate.brier_market;
 
@@ -131,18 +131,18 @@ export default function BtcCalibrationPanel() {
             {zh ? '样本进度' : 'Sample progress'}
           </span>
           <span className="font-mono text-stone-600">
-            n = {n} / {TARGET_N}
+            n = {typeof n === 'number' ? n : 'UNKNOWN'} / {TARGET_N}
           </span>
         </div>
         <div
           className="mt-1.5 h-2 overflow-hidden rounded-full bg-stone-200"
           role="progressbar"
-          aria-valuenow={n}
+          aria-valuenow={typeof n === 'number' ? n : undefined}
           aria-valuemin={0}
           aria-valuemax={TARGET_N}
           aria-label={zh ? '样本进度' : 'Sample progress'}
         >
-          <div className="h-full rounded-full bg-sky-500" style={{ width: `${progress}%` }} />
+          <div className="h-full rounded-full bg-sky-500" style={{ width: `${progress ?? 0}%` }} />
         </div>
         <p className="mt-2 text-[11px] leading-5 text-stone-500">
           {zh

@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 import apps.api.main as api
+import pytest
 
 
 async def test_lab_auto_trader_disabled_does_not_initialize_engine(monkeypatch):
@@ -33,6 +34,20 @@ def test_service_health_marks_auto_trader_as_lab_disabled(monkeypatch):
     assert auto_trader["tier"] == "lab"
     assert auto_trader["status"] == "disabled"
     assert api.trading_engine is None
+
+
+def test_paper_execution_is_blocked_without_explicit_lab_switch(monkeypatch):
+    monkeypatch.setattr(
+        api,
+        "get_settings",
+        lambda: SimpleNamespace(enable_lab_paper_execution=False),
+    )
+
+    with pytest.raises(api.HTTPException) as error:
+        api.require_lab_paper_execution()
+
+    assert error.value.status_code == 403
+    assert error.value.detail["capability"] == "paper_execution"
 
 
 def test_portfolio_risk_snapshot_does_not_substitute_zeroes():

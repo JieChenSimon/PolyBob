@@ -94,6 +94,7 @@ def test_events_crammed_into_few_clusters_are_not_significant():
     assert result.n == 1000
     assert result.n_clusters == 5
     assert result.significant is False
+    assert result.evidence_status == "unknown"
     assert any("independence clusters" in w for w in result.warnings)
 
 

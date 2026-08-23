@@ -1,0 +1,17 @@
+id: PB-0014
+title: 建立 PIT 数据合同与标的时间基础
+state: doing
+p: P0
+area: data
+why: 修复标的身份、事件生效时间、交易日历、公司行动和数据版本语义缺口
+checks:
+- text: 核心数据集声明 instrument、effective_at、observed_at、PIT 等级和 price basis
+  done: true
+- text: 公司行动与交易日历进入回测和 Kronos 输入，非严格 PIT 数据不能晋级交易
+  done: true
+- text: 重复 provider payload 不新增 observation 文件且压实前后查询一致
+  done: false
+deps: []
+branch: null
+blocked: null
+updated: '2026-08-13T06:39:02+00:00'

@@ -1,7 +1,8 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
 import ErrorState from '@/components/ui/ErrorState';
 import { API_BASE } from '@/lib/config';
 import { useLanguage } from '@/lib/i18n';
@@ -50,6 +51,19 @@ interface PerformanceRow {
   measured: MeasuredStats | null;
 }
 
+interface JournalDraft {
+  edge_id: string;
+  symbol: string;
+  domain: string;
+  direction: 'long' | 'short';
+  planned_entry: string;
+  planned_stop: string;
+  hold_sessions: string;
+  qty: string;
+  evidence: string;
+  intent_id: string;
+}
+
 const STRATEGY_LABEL: Record<string, { zh: string; en: string }> = {
   us_insider_cluster_buy: { zh: '美股 · 内部人集群买入', en: 'US · Insider cluster buy' },
   altcoin_retail_crowding: { zh: '山寨币 · 散户拥挤', en: 'Altcoin · Retail crowding' },
@@ -77,6 +91,28 @@ export default function JournalWorkspace() {
   const { language } = useLanguage();
   const zh = language === 'zh';
   const queryClient = useQueryClient();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<JournalDraft>({
+    edge_id: '', symbol: '', domain: '', direction: 'long', planned_entry: '',
+    planned_stop: '', hold_sessions: '', qty: '', evidence: '', intent_id: '',
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const symbol = params.get('symbol') || '';
+    const edgeId = params.get('edge_id') || '';
+    if (symbol || edgeId || params.get('intent_id')) {
+      setDraft((current) => ({
+        ...current,
+        symbol: symbol || current.symbol,
+        edge_id: edgeId || current.edge_id,
+        domain: params.get('domain') || current.domain,
+        intent_id: params.get('intent_id') || current.intent_id,
+      }));
+      setCreateOpen(true);
+    }
+  }, []);
 
   const entriesQuery = useQuery<{ entries: JournalEntry[] }>({
     queryKey: ['journal-entries'],
@@ -114,6 +150,39 @@ export default function JournalWorkspace() {
     void queryClient.invalidateQueries({ queryKey: ['journal-due'] });
   };
 
+  const createEntry = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setCreateError(null);
+    try {
+      const payload = {
+      edge_id: draft.edge_id.trim(),
+      symbol: draft.symbol.trim(),
+      domain: draft.domain.trim() || undefined,
+      direction: draft.direction,
+      planned_entry: draft.planned_entry ? Number(draft.planned_entry) : undefined,
+      planned_stop: draft.planned_stop ? Number(draft.planned_stop) : undefined,
+      hold_sessions: draft.hold_sessions ? Number(draft.hold_sessions) : undefined,
+      qty: draft.qty ? Number(draft.qty) : undefined,
+      evidence: draft.evidence.trim(),
+      intent_id: draft.intent_id.trim() || undefined,
+    };
+      const response = await fetch(`${API_BASE}/api/journal/entries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const detail = await response.json().catch(() => null);
+        throw new Error(detail?.detail ?? `HTTP ${response.status}`);
+      }
+      setCreateOpen(false);
+      setDraft({ edge_id: '', symbol: '', domain: '', direction: 'long', planned_entry: '', planned_stop: '', hold_sessions: '', qty: '', evidence: '', intent_id: '' });
+      refreshAll();
+    } catch (error) {
+      setCreateError(error instanceof Error ? error.message : 'UNKNOWN');
+    }
+  };
+
   const entries = entriesQuery.data?.entries ?? [];
   const open = entries.filter((e) => e.is_open);
   const closed = entries.filter((e) => e.status === 'closed');
@@ -123,7 +192,8 @@ export default function JournalWorkspace() {
     <div className="mx-auto mt-6 w-full max-w-shell px-5 pb-10 md:mt-8 md:px-8">
       {/* Research vs measured. Everything else on this page exists to fill it in. */}
       <section className="panel mb-6 overflow-hidden">
-        <div className="border-b border-stone-200 px-5 py-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-stone-200 px-5 py-4">
+          <div>
           <div className="eyebrow">{zh ? '北极星' : 'North star'}</div>
           <h2 className="mt-0.5 text-lg font-bold tracking-[-0.02em] text-stone-900">
             {zh ? '研究值 vs 你的实测值' : 'Research versus your measured results'}
@@ -133,7 +203,13 @@ export default function JournalWorkspace() {
               ? '记分牌上的胜率来自历史事件研究。这一栏是你自己交出来的。两者的差就是滑点——只有它能说明这条边在你手上是否还成立。'
               : 'The scoreboard reports a historical study. This is what you produced. The gap between them is the only evidence that an edge survives your own execution.'}
           </p>
+          </div>
+          <button type="button" onClick={() => setCreateOpen((value) => !value)} className="shrink-0 rounded border border-stone-800 bg-stone-800 px-3 py-2 text-xs font-semibold text-white hover:bg-stone-700">
+            {createOpen ? (zh ? '关闭' : 'Close') : (zh ? '记录行动' : 'Create action')}
+          </button>
         </div>
+
+        {createOpen ? <CreateEntryForm draft={draft} error={createError} zh={zh} onChange={setDraft} onSubmit={createEntry} /> : null}
 
         {perfQuery.isError ? (
           <ErrorState
@@ -192,7 +268,7 @@ export default function JournalWorkspace() {
                         {m ? pct(m.slippage_pct) : '—'}
                       </td>
                       <td className="px-5 py-3 text-right font-mono text-xs text-stone-500">
-                        {m ? `${m.closed_trades} / ${m.open_positions}` : '0 / 0'}
+                        {m ? `${m.closed_trades} / ${m.open_positions}` : 'UNKNOWN'}
                       </td>
                     </tr>
                   );
@@ -277,6 +353,54 @@ export default function JournalWorkspace() {
         )}
       </section>
     </div>
+  );
+}
+
+function CreateEntryForm({
+  draft,
+  error,
+  zh,
+  onChange,
+  onSubmit,
+}: {
+  draft: JournalDraft;
+  error: string | null;
+  zh: boolean;
+  onChange: (draft: JournalDraft) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+}) {
+  const field = (key: keyof JournalDraft, label: string, type = 'text') => (
+    <label className="grid gap-1 text-xs text-stone-600">
+      <span>{label}</span>
+      <input
+        required={key === 'edge_id' || key === 'symbol'}
+        type={type}
+        value={draft[key]}
+        onChange={(event) => onChange({ ...draft, [key]: event.target.value })}
+        className="rounded border border-stone-300 px-2 py-1.5 font-mono text-xs text-stone-900 focus:border-sky-500"
+      />
+    </label>
+  );
+  return (
+    <form onSubmit={onSubmit} className="border-b border-stone-200 bg-stone-50 px-5 py-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {field('edge_id', zh ? '已验证边 ID' : 'Promoted edge ID')}
+        {field('symbol', zh ? '标的' : 'Symbol')}
+        {field('domain', zh ? '域' : 'Domain')}
+        <label className="grid gap-1 text-xs text-stone-600"><span>{zh ? '方向' : 'Direction'}</span><select value={draft.direction} onChange={(event) => onChange({ ...draft, direction: event.target.value as JournalDraft['direction'] })} className="rounded border border-stone-300 px-2 py-1.5 text-xs"><option value="long">LONG / {zh ? '做多' : 'long'}</option><option value="short">SHORT / {zh ? '做空' : 'short'}</option></select></label>
+        {field('planned_entry', zh ? '计划入场价' : 'Planned entry', 'number')}
+        {field('planned_stop', zh ? '计划止损价' : 'Planned stop', 'number')}
+        {field('hold_sessions', zh ? '持有期(交易日)' : 'Hold sessions', 'number')}
+        {field('qty', zh ? '数量' : 'Quantity', 'number')}
+      </div>
+      <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr),minmax(0,1fr),auto] sm:items-end">
+        {field('evidence', zh ? '证据备注' : 'Evidence note')}
+        {field('intent_id', zh ? '关联 intent（可选）' : 'Intent ID (optional)')}
+        <button type="submit" className="rounded border border-stone-800 bg-stone-800 px-3 py-2 text-xs font-semibold text-white hover:bg-stone-700">{zh ? '保存行动' : 'Save action'}</button>
+      </div>
+      <p className="mt-2 text-[11px] leading-5 text-stone-500">{zh ? '只接受已通过晋级门禁的 edge；缺少成交价的记录仍是 planned，不会伪造实测结果。' : 'Only promoted edges are accepted; without a fill price this remains planned and cannot fabricate measured results.'}</p>
+      {error ? <div className="mt-2 text-xs text-rose-700" role="alert">{error}</div> : null}
+    </form>
   );
 }
 

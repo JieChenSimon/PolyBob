@@ -55,7 +55,6 @@ interface ExecutionStatus {
 export default function ExecutionWorkspace() {
   const { language } = useLanguage();
   const zh = language === 'zh';
-  const [submitting, setSubmitting] = useState(false);
   const [mutationError, setMutationError] = useState<string | null>(null);
 
   const executionQuery = useQuery<ExecutionStatus>({
@@ -71,41 +70,6 @@ export default function ExecutionWorkspace() {
     staleTime: 8_000,
   });
   const data = executionQuery.data ?? null;
-
-  const submitLabBasket = async () => {
-    setSubmitting(true);
-    setMutationError(null);
-    try {
-      await requireSuccessfulMutation(fetch(`${API_BASE}/api/execution/baskets`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          parent_intent_id: 'manual_lab_spread_check',
-          legs: [
-            {
-              venue: 'binance',
-              symbol: 'BTCUSDT',
-              side: 'buy',
-              quantity: 0.01,
-              limit_price: 65000,
-            },
-            {
-              venue: 'hyperliquid',
-              symbol: 'BTC',
-              side: 'sell',
-              quantity: 0.01,
-              limit_price: 65010,
-            },
-          ],
-        }),
-      }));
-      await executionQuery.refetch();
-    } catch (error) {
-      setMutationError(error instanceof Error ? error.message : 'unknown error');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const cancelBasket = async (basketId: string) => {
     setMutationError(null);
@@ -154,15 +118,15 @@ export default function ExecutionWorkspace() {
             {zh ? 'Basket 汇总' : 'Basket Summary'}
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <Metric title={zh ? '意图数量' : 'Intent Count'} value={String(data?.intents.length || 0)} />
-            <Metric title={zh ? 'Basket 数量' : 'Basket Count'} value={String(data?.baskets.length || 0)} />
+            <Metric title={zh ? '意图数量' : 'Intent Count'} value={data ? String(data.intents.length) : 'UNKNOWN'} />
+            <Metric title={zh ? 'Basket 数量' : 'Basket Count'} value={data ? String(data.baskets.length) : 'UNKNOWN'} />
             <Metric
               title={zh ? '残余腿' : 'Residual Legs'}
-              value={String(data?.baskets.reduce((sum, basket) => sum + basket.metrics.residual_legs, 0) || 0)}
+              value={data ? String(data.baskets.reduce((sum, basket) => sum + basket.metrics.residual_legs, 0)) : 'UNKNOWN'}
             />
             <Metric
               title={zh ? '拒绝腿' : 'Rejected Legs'}
-              value={String(data?.baskets.reduce((sum, basket) => sum + basket.metrics.rejected_legs, 0) || 0)}
+              value={data ? String(data.baskets.reduce((sum, basket) => sum + basket.metrics.rejected_legs, 0)) : 'UNKNOWN'}
             />
           </div>
         </div>
@@ -179,13 +143,9 @@ export default function ExecutionWorkspace() {
                   : 'This only validates basket executor and cancel flow. It is not a strategy recommendation and is excluded from the core conclusion.'}
               </p>
             </div>
-            <button
-              onClick={submitLabBasket}
-              disabled={submitting}
-              className="rounded-lg bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-            >
-              {submitting ? (zh ? '提交中' : 'Submitting') : (zh ? '提交实验 Basket' : 'Submit Lab Basket')}
-            </button>
+            <span className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-medium text-amber-800">
+              {zh ? 'Lab Paper Execution 默认关闭' : 'Lab paper execution is disabled by default'}
+            </span>
           </div>
           {mutationError ? (
             <div className="mt-4 rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-700">

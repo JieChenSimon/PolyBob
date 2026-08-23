@@ -1,0 +1,18 @@
+id: PB-0021
+title: 收敛 API 边界、运行配置与文档
+state: todo
+p: P1
+area: architecture
+why: 拆分巨型模块、移除装饰性基础设施和文档漂移，形成诚实的单机权威架构
+checks:
+- text: API 按领域拆分且默认启动面最小，未接线服务不自动启动
+  done: false
+- text: 设置页显示真实存储、数据源、队列、模型和风险配置状态
+  done: false
+- text: SQLite/Parquet 权威边界、降级策略、README 与架构文档和实际代码一致
+  done: false
+deps:
+- PB-0013
+branch: null
+blocked: null
+updated: '2026-08-13T06:20:19+00:00'

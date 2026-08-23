@@ -25,6 +25,7 @@ from libs.config import get_settings
 from libs import metrics as ops_metrics
 from libs.db import fact_store
 from libs.db.repositories import BasketRepository, DecisionRepository, IntentRepository
+from libs.data.http_client import close_async_clients
 from modules.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
 from modules.market_discovery import MarketDiscoveryService
 from modules.realtime_ingestor import RealtimeIngestorService
@@ -128,6 +129,7 @@ from apps.api.btc_five_minute import router as btc_five_minute_router  # noqa: E
 from apps.api.edges_api import router as edges_router  # noqa: E402
 from apps.api.journal_api import router as journal_router  # noqa: E402
 from apps.api.portfolio_api import router as portfolio_router  # noqa: E402
+from apps.api.capabilities_api import router as capabilities_router  # noqa: E402
 from apps.api.dev_control_api import router as dev_control_router  # noqa: E402
 from apps.api.forecasting_api import router as forecasting_router  # noqa: E402
 from apps.api.verdict_api import router as verdict_router  # noqa: E402
@@ -209,6 +211,32 @@ def lab_auto_trader_enabled() -> bool:
 
 def lab_backtest_enabled() -> bool:
     return get_settings().enable_lab_backtest
+
+
+def require_lab_paper_execution() -> None:
+    """Keep order submission behind the explicit Lab paper-execution switch."""
+    if not get_settings().enable_lab_paper_execution:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "state": "lab_disabled",
+                "capability": "paper_execution",
+                "message": "Paper execution is a Lab capability and is disabled by default.",
+            },
+        )
+
+
+def require_lab_backtest() -> None:
+    """Keep simulation/backtest behind the explicit Lab switch."""
+    if not lab_backtest_enabled():
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "state": "lab_disabled",
+                "capability": "paper_simulation",
+                "message": "Simulation is a Lab capability and is disabled by default.",
+            },
+        )
 
 
 async def get_lab_trading_status() -> dict:
@@ -415,6 +443,7 @@ def require_onchain_monitor() -> OnchainMonitorService:
 
 
 def require_simulation_service() -> SimulationService:
+    require_lab_backtest()
     if simulation_service is None:
         raise HTTPException(status_code=503, detail="Simulation service not ready")
     return simulation_service
@@ -564,11 +593,15 @@ async def lifespan(app: FastAPI):
         decision_repository = DecisionRepository(db_path)
         logger.info("fact_store_ready", db_path=str(db_path))
     except Exception as exc:
-        logger.warning(
-            "fact_store_unavailable_running_memory_only",
+        # Execution must not continue without durable state. A memory-only
+        # fallback can lose an accepted order across restart and is therefore
+        # unsafe even for paper execution.
+        logger.error(
+            "fact_store_unavailable_execution_blocked",
             db_path=settings.polybob_db_path,
             error=str(exc) or exc.__class__.__name__,
         )
+        raise RuntimeError("durable fact store unavailable; execution is blocked") from exc
 
     basket_executor = BasketExecutor(
         basket_repository=basket_repository,
@@ -693,17 +726,23 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.warning("failed_to_start_default_spread_arbitrage", error=str(exc))
 
-    # Paper-trading simulation service: persistent runs + restart recovery.
-    try:
-        simulation_service = SimulationService(settings.polybob_db_path)
-        await simulation_service.start()
-        await simulation_service.restore_state()
-    except Exception as exc:
+    # Paper-trading simulation service is Lab-only and must not start merely
+    # because the API process starts.
+    if settings.enable_lab_backtest:
+        try:
+            simulation_service = SimulationService(settings.polybob_db_path)
+            await simulation_service.start()
+            await simulation_service.restore_state()
+        except Exception as exc:
+            simulation_service = None
+            logger.error(
+                "simulation_service_unavailable",
+                error=str(exc) or exc.__class__.__name__,
+            )
+            raise RuntimeError("lab simulation failed to start") from exc
+    else:
         simulation_service = None
-        logger.warning(
-            "simulation_service_unavailable",
-            error=str(exc) or exc.__class__.__name__,
-        )
+        logger.info("simulation_service_disabled", capability="paper_simulation")
 
     logger.info("polybob_started")
 
@@ -742,6 +781,7 @@ async def lifespan(app: FastAPI):
         await market_discovery.stop()
 
     await close_shared_http_client()
+    await close_async_clients()
 
     logger.info("polybob_stopped")
 
@@ -749,7 +789,7 @@ async def lifespan(app: FastAPI):
 # 创建 FastAPI 应用
 app = FastAPI(
     title="PolyBob",
-    description="Polymarket 实时分析与交易自动化系统",
+    description="个人市场研究工作台；实验模块不授予真实交易权限",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -757,7 +797,7 @@ app = FastAPI(
 # 配置 CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in get_settings().polybob_cors_origins.split(",") if origin.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -776,6 +816,7 @@ app.include_router(journal_router)
 app.include_router(portfolio_router)
 app.include_router(dev_control_router)
 app.include_router(forecasting_router)
+app.include_router(capabilities_router)
 
 
 @app.get("/metrics")
@@ -1352,6 +1393,7 @@ async def create_strategy_intent(payload: dict | None = None):
 @app.post("/api/strategies/intents/{intent_id}/submit")
 async def submit_strategy_intent(intent_id: str):
     """提交意图到执行层。"""
+    require_lab_paper_execution()
     result = await require_intent_execution_service().submit_intent(intent_id)
     clear_api_response_cache()
     return result
@@ -1382,13 +1424,15 @@ async def get_execution_status():
 
 @app.post("/api/execution/baskets")
 async def create_execution_basket(payload: dict | None = None):
-    """创建并提交一个多腿 basket。"""
-    payload = payload or {}
-    legs = payload.get("legs") or []
-    parent_intent_id = str(payload.get("parent_intent_id", "manual"))
-    result = await require_basket_executor().submit_basket(legs=legs, parent_intent_id=parent_intent_id)
-    clear_api_response_cache()
-    return result
+    """Reject direct basket submission; execution must originate from an intent."""
+    raise HTTPException(
+        status_code=403,
+        detail={
+            "state": "blocked",
+            "reason": "direct_basket_submission_forbidden",
+            "next": "create an intent and submit it through /api/intents",
+        },
+    )
 
 
 @app.get("/api/execution/baskets")
@@ -1477,6 +1521,7 @@ async def list_simulation_presets():
     ``suggested_universe`` 中的 ``MARKET_ID_*`` 占位符会在此处替换为
     market_discovery 提供的真实、已就绪的市场 id，让预设开箱即跑，无需手改。
     """
+    require_lab_backtest()
     from modules.simulation import presets as sim_presets
 
     presets = [await _resolve_preset_universe(preset) for preset in sim_presets.list_presets()]
@@ -1913,7 +1958,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "apps.api.main:app",
-        host="0.0.0.0",
+        host=settings.polybob_api_host,
         port=settings.polybob_api_port,
         reload=settings.api_reload,
         log_level=settings.log_level.lower(),

@@ -15,6 +15,11 @@ def sim_api(monkeypatch, tmp_path):
     """Real SimulationService on a tmp DB, injected into the app (no lifespan)."""
     service = SimulationService(tmp_path / "sim.sqlite3", equity_poll_seconds=3600)
     monkeypatch.setattr(api, "simulation_service", service)
+    monkeypatch.setattr(
+        api,
+        "get_settings",
+        lambda: type("Settings", (), {"enable_lab_backtest": True})(),
+    )
     # TestClient without a context manager does not run the lifespan, so no
     # network-bound services start; only the injected simulation service is used.
     return TestClient(api.app), service
@@ -228,6 +233,11 @@ def test_feedback_endpoint_reports_guardrail(sim_api):
 
 def test_simulation_service_not_ready_returns_503(monkeypatch):
     monkeypatch.setattr(api, "simulation_service", None)
+    monkeypatch.setattr(
+        api,
+        "get_settings",
+        lambda: type("Settings", (), {"enable_lab_backtest": True})(),
+    )
     client = TestClient(api.app)
     assert client.get("/api/simulation/runs").status_code == 503
     assert client.post("/api/simulation/runs", json=CREATE_PAYLOAD).status_code == 503

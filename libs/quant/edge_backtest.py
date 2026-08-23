@@ -28,6 +28,11 @@ from typing import Any, Callable, Sequence
 import numpy as np
 
 from libs.data import store
+from libs.data.corporate_actions import (
+    CorporateAction,
+    CorporateActionType,
+    raw_price_return,
+)
 from libs.quant.clustered_inference import ClusteredResult, analyse
 from libs.quant.edge import Direction, Edge, Signal
 
@@ -77,6 +82,7 @@ class BacktestResult:
     dropped_no_benchmark: int = 0
     dropped_no_carry: int = 0
     dropped_no_risk_estimate: int = 0
+    dropped_ambiguous_corporate_action: int = 0
     inference: ClusteredResult | None = None
 
     @property
@@ -101,6 +107,7 @@ class BacktestResult:
                 "no_benchmark": self.dropped_no_benchmark,
                 "no_carry": self.dropped_no_carry,
                 "no_risk_estimate": self.dropped_no_risk_estimate,
+                "ambiguous_corporate_action": self.dropped_ambiguous_corporate_action,
             },
             "measurable_rate": (
                 None if self.measurable_rate is None else round(self.measurable_rate, 4)
@@ -146,6 +153,97 @@ def _series_bulk(
     return out
 
 
+def _price_bases(
+    symbols: Sequence[str], as_of: dt.datetime
+) -> dict[str, dict[str, str | None]]:
+    """Price-basis declarations by symbol and session.
+
+    A split can only be adjusted safely when the two prices declare how they were
+    transformed. Missing/unknown declarations fail closed only for windows that
+    actually cross a corporate action, preserving ordinary price-only replays.
+    """
+    if not symbols:
+        return {}
+    frame = store.read(store.DAILY_BARS, list(dict.fromkeys(symbols)), as_of=as_of)
+    out: dict[str, dict[str, str | None]] = {}
+    if len(frame) == 0:
+        return out
+    for row in frame.to_dict("records"):
+        value = row.get("price_basis")
+        basis = None if value is None or str(value).lower() in {"nan", "<na>", "none"} else str(value)
+        out.setdefault(str(row["symbol"]), {})[str(row[store.EVENT_DATE])] = basis
+    return out
+
+
+def _corporate_actions(
+    symbols: Sequence[str], as_of: dt.datetime
+) -> dict[str, list[CorporateAction] | None]:
+    """Typed actions known at ``as_of``; ``None`` marks an invalid declaration."""
+    if not symbols:
+        return {}
+    frame = store.read(store.CORPORATE_ACTIONS, list(dict.fromkeys(symbols)), as_of=as_of)
+    out: dict[str, list[CorporateAction] | None] = {}
+    for row in frame.to_dict("records"):
+        symbol = str(row["symbol"])
+        try:
+            action = CorporateAction(
+                instrument=symbol,
+                effective_at=dt.date.fromisoformat(str(row[store.EVENT_DATE])[:10]),
+                action_type=CorporateActionType(str(row["action_type"])),
+                source=str(row["source"]),
+                ratio=None if row.get("ratio") is None else float(row["ratio"]),
+                cash_amount=None if row.get("cash_amount") is None else float(row["cash_amount"]),
+                currency=None if row.get("currency") is None else str(row["currency"]),
+                price_basis_before=str(row.get("price_basis_before") or "raw"),
+                price_basis_after=str(row.get("price_basis_after") or "raw"),
+            )
+            action.validate()
+        except (KeyError, TypeError, ValueError):
+            out[symbol] = None
+            continue
+        if symbol not in out:
+            out[symbol] = []
+        if out[symbol] is not None:
+            out[symbol].append(action)
+    return out
+
+
+def _holding_return(
+    symbol: str,
+    dates: Sequence[str],
+    closes: Sequence[float],
+    entry_i: int,
+    exit_i: int,
+    actions: dict[str, list[CorporateAction] | None],
+    bases: dict[str, dict[str, str | None]],
+) -> float | None:
+    """Return adjusted exactly once, or ``None`` when action semantics are unsafe."""
+    entry_date = dt.date.fromisoformat(dates[entry_i][:10])
+    exit_date = dt.date.fromisoformat(dates[exit_i][:10])
+    declared = actions.get(symbol, [])
+    if declared is None:
+        return None
+    relevant = [a for a in declared if entry_date < a.effective_at <= exit_date]
+    if not relevant:
+        return closes[exit_i] / closes[entry_i] - 1.0
+    if any(a.action_type is not CorporateActionType.SPLIT for a in relevant):
+        return None
+
+    by_date = bases.get(symbol, {})
+    entry_basis = by_date.get(dates[entry_i])
+    exit_basis = by_date.get(dates[exit_i])
+    if entry_basis != exit_basis:
+        return None
+    if entry_basis in {"raw", "unadjusted"}:
+        return raw_price_return(
+            closes[entry_i], closes[exit_i], relevant,
+            entry_date=entry_date, exit_date=exit_date,
+        )
+    if entry_basis in {"forward_adjusted", "backward_adjusted", "split_adjusted"}:
+        return closes[exit_i] / closes[entry_i] - 1.0
+    return None
+
+
 def _forward(
     dates: Sequence[str], closes: Sequence[float], signal_date: str, hold: int
 ) -> tuple[int, int] | None:
@@ -183,6 +281,9 @@ def run(
     result = BacktestResult(edge_id=edge.id)
     rule = edge.exit_rule
     symbols = list(edge.universe(as_of))
+    priced_symbols = [*symbols, *([rule.benchmark] if rule.benchmark else [])]
+    actions = _corporate_actions(priced_symbols, as_of)
+    bases = _price_bases(priced_symbols, as_of)
 
     bench: tuple[list[str], list[float]] | None = None
     if rule.benchmark:
@@ -215,7 +316,11 @@ def run(
             result.dropped_short_window += 1
             continue
         entry_i, exit_i = window
-        gross = sign * (closes[exit_i] / closes[entry_i] - 1.0)
+        raw_gross = _holding_return(symbol, dates, closes, entry_i, exit_i, actions, bases)
+        if raw_gross is None:
+            result.dropped_ambiguous_corporate_action += 1
+            continue
+        gross = sign * raw_gross
 
         benchmark_return: float | None = None
         if bench is not None:
@@ -224,7 +329,13 @@ def run(
                 result.dropped_no_benchmark += 1
                 continue
             b_entry, b_exit = b_window
-            benchmark_return = sign * (bench[1][b_exit] / bench[1][b_entry] - 1.0)
+            raw_benchmark = _holding_return(
+                rule.benchmark, bench[0], bench[1], b_entry, b_exit, actions, bases,
+            )
+            if raw_benchmark is None:
+                result.dropped_ambiguous_corporate_action += 1
+                continue
+            benchmark_return = sign * raw_benchmark
 
         excess = gross - (benchmark_return or 0.0) - cost
         result.trades.append(Trade(
@@ -336,6 +447,13 @@ def replay_events(
     control_series = (
         _series_bulk(list(neutralise_universe), as_of) if neutralise_universe else {}
     )
+    priced_symbols = [symbol for symbol, _ in events]
+    if benchmark:
+        priced_symbols.append(benchmark)
+    if neutralise_universe:
+        priced_symbols.extend(neutralise_universe)
+    actions = _corporate_actions(priced_symbols, as_of)
+    bases = _price_bases(priced_symbols, as_of)
 
     def _risk_weight(symbol: str, dates_: Sequence[str], entry_index: int) -> float | None:
         """Target vol over the instrument's own trailing vol, or ``None`` if unmeasurable.
@@ -372,10 +490,14 @@ def replay_events(
             return None
         if date not in control:
             values = []
-            for dates_, closes_ in control_series.values():
+            for control_symbol, (dates_, closes_) in control_series.items():
                 window = _forward(dates_, closes_, date, hold_sessions)
                 if window is not None:
-                    values.append(closes_[window[1]] / closes_[window[0]] - 1.0)
+                    measured = _holding_return(
+                        control_symbol, dates_, closes_, window[0], window[1], actions, bases,
+                    )
+                    if measured is not None:
+                        values.append(measured)
             control[date] = float(np.mean(values)) if len(values) >= 30 else None
         return control[date]
 
@@ -391,7 +513,11 @@ def replay_events(
             edge_result.dropped_short_window += 1
             continue
         entry_i, exit_i = window
-        gross = sign * (closes[exit_i] / closes[entry_i] - 1.0)
+        raw_gross = _holding_return(symbol, dates, closes, entry_i, exit_i, actions, bases)
+        if raw_gross is None:
+            edge_result.dropped_ambiguous_corporate_action += 1
+            continue
+        gross = sign * raw_gross
 
         benchmark_return: float | None = None
         if neutralise_universe:
@@ -405,7 +531,13 @@ def replay_events(
             if b_window is None:
                 edge_result.dropped_no_benchmark += 1
                 continue
-            benchmark_return = sign * (bench[1][b_window[1]] / bench[1][b_window[0]] - 1.0)
+            raw_benchmark = _holding_return(
+                benchmark, bench[0], bench[1], b_window[0], b_window[1], actions, bases,
+            )
+            if raw_benchmark is None:
+                edge_result.dropped_ambiguous_corporate_action += 1
+                continue
+            benchmark_return = sign * raw_benchmark
 
         carry_return = 0.0
         if carry is not None:

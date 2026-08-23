@@ -6,6 +6,7 @@ from typing import Any
 
 import httpx
 
+from libs.data.http_client import build_bounded_async_client
 from libs.networking import resolve_outbound_proxy
 
 
@@ -15,7 +16,7 @@ def build_provider_http_client(
     timeout_seconds: float = 10.0,
 ) -> httpx.AsyncClient:
     resolved_proxy = proxy if proxy is not None else resolve_outbound_proxy()
-    return httpx.AsyncClient(
+    return build_bounded_async_client(
         proxy=resolved_proxy,
         timeout=httpx.Timeout(timeout_seconds),
         follow_redirects=True,

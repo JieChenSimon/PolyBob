@@ -236,7 +236,7 @@ export default function WisdomSignalPanel({
                   </span>
                   {zh ? ' · 单笔风险占权益 ' : ' of equity · risk '}
                   <span className="font-mono font-semibold text-stone-800">
-                    {((data.position_sizing.risk_fraction_of_equity ?? 0) * 100).toFixed(2)}%
+                    {data.position_sizing.risk_fraction_of_equity == null ? 'UNKNOWN' : `${(data.position_sizing.risk_fraction_of_equity * 100).toFixed(2)}%`}
                   </span>
                   <span className="ml-2 text-stone-400">
                     {zh
@@ -252,7 +252,7 @@ export default function WisdomSignalPanel({
                   </span>
                   {zh ? ' · 单笔风险 ' : ' · risk '}
                   <span className="font-mono font-semibold text-stone-800">
-                    {((data.position_sizing.risk_pct ?? 0) * 100).toFixed(1)}%
+                    {data.position_sizing.risk_pct == null ? 'UNKNOWN' : `${(data.position_sizing.risk_pct * 100).toFixed(1)}%`}
                   </span>
                 </>
               )}

@@ -54,6 +54,7 @@
       "max_evidence_age_days": 90,
       "run_as_of": "2026-08-10T05:45:40.626818+00:00",
       "run_reproducible": true,
+      "pit_status": "unknown",
       "out_of_sample": {
         "available": true,
         "split_date": "2025-05-26",
@@ -90,7 +91,8 @@
       "approved": false,
       "failed": [
         "independent_clusters<20",
-        "unresolvable_at_14_clusters"
+        "unresolvable_at_14_clusters",
+        "no_pit_contract_cannot_trade"
       ],
       "notes": "做空腿单独计价并计入资金费,证据和实施方式必须是同一条腿。",
       "n": 250,
@@ -118,6 +120,7 @@
       "max_evidence_age_days": 90,
       "run_as_of": "2026-08-10T05:44:32.159395+00:00",
       "run_reproducible": true,
+      "pit_status": "unknown",
       "out_of_sample": {
         "available": false
       },
@@ -140,7 +143,8 @@
       "failed": [
         "n<200",
         "independent_clusters<20",
-        "unresolvable_at_1_clusters"
+        "unresolvable_at_1_clusters",
+        "no_pit_contract_cannot_trade"
       ],
       "notes": "旗舰标的:必须和别的边用同一条门槛,不因投入大而放宽。",
       "n": 99,
@@ -165,6 +169,7 @@
       "max_evidence_age_days": 30,
       "run_as_of": "2026-08-09T18:42:15.712715+00:00",
       "run_reproducible": true,
+      "pit_status": "unknown",
       "out_of_sample": {
         "available": false
       },
@@ -185,7 +190,8 @@
       "t_hurdle": 4.2,
       "approved": false,
       "failed": [
-        "independent_clusters<30"
+        "independent_clusters<30",
+        "no_pit_contract_cannot_trade"
       ],
       "notes": "唯一的正收益边:集群买入后按 filing date 建多头。",
       "n": 1019,
@@ -216,6 +222,7 @@
       "max_evidence_age_days": 180,
       "run_as_of": "2026-08-10T05:44:05.068146+00:00",
       "run_reproducible": true,
+      "pit_status": "unknown",
       "out_of_sample": {
         "available": true,
         "split_date": "2025-11-25",

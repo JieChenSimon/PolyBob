@@ -110,7 +110,7 @@ export default function TodaysEdges() {
   const data = query.data;
   const tradable = (data?.groups ?? []).filter((g) => g.role === 'trade');
   const avoid = (data?.groups ?? []).filter((g) => g.role === 'avoid');
-  const firingCount = data?.counts.tradable_firing ?? 0;
+  const firingCount = data?.counts?.tradable_firing ?? null;
 
   return (
     <section
@@ -126,12 +126,12 @@ export default function TodaysEdges() {
         </div>
         <span
           className={`rounded-full border px-3 py-1 text-xs font-medium ${
-            firingCount > 0
+            firingCount !== null && firingCount > 0
               ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
               : 'border-stone-200 bg-stone-50 text-stone-500'
           }`}
         >
-          {firingCount} {zh ? '个可开仓机会' : 'tradable now'}
+          {firingCount === null ? 'UNKNOWN' : firingCount} {zh ? '个可开仓机会' : 'tradable now'}
         </span>
       </div>
 

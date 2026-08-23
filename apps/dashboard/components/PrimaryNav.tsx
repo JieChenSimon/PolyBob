@@ -59,7 +59,6 @@ export default function PrimaryNav() {
                 key={item.href}
                 href={item.href}
                 prefetch={item.prefetch}
-                role="listitem"
                 aria-current={active ? 'page' : undefined}
                 className={`shrink-0 whitespace-nowrap border-b-2 px-2.5 py-3 text-sm transition ${
                   active

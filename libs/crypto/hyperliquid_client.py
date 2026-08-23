@@ -9,18 +9,18 @@ the live venue is registered as unavailable in ``apps/api/main.py`` so a
 no-op is never reported as a fill (see ``ContractExecutor(available=...)`` and
 ``BasketExecutor``).
 """
-import httpx
 from typing import Dict, Optional
 
 import structlog
 
 from .base_client import CryptoExchangeClient, get_shared_async_http_client
+from libs.data.http_client import HttpFetchError, http_request_json
 
 logger = structlog.get_logger()
 
 # Exceptions that mean "upstream/parse failed"; we degrade to None rather than
 # swallowing everything (a bare ``except`` would also hide bugs like NameError).
-_MARKET_DATA_ERRORS = (httpx.HTTPError, ValueError, KeyError)
+_MARKET_DATA_ERRORS = (HttpFetchError, ValueError, KeyError)
 
 
 class HyperliquidClient(CryptoExchangeClient):
@@ -34,9 +34,7 @@ class HyperliquidClient(CryptoExchangeClient):
         try:
             url = f"{self.base_url}/info"
             data = {"type": "metaAndAssetCtxs"}
-            r = httpx.post(url, json=data, timeout=10)
-            r.raise_for_status()
-            return r.json()
+            return http_request_json("POST", url, json=data, timeout=10)
         except _MARKET_DATA_ERRORS as exc:
             logger.warning(
                 "hyperliquid_ticker_unavailable",
@@ -50,9 +48,7 @@ class HyperliquidClient(CryptoExchangeClient):
         try:
             url = f"{self.base_url}/info"
             data = {"type": "l2Book", "coin": symbol}
-            r = httpx.post(url, json=data, timeout=10)
-            r.raise_for_status()
-            return r.json()
+            return http_request_json("POST", url, json=data, timeout=10)
         except _MARKET_DATA_ERRORS as exc:
             logger.warning(
                 "hyperliquid_orderbook_unavailable",

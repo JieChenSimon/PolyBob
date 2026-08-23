@@ -35,11 +35,15 @@ class WalkForwardAnalyzer:
         self,
         train_months: int = 6,
         test_months: int = 1,
-        step_months: int = 1
+        step_months: int = 1,
+        purge_days: int = 0,
+        embargo_days: int = 0,
     ):
         self.train_months = train_months
         self.test_months = test_months
         self.step_months = step_months
+        self.purge_days = purge_days
+        self.embargo_days = embargo_days
 
     def generate_windows(
         self,
@@ -53,7 +57,8 @@ class WalkForwardAnalyzer:
         while True:
             train_start = current
             train_end = current + timedelta(days=30 * self.train_months)
-            test_start = train_end
+            train_end = train_end - timedelta(days=self.purge_days)
+            test_start = train_end + timedelta(days=self.purge_days)
             test_end = test_start + timedelta(days=30 * self.test_months)
 
             if test_end > end_date:
@@ -66,7 +71,7 @@ class WalkForwardAnalyzer:
                 test_end=test_end
             ))
 
-            current += timedelta(days=30 * self.step_months)
+            current += timedelta(days=30 * self.step_months + self.embargo_days)
 
         return windows
 
@@ -74,7 +79,8 @@ class WalkForwardAnalyzer:
         self,
         backtest_func,
         windows: List[WalkForwardWindow],
-        stability_threshold: float = 1.0
+        stability_threshold: float = 1.0,
+        fit_func=None,
     ) -> List[WalkForwardResult]:
         """执行Walk-Forward分析"""
         results = []
@@ -86,10 +92,15 @@ class WalkForwardAnalyzer:
                 window.train_end
             )
 
+            if fit_func is None:
+                raise ValueError("walk-forward requires fit_func for train/test parameter isolation")
+            fitted = fit_func(train_metrics)
+
             # 测试期回测
             test_metrics = backtest_func(
                 window.test_start,
-                window.test_end
+                window.test_end,
+                fitted,
             )
 
             # 稳定性检查

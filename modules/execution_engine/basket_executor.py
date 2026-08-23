@@ -10,10 +10,33 @@ import structlog
 
 from libs.db.repositories import BasketRepository
 from libs.events import Topics, get_event_bus
-from libs.schemas import ExecutionVenue, OrderBasket, OrderLeg
+from libs.schemas import ExecutionVenue, OrderBasket, OrderLeg, OrderStatus
 from .contract_executor import ContractExecutor
 
 logger = structlog.get_logger()
+
+
+class BasketPersistenceError(RuntimeError):
+    """A basket state transition could not be durably recorded."""
+
+_TERMINAL_LEG_STATUSES = {
+    OrderStatus.FILLED.value,
+    OrderStatus.CANCELLED.value,
+    OrderStatus.REJECTED.value,
+    OrderStatus.EXPIRED.value,
+    OrderStatus.UNAVAILABLE.value,
+}
+_RECOVERABLE_LEG_STATUSES = {
+    OrderStatus.PENDING_SUBMIT.value,
+    OrderStatus.SUBMITTING.value,
+    OrderStatus.SUBMITTED.value,
+    OrderStatus.OPEN.value,
+    OrderStatus.PARTIALLY_FILLED.value,
+    OrderStatus.PENDING_CANCEL.value,
+    OrderStatus.CANCELLING.value,
+    OrderStatus.CANCEL_FAILED.value,
+    OrderStatus.UNKNOWN.value,
+}
 
 
 class BasketExecutor:
@@ -28,7 +51,7 @@ class BasketExecutor:
         self.baskets: dict[str, OrderBasket] = {}
 
     async def _persist(self, operation, *args, **kwargs) -> None:
-        """Run a repository write off the event loop; never crash the hot path."""
+        """Run a repository write off the event loop and fail closed on error."""
         try:
             await asyncio.to_thread(operation, *args, **kwargs)
         except Exception as exc:
@@ -37,6 +60,9 @@ class BasketExecutor:
                 operation=getattr(operation, "__name__", str(operation)),
                 error=str(exc) or exc.__class__.__name__,
             )
+            raise BasketPersistenceError(
+                f"basket persistence failed during {getattr(operation, '__name__', operation)}"
+            ) from exc
 
     async def restore_state(self) -> int:
         """Reload persisted baskets (with leg statuses/fills) into memory.
@@ -74,6 +100,22 @@ class BasketExecutor:
                     basket.legs[leg_record.leg_index] = OrderLeg.model_validate(leg_record.payload)
                 except Exception:
                     basket.legs[leg_record.leg_index].status = leg_record.status
+            needs_reconciliation = False
+            for leg_index, leg in enumerate(basket.legs):
+                status = self._status_text(leg.status).lower()
+                if status in _RECOVERABLE_LEG_STATUSES:
+                    leg.status = OrderStatus.RECONCILING
+                    leg.error = "process restarted; venue state must be reconciled"
+                    needs_reconciliation = True
+                    await self._persist_leg(record.basket_id, leg_index, leg)
+            if needs_reconciliation:
+                basket.status = OrderStatus.RECONCILING.value
+                if self.basket_repository is not None:
+                    await self._persist(
+                        self.basket_repository.update_status,
+                        record.basket_id,
+                        basket.status,
+                    )
             self.baskets[record.basket_id] = basket
             restored += 1
 
@@ -85,6 +127,8 @@ class BasketExecutor:
         legs: list[dict[str, Any]],
         parent_intent_id: str = "manual",
     ) -> dict[str, Any]:
+        if not legs:
+            raise ValueError("basket must contain at least one leg")
         basket_id = f"basket_{uuid.uuid4().hex[:10]}"
         basket_legs: list[OrderLeg] = []
 
@@ -123,7 +167,8 @@ class BasketExecutor:
         for leg_index, leg in enumerate(basket.legs):
             executor = self.executors.get(leg.venue)
             if executor is None:
-                leg.status = "rejected"
+                leg.status = OrderStatus.REJECTED
+                leg.error = f"no executor registered for {leg.venue.value}"
                 await self._persist_leg(basket_id, leg_index, leg)
                 continue
 
@@ -131,7 +176,8 @@ class BasketExecutor:
             # its legs as "submitted"/"filled" would be a fake execution, so we
             # mark them explicitly "unavailable" and skip the executor entirely.
             if not getattr(executor, "available", True):
-                leg.status = "unavailable"
+                leg.status = OrderStatus.UNAVAILABLE
+                leg.error = f"venue {leg.venue.value} is unavailable"
                 logger.warning(
                     "order_leg_venue_unavailable",
                     basket_id=basket_id,
@@ -159,14 +205,35 @@ class BasketExecutor:
                 "size": leg.quantity,
                 "order_type": "LIMIT" if leg.limit_price is not None else "MARKET",
             }
-            if executor.paper_trading:
-                order_id = execute(**order_kwargs)
-            else:
-                # Live path performs sync network I/O; keep the event loop free.
-                order_id = await asyncio.to_thread(execute, **order_kwargs)
-            order_state = executor.get_order_status(order_id)
-            leg.client_order_id = order_id
-            leg.status = order_state["status"] if order_state else "submitted"
+            try:
+                if executor.paper_trading:
+                    order_id = execute(**order_kwargs)
+                else:
+                    # Live path performs sync network I/O; keep the event loop free.
+                    order_id = await asyncio.to_thread(execute, **order_kwargs)
+                order_state = executor.get_order_status(order_id)
+                leg.client_order_id = order_id
+                leg.status = (
+                    OrderStatus(str(order_state["status"]))
+                    if order_state
+                    else OrderStatus.UNKNOWN
+                )
+                if order_state:
+                    leg.exchange_order_id = order_state.get("exchange_order_id")
+                    leg.filled_quantity = float(order_state.get("filled_size", 0.0) or 0.0)
+                    leg.error = order_state.get("error")
+            except Exception as exc:
+                leg.status = OrderStatus.REJECTED
+                leg.error = str(exc) or exc.__class__.__name__
+                logger.warning(
+                    "order_leg_submit_failed",
+                    basket_id=basket_id,
+                    leg_id=leg.leg_id,
+                    venue=leg.venue.value,
+                    error=leg.error,
+                )
+                await self._persist_leg(basket_id, leg_index, leg)
+                continue
             fill = (
                 order_state
                 if order_state and "fill" in self._status_text(leg.status).lower()
@@ -202,18 +269,91 @@ class BasketExecutor:
     async def cancel_basket(self, basket_id: str) -> dict[str, Any]:
         basket = self.baskets[basket_id]
         for leg_index, leg in enumerate(basket.legs):
+            current_status = self._status_text(leg.status).lower()
+            if current_status in _TERMINAL_LEG_STATUSES:
+                continue
             if not leg.client_order_id:
+                leg.status = OrderStatus.CANCEL_FAILED
+                leg.error = "cannot cancel leg without client_order_id"
+                await self._persist_leg(basket_id, leg_index, leg)
                 continue
             executor = self.executors.get(leg.venue)
-            if executor is None:
+            if executor is None or not getattr(executor, "available", True):
+                leg.status = OrderStatus.CANCEL_FAILED
+                leg.error = f"executor unavailable for {leg.venue.value}"
+                await self._persist_leg(basket_id, leg_index, leg)
                 continue
-            executor.cancel_trade(leg.client_order_id)
-            leg.status = "cancelled"
+            try:
+                if executor.paper_trading:
+                    cancelled = executor.cancel_trade(leg.client_order_id)
+                else:
+                    cancelled = await asyncio.to_thread(
+                        executor.cancel_trade, leg.client_order_id
+                    )
+            except Exception as exc:
+                cancelled = False
+                leg.error = str(exc) or exc.__class__.__name__
+            if cancelled:
+                leg.status = OrderStatus.CANCELLED
+                leg.error = None
+            else:
+                leg.status = OrderStatus.CANCEL_FAILED
+                leg.error = leg.error or "venue did not confirm cancellation"
             await self._persist_leg(basket_id, leg_index, leg)
 
-        basket.status = "cancelled"
+        basket.status = self._derive_basket_status(basket)
         if self.basket_repository is not None:
-            await self._persist(self.basket_repository.update_status, basket_id, "cancelled")
+            await self._persist(
+                self.basket_repository.update_status, basket_id, basket.status
+            )
+        return self.serialize_basket(basket)
+
+    async def reconcile_basket(self, basket_id: str) -> dict[str, Any]:
+        """Refresh every non-terminal leg from local or venue order truth."""
+        basket = self.baskets[basket_id]
+        for leg_index, leg in enumerate(basket.legs):
+            status = self._status_text(leg.status).lower()
+            if status in _TERMINAL_LEG_STATUSES:
+                continue
+            executor = self.executors.get(leg.venue)
+            if executor is None or not getattr(executor, "available", True):
+                leg.status = OrderStatus.UNAVAILABLE
+                leg.error = f"executor unavailable for {leg.venue.value}"
+            elif not leg.client_order_id:
+                leg.status = OrderStatus.UNKNOWN
+                leg.error = "missing client_order_id during reconciliation"
+            else:
+                try:
+                    state = await asyncio.to_thread(
+                        executor.reconcile_trade,
+                        leg.client_order_id,
+                        exchange_order_id=leg.exchange_order_id,
+                        symbol=leg.symbol,
+                    )
+                except Exception as exc:
+                    state = None
+                    leg.error = str(exc) or exc.__class__.__name__
+                if state is None:
+                    leg.status = OrderStatus.UNKNOWN
+                    leg.error = "venue order state unavailable"
+                else:
+                    try:
+                        leg.status = OrderStatus(str(state["status"]))
+                    except ValueError:
+                        leg.status = OrderStatus.UNKNOWN
+                    leg.filled_quantity = float(
+                        state.get("filled_size", leg.filled_quantity) or 0.0
+                    )
+                    leg.exchange_order_id = (
+                        state.get("exchange_order_id") or leg.exchange_order_id
+                    )
+                    leg.error = state.get("error")
+            await self._persist_leg(basket_id, leg_index, leg)
+        basket.status = self._derive_basket_status(basket)
+        if self.basket_repository is not None:
+            await self._persist(
+                self.basket_repository.update_status, basket_id, basket.status
+            )
         return self.serialize_basket(basket)
 
     async def _persist_leg(
@@ -265,6 +405,9 @@ class BasketExecutor:
                     "limit_price": leg.limit_price,
                     "status": self._status_text(leg.status),
                     "client_order_id": leg.client_order_id,
+                    "exchange_order_id": leg.exchange_order_id,
+                    "filled_quantity": leg.filled_quantity,
+                    "error": leg.error,
                 }
                 for leg in basket.legs
             ],
@@ -280,11 +423,25 @@ class BasketExecutor:
         statuses = [self._status_text(leg.status).lower() for leg in basket.legs]
         if statuses and all(status == "cancelled" for status in statuses):
             return "cancelled"
-        if any("reject" in status for status in statuses):
+        if statuses and all(status == "filled" for status in statuses):
+            return "filled"
+        if any(status == "cancel_failed" for status in statuses):
+            return "cancel_failed"
+        if any(status == "reconciling" for status in statuses):
+            return "reconciling"
+        if any(status == "unknown" for status in statuses):
+            return "unknown"
+        if any(status == "partially_filled" for status in statuses):
+            return "partially_filled"
+        if any(status in {"rejected", "unavailable"} for status in statuses):
             return "partial_failure"
-        if statuses and all("submitted" in status or "filled" in status for status in statuses):
+        if statuses and all(status in _TERMINAL_LEG_STATUSES for status in statuses):
+            # Mixed filled/cancelled terminal legs leave a materially different
+            # exposure than the requested basket and cannot be called complete.
+            return "partial_failure"
+        if statuses and all(status in {"submitted", "open", "filled"} for status in statuses):
             return "submitted"
-        return "partial"
+        return "submitting"
 
     def _status_text(self, status: Any) -> str:
         return getattr(status, "value", str(status))

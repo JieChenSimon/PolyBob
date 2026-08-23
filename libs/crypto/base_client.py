@@ -5,6 +5,8 @@ from typing import Dict, Optional
 
 import httpx
 
+from libs.data.http_client import build_bounded_async_client
+
 # 模块级共享 AsyncClient（懒创建，按事件循环缓存，避免每次请求新建连接池）。
 _shared_async_client: httpx.AsyncClient | None = None
 _shared_async_client_loop: asyncio.AbstractEventLoop | None = None
@@ -23,9 +25,8 @@ def get_shared_async_http_client() -> httpx.AsyncClient:
         or _shared_async_client.is_closed
         or _shared_async_client_loop is not loop
     ):
-        _shared_async_client = httpx.AsyncClient(
+        _shared_async_client = build_bounded_async_client(
             timeout=10.0,
-            limits=httpx.Limits(max_connections=50, max_keepalive_connections=20),
         )
         _shared_async_client_loop = loop
     return _shared_async_client

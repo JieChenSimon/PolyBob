@@ -48,6 +48,7 @@ class DailyBars:
     highs: list[float | None] | None = None
     lows: list[float | None] | None = None
     volumes: list[float | None] | None = None
+    price_basis: str = "unknown"
 
     def __len__(self) -> int:
         return len(self.closes)
@@ -117,8 +118,17 @@ def _mirror(bars: "DailyBars") -> "DailyBars":
                 "close": bars.closes[i],
                 "volume": at(bars.volumes),
                 "source": bars.source,
+                "price_basis": bars.price_basis,
             })
-        store.write(store.DAILY_BARS, bars.symbol, rows)
+        # Cache hits still pass through this function. Content-addressing makes
+        # that safe: an unchanged provider payload is one observation, while a
+        # correction or newly completed bar gets a new fetched_at vintage.
+        store.write(
+            store.DAILY_BARS,
+            bars.symbol,
+            rows,
+            deduplicate_payload=True,
+        )
     except Exception as exc:  # noqa: BLE001
         logger.debug("store mirror skipped for %s: %s", bars.symbol, exc)
     return bars
@@ -158,6 +168,11 @@ def bars_as_of(
     # Deliberately not mirrored: this is a read. Writing back would stamp
     # historical rows with today's fetched_at and destroy the very ordering the
     # as-of query depends on.
+    price_bases = [str(v) for v in frame.get("price_basis", []).tolist() if v]
+    unique_price_bases = set(price_bases)
+    price_basis = next(iter(unique_price_bases)) if len(unique_price_bases) == 1 else (
+        "mixed" if unique_price_bases else "unknown"
+    )
     return DailyBars(
         symbol=symbol,
         domain=domain,
@@ -168,6 +183,7 @@ def bars_as_of(
         highs=col("high"),
         lows=col("low"),
         volumes=col("volume"),
+        price_basis=price_basis,
     )
 
 
@@ -222,6 +238,7 @@ def fetch_altcoin_daily(inst_id: str, days: int = 720) -> DailyBars:
         inst_id, "altcoin", dates, [float(r[4]) for r in rows], "okx",
         opens=[float(r[1]) for r in rows], highs=[float(r[2]) for r in rows],
         lows=[float(r[3]) for r in rows], volumes=[float(r[5]) for r in rows],
+        price_basis="unadjusted",
     ))
 
 
@@ -323,7 +340,8 @@ def fetch_us_equity_daily(symbol: str, years: int = 5) -> DailyBars:
     if not closes:
         raise DataUnavailable(f"Yahoo returned no usable closes for {symbol}")
     return _mirror(DailyBars(symbol.upper(), "us_equity", dates, closes, "yahoo",
-                             opens=opens, highs=highs, lows=lows, volumes=volumes))
+                             opens=opens, highs=highs, lows=lows, volumes=volumes,
+                             price_basis="provider_quote_adjustment_unknown"))
 
 
 # --------------------------------------------------------------------- a-share
@@ -380,6 +398,7 @@ def fetch_a_share_daily(symbol: str, days: int = 1200) -> DailyBars:
         tencent.upper(), "a_share", [r[0] for r in rows], [float(r[2]) for r in rows], "tencent",
         opens=[float(r[1]) for r in rows], highs=[float(r[3]) for r in rows],
         lows=[float(r[4]) for r in rows], volumes=[float(r[5]) for r in rows],
+        price_basis="forward_adjusted",
     ))
 
 

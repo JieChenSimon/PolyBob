@@ -2,9 +2,9 @@
 import hashlib
 import hmac
 import time
-import httpx
 from typing import Dict, Optional
 from .base_client import CryptoExchangeClient, get_shared_async_http_client
+from libs.data.http_client import http_request_json
 
 class BinanceClient(CryptoExchangeClient):
     def __init__(self, api_key: str = None, api_secret: str = None, paper_trading: bool = True):
@@ -25,9 +25,7 @@ class BinanceClient(CryptoExchangeClient):
         try:
             url = f"{self.base_url}/fapi/v1/ticker/24hr"
             params = {"symbol": symbol}
-            r = httpx.get(url, params=params, timeout=10)
-            r.raise_for_status()
-            return r.json()
+            return http_request_json("GET", url, params=params, timeout=10)
         except:
             return None
 
@@ -36,9 +34,7 @@ class BinanceClient(CryptoExchangeClient):
         try:
             url = f"{self.base_url}/fapi/v1/depth"
             params = {"symbol": symbol, "limit": 20}
-            r = httpx.get(url, params=params, timeout=10)
-            r.raise_for_status()
-            return r.json()
+            return http_request_json("GET", url, params=params, timeout=10)
         except:
             return None
 
@@ -76,9 +72,10 @@ class BinanceClient(CryptoExchangeClient):
         headers = {"X-MBX-APIKEY": self.api_key}
 
         try:
-            r = httpx.post(f"{self.base_url}/fapi/v1/order", params=params, headers=headers, timeout=10)
-            r.raise_for_status()
-            return r.json()["orderId"]
+            return http_request_json(
+                "POST", f"{self.base_url}/fapi/v1/order", params=params,
+                headers=headers, timeout=10,
+            )["orderId"]
         except Exception as e:
             raise Exception(f"下单失败: {e}")
 
@@ -95,8 +92,10 @@ class BinanceClient(CryptoExchangeClient):
         headers = {"X-MBX-APIKEY": self.api_key}
 
         try:
-            r = httpx.delete(f"{self.base_url}/fapi/v1/order", params=params, headers=headers, timeout=10)
-            r.raise_for_status()
+            http_request_json(
+                "DELETE", f"{self.base_url}/fapi/v1/order", params=params,
+                headers=headers, timeout=10,
+            )
             return True
         except:
             return False
@@ -111,9 +110,12 @@ class BinanceClient(CryptoExchangeClient):
         headers = {"X-MBX-APIKEY": self.api_key}
 
         try:
-            r = httpx.get(f"{self.base_url}/fapi/v2/positionRisk", params=params, headers=headers, timeout=10)
-            r.raise_for_status()
-            positions = [p for p in r.json() if p["symbol"] == symbol]
+            positions = [
+                p for p in http_request_json(
+                    "GET", f"{self.base_url}/fapi/v2/positionRisk", params=params,
+                    headers=headers, timeout=10,
+                ) if p["symbol"] == symbol
+            ]
             if positions:
                 p = positions[0]
                 return {"symbol": symbol, "size": float(p["positionAmt"]), "entry_price": float(p["entryPrice"])}
@@ -131,8 +133,9 @@ class BinanceClient(CryptoExchangeClient):
         headers = {"X-MBX-APIKEY": self.api_key}
 
         try:
-            r = httpx.get(f"{self.base_url}/fapi/v1/order", params=params, headers=headers, timeout=10)
-            r.raise_for_status()
-            return r.json()
+            return http_request_json(
+                "GET", f"{self.base_url}/fapi/v1/order", params=params,
+                headers=headers, timeout=10,
+            )
         except:
             return None

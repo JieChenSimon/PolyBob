@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from libs.data.trading_calendar import CalendarCoverageError, calendar_for
+
 from .contracts import (
     AssetClass,
     CanonicalBarFrame,
@@ -65,16 +67,13 @@ def _sha256(path: Path) -> str:
 
 def _future_daily_timestamps(frame: CanonicalBarFrame, horizon: int) -> tuple[list[dt.datetime], str]:
     current = frame.bars[-1].timestamp
-    values: list[dt.datetime] = []
-    if frame.asset_class in (AssetClass.CRYPTO_SPOT, AssetClass.CRYPTO_PERP):
-        return [current + dt.timedelta(days=i) for i in range(1, horizon + 1)], "exact_24x7"
-    while len(values) < horizon:
-        current += dt.timedelta(days=1)
-        if current.weekday() < 5:
-            values.append(current)
-    # Exchange holidays are intentionally not guessed.  This keeps the output in
-    # lab until a proper calendar adapter is supplied.
-    return values, "weekday_only_unverified_holidays"
+    try:
+        calendar = calendar_for(frame.asset_class.value)
+        sessions = calendar.sessions_after(current.date(), horizon)
+    except (KeyError, CalendarCoverageError) as exc:
+        raise ForecastUnavailable(f"verified trading calendar unavailable: {exc}") from exc
+    values = [dt.datetime.combine(day, current.timetz()) for day in sessions]
+    return values, calendar.quality
 
 
 class KronosLab:

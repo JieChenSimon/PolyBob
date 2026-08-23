@@ -1,13 +1,13 @@
-"""最小执行层 - 订单管理"""
+"""最小执行层 - 订单管理。
+
+订单状态统一使用 ``libs.schemas.OrderStatus``，避免执行腿与 venue order
+各自维护一套含义冲突的枚举。
+"""
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+import uuid
 
-class OrderStatus(Enum):
-    PENDING = "pending"
-    SUBMITTED = "submitted"
-    FILLED = "filled"
-    CANCELLED = "cancelled"
+from libs.schemas import OrderStatus
 
 @dataclass
 class Order:
@@ -20,16 +20,16 @@ class Order:
     created_at: datetime
     filled_at: datetime = None
     exchange_order_id: str = None
+    filled_size: float = 0.0
+    error: str = None
 
 class OrderManager:
     def __init__(self):
         self.orders = {}
-        self.order_counter = 0
 
     def create_order(self, market_id, side, price, size):
         """创建订单"""
-        self.order_counter += 1
-        order_id = f"order_{self.order_counter}"
+        order_id = f"order_{uuid.uuid4().hex[:16]}"
 
         order = Order(
             order_id=order_id,
@@ -37,7 +37,7 @@ class OrderManager:
             side=side,
             price=price,
             size=size,
-            status=OrderStatus.PENDING,
+            status=OrderStatus.PENDING_SUBMIT,
             created_at=datetime.now()
         )
 
@@ -55,6 +55,7 @@ class OrderManager:
         """成交订单（模拟）"""
         if order_id in self.orders:
             self.orders[order_id].status = OrderStatus.FILLED
+            self.orders[order_id].filled_size = self.orders[order_id].size
             self.orders[order_id].filled_at = datetime.now()
             return True
         return False
@@ -62,3 +63,8 @@ class OrderManager:
     def get_order(self, order_id):
         """获取订单"""
         return self.orders.get(order_id)
+
+    def reject_order(self, order_id, error: str):
+        if order_id in self.orders:
+            self.orders[order_id].status = OrderStatus.REJECTED
+            self.orders[order_id].error = error

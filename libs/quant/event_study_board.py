@@ -342,6 +342,7 @@ def evaluate_spec(
         # claim; the board says which of the two each row is.
         "run_as_of": None,
         "run_reproducible": None,
+        "pit_status": "unknown",
         "out_of_sample": None,
         "cluster_floor": MIN_CLUSTERS,
         "pipeline_searched": False,
@@ -457,11 +458,25 @@ def evaluate_spec(
     if manifest is not None:
         row["run_as_of"] = manifest.as_of.isoformat()
         row["run_reproducible"] = manifest.reproducible
+        contracts = [
+            facts.get("data_contract")
+            for facts in manifest.inputs.values()
+            if isinstance(facts, dict) and isinstance(facts.get("data_contract"), dict)
+        ]
+        if contracts:
+            row["pit_status"] = (
+                "strict" if all(contract.get("strict_historical_pit") is True for contract in contracts)
+                else "non_strict"
+            )
     if spec.role is Role.TRADE:
         if manifest is None:
             failed.append("no_run_manifest_cannot_replay")
         elif not manifest.reproducible:
             failed.append("run_not_reproducible_dirty_tree")
+        if row["pit_status"] == "unknown":
+            failed.append("no_pit_contract_cannot_trade")
+        elif row["pit_status"] != "strict":
+            failed.append("non_strict_pit_data_cannot_trade")
 
     # Out-of-sample: does the later half of the sample still point the same way?
     oos = _out_of_sample(result, payload, hurdle)

@@ -124,6 +124,9 @@ class OrderStatus(str, Enum):
     CANCELLED = "cancelled"
     REJECTED = "rejected"
     EXPIRED = "expired"
+    UNAVAILABLE = "unavailable"
+    RECONCILING = "reconciling"
+    CANCEL_FAILED = "cancel_failed"
     UNKNOWN = "unknown"
 
 
@@ -194,6 +197,8 @@ class OrderLeg(BaseModel):
     status: OrderStatus = OrderStatus.PENDING_SUBMIT
     client_order_id: Optional[str] = None
     exchange_order_id: Optional[str] = None
+    filled_quantity: float = 0.0
+    error: Optional[str] = None
 
 
 class OrderBasket(BaseModel):

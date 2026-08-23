@@ -92,6 +92,7 @@ class ClusteredResult:
     resolvable: bool               # can this G express the required significance at all?
     cluster_by: str
     warnings: list[str] = field(default_factory=list)
+    evidence_status: str = "unknown"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -112,6 +113,7 @@ class ClusteredResult:
             "wild_p": None if self.wild_p is None else round(self.wild_p, 5),
             "p_floor": None if self.p_floor is None else float(f"{self.p_floor:.3g}"),
             "resolvable": self.resolvable,
+            "status": self.evidence_status,
             "skew_ratio": None if self.skew_ratio is None else round(self.skew_ratio, 2),
             "cluster_by": self.cluster_by,
             "inference": "cluster_robust",
@@ -368,7 +370,15 @@ def analyse(
     # reported rather than made decisive: below the floor it is conservative to the
     # point of never rejecting, and above it the two agree — so making it the gate
     # would change nothing except to hide the resolution problem behind a p-value.
-    significant = bool(abs(t_clustered) >= t_hurdle and g >= min_clusters)
+    # A low cluster count or an unresolvable randomisation floor is not a statistical
+    # failure. It is insufficient information and must remain UNKNOWN to callers.
+    if g < min_clusters or not resolvable:
+        evidence_status = "unknown"
+    elif abs(t_clustered) >= t_hurdle:
+        evidence_status = "pass"
+    else:
+        evidence_status = "fail"
+    significant = evidence_status == "pass"
 
     return ClusteredResult(
         n=n, n_clusters=g, mean=mean, median=median,
@@ -379,6 +389,7 @@ def analyse(
         sign_test_p=sign_p,
         wild_p=wild_p, p_floor=p_floor, resolvable=resolvable,
         skew_ratio=skew_ratio, cluster_by=by, warnings=warnings,
+        evidence_status=evidence_status,
     )
 
 

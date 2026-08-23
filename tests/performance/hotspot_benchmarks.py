@@ -142,6 +142,10 @@ def build_backtest_case(events: int = 20_000, markets: int = 16) -> BenchmarkCas
                 fee_rate=0.002,
                 slippage_bps=10.0,
                 market_depth=100_000.0,
+                # This synthetic throughput fixture intentionally alternates
+                # long/short events on fresh instruments. Production/default
+                # backtests remain spot-only unless this contract is explicit.
+                allow_short=True,
             )
         )
         market_prices = {market_id: 0.5 for market_id in market_ids}

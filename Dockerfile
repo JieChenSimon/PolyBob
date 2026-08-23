@@ -25,6 +25,8 @@ COPY modules/ modules/
 COPY apps/ apps/
 COPY strategies/ strategies/
 COPY tasks/ tasks/
+COPY config/ config/
+COPY data/ data/
 
 # Production installs are immutable rather than editable.
 RUN --mount=type=cache,target=/root/.cache/uv \

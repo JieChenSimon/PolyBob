@@ -23,6 +23,7 @@ from libs.knowledge.impact import ClaudeImpactEnhancer, analyze_impact
 from libs.knowledge.models import KnowledgeDocument, utc_now
 from libs.knowledge.sources.base import DiscoveredUrl, SourceRefreshResult
 from libs.quant.data_quality import FreshnessPolicy, Verdict, validate_record
+from libs.data.http_client import build_bounded_async_client
 
 FINNHUB_NEWS_URL = "https://finnhub.io/api/v1/news"
 
@@ -248,7 +249,7 @@ class FinnhubNewsSource:
     def _client(self) -> httpx.AsyncClient:
         if self.client is not None:
             return self.client
-        self.client = httpx.AsyncClient(
+        self.client = build_bounded_async_client(
             headers={"User-Agent": "PolyBobMarketNews/0.1"},
             follow_redirects=True,
         )

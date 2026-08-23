@@ -9,6 +9,7 @@ import httpx
 
 from libs.crypto.binance_client import BinanceClient
 from libs.crypto.hyperliquid_client import HyperliquidClient
+from libs.data.http_client import HttpFetchError
 from libs.schemas import ExecutionVenue
 from modules.execution_engine.basket_executor import BasketExecutor
 from modules.execution_engine.contract_executor import ContractExecutor
@@ -76,9 +77,12 @@ def test_hyperliquid_market_data_degrades_to_none(monkeypatch):
     client = HyperliquidClient()
 
     def _boom(*args, **kwargs):
-        raise httpx.ConnectError("upstream down")
+        raise HttpFetchError("upstream down")
 
-    monkeypatch.setattr(httpx, "post", _boom)
+    # The production client uses the bounded project transport rather than
+    # httpx.post directly; patch the transport seam so this test never touches
+    # the live provider during the default suite.
+    monkeypatch.setattr("libs.crypto.hyperliquid_client.http_request_json", _boom)
     # Specific-exception handling: returns None (degraded), does not raise.
     assert client.get_ticker("BTC") is None
     assert client.get_orderbook("BTC") is None
