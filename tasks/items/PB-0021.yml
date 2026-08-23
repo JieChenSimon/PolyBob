@@ -1,6 +1,6 @@
 id: PB-0021
 title: 收敛 API 边界、运行配置与文档
-state: doing
+state: done
 p: P1
 area: architecture
 why: 拆分巨型模块、移除装饰性基础设施和文档漂移，形成诚实的单机权威架构
