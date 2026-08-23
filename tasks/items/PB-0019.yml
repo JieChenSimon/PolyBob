@@ -1,18 +1,18 @@
 id: PB-0019
 title: 建立可靠任务调度、特征快照与数据 SLO
-state: todo
+state: doing
 p: P1
 area: platform
 why: 将页面触发和内存任务改为可恢复、可取消、可观测的本地生产线
 checks:
 - text: 采集与预测任务具有幂等键、状态、重试、超时、取消、并发上限和运行历史
-  done: false
+  done: true
 - text: 决策使用的特征可持久化并证明 live 与 replay 一致
-  done: false
+  done: true
 - text: 数据 freshness、coverage、失败、重复率和模型运行指标具有有效告警
-  done: false
+  done: true
 deps:
 - PB-0014
-branch: null
+branch: pb-0019-scheduler-slo
 blocked: null
-updated: '2026-08-13T06:20:19+00:00'
+updated: '2026-08-23T20:20:47+00:00'
