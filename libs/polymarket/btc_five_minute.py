@@ -196,9 +196,9 @@ def _gate_status(enabled_indicators, research_path: "str | None" = None) -> dict
     """Has this edge cleared the gate, is it the same model, and where is n now?
 
     The sample-size and calibration numbers travel with the gate on purpose: the
-    honest use of this page while ungated is to grow n from 95 towards the 200+
-    the hypothesis needs, and ``brier_model < brier_market`` is the real signal
-    saying that is worth doing.
+    honest use of this page while ungated is to expose the current evidence and
+    keep it separate from a trading instruction. Whether the model beats the
+    market is an empirical result, not a product invariant.
     """
     from pathlib import Path
 

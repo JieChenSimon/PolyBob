@@ -1,8 +1,8 @@
 """The BTC 5m workbench must not out-run the study it came from.
 
-The study (`data/btc5m_mispricing.json`) traded only when the model disagreed
-with the quote by >= 10 points, and it still failed its hurdle (n=95, t=3.45 vs
-3.77). Three separate ways the product code could quietly claim more than that
+The study (`data/btc5m_mispricing.json`) trades only when the model disagrees
+with the quote by >= 10 points, and it remains blocked by its evidence gate.
+Three separate ways the product code could quietly claim more than that
 evidence supports, each pinned here:
 
 1. a live entry threshold looser than the researched one — 0.02 vs 0.10 fires on
@@ -171,10 +171,11 @@ def test_ungated_snapshot_still_serves_calibration():
     assert gate["n"] is not None and gate["n"] > 0
     assert gate["t_stat"] is not None
     assert gate["significant"] is False
-    # The model beating the market's own price is the finding worth pursuing; it is
-    # also the only thing here that is not a sample-size artefact.
+    # Calibration numbers must remain visible, but the test must not encode a
+    # hoped-for profitable relationship. The research result can improve or fail
+    # on a future real-data rerun; the gate must remain honest in either case.
     assert gate["brier_model"] is not None and gate["brier_market"] is not None
-    assert gate["brier_model"] < gate["brier_market"]
+    assert gate["promoted"] is False
 
 
 def test_a_promoted_board_restores_sizing(promoted):
