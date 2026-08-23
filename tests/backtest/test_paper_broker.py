@@ -50,3 +50,10 @@ def test_cancel_race_is_idempotent():
     asyncio.run(broker.on_market("BTC", _state()))
     assert order.status == "cancelled"
     assert broker.executions == []
+
+
+def test_paper_fill_records_reproducible_fee():
+    broker = PaperBroker(ExecutionConfig(base_latency_ms=0, latency_std_ms=0, fee_bps=7.5))
+    broker.submit_order(order_id="fee", market_id="BTC", side=Side.BUY_YES, quantity=1)
+    fills = asyncio.run(broker.on_market("BTC", _state(depth=5)))
+    assert fills[0].fee == pytest.approx(fills[0].price * fills[0].size * 7.5 / 10_000)

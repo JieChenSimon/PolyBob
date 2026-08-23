@@ -32,6 +32,7 @@ class ExecutionConfig:
     impact_coefficient: float = 0.1
     permanent_impact_factor: float = 0.5  # 永久冲击占比
     seed: int | None = 42  # None = nondeterministic latency
+    fee_bps: float = 0.0
 
 
 @dataclass
@@ -54,6 +55,7 @@ class Execution:
     size: float
     timestamp: datetime
     slippage: float
+    fee: float = 0.0
     latency_ms: float = 0.0
 
 
@@ -243,6 +245,7 @@ class SimulatedExecutor:
             size=size,
             timestamp=datetime.utcnow(),
             slippage=slippage,
+            fee=execution_price * size * self.config.fee_bps / 10_000.0,
             latency_ms=latency * 1000.0,
         )
 

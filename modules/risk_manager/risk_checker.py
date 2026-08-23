@@ -35,6 +35,48 @@ class RiskLimits:
     max_basket_legs: int = 20                  # legs per intent/basket
     max_order_notional: float = 1_000_000.0    # single leg/order notional
     min_cash_buffer: float = 0.0               # cash that must remain after the trade
+    max_leverage: float | None = None
+    max_concentration: float | None = None
+    max_daily_loss: float | None = None
+    kill_switch: bool = False
+
+
+@dataclass(frozen=True)
+class PortfolioSnapshot:
+    """Auditable mark-to-market snapshot; unknown marks never become zero."""
+
+    status: str
+    cash: float | None
+    nav: float | None
+    gross_notional: float | None
+    net_notional: float | None
+    leverage: float | None
+    concentration: dict[str, float]
+
+
+def build_portfolio_snapshot(
+    cash: float | None,
+    positions: Mapping[str, float] | None,
+    marks: Mapping[str, float] | None,
+) -> PortfolioSnapshot:
+    if cash is None or positions is None or marks is None:
+        return PortfolioSnapshot("unknown", cash, None, None, None, None, {})
+    if not all(float(value) > 0 for value in marks.values()):
+        return PortfolioSnapshot("unknown_invalid_mark", cash, None, None, None, None, {})
+    notionals: dict[str, float] = {}
+    for symbol, quantity in positions.items():
+        if symbol not in marks:
+            return PortfolioSnapshot("unknown_missing_mark", cash, None, None, None, None, {})
+        notionals[str(symbol)] = float(quantity) * float(marks[symbol])
+    gross = sum(abs(value) for value in notionals.values())
+    net = sum(notionals.values())
+    nav = float(cash) + net
+    if nav <= 0:
+        return PortfolioSnapshot("invalid_nav", float(cash), nav, gross, net, None, {})
+    return PortfolioSnapshot(
+        "ok", float(cash), nav, gross, net, gross / nav,
+        {symbol: abs(value) / gross for symbol, value in notionals.items()} if gross else {},
+    )
 
 
 @dataclass(frozen=True)
@@ -91,6 +133,8 @@ class PortfolioRiskChecker:
         *,
         cash: float | None = None,
         subject_id: str | None = None,
+        snapshot: PortfolioSnapshot | None = None,
+        daily_pnl: float | None = None,
     ) -> RiskDecision:
         """Evaluate a proposed intent/basket.
 
@@ -110,6 +154,23 @@ class PortfolioRiskChecker:
 
         legs = list(legs)
 
+        if limits.kill_switch:
+            reasons.append("risk kill switch enabled")
+        if snapshot is not None:
+            if snapshot.status != "ok":
+                reasons.append(f"portfolio snapshot unavailable: {snapshot.status}")
+            elif limits.max_leverage is not None and snapshot.leverage is not None and snapshot.leverage > limits.max_leverage:
+                reasons.append(f"leverage {snapshot.leverage:.4f} exceeds limit {limits.max_leverage:.4f}")
+            elif limits.max_concentration is not None and any(
+                weight > limits.max_concentration for weight in snapshot.concentration.values()
+            ):
+                reasons.append(f"position concentration exceeds limit {limits.max_concentration:.4f}")
+        if limits.max_daily_loss is not None:
+            if daily_pnl is None:
+                reasons.append("daily PnL unavailable")
+            elif daily_pnl <= -abs(limits.max_daily_loss):
+                reasons.append(f"daily loss {daily_pnl:.2f} exceeds limit {limits.max_daily_loss:.2f}")
+
         if positions is None:
             decision = RiskDecision(False, ["position data unavailable"], {})
             self._audit(decision, subject_id)
@@ -126,6 +187,12 @@ class PortfolioRiskChecker:
         proposed_total = 0.0
         for leg in legs:
             market, quantity, price = _leg_fields(leg)
+            if isinstance(leg, Mapping) and leg.get("sizing_decision") is not None:
+                decision = leg["sizing_decision"]
+                if not isinstance(decision, Mapping) or decision.get("approved") is not True:
+                    reasons.append(f"sizing decision unavailable or not approved for {market}")
+                elif abs(float(decision.get("quantity", 0.0)) - abs(quantity)) > 1e-12:
+                    reasons.append(f"quantity for {market} does not match sizing decision")
             if price is None:
                 reasons.append(f"leg notional unavailable for {market} (no price)")
                 continue
@@ -236,4 +303,6 @@ __all__ = [
     "RiskChecker",
     "RiskDecision",
     "RiskLimits",
+    "PortfolioSnapshot",
+    "build_portfolio_snapshot",
 ]

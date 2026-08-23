@@ -81,3 +81,24 @@ class JobStore:
         result = dict(row)
         result["payload"] = json.loads(result.pop("payload_json"))
         return result
+
+    def list_runs(self, *, kind: str | None = None) -> list[dict[str, Any]]:
+        query = "SELECT * FROM task_runs"
+        args: tuple[Any, ...] = ()
+        if kind is not None:
+            query += " WHERE kind=?"
+            args = (kind,)
+        query += " ORDER BY created_at"
+        with fact_store.connect(self.db_path) as db:
+            return [dict(row) for row in db.execute(query, args).fetchall()]
+
+    def recover_running(self) -> int:
+        """Mark work interrupted by a process restart as failed/unknown."""
+        now = _now()
+        with fact_store.connect(self.db_path) as db:
+            cursor = db.execute(
+                "UPDATE task_runs SET status='failed', error='process restarted before completion', finished_at=?, updated_at=? WHERE status='running'",
+                (now, now),
+            )
+            db.commit()
+            return cursor.rowcount

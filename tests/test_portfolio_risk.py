@@ -14,6 +14,7 @@ from modules.risk_manager.risk_checker import (
     RiskChecker,
     RiskDecision,
     RiskLimits,
+    build_portfolio_snapshot,
 )
 
 
@@ -94,6 +95,30 @@ def test_missing_leg_price_is_rejected(promoted_strategy):
     )
     assert decision.allowed is False
     assert any("leg notional unavailable" in r for r in decision.reasons)
+
+
+def test_portfolio_snapshot_reconciles_nav_exposure_and_concentration():
+    snapshot = build_portfolio_snapshot(1000.0, {"BTC": 1.0, "ETH": -2.0}, {"BTC": 500.0, "ETH": 100.0})
+    assert snapshot.status == "ok"
+    assert snapshot.nav == 1300.0
+    assert snapshot.gross_notional == 700.0
+    assert snapshot.net_notional == 300.0
+    assert snapshot.leverage == 700.0 / 1300.0
+    assert snapshot.concentration["BTC"] == 500.0 / 700.0
+    assert build_portfolio_snapshot(1000.0, {"BTC": 1.0}, {}).status == "unknown_missing_mark"
+
+
+def test_kill_switch_daily_loss_and_sizing_gate_block():
+    checker = PortfolioRiskChecker(RiskLimits(kill_switch=True, max_daily_loss=100.0))
+    decision = checker.evaluate_intent(
+        [{"market_id": "BTC", "quantity": 2.0, "limit_price": 100.0,
+          "sizing_decision": {"approved": True, "quantity": 1.0}}],
+        positions={}, daily_pnl=-150.0,
+    )
+    assert decision.allowed is False
+    assert "risk kill switch enabled" in decision.reasons
+    assert any("daily loss" in reason for reason in decision.reasons)
+    assert any("does not match sizing decision" in reason for reason in decision.reasons)
 
 
 def test_multiple_limits_report_all_reasons(promoted_strategy):

@@ -1,6 +1,11 @@
-"""
-Walk-Forward Analysis Framework
-滚动窗口分析框架,避免过拟合
+"""Compatibility API for time-window generation.
+
+The canonical accounting kernel is :func:`libs.backtest.simulate_position_series`.
+This module intentionally contains only calendar-window orchestration for
+callers that already provide a fit/test function; it must not calculate fills,
+fees, positions or PnL. New research code should use
+``libs.quant.research_pipeline.walk_forward_symbol`` so the same kernel is
+used for training and OOS scoring.
 """
 from datetime import datetime, timedelta
 from typing import List, Dict, Tuple, Any

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Callable, Mapping, Sequence
 
 import numpy as np
+from libs.backtest import simulate_position_series
 
 
 @dataclass(frozen=True)
@@ -35,11 +36,10 @@ class WalkForwardResult:
 def _returns(prices: np.ndarray, positions: np.ndarray, cost_bps: float) -> np.ndarray:
     if len(prices) < 2:
         return np.array([], dtype=float)
-    raw = prices[1:] / prices[:-1] - 1.0
-    held = positions[:-1]
-    previous = np.concatenate(([0.0], held[:-1]))
-    turnover = np.abs(held - previous)
-    return held * raw - turnover * cost_bps / 10_000.0
+    returns, _ = simulate_position_series(
+        prices, positions, cost_bps=cost_bps, allow_short=bool(np.min(positions) < 0)
+    )
+    return returns
 
 
 def _metrics(returns: np.ndarray) -> tuple[float, float, float]:
@@ -75,9 +75,19 @@ def walk_forward_symbol(
     train_size: int = 252,
     test_size: int = 63,
     step: int = 63,
+    purge_bars: int = 0,
+    embargo_bars: int = 0,
     position_builder: Callable[..., np.ndarray] = moving_average_positions,
 ) -> WalkForwardResult:
-    """Select parameters only on each train window and score the following OOS window."""
+    """Select parameters only on each train window and score the following OOS window.
+
+    ``purge_bars`` removes observations adjacent to the fit boundary and
+    ``embargo_bars`` leaves a genuine unavailable-information gap before OOS.
+    Both are expressed in bars so the contract works for crypto, equities and
+    irregularly sampled data without assuming calendar-day spacing.
+    """
+    if min(train_size, test_size, step) <= 0 or min(purge_bars, embargo_bars) < 0:
+        raise ValueError("window sizes must be positive and gaps non-negative")
     values = np.asarray(prices, dtype=float)
     if np.any(~np.isfinite(values)) or np.any(values <= 0):
         return WalkForwardResult(symbol, (), (), None, None, None, None, "unknown_bad_prices")
@@ -85,9 +95,13 @@ def walk_forward_symbol(
     oos_returns: list[np.ndarray] = []
     selected: list[dict[str, int]] = []
     start = 0
-    while start + train_size + test_size <= len(values):
-        train = values[start:start + train_size]
-        test = values[start + train_size:start + train_size + test_size]
+    while start + train_size + purge_bars + embargo_bars + test_size <= len(values):
+        raw_train_end = start + train_size
+        train = values[start:raw_train_end - purge_bars]
+        test_start = raw_train_end + embargo_bars
+        test = values[test_start:test_start + test_size]
+        if len(train) < 2 or len(test) < 2:
+            break
         scored: list[tuple[float, Mapping[str, int]]] = []
         for raw_params in candidates:
             params = {k: int(v) for k, v in raw_params.items()}

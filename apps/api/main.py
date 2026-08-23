@@ -919,6 +919,17 @@ async def runtime_status():
             "lab_backtest_enabled": lab_backtest_enabled(),
             "lab_pair_features_enabled": settings.enable_lab_pair_features,
             "lab_altcoin_discovery_enabled": settings.enable_lab_altcoin_discovery,
+            "storage_authority": {
+                "operational_state": "sqlite",
+                "historical_bars": "parquet",
+                "raw_event_log": "sqlite" if settings.polybob_book_log_enabled else "disabled",
+            },
+            "risk": {
+                "promotion_gate_required": settings.require_strategy_promotion,
+                "account_equity_configured": settings.polybob_account_equity is not None,
+                "max_daily_loss": settings.max_daily_loss,
+                "max_slippage_bps": settings.max_slippage_bps,
+            },
         },
         "data_sources": [
             {"id": "polymarket_discovery", "state": "available" if market_discovery else "unknown", "refresh_seconds": 300},
@@ -927,6 +938,13 @@ async def runtime_status():
             {"id": "altcoin_discovery", "state": "available" if altcoin_discovery else "disabled", "refresh_seconds": 60},
         ],
         "services": get_service_health(),
+        "queues": {
+            "feature_snapshot": {"state": "running" if feature_engine else "unknown", "bounded": True},
+            "simulation": {"state": "running" if simulation_service else "unknown", "bounded": True},
+        },
+        "models": {
+            "kronos": {"state": "enabled" if settings.enable_lab_kronos_forecasting else "disabled", "device": settings.polybob_kronos_device or "default"},
+        },
         "portfolio": {
             "state": "configured" if settings.polybob_account_equity is not None else "unknown",
             "truth": "Account equity is not configured; sizing and total portfolio PnL remain unknown."
