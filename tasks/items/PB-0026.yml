@@ -1,6 +1,6 @@
 id: PB-0026
 title: 逐页前端截图、功能冒烟与 UI UX 修复
-state: doing
+state: done
 p: P1
 area: dashboard
 why: 建立可重复的全页面视觉与交互质量闭环
@@ -14,4 +14,4 @@ checks:
 deps: []
 branch: pb-0026-frontend-qa
 blocked: null
-updated: '2026-08-23T20:47:13+00:00'
+updated: '2026-08-23T20:47:27+00:00'
