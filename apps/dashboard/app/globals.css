@@ -263,6 +263,8 @@
   .action-neutral { @apply bg-sky-500; }
 
   .terminal-frame { @apply overflow-hidden rounded-lg border border-slate-700 bg-slate-950 text-slate-200 shadow-[0_14px_34px_rgba(15,23,42,0.14)]; }
+  .asset-terminal-page { @apply min-h-[calc(100vh-100px)] bg-slate-950 px-5 py-6 md:px-8; }
+  .asset-terminal-page > .terminal-frame { @apply mx-auto max-w-[1480px]; }
   .terminal-frame-topbar, .terminal-instrument-bar { @apply flex items-center justify-between gap-4 border-b border-slate-700 px-4 py-3; }
   .terminal-breadcrumb, .terminal-top-actions, .terminal-title-row, .terminal-queue-tabs { @apply flex items-center gap-2; }
   .terminal-kicker, .terminal-section-label, .terminal-card-label, .terminal-mode { @apply font-mono text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400; }
@@ -287,14 +289,21 @@
   .terminal-link-row small { @apply mt-0.5 text-[10px] text-slate-500; }
   .terminal-chevron { @apply text-lg text-slate-500; }
   .terminal-queue-note { @apply mx-1 mt-4 text-[10px] leading-5 text-slate-500; }
-  .terminal-main { @apply min-w-0 bg-slate-50 p-3 text-slate-800; }
+  .terminal-main { @apply min-w-0 bg-slate-900 p-3 text-slate-200; }
   .terminal-main > * { @apply max-w-none; }
-  .terminal-main .panel { @apply border-slate-300 shadow-none; }
+  .terminal-main .panel, .terminal-main .metric-panel { @apply border-slate-700 bg-slate-900 text-slate-200 shadow-none; }
+  .terminal-main .bg-white { @apply bg-slate-900; }
+  .terminal-main .bg-stone-50 { @apply bg-slate-800; }
+  .terminal-main .border-stone-200, .terminal-main .border-stone-100 { @apply border-slate-700; }
+  .terminal-main .text-stone-950, .terminal-main .text-stone-900, .terminal-main .text-stone-800 { @apply text-slate-100; }
+  .terminal-main .text-stone-700, .terminal-main .text-stone-600, .terminal-main .text-stone-500 { @apply text-slate-300; }
+  .terminal-main .text-stone-400 { @apply text-slate-400; }
   .terminal-dock-card { @apply mt-2.5 rounded border border-slate-700 bg-slate-900 p-3; }
   .terminal-dock-card strong { @apply mt-2 block font-mono text-[17px]; }
   .terminal-dock-card p { @apply mt-1.5 text-[11px] leading-5 text-slate-400; }
   .terminal-unknown { @apply text-amber-400; }
   .terminal-blocked { @apply text-rose-400; }
+  .terminal-available { @apply text-emerald-400; }
   .terminal-dock-muted { @apply bg-transparent; }
 
   @media (max-width: 1100px) {

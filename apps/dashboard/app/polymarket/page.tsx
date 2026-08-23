@@ -1,24 +1,12 @@
 import BtcCalibrationPanel from '@/components/BtcCalibrationPanel';
 import BtcFiveMinuteWorkbenchClient from '@/components/BtcFiveMinuteWorkbenchClient';
 import VerdictBanner from '@/components/VerdictBanner';
-import SectionIntro from '@/components/SectionIntro';
-import { WorkbenchPageHeader } from '@/components/WorkbenchChrome';
 import AssetTerminalFrame from '@/components/AssetTerminalFrame';
 
 export default function PolymarketPage() {
   return (
     <>
-      <WorkbenchPageHeader eyebrow={{ zh: '核心工作区', en: 'Core Workspace' }} title={{ zh: 'BTC 5分钟', en: 'BTC 5m' }} description={{ zh: '独立查看 BTC 5 分钟二元盘口、校准状态和研究工作台；它不是现货 BTC 页面。', en: 'Review the BTC five-minute binary order book, calibration state and research workbench; this is not spot BTC.' }} />
-      <SectionIntro
-        eyebrow={{ zh: '真实盘口', en: 'Real Order Books' }}
-        title={{ zh: 'Polymarket', en: 'Polymarket' }}
-        description={{
-          zh: '集中管理 Polymarket 模块；当前先接入 BTC 5 分钟涨跌盘口，后续模块继续放在这里。',
-          en: 'A dedicated Polymarket workspace. The BTC five-minute Up/Down order-book module is the first module here.',
-        }}
-      />
-
-      <main className="workbench-main">
+      <main className="asset-terminal-page">
         <AssetTerminalFrame asset="PREDICTION MARKET" title="BTC 5m Up / Down" subtitle="Five-minute binary market context, calibration and real CLOB state; not spot BTC." symbol="BTC-5M" source="Polymarket CLOB" links={[{ href: '/btc-5m', label: 'BTC 5m', meta: 'Up / Down binary' }, { href: '/markets', label: 'Prediction Markets', meta: 'Event instruments' }]}>
         <div className="grid gap-5">
         {/*
