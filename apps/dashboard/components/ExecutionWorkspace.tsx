@@ -21,6 +21,12 @@ interface ExecutionStatus {
     pnl_pct: number;
     position: number;
   };
+  ledger?: {
+    state: 'available' | 'degraded' | 'unknown' | 'blocked' | 'disabled';
+    account_id?: string;
+    reason?: string;
+    projection_consistent?: boolean;
+  };
   performance: {
     total_trades: number;
     win_rate: number;
@@ -72,6 +78,7 @@ export default function ExecutionWorkspace() {
     staleTime: 8_000,
   });
   const data = executionQuery.data ?? null;
+  const executionEnabled = data?.status.enabled !== false;
 
   const cancelBasket = async (basketId: string) => {
     setMutationError(null);
@@ -107,14 +114,15 @@ export default function ExecutionWorkspace() {
               ? '核心路径只展示策略意图、风险检查、basket 状态和 paper 执行记录。实验性手动样例被单独隔离，不参与默认判断。'
               : 'The core path focuses on strategy intents, risk checks, basket state, and paper execution records. Experimental manual samples are isolated from the default decision flow.'}
           </p>
-          <div className="mt-4">
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
             <DataTrustBar source="PolyBob execution read model" observedAt={data?.timestamp} state={executionQuery.isError ? 'degraded' : data ? 'available' : 'unknown'} reason={executionQuery.isError ? (zh ? '执行状态接口不可用' : 'Execution status API unavailable') : null} />
+            <DataTrustBar source="Append-only fill ledger" state={data?.ledger?.state ?? 'unknown'} reason={data?.ledger?.reason ?? (zh ? '执行账本状态未知' : 'Execution ledger state is unknown')} />
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <Metric title={zh ? '执行模式' : 'Execution Mode'} value={formatMode(data?.status.mode, zh)} />
-            <Metric title={zh ? '持仓' : 'Position'} value={data ? `${formatNumber(data.status.position, 4)} BTC` : 'UNKNOWN'} />
-            <Metric title={zh ? '总资产' : 'Total Value'} value={data ? `$${formatNumber(data.status.total_value, 2)}` : 'UNKNOWN'} />
-            <Metric title={zh ? '盈亏' : 'PnL'} value={data ? `${formatSigned(data.status.pnl, 2)} (${formatNumber(data.status.pnl_pct, 2)}%)` : 'UNKNOWN'} />
+            <Metric title={zh ? '持仓' : 'Position'} value={data && executionEnabled ? `${formatNumber(data.status.position, 4)} BTC` : 'UNKNOWN'} />
+            <Metric title={zh ? '总资产' : 'Total Value'} value={data && executionEnabled ? `$${formatNumber(data.status.total_value, 2)}` : 'UNKNOWN'} />
+            <Metric title={zh ? '盈亏' : 'PnL'} value={data && executionEnabled ? `${formatSigned(data.status.pnl, 2)} (${formatNumber(data.status.pnl_pct, 2)}%)` : 'UNKNOWN'} />
           </div>
         </div>
 

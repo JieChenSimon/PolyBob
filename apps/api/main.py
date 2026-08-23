@@ -24,6 +24,7 @@ import yaml
 from libs.config import get_settings
 from libs import metrics as ops_metrics
 from libs.db import fact_store
+from libs.db.execution_ledger import ExecutionLedger, UnknownExecutionAccount
 from libs.db.repositories import BasketRepository, DecisionRepository, IntentRepository
 from libs.data.http_client import close_async_clients
 from modules.risk_manager.risk_checker import PortfolioRiskChecker, RiskLimits
@@ -116,6 +117,8 @@ knowledge_ingestion: KnowledgeIngestionService | None = None
 market_news_service: KnowledgeIngestionService | None = None
 simulation_service: SimulationService | None = None
 trading_engine = None
+execution_ledger: ExecutionLedger | None = None
+PAPER_EXECUTION_ACCOUNT_ID = "paper-main"
 PAIR_UNIVERSE_PATH = Path(__file__).parent.parent.parent / "config" / "pair_universe.yaml"
 ONCHAIN_WATCHLIST_PATH = Path(__file__).parent.parent.parent / "config" / "onchain_watchlists.yaml"
 PORTFOLIO_LEDGER_NOT_CONFIGURED_NOTE = (
@@ -550,7 +553,7 @@ async def collect_dashboard_markets(limit: int = 36) -> list[dict]:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
-    global market_discovery, realtime_ingestor, feature_engine, strategy_manager, basket_executor, intent_execution_service, pair_feature_engine, onchain_monitor, altcoin_discovery, knowledge_ingestion, market_news_service, simulation_service
+    global market_discovery, realtime_ingestor, feature_engine, strategy_manager, basket_executor, intent_execution_service, pair_feature_engine, onchain_monitor, altcoin_discovery, knowledge_ingestion, market_news_service, simulation_service, execution_ledger
 
     logger.info("starting_polybob")
 
@@ -591,6 +594,24 @@ async def lifespan(app: FastAPI):
         intent_repository = IntentRepository(db_path)
         basket_repository = BasketRepository(db_path)
         decision_repository = DecisionRepository(db_path)
+        execution_ledger = ExecutionLedger(db_path)
+        if settings.polybob_account_equity is not None:
+            execution_ledger.register_account(
+                PAPER_EXECUTION_ACCOUNT_ID,
+                initial_cash=settings.polybob_account_equity,
+                currency="USD",
+            )
+            logger.info(
+                "execution_ledger_ready",
+                account_id=PAPER_EXECUTION_ACCOUNT_ID,
+                initial_cash=settings.polybob_account_equity,
+            )
+        else:
+            logger.info(
+                "execution_ledger_not_configured",
+                account_id=PAPER_EXECUTION_ACCOUNT_ID,
+                reason="polybob_account_equity is not configured",
+            )
         logger.info("fact_store_ready", db_path=str(db_path))
     except Exception as exc:
         # Execution must not continue without durable state. A memory-only
@@ -1402,6 +1423,35 @@ async def submit_strategy_intent(intent_id: str):
 @app.get("/api/execution/status")
 async def get_execution_status():
     """执行台统一状态。"""
+    def ledger_status() -> dict[str, Any]:
+        if execution_ledger is None:
+            return {
+                "state": "unknown",
+                "account_id": PAPER_EXECUTION_ACCOUNT_ID,
+                "reason": "execution ledger has not been initialized",
+            }
+        try:
+            verification = execution_ledger.verify_projection(PAPER_EXECUTION_ACCOUNT_ID)
+        except UnknownExecutionAccount:
+            return {
+                "state": "unknown",
+                "account_id": PAPER_EXECUTION_ACCOUNT_ID,
+                "reason": "paper account is not configured",
+            }
+        except Exception as exc:
+            return {
+                "state": "degraded",
+                "account_id": PAPER_EXECUTION_ACCOUNT_ID,
+                "reason": f"ledger verification failed: {exc}",
+            }
+        return {
+            "state": "available" if verification.consistent else "degraded",
+            "account_id": PAPER_EXECUTION_ACCOUNT_ID,
+            "projection_consistent": verification.consistent,
+            "mismatches": list(verification.mismatches),
+            "reason": "append-only fill ledger projection verified" if verification.consistent else "projection mismatch requires reconciliation",
+        }
+
     async def load() -> dict:
         status = await get_trading_status()
         performance = await get_trading_performance()
@@ -1416,6 +1466,7 @@ async def get_execution_status():
             "baskets": baskets,
             "pair_snapshots": pair_snapshots,
             "onchain_summary": onchain_summary,
+            "ledger": ledger_status(),
             "timestamp": datetime.utcnow().isoformat(),
         }
 

@@ -6,6 +6,7 @@ import pytest
 from fastapi import HTTPException
 
 import apps.api.main as api
+from libs.db.execution_ledger import ExecutionLedger
 
 
 PORTFOLIO_NOTE = "Portfolio ledger not configured"
@@ -38,6 +39,11 @@ class DummyOnchainMonitor:
         }
 
 
+class DummyPairFeatureEngine:
+    def list_snapshots(self):
+        return []
+
+
 @pytest.fixture
 def api_dependencies(monkeypatch):
     api.clear_api_response_cache()
@@ -59,6 +65,7 @@ def api_dependencies(monkeypatch):
     monkeypatch.setattr(api, "require_intent_execution_service", lambda: DummyIntentService())
     monkeypatch.setattr(api, "require_basket_executor", lambda: DummyBasketExecutor())
     monkeypatch.setattr(api, "require_onchain_monitor", lambda: DummyOnchainMonitor())
+    monkeypatch.setattr(api, "require_pair_feature_engine", lambda: DummyPairFeatureEngine())
     api.trading_engine = None
 
 
@@ -87,6 +94,53 @@ async def test_risk_summary_does_not_report_zero_risk_without_portfolio_ledger(a
     assert summary["pnl"] is None
     assert summary["pnl_pct"] is None
     assert any(PORTFOLIO_NOTE in note for note in summary["notes"])
+
+
+@pytest.mark.asyncio
+async def test_execution_status_exposes_verified_append_only_ledger(tmp_path, monkeypatch, api_dependencies):
+    ledger = ExecutionLedger(tmp_path / "execution.sqlite3")
+    ledger.register_account("paper-main", initial_cash="10000")
+    monkeypatch.setattr(api, "execution_ledger", ledger)
+
+    async def trading_status():
+        return {"enabled": False, "mode": "lab_disabled"}
+
+    async def trading_performance():
+        return {"enabled": False, "mode": "lab_disabled"}
+
+    monkeypatch.setattr(api, "get_trading_status", trading_status)
+    monkeypatch.setattr(api, "get_trading_performance", trading_performance)
+    api.clear_api_response_cache()
+
+    status = await api.get_execution_status()
+
+    assert status["ledger"] == {
+        "state": "available",
+        "account_id": "paper-main",
+        "projection_consistent": True,
+        "mismatches": [],
+        "reason": "append-only fill ledger projection verified",
+    }
+
+
+@pytest.mark.asyncio
+async def test_execution_status_keeps_unconfigured_ledger_unknown(api_dependencies, monkeypatch):
+    monkeypatch.setattr(api, "execution_ledger", None)
+
+    async def trading_status():
+        return {"enabled": False, "mode": "lab_disabled"}
+
+    async def trading_performance():
+        return {"enabled": False, "mode": "lab_disabled"}
+
+    monkeypatch.setattr(api, "get_trading_status", trading_status)
+    monkeypatch.setattr(api, "get_trading_performance", trading_performance)
+    api.clear_api_response_cache()
+
+    status = await api.get_execution_status()
+
+    assert status["ledger"]["state"] == "unknown"
+    assert "not been initialized" in status["ledger"]["reason"]
 
 
 @pytest.mark.asyncio

@@ -340,3 +340,17 @@ PolyBob 已具备较完整的研究工作台原型、能力边界和测试基础
 - `FreshnessBadge` 继承当前语言，避免英文模式下可信度状态回退为中文。
 
 第二阶段回归结果：Dashboard `74 passed`；`npm run build` 通过；Python capability/lab 边界回归 `6 passed`；`git diff --check` 通过。该阶段只收紧了前端动作边界，没有把 blocked 能力伪装成已实现的 Paper Broker 或 canonical fill ledger。
+
+## 2026-08-24 执行事实源第三阶段
+
+继续核对 ExecutionLedger、BasketExecutor 和执行台后，确认执行台此前只聚合内存 basket 状态，未向用户暴露权威 append-only fill ledger 的初始化与投影校验结果；同时 Lab 自动交易关闭时后端的 0 值会被前端当作真实持仓、资产和 PnL 展示。
+
+本阶段已修复：
+
+- API 启动时初始化 `ExecutionLedger`；配置 `polybob_account_equity` 时注册并复用 `paper-main` 账户，否则明确保持未配置。
+- `/api/execution/status` 增加 `ledger` read model，区分 `available`、`degraded`、`unknown`，并返回投影一致性、账户和原因。
+- Execution 页面显示 append-only fill ledger 的 DataTrust 状态；投影不一致不再看起来像正常执行。
+- Lab 自动交易关闭或执行状态未知时，持仓、总资产和 PnL 显示 UNKNOWN，不再把禁用状态的 0 当成事实。
+- 新增 API 边界测试，覆盖已配置且投影一致、未初始化两种状态。
+
+第三阶段回归结果：Python `954 passed, 5 skipped, 10 deselected, 1 warning`；Dashboard `74 passed`；`npm run build` 通过；执行/账本相关回归 `27 passed`。这仍不等于 BasketExecutor 已自动把所有 venue fill 写入 canonical ledger；真实 Paper Broker、外部成交恢复和 reconcile 仍保持未完成。
