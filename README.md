@@ -171,7 +171,9 @@ The current helper module is `libs.db`:
 - `connect()` opens a SQLite connection with foreign keys enabled.
 - `append_audit_event()` records durable audit events.
 
-This store is not connected to the API startup path yet.
+The API startup path bootstraps this store before enabling execution-related
+services. If durable storage cannot be opened, execution is fail-closed; read
+only observation routes may still expose an explicit degraded/unknown state.
 
 ## Validation
 

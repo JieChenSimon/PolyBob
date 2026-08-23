@@ -132,8 +132,23 @@ export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialP
     const matching = requested && workbench.candidates.find((item) =>
       item.symbol.toUpperCase() === requested || item.futuresSymbol?.toUpperCase() === requestedSymbol,
     );
-    if (matching) setSelectedId(matching.assetId);
-  }, [requestedSymbol, workbench.candidates]);
+    if (matching) {
+      setSelectedId(matching.assetId);
+      return;
+    }
+    // The terminal frame and the discovery center must never describe two
+    // different instruments. If a stale/deep-linked symbol is not in the
+    // current provider snapshot, move the URL to the first available candidate
+    // instead of silently rendering a different center selection under the old
+    // symbol. The provider snapshot remains the source of truth.
+    if (requestedSymbol && workbench.candidates.length > 0) {
+      const fallback = workbench.candidates[0];
+      setSelectedId(fallback.assetId);
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      params.set('symbol', fallback.futuresSymbol || `${fallback.symbol}-USDT`);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [pathname, requestedSymbol, router, searchParams, workbench.candidates]);
 
   useEffect(() => {
     if (!selectedId || !filtered.some((item) => item.assetId === selectedId)) {
