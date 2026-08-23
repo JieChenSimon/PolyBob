@@ -1,6 +1,6 @@
 id: PB-0017
 title: 建立权威执行账本与恢复对账
-state: doing
+state: done
 p: P0
 area: execution
 why: 把 intent、order、fill、cash、position、PnL 和 journal 收敛为单一事实链
