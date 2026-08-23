@@ -35,6 +35,7 @@ if str(ROOT) not in sys.path:
 from libs.data import store
 from libs.data.run_manifest import RunManifest
 from libs.quant.pbo import deflated_t_stat_threshold
+from libs.quant.pbo import probability_of_backtest_overfitting
 from modules.simulation.service import SimulationService
 from modules.simulation import metrics as sim_metrics
 
@@ -127,9 +128,18 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
             "source": row.get("source"),
             "price_basis": row.get("price_basis"),
         })
+        # Real-time Paper Lab persists on trades and periodic polling. A
+        # historical bar replay has no wall-clock poll, so persist the same
+        # mark-to-market state once per observed bar to form a valid OOS curve.
+        await service._record_equity(service._active[run_id])
     clock.current = rows[-1]["event_at"]
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    points = service.store.list_equity_points(run_id)
+    period_returns: list[dict[str, Any]] = []
+    for previous, current in zip(points, points[1:]):
+        if previous.equity > 0:
+            period_returns.append({"ts": current.ts, "return": current.equity / previous.equity - 1.0})
     await service.stop()
     return {
         "symbol": symbol,
@@ -139,6 +149,7 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
         "start": rows[0]["event_at"].date().isoformat(),
         "end": rows[-1]["event_at"].date().isoformat(),
         "metrics": metrics,
+        "period_returns": period_returns,
         "run_id": run_id,
     }
 
@@ -192,7 +203,18 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
     returns = [item["metrics"].get("total_return") for item in analyzed]
     returns = [float(value) for value in returns if value is not None]
     score = sum(returns) / len(returns) if returns else None
+    by_timestamp: dict[str, list[float]] = {}
+    for item in results:
+        if item["period"] != "oos":
+            continue
+        for point in item["result"].get("period_returns", []):
+            by_timestamp.setdefault(str(point["ts"]), []).append(float(point["return"]))
+    analyzable_oos = [item for item in results
+                      if item["period"] == "oos" and item["result"].get("status") == "ANALYZED"]
+    common_returns = [sum(values) / len(values) for _, values in sorted(by_timestamp.items())
+                      if len(values) == len(analyzable_oos)]
     return {"candidate": config, "symbols": symbols, "score_oos_mean_return": score,
+            "oos_portfolio_returns": common_returns,
             "results": results, "status": "ANALYZED" if analyzed else "BLOCKED"}
 
 
@@ -220,6 +242,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     }
     candidates: dict[str, list[dict[str, Any]]] = {}
     selected_by_domain: dict[str, dict[str, Any] | None] = {}
+    pbo_by_domain: dict[str, dict[str, Any]] = {}
     for domain, calibration in calibration_by_domain.items():
         candidates[domain] = []
         for config in MOMENTUM_CANDIDATES:
@@ -230,6 +253,21 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         selected_by_domain[domain] = max(
             eligible, key=lambda item: item["score_oos_mean_return"]
         ) if eligible else None
+        matrices = [item["oos_portfolio_returns"] for item in candidates[domain]
+                    if len(item["oos_portfolio_returns"]) >= 20]
+        if len(matrices) >= 2:
+            width = min(len(row) for row in matrices)
+            try:
+                pbo_by_domain[domain] = probability_of_backtest_overfitting(
+                    __import__("numpy").asarray([row[-width:] for row in matrices], dtype=float)
+                ).to_dict()
+            except ValueError as exc:
+                pbo_by_domain[domain] = {"status": "BLOCKED", "reason": str(exc)}
+        else:
+            pbo_by_domain[domain] = {
+                "status": "BLOCKED",
+                "reason": "not enough common OOS return series for PBO",
+            }
     full_results: list[dict[str, Any]] = []
     for symbol in all_symbols:
         selected = selected_by_domain[_domain(symbol)]
@@ -244,6 +282,9 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     for item in full_results:
         item["verdict"], item["reasons"] = _verdict(item)
         item["optimization_action"] = _optimization_action(item["reasons"])
+        # The full run is an instrument-level diagnostic. Keep the report small;
+        # calibration runs retain their OOS series for PBO computation.
+        item.pop("period_returns", None)
     coverage = {name: store.coverage(name) for name in ("daily_bars", "funding_rates",
                                                         "positioning", "insider_filings",
                                                         "corporate_actions")}
@@ -273,7 +314,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "multiple_testing": {
             "n_trials": len(MOMENTUM_CANDIDATES),
             "deflated_t_threshold": deflated_t_stat_threshold(len(MOMENTUM_CANDIDATES)),
-            "pbo": "UNKNOWN: this runner does not claim a PBO without a common-period return matrix",
+            "pbo_by_domain": pbo_by_domain,
             "status": "BLOCKED",
         },
         "full_results": full_results,
