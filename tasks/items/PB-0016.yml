@@ -10,9 +10,9 @@ checks:
 - text: 事件按可交易生效时间成交并支持 purge、embargo 和真正 walk-forward
   done: true
 - text: 旧回测入口被迁移或明确归档且回归测试覆盖关键会计不变量
-  done: false
+  done: true
 deps:
 - PB-0014
 branch: pb-0016-unified-backtest
 blocked: null
-updated: '2026-08-23T20:16:22+00:00'
+updated: '2026-08-23T20:16:42+00:00'
