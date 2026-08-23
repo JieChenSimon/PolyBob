@@ -23,11 +23,14 @@ const navItems = [
 export default function PrimaryNav() {
   const pathname = usePathname();
   const { language, setLanguage } = useLanguage();
+  const terminalRoute = ['/us-equities', '/a-shares', '/crypto', '/btc-5m', '/polymarket'].some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
 
   return (
     <nav
       aria-label={language === 'zh' ? '主导航' : 'Primary navigation'}
-      className="sticky top-0 z-30 border-b border-stone-200 bg-white/95 backdrop-blur"
+      className={`sticky top-0 z-30 border-b backdrop-blur ${terminalRoute ? 'terminal-app-nav border-slate-800 bg-slate-950/95' : 'border-stone-200 bg-white/95'}`}
     >
       <div className="mx-auto flex w-full max-w-shell flex-wrap items-center gap-x-6 gap-y-1 px-5 md:px-8">
         <Link
@@ -35,8 +38,8 @@ export default function PrimaryNav() {
           aria-label={language === 'zh' ? 'PolyBob 首页' : 'PolyBob home'}
           className="flex shrink-0 items-baseline gap-2 rounded py-3"
         >
-          <span className="text-base font-bold tracking-[-0.02em] text-stone-900">PolyBob</span>
-          <span className="hidden text-xs text-stone-400 sm:inline">
+          <span className={`text-base font-bold tracking-[-0.02em] ${terminalRoute ? 'text-slate-100' : 'text-stone-900'}`}>PolyBob</span>
+          <span className={`hidden text-xs sm:inline ${terminalRoute ? 'text-slate-500' : 'text-stone-400'}`}>
             {language === 'zh' ? '个人市场工作台' : 'Market Workbench'}
           </span>
         </Link>
@@ -57,8 +60,8 @@ export default function PrimaryNav() {
                 aria-current={active ? 'page' : undefined}
                 className={`shrink-0 whitespace-nowrap border-b-2 px-2.5 py-3 text-sm transition ${
                   active
-                    ? 'border-sky-600 font-semibold text-sky-700'
-                    : 'border-transparent font-medium text-stone-500 hover:border-stone-300 hover:text-stone-900'
+                    ? terminalRoute ? 'border-sky-400 font-semibold text-sky-300' : 'border-sky-600 font-semibold text-sky-700'
+                    : terminalRoute ? 'border-transparent font-medium text-slate-400 hover:border-slate-600 hover:text-slate-100' : 'border-transparent font-medium text-stone-500 hover:border-stone-300 hover:text-stone-900'
                 }`}
               >
                 {item.label[language]}
@@ -71,7 +74,7 @@ export default function PrimaryNav() {
           type="button"
           onClick={() => setLanguage(language === 'zh' ? 'en' : 'zh')}
           aria-label={language === 'zh' ? '切换到英文界面' : 'Switch to Chinese interface'}
-          className="order-2 ml-auto shrink-0 rounded-md border border-stone-200 px-2.5 py-1 text-xs font-semibold text-stone-600 transition hover:border-sky-500 hover:text-sky-700 md:order-3"
+          className={`order-2 ml-auto shrink-0 rounded-md border px-2.5 py-1 text-xs font-semibold transition md:order-3 ${terminalRoute ? 'border-slate-700 text-slate-300 hover:border-sky-400 hover:text-sky-300' : 'border-stone-200 text-stone-600 hover:border-sky-500 hover:text-sky-700'}`}
         >
           {language === 'zh' ? 'EN' : '中文'}
         </button>

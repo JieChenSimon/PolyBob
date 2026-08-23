@@ -48,6 +48,9 @@ export function WorkbenchStatusStrip() {
   const { language } = useLanguage();
   const zh = language === 'zh';
   const pathname = usePathname();
+  const terminalRoute = ['/us-equities', '/a-shares', '/crypto', '/btc-5m', '/polymarket'].some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
   const query = useQuery<{ rows?: Capability[] }>({
     queryKey: ['workbench-capabilities'],
     queryFn: async ({ signal }) => {
@@ -62,6 +65,7 @@ export function WorkbenchStatusStrip() {
   const unknown = query.isError || !query.data;
   const lab = rows.find((row) => row.capability_id === 'paper_execution');
   const tone = unknown ? 'unknown' : lab?.state === 'blocked' ? 'blocked' : 'available';
+  if (terminalRoute) return null;
   return (
     <div className="workbench-status-strip" aria-label={zh ? '工作台运行状态' : 'Workbench runtime status'}>
       <span className="status-context">{pathname === '/overview' ? (zh ? '今日工作面' : 'TODAY') : (zh ? '当前工作面' : 'WORKSPACE')}</span>
@@ -85,6 +89,10 @@ function StatusItem({ label, value, tone }: { label: string; value: string; tone
 export function CoreNavigation() {
   const pathname = usePathname();
   const { language } = useLanguage();
+  const terminalRoute = ['/us-equities', '/a-shares', '/crypto', '/btc-5m', '/polymarket'].some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+  if (terminalRoute) return null;
   return (
     <div className="core-navigation" role="list" aria-label={language === 'zh' ? '核心工作区' : 'Core workspaces'}>
       {coreLinks.map((item) => {

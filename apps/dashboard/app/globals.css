@@ -263,8 +263,10 @@
   .action-neutral { @apply bg-sky-500; }
 
   .terminal-frame { @apply overflow-hidden rounded-lg border border-slate-700 bg-slate-950 text-slate-200 shadow-[0_14px_34px_rgba(15,23,42,0.14)]; }
-  .asset-terminal-page { @apply min-h-[calc(100vh-100px)] bg-slate-950 px-5 py-6 md:px-8; }
-  .asset-terminal-page > .terminal-frame { @apply mx-auto max-w-[1480px]; }
+  .terminal-app-nav { color-scheme: dark; }
+  .asset-terminal-page { @apply min-h-[calc(100vh-56px)] bg-slate-950 px-0 py-0; }
+  .asset-terminal-page > .terminal-frame { @apply mx-auto max-w-none rounded-none border-x-0 border-b-0 shadow-none; }
+  .terminal-loading { @apply min-h-[640px] bg-slate-900; }
   .terminal-frame-topbar, .terminal-instrument-bar { @apply flex items-center justify-between gap-4 border-b border-slate-700 px-4 py-3; }
   .terminal-breadcrumb, .terminal-top-actions, .terminal-title-row, .terminal-queue-tabs { @apply flex items-center gap-2; }
   .terminal-kicker, .terminal-section-label, .terminal-card-label, .terminal-mode { @apply font-mono text-[10px] font-bold uppercase tracking-[0.13em] text-slate-400; }
@@ -298,6 +300,20 @@
   .terminal-main .text-stone-950, .terminal-main .text-stone-900, .terminal-main .text-stone-800 { @apply text-slate-100; }
   .terminal-main .text-stone-700, .terminal-main .text-stone-600, .terminal-main .text-stone-500 { @apply text-slate-300; }
   .terminal-main .text-stone-400 { @apply text-slate-400; }
+  .terminal-main .bg-emerald-50, .terminal-main .bg-green-50 { @apply bg-slate-800; }
+  .terminal-main .bg-amber-50, .terminal-main .bg-yellow-50 { @apply bg-slate-800; }
+  .terminal-main .bg-rose-50, .terminal-main .bg-red-50 { @apply bg-slate-800; }
+  .terminal-main .text-emerald-700, .terminal-main .text-green-700 { @apply text-emerald-300; }
+  .terminal-main .text-amber-700, .terminal-main .text-yellow-700 { @apply text-amber-300; }
+  .terminal-main .text-rose-700, .terminal-main .text-red-700 { @apply text-rose-300; }
+  .terminal-main input, .terminal-main select, .terminal-main textarea { @apply border-slate-700 bg-slate-950 text-slate-200 placeholder:text-slate-500; }
+  .terminal-main button { @apply border-slate-700; }
+  .terminal-instrument-bar .data-trust-bar { @apply border-slate-600 bg-slate-950 text-slate-200; }
+  .terminal-instrument-bar .data-trust-label { @apply text-slate-400; }
+  .terminal-instrument-bar .data-trust-reason { @apply text-slate-400; }
+  .terminal-instrument-bar .data-trust-available { @apply border-emerald-800 bg-slate-950; }
+  .terminal-instrument-bar .data-trust-degraded { @apply border-amber-800 bg-slate-950; }
+  .terminal-instrument-bar .data-trust-unknown, .terminal-instrument-bar .data-trust-blocked { @apply border-rose-900 bg-slate-950; }
   .terminal-dock-card { @apply mt-2.5 rounded border border-slate-700 bg-slate-900 p-3; }
   .terminal-dock-card strong { @apply mt-2 block font-mono text-[17px]; }
   .terminal-dock-card p { @apply mt-1.5 text-[11px] leading-5 text-slate-400; }
@@ -305,6 +321,16 @@
   .terminal-blocked { @apply text-rose-400; }
   .terminal-available { @apply text-emerald-400; }
   .terminal-dock-muted { @apply bg-transparent; }
+
+  /* Lab surfaces keep their violet identity, but inherit the terminal's
+     darker luminance so an experimental control cannot visually overpower
+     the selected instrument. */
+  .terminal-main [class*="bg-violet-50"], .terminal-main [class*="bg-violet-600"] { background-color: #1e1b4b !important; }
+  .terminal-main [class*="border-violet-200"], .terminal-main [class*="border-violet-100"] { border-color: #37306b !important; }
+  .terminal-main [class*="border-violet-300"], .terminal-main [class*="border-violet-400"], .terminal-main [class*="border-violet-500"] { border-color: #8b5cf6 !important; }
+  .terminal-main [class*="text-violet-700"] { color: #c4b5fd !important; }
+  .terminal-main [class*="text-violet-600"] { color: #a78bfa !important; }
+  .terminal-main [class*="bg-stone-300"] { background-color: #334155 !important; }
 
   @media (max-width: 1100px) {
     .terminal-layout { @apply grid-cols-[170px_minmax(0,1fr)]; }

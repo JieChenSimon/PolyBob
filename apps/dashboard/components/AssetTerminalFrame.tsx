@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import DataTrustBar, { type DataTrustState } from '@/components/ui/DataTrustBar';
 import { useLanguage } from '@/lib/i18n';
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE } from '@/lib/config';
 
@@ -35,11 +36,12 @@ export default function AssetTerminalFrame({
 }) {
   const { language } = useLanguage();
   const zh = language === 'zh';
-  const [activeSymbol, setActiveSymbol] = useState((symbol || title).toUpperCase());
+  const searchParams = useSearchParams();
+  const querySymbol = searchParams?.get('symbol');
+  const [activeSymbol, setActiveSymbol] = useState((querySymbol || symbol || title).toUpperCase());
   useEffect(() => {
-    const urlSymbol = new URLSearchParams(window.location.search).get('symbol');
-    if (urlSymbol) setActiveSymbol(urlSymbol.toUpperCase());
-  }, []);
+    setActiveSymbol((querySymbol || symbol || title).toUpperCase());
+  }, [querySymbol, symbol, title]);
   const capabilitiesQuery = useQuery<{ rows?: Array<{ capability_id: string; state: DataTrustState; truth?: string }> }>({
     queryKey: ['asset-terminal-capabilities'],
     queryFn: async ({ signal }) => {
@@ -71,7 +73,7 @@ export default function AssetTerminalFrame({
         <div>
           <div className="terminal-title-row">
             <h2>{title}</h2>
-            {symbol ? <span className="terminal-symbol">{symbol}</span> : null}
+            {activeSymbol ? <span className="terminal-symbol">{activeSymbol}</span> : null}
           </div>
           <p>{subtitle}</p>
         </div>

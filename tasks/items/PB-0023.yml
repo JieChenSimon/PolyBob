@@ -1,0 +1,17 @@
+id: PB-0023
+title: 重构资产终端为统一专业工作台
+state: todo
+p: P1
+area: dashboard
+why: 当前页面存在重复导航、白色外壳与深色终端冲突、旧组件嵌套和标的上下文不一致，需要从页面骨架与数据契约层面重构
+checks:
+- text: 四类资产页面只有一套导航和统一终端主题，桌面截图无嵌套壳层
+  done: false
+- text: 选中标的、数据可信度、研究状态在左队列、中心面板和右侧风险面板中保持一致
+  done: false
+- text: dashboard 测试、构建、核心路由冒烟和桌面/移动截图验收通过
+  done: false
+deps: []
+branch: pb-0023-professional-workbench
+blocked: null
+updated: '2026-08-23T17:34:18+00:00'

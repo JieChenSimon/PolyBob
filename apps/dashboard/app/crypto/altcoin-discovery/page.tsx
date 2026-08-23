@@ -8,7 +8,8 @@ export default function AltcoinDiscoveryPage() {
   return (
     <>
       <main className="asset-terminal-page">
-      <AssetTerminalFrame asset="CRYPTO SPOT" title="Crypto Market" subtitle="Discovery, spot context and research forecasts stay separate from execution permissions." symbol="BTC-USDT" source="Crypto discovery providers" links={[{ href: '/crypto/BTC-USDT', label: 'BTC-USDT', meta: 'Bitcoin spot' }, { href: '/crypto/ETH-USDT', label: 'ETH-USDT', meta: 'Ethereum spot' }, { href: '/crypto/SOL-USDT', label: 'SOL-USDT', meta: 'Solana spot' }]}>
+      <Suspense fallback={<div className="terminal-loading" />}>
+      <AssetTerminalFrame asset="CRYPTO SPOT" title="Crypto Market" subtitle="Discovery, spot context and research forecasts stay separate from execution permissions." symbol="BTC-USDT" source="Crypto discovery providers" links={[{ href: '/crypto/altcoin-discovery?symbol=BTC-USDT', label: 'BTC-USDT', meta: 'Bitcoin spot' }, { href: '/crypto/altcoin-discovery?symbol=ETH-USDT', label: 'ETH-USDT', meta: 'Ethereum spot' }, { href: '/crypto/altcoin-discovery?symbol=SOL-USDT', label: 'SOL-USDT', meta: 'Solana spot' }]}>
       <div className="space-y-5">
       <div className="mx-auto w-full px-1">
         {/* The crowding edge fires on eight majors; discovery below scans a much
@@ -27,6 +28,7 @@ export default function AltcoinDiscoveryPage() {
       </div>
       </div>
       </AssetTerminalFrame>
+      </Suspense>
       </main>
     </>
   );

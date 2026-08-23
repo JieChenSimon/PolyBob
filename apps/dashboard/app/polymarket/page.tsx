@@ -2,11 +2,13 @@ import BtcCalibrationPanel from '@/components/BtcCalibrationPanel';
 import BtcFiveMinuteWorkbenchClient from '@/components/BtcFiveMinuteWorkbenchClient';
 import VerdictBanner from '@/components/VerdictBanner';
 import AssetTerminalFrame from '@/components/AssetTerminalFrame';
+import { Suspense } from 'react';
 
 export default function PolymarketPage() {
   return (
     <>
       <main className="asset-terminal-page">
+        <Suspense fallback={<div className="terminal-loading" />}>
         <AssetTerminalFrame asset="PREDICTION MARKET" title="BTC 5m Up / Down" subtitle="Five-minute binary market context, calibration and real CLOB state; not spot BTC." symbol="BTC-5M" source="Polymarket CLOB" links={[{ href: '/btc-5m', label: 'BTC 5m', meta: 'Up / Down binary' }, { href: '/markets', label: 'Prediction Markets', meta: 'Event instruments' }]}>
         <div className="grid gap-5">
         {/*
@@ -53,6 +55,7 @@ export default function PolymarketPage() {
             cancelled the disclaimer it had just made. Spot BTC has its own page. */}
         </div>
         </AssetTerminalFrame>
+        </Suspense>
       </main>
     </>
   );

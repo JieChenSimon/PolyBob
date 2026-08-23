@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'next/navigation';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -64,6 +65,8 @@ const copy = {
 
 export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialPayload?: unknown } = {}) {
   const { language } = useLanguage();
+  const searchParams = useSearchParams();
+  const requestedSymbol = searchParams?.get('symbol')?.toUpperCase() ?? null;
   const t = copy[language];
   const initialWorkbench = useMemo(
     () => initialPayload === undefined ? undefined : parseAltcoinDiscovery(initialPayload),
@@ -111,6 +114,14 @@ export default function AltcoinDiscoveryWorkspace({ initialPayload }: { initialP
     () => buildWorkbenchLeaders(workbench.candidates, horizon),
     [workbench.candidates, horizon],
   );
+
+  useEffect(() => {
+    const requested = requestedSymbol?.replace(/-USDT$/, '');
+    const matching = requested && workbench.candidates.find((item) =>
+      item.symbol.toUpperCase() === requested || item.futuresSymbol?.toUpperCase() === requestedSymbol,
+    );
+    if (matching) setSelectedId(matching.assetId);
+  }, [requestedSymbol, workbench.candidates]);
 
   useEffect(() => {
     if (!selectedId || !filtered.some((item) => item.assetId === selectedId)) {
