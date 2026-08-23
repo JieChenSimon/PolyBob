@@ -1,15 +1,15 @@
 id: PB-0001
 title: 修复 Python wheel 运行时模块缺失
-state: todo
+state: doing
 p: P0
 area: packaging
 why: wheel 未包含 modules，正式安装可能无法启动 API。
 checks:
 - text: wheel 包含 modules 且不打包前端缓存
-  done: false
+  done: true
 - text: CI 验证隔离安装后可导入 apps.api.main
-  done: false
+  done: true
 deps: []
-branch: null
+branch: pb-0001-wheel-runtime
 blocked: null
-updated: '2026-08-12T06:50:00+00:00'
+updated: '2026-08-23T20:05:50+00:00'
