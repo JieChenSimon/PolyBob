@@ -86,6 +86,22 @@ def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]
         for r in rows
         if start_ms - 3_600_000 <= int(r[0]) < end_ms
     ]
+    from libs.data.data_lake import write_records
+    write_records(
+        "btc_1m_bars",
+        [
+            {
+                "symbol": "BTC-USDT",
+                "event_at": datetime.fromtimestamp(ts / 1000, tz=UTC).isoformat(),
+                "open": opening,
+                "close": closing,
+                "source": "okx_history_candles",
+            }
+            for ts, opening, closing in out
+        ],
+        source="okx_history_candles",
+        partition_by=("symbol",),
+    )
     return sorted(out)
 
 

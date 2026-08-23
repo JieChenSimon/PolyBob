@@ -56,6 +56,7 @@ from libs.backtest.execution import SlippageModel
 from libs.db import fact_store
 from libs.db.simulation_store import SimRunRecord, SimulationStore
 from libs.db.strategy_state import StrategyStateStore
+from libs.db.execution_ledger import ExecutionLedger, FillCommand
 from libs.events import Topics, get_event_bus
 from libs.research.registry import ExperimentRegistry
 from modules.risk_manager.risk_checker import PortfolioRiskChecker
@@ -176,6 +177,7 @@ class SimulationService:
         source_factories: dict[str, SourceFactory] | None = None,
         equity_poll_seconds: float = 30.0,
         registry: ExperimentRegistry | None = None,
+        ledger: ExecutionLedger | None = None,
     ):
         self.store = SimulationStore(db_path)
         self.event_bus = get_event_bus()
@@ -186,6 +188,7 @@ class SimulationService:
         # creation and its metrics at finalize, so a paper result is reproducible
         # and queryable rather than a transient in the sim store only.
         self.registry = registry or ExperimentRegistry(self.store.db_path)
+        self.ledger = ledger or ExecutionLedger(self.store.db_path)
         self.source_factories = source_factories or _default_source_factories()
         self.equity_poll_seconds = equity_poll_seconds
         self._active: dict[str, _ActiveRun] = {}
@@ -277,6 +280,10 @@ class SimulationService:
         )
         active = self._bind(record)
         await asyncio.to_thread(self.store.save_run, record)
+        await asyncio.to_thread(
+            self.ledger.register_account,
+            f"paper:{record.run_id}", initial_cash=record.initial_capital,
+        )
         self._active[record.run_id] = active
         await self._audit("sim.run.created", record.run_id, {
             "strategy_id": strategy_id,
@@ -390,6 +397,7 @@ class SimulationService:
             # moved only when cash did. Every return, drawdown and Sharpe this
             # project reports is computed from that curve.
             self._update_mark(active, snapshot)
+            await self._apply_funding(active, snapshot)
             try:
                 signals = await active.source.on_snapshot(topic, snapshot)
             except Exception as exc:
@@ -466,6 +474,38 @@ class SimulationService:
         active.marks[key] = float(mid)
         stamp = snapshot.get("timestamp")
         active.mark_times[key] = stamp if isinstance(stamp, datetime) else datetime.now(UTC)
+
+    async def _apply_funding(self, active: _ActiveRun, snapshot: dict) -> None:
+        """Book exchange funding from a real snapshot exactly once."""
+        rate = snapshot.get("funding_rate")
+        if rate is None:
+            return
+        instrument = str(snapshot.get("market_id") or snapshot.get("pair_id") or "")
+        position = next(
+            (p for p in await asyncio.to_thread(self.store.list_positions, active.record.run_id)
+             if p.instrument_id == instrument),
+            None,
+        )
+        mark = active.marks.get(instrument)
+        timestamp = snapshot.get("timestamp")
+        if position is None or mark is None or timestamp is None:
+            return
+        applied_at = timestamp.isoformat() if isinstance(timestamp, datetime) else str(timestamp)
+        notional = abs(position.size) * mark
+        pnl = -position.size * mark * float(rate)
+        inserted = await asyncio.to_thread(
+            self.store.append_funding, active.record.run_id,
+            instrument_id=instrument, rate=float(rate), notional=notional,
+            pnl=pnl, applied_at=applied_at,
+        )
+        if inserted:
+            await asyncio.to_thread(
+                self.store.update_run, active.record.run_id,
+                cash=active.record.cash + pnl,
+            )
+            refreshed = await asyncio.to_thread(self.store.get_run, active.record.run_id)
+            if refreshed is not None:
+                active.record = refreshed
 
     def _equity_snapshot(
         self, active: _ActiveRun
@@ -598,6 +638,14 @@ class SimulationService:
             signal_meta["confidence"] = signal.confidence
 
             def persist() -> None:
+                receipt = self.ledger.apply_fill(FillCommand(
+                    fill_id=f"{run_id}:{instrument}:{executed_at}:{uuid.uuid4().hex[:8]}",
+                    account_id=f"paper:{run_id}", order_id=f"paper:{run_id}:{instrument}",
+                    instrument_id=instrument, side=signal.side, quantity=abs(qty),
+                    price=raw_price, fee=fee, executed_at=executed_at,
+                    metadata={"source": "simulation", "signal_meta": signal_meta},
+                ))
+                signal_meta["ledger_sequence"] = receipt.sequence
                 self.store.append_trade(
                     run_id,
                     instrument_id=instrument,

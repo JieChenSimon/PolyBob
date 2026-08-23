@@ -161,6 +161,7 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         "closed_trade_count": len(closed),
         "realized_pnl": sum(t.realized_pnl for t in closed),
         "total_fees": sum(t.fee for t in trades),
+        "funding_pnl": store.total_funding(run_id),
         "avg_win": avg_win,
         "avg_loss": avg_loss,
         "per_instrument": per_instrument,

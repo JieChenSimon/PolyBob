@@ -258,11 +258,33 @@ async def test_conservative_fill_buys_at_ask_plus_fee(tmp_path):
     assert positions[0].size == pytest.approx(0.05 * 10_000.0 / 0.92, rel=1e-6)
     assert positions[0].avg_price == pytest.approx(0.92 * 1.002)
 
+    ledger_account = service.ledger.get_account(f"paper:{run_id}")
+    assert ledger_account.positions["M1"].quantity > 0
+    assert service.ledger.verify_projection(f"paper:{run_id}").consistent is True
+
     # Cash decreased by notional + fee; equity point written on the trade.
     record = service.store.get_run(run_id)
     assert record.cash == pytest.approx(10_000.0 - trade.size * 0.92 - trade.fee)
     assert len(service.store.list_equity_points(run_id)) >= 1
 
+
+@pytest.mark.asyncio
+async def test_funding_snapshot_is_booked_once_and_replayed(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="funding", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0, config=RUN_CONFIG,
+    )
+    await service.start_run(run["run_id"])
+    timestamp = datetime(2026, 8, 24, tzinfo=UTC)
+    snapshot = feature_snapshot(bid=0.90, ask=0.92, timestamp=timestamp)
+    snapshot["funding_rate"] = 0.001
+    await service._on_feature_snapshot(snapshot)
+    await service._on_feature_snapshot(snapshot)
+    total = service.store.total_funding(run["run_id"])
+    assert total < 0
+    await service._on_feature_snapshot(snapshot)
+    assert service.store.total_funding(run["run_id"]) == pytest.approx(total)
 
 @pytest.mark.asyncio
 async def test_no_fill_on_degraded_or_stale_book(tmp_path):

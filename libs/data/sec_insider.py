@@ -136,6 +136,28 @@ def fetch_insider_trades(year: int, quarter: int) -> list[InsiderTrade]:
             ))
     if not trades:
         raise SecDataUnavailable(f"{year}Q{quarter} contained no usable transactions")
+    from libs.data.data_lake import write_records
+    write_records(
+        "sec_filings",
+        [
+            {
+                "symbol": trade.symbol,
+                "event_at": f"{trade.filing_date}T00:00:00+00:00",
+                "transaction_at": trade.trans_date,
+                "issuer": trade.issuer,
+                "transaction_code": trade.trans_code,
+                "shares": trade.shares,
+                "price": trade.price,
+                "value_usd": trade.value_usd,
+                "is_open_market_buy": trade.is_open_market_buy,
+                "is_open_market_sell": trade.is_open_market_sell,
+                "source": "sec_form345",
+            }
+            for trade in trades
+        ],
+        source="sec_form345",
+        partition_by=("symbol",),
+    )
     return trades
 
 

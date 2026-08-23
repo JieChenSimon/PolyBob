@@ -82,6 +82,20 @@ _SCHEMA_STATEMENTS = (
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_sim_trades_run ON sim_trades(run_id, id)",
+    """
+    CREATE TABLE IF NOT EXISTS sim_funding (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT NOT NULL,
+        instrument_id TEXT NOT NULL,
+        rate REAL NOT NULL,
+        notional REAL NOT NULL,
+        pnl REAL NOT NULL,
+        source TEXT NOT NULL DEFAULT 'market_snapshot',
+        applied_at TEXT NOT NULL,
+        UNIQUE (run_id, instrument_id, applied_at)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_sim_funding_run ON sim_funding(run_id, id)",
 )
 
 RUN_STATUSES = ("running", "paused", "stopped")
@@ -415,6 +429,30 @@ class SimulationStore:
         with self._connect() as connection:
             rows = connection.execute(query, params).fetchall()
         return [self._trade_record(row) for row in rows]
+
+    def append_funding(
+        self, run_id: str, *, instrument_id: str, rate: float, notional: float,
+        pnl: float, applied_at: str, source: str = "market_snapshot",
+    ) -> bool:
+        """Apply one funding interval exactly once; return whether it was new."""
+        with self._connect() as connection:
+            cursor = connection.execute(
+                """
+                INSERT OR IGNORE INTO sim_funding
+                    (run_id, instrument_id, rate, notional, pnl, source, applied_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (run_id, instrument_id, float(rate), float(notional), float(pnl), source, applied_at),
+            )
+            return cursor.rowcount == 1
+
+    def total_funding(self, run_id: str) -> float:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT COALESCE(SUM(pnl), 0) AS pnl FROM sim_funding WHERE run_id = ?",
+                (run_id,),
+            ).fetchone()
+        return float(row["pnl"])
 
     @staticmethod
     def _trade_record(row: sqlite3.Row) -> SimTradeRecord:
