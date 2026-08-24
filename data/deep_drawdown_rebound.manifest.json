@@ -1,6 +1,6 @@
 {
   "experiment": "deep_drawdown_rebound_v1",
-  "as_of": "2026-08-24T22:19:58.796790+00:00",
+  "as_of": "2026-08-24T22:31:01.413878+00:00",
   "params": {
     "model_revision": "deep-drawdown-quality-rebound-v1",
     "config": "config/research/deep_drawdown_rebound.yaml",
@@ -23,12 +23,12 @@
     ]
   },
   "code": {
-    "commit": "a41aebeec23978e79de5d8fe6bd183454ac29b4a",
+    "commit": "c05758a8a70bcb8a319181063c07a94063597ac8",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T22:19:58.822185+00:00",
+  "started_at": "2026-08-24T22:31:01.440150+00:00",
   "inputs": {
     "daily_bars:A_SHARE": {
       "symbols": 8,
@@ -36,75 +36,107 @@
       "coverage": [
         {
           "symbol": "600519",
-          "rows": 647,
+          "rows": 655,
           "start": "2023-12-11",
-          "end": "2026-08-12",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "000001",
-          "rows": 641,
+          "rows": 657,
           "start": "2023-12-07",
-          "end": "2026-07-31",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "300750",
-          "rows": 641,
+          "rows": 657,
           "start": "2023-12-07",
-          "end": "2026-07-31",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "601318",
-          "rows": 641,
+          "rows": 657,
           "start": "2023-12-07",
-          "end": "2026-07-31",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "000858",
-          "rows": 656,
+          "rows": 657,
           "start": "2023-12-07",
-          "end": "2026-08-21",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "600036",
-          "rows": 641,
+          "rows": 657,
           "start": "2023-12-07",
-          "end": "2026-07-31",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "000651",
-          "rows": 641,
+          "rows": 657,
           "start": "2023-12-07",
-          "end": "2026-07-31",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "002594",
-          "rows": 641,
+          "rows": 657,
           "start": "2023-12-07",
-          "end": "2026-07-31",
+          "end": "2026-08-24",
           "source": [
             "tencent_migrated"
-          ]
+          ],
+          "price_basis": [
+            "forward_adjusted"
+          ],
+          "missing_price_basis_rows": 0
         }
       ],
       "strict_historical_pit": false
@@ -183,7 +215,11 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [
+            "provider_quote_adjustment_unknown"
+          ],
+          "missing_price_basis_rows": 1259
         },
         {
           "symbol": "MSFT",
@@ -192,7 +228,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "NVDA",
@@ -202,7 +240,11 @@
           "source": [
             "yahoo",
             "yahoo_migrated"
-          ]
+          ],
+          "price_basis": [
+            "provider_quote_adjustment_unknown"
+          ],
+          "missing_price_basis_rows": 1260
         },
         {
           "symbol": "AMZN",
@@ -212,7 +254,9 @@
           "source": [
             "yahoo",
             "yahoo_migrated"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1270
         },
         {
           "symbol": "META",
@@ -222,7 +266,9 @@
           "source": [
             "yahoo",
             "yahoo_migrated"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1270
         },
         {
           "symbol": "GOOGL",
@@ -232,7 +278,9 @@
           "source": [
             "yahoo",
             "yahoo_migrated"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1270
         },
         {
           "symbol": "TSLA",
@@ -242,7 +290,9 @@
           "source": [
             "yahoo",
             "yahoo_migrated"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1270
         },
         {
           "symbol": "AMD",
@@ -251,7 +301,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "JPM",
@@ -260,7 +312,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "BAC",
@@ -269,7 +323,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "WFC",
@@ -278,7 +334,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "C",
@@ -287,7 +345,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "XOM",
@@ -296,7 +356,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "CVX",
@@ -305,7 +367,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "PFE",
@@ -314,7 +378,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "MRK",
@@ -323,7 +389,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "KO",
@@ -332,7 +400,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "NKE",
@@ -341,7 +411,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "DIS",
@@ -350,7 +422,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "VZ",
@@ -359,7 +433,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "T",
@@ -368,7 +444,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "F",
@@ -377,7 +455,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "GM",
@@ -386,7 +466,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "GE",
@@ -395,7 +477,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "BA",
@@ -404,7 +488,9 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [],
+          "missing_price_basis_rows": 1265
         },
         {
           "symbol": "INTC",
@@ -413,7 +499,11 @@
           "end": "2026-08-21",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [
+            "provider_quote_adjustment_unknown"
+          ],
+          "missing_price_basis_rows": 1259
         },
         {
           "symbol": "SNDK",
@@ -422,7 +512,11 @@
           "end": "2026-08-24",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [
+            "provider_quote_adjustment_unknown"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "MU",
@@ -431,7 +525,11 @@
           "end": "2026-08-24",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [
+            "provider_quote_adjustment_unknown"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "WDC",
@@ -440,7 +538,11 @@
           "end": "2026-08-24",
           "source": [
             "yahoo"
-          ]
+          ],
+          "price_basis": [
+            "provider_quote_adjustment_unknown"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "MRVL",
@@ -450,21 +552,27 @@
           "source": [
             "yahoo",
             "yahoo_migrated"
-          ]
+          ],
+          "price_basis": [
+            "provider_quote_adjustment_unknown"
+          ],
+          "missing_price_basis_rows": 12
         }
       ],
       "strict_historical_pit": false
     },
     "fundamentals:US_EQUITY": {
       "symbols": 30,
-      "rows": 521,
+      "rows": 716,
       "coverage": [
         {
           "symbol": "AAPL",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 69,
+          "start": "2009-07-22",
+          "end": "2026-07-31",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "MSFT",
@@ -491,10 +599,12 @@
         },
         {
           "symbol": "META",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 57,
+          "start": "2012-07-31",
+          "end": "2026-07-30",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "GOOGL",
@@ -565,10 +675,12 @@
         },
         {
           "symbol": "PFE",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 69,
+          "start": "2009-08-06",
+          "end": "2026-08-04",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "MRK",
@@ -704,7 +816,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         }
       ],
       "strict_historical_pit": false
@@ -735,7 +851,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "DOGE-USDT",
@@ -745,7 +865,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "ADA-USDT",
@@ -755,7 +879,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "AVAX-USDT",
@@ -765,7 +893,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "LINK-USDT",
@@ -775,7 +907,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "LTC-USDT",
@@ -785,7 +921,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "XRP-USDT",
@@ -795,7 +935,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         },
         {
           "symbol": "BCH-USDT",
@@ -805,7 +949,11 @@
           "source": [
             "okx",
             "okx_migrated"
-          ]
+          ],
+          "price_basis": [
+            "unadjusted"
+          ],
+          "missing_price_basis_rows": 0
         }
       ],
       "strict_historical_pit": false
@@ -875,7 +1023,7 @@
     }
   },
   "lineage": {
-    "input_hash": "2e62376e20104aae3bb7fbf08544cecfb1bed38554dc687ce9d71f79872d21a9",
+    "input_hash": "08280e7e810f5e0a60284887b1a7a541d82783ac552f3e532871f1475a793c68",
     "model_hash": "ae16d46aa14bbedf41cb7ca617daf912e59d186b6579859f228a36e70fa89e48",
     "has_lineage": true
   },
