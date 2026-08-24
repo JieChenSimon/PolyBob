@@ -248,7 +248,18 @@ export default function StrategyCatalog() {
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   <InfoBlock label={zh ? '状态' : 'Status'} value={strategy.status} />
                   <InfoBlock label={zh ? '运行模式' : 'Runtime Mode'} value={strategy.runtime_mode} />
+                  <InfoBlock label={zh ? '产品状态' : 'Product Status'} value={strategy.product_status ?? 'research'} />
+                  <InfoBlock label={zh ? '基本面/证据/PIT' : 'Fundamental / Evidence / PIT'} value={`${strategy.fundamental_evidence ?? 'UNKNOWN'} / ${strategy.evidence_status ?? 'UNKNOWN'} / ${strategy.pit_status ?? 'UNKNOWN'}`} />
                 </div>
+
+                {strategy.basic_evidence ? (
+                  <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                    <div className="font-semibold">{zh ? '质量过滤后研究证据' : 'Quality-filtered research evidence'}</div>
+                    <div className="mt-1">{zh ? '基本面/质量过滤：' : 'Quality filters: '}{Array.isArray(strategy.basic_evidence.quality_filters) ? strategy.basic_evidence.quality_filters.join(', ') : 'UNKNOWN'}</div>
+                    <div className="mt-1">{zh ? '未知字段：' : 'Unknown fields: '}{strategy.unknown_fields?.join(', ') || 'UNKNOWN'}</div>
+                    <div className="mt-1 font-semibold">{zh ? '禁止交易：证据状态或 PIT 未知' : 'No trading: evidence or PIT is UNKNOWN'}</div>
+                  </div>
+                ) : null}
 
                 <div className="mt-4 grid gap-4 xl:grid-cols-2">
                   <KeyValuePanel title={zh ? '参数' : 'Parameters'} values={strategy.parameters} />
@@ -258,8 +269,8 @@ export default function StrategyCatalog() {
                 <div className="mt-5 flex justify-end">
                   <button
                     onClick={() => createInstance(strategy.strategy_id)}
-                    disabled={strategyActionsBlocked || busyId === strategy.strategy_id}
-                    title={strategyActionsBlocked ? capabilityReason : undefined}
+                    disabled={strategyActionsBlocked || strategy.runtime_mode !== 'paper_ready' || strategy.trade_permission !== true || busyId === strategy.strategy_id}
+                    title={strategyActionsBlocked ? capabilityReason : (zh ? '未通过 Promotion/PIT 门禁，禁止创建运行实例。' : 'Promotion/PIT gates are not passed; instance creation is disabled.')}
                     className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700 disabled:opacity-50"
                   >
                     {zh ? '创建 Paper 实例' : 'Create Paper Instance'}

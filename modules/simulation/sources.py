@@ -40,6 +40,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+import math
 from typing import Any, Protocol, runtime_checkable
 
 from libs.events import Topics
@@ -159,6 +160,31 @@ class FusionSignalSource:
         contributing = sorted(
             name for name, sub in scores.items() if sub.direction != 0
         )
+        feature_weights = {
+            name: float(self.fusion.weights.get(name, self.fusion.injected_signal_weight))
+            for name in scores
+        }
+        feature_scores = {
+            name: {
+                "direction": int(sub.direction),
+                "strength": float(sub.strength),
+            }
+            for name, sub in scores.items()
+        }
+        # Keep the raw numerical inputs that were actually available at the
+        # decision timestamp. This is a descriptive snapshot, not a claim that
+        # the raw feature caused the eventual PnL.
+        feature_values = {
+            key: float(value)
+            for key, value in features.items()
+            if isinstance(value, (int, float)) and not isinstance(value, bool)
+            and math.isfinite(float(value))
+            and key not in {"timestamp"}
+        }
+        weighted_contributions = {
+            name: weight * feature_scores[name]["direction"] * feature_scores[name]["strength"]
+            for name, weight in feature_weights.items()
+        }
         side = "buy" if direction > 0 else "sell"
         return [
             SimSignal(
@@ -174,6 +200,12 @@ class FusionSignalSource:
                 signal_meta={
                     "source": "signal_fusion",
                     "signals": contributing,
+                    "feature_weights": feature_weights,
+                    "feature_scores": feature_scores,
+                    "feature_values": feature_values,
+                    "weighted_contributions": weighted_contributions,
+                    "attribution_method": "model_weighted_signal_contribution",
+                    "causal_claim": False,
                     "reason": reason,
                 },
             )

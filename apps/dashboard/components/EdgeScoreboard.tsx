@@ -42,6 +42,13 @@ interface EdgeRecord {
   implementation: string;
   evidence: string;
   failed: string[];
+  product_status?: string;
+  evidence_status?: string;
+  fundamental_evidence?: string;
+  pit_status: string;
+  trade_permission?: boolean;
+  basic_evidence?: Record<string, unknown>;
+  unknown_fields?: string[];
 }
 
 interface BoardPayload {
@@ -55,6 +62,7 @@ const STRATEGY_LABEL: Record<string, { zh: string; en: string }> = {
   a_share_billboard_reversal: { zh: 'A股 · 龙虎榜反转', en: 'A-share · Dragon-tiger reversal' },
   us_insider_cluster_buy: { zh: '美股 · 内部人集群买入', en: 'US · Insider cluster buy' },
   altcoin_retail_crowding: { zh: '山寨币 · 散户拥挤', en: 'Altcoin · Retail crowding' },
+  deep_drawdown_rebound_v1: { zh: '跨资产 · 深度回撤反转', en: 'Cross-asset · Deep drawdown rebound' },
 };
 
 const IMPLEMENTATION_LABEL: Record<string, { zh: string; en: string }> = {
@@ -181,6 +189,26 @@ function EdgeGroup({
                 <span className="mt-2 inline-block rounded border border-sky-200 bg-sky-50 px-2 py-0.5 text-[11px] font-medium text-sky-700">
                   {zh ? impl.zh : impl.en}
                 </span>
+              ) : null}
+
+              <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
+                  {record.product_status ?? (zh ? '研究' : 'Research')}
+                </span>
+                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-0.5 text-stone-600">
+                  {zh ? '证据' : 'Evidence'}: {record.evidence_status ?? 'UNKNOWN'}
+                </span>
+                <span className="rounded border border-stone-200 bg-stone-50 px-2 py-0.5 text-stone-600">
+                  {zh ? '基本面' : 'Fundamental'}: {record.fundamental_evidence ?? 'UNKNOWN'}
+                </span>
+                <span className="rounded border border-rose-200 bg-rose-50 px-2 py-0.5 text-rose-800">
+                  {zh ? 'PIT' : 'PIT'}: {record.pit_status || 'UNKNOWN'} · {zh ? '禁止交易' : 'NO TRADE'}
+                </span>
+              </div>
+              {record.unknown_fields?.length ? (
+                <p className="mt-1.5 text-[11px] leading-5 text-amber-700">
+                  {zh ? '未知字段：' : 'Unknown fields: '}{record.unknown_fields.join(', ')}
+                </p>
               ) : null}
 
               {/* Evidence age, shown before it expires rather than at the moment

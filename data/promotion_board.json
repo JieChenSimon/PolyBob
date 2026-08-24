@@ -15,7 +15,7 @@
   "counts": {
     "approved_trade": 0,
     "approved_avoid": 1,
-    "total": 4
+    "total": 5
   },
   "board": [
     {
@@ -55,6 +55,12 @@
       "run_as_of": "2026-08-10T05:45:40.626818+00:00",
       "run_reproducible": true,
       "pit_status": "unknown",
+      "product_status": "validated_research",
+      "evidence_status": "UNKNOWN",
+      "fundamental_evidence": "UNKNOWN",
+      "trade_permission": false,
+      "basic_evidence": {},
+      "unknown_fields": [],
       "out_of_sample": {
         "available": true,
         "split_date": "2025-05-26",
@@ -121,6 +127,12 @@
       "run_as_of": "2026-08-10T05:44:32.159395+00:00",
       "run_reproducible": true,
       "pit_status": "unknown",
+      "product_status": "validated_research",
+      "evidence_status": "UNKNOWN",
+      "fundamental_evidence": "UNKNOWN",
+      "trade_permission": false,
+      "basic_evidence": {},
+      "unknown_fields": [],
       "out_of_sample": {
         "available": false
       },
@@ -172,6 +184,12 @@
       "run_as_of": "2026-08-24T18:18:49.612512+00:00",
       "run_reproducible": true,
       "pit_status": "unknown",
+      "product_status": "validated_research",
+      "evidence_status": "UNKNOWN",
+      "fundamental_evidence": "UNKNOWN",
+      "trade_permission": false,
+      "basic_evidence": {},
+      "unknown_fields": [],
       "out_of_sample": {
         "available": true,
         "split_date": "2026-08-18",
@@ -193,6 +211,77 @@
       "cluster_floor": 20,
       "pipeline_searched": false,
       "evidence": "来源 data/btc5m_mispricing.json; n=2506; 独立day=13; t(聚类)=34.66 vs t(iid)=30.01; 证据截至 2026-08-24; 持有 1 日"
+    },
+    {
+      "strategy": "deep_drawdown_rebound_v1",
+      "instrument": "CROSS_ASSET",
+      "domain": "multi_asset",
+      "role": "trade",
+      "hypothesis_id": "deep_drawdown_rebound_v1",
+      "source": "config/research/deep_drawdown_rebound.yaml",
+      "source_strategy": "deep_drawdown_rebound_v1",
+      "implementation": "candidate_only_no_trade",
+      "expected_sign": 1,
+      "t_hurdle": 4.22,
+      "approved": false,
+      "failed": [
+        "candidate_only",
+        "no_result",
+        "pit_unknown",
+        "unknown_evidence"
+      ],
+      "notes": "质量过滤后研究候选；无结果、PIT 未知、禁止交易。",
+      "n": null,
+      "win_rate": null,
+      "mean_excess_pct": null,
+      "median_excess_pct": null,
+      "t_stat": null,
+      "t_stat_iid": null,
+      "n_clusters": null,
+      "cluster_by": "",
+      "inference": "unverifiable",
+      "bootstrap_ci_pct": null,
+      "sign_test_p": null,
+      "wild_p": null,
+      "p_floor": null,
+      "resolvable": null,
+      "inference_warnings": [],
+      "evidence_end": null,
+      "max_evidence_age_days": null,
+      "run_as_of": null,
+      "run_reproducible": false,
+      "pit_status": "UNKNOWN",
+      "out_of_sample": null,
+      "cluster_floor": 20,
+      "pipeline_searched": false,
+      "evidence": "质量过滤已登记；真实事件研究与可执行 PIT 证据尚未完成。",
+      "product_status": "质量过滤后研究",
+      "evidence_status": "UNKNOWN",
+      "fundamental_evidence": "UNKNOWN",
+      "trade_permission": false,
+      "basic_evidence": {
+        "real_data_required": true,
+        "asset_sleeves": [
+          "A_SHARE",
+          "US_EQUITY",
+          "BTC",
+          "ALTCOIN"
+        ],
+        "quality_filters": [
+          "survivorship_control",
+          "liquidity",
+          "executable_quote",
+          "cost_stress"
+        ]
+      },
+      "unknown_fields": [
+        "fundamental_evidence",
+        "strict_historical_pit",
+        "survivorship_control",
+        "executable_depth",
+        "sample_out_of_sample",
+        "promotion_result"
+      ]
     },
     {
       "strategy": "us_insider_cluster_buy",
@@ -237,6 +326,12 @@
       "run_as_of": "2026-08-24T05:59:42.836532+00:00",
       "run_reproducible": true,
       "pit_status": "non_strict",
+      "product_status": "validated_research",
+      "evidence_status": "UNKNOWN",
+      "fundamental_evidence": "UNKNOWN",
+      "trade_permission": false,
+      "basic_evidence": {},
+      "unknown_fields": [],
       "out_of_sample": {
         "available": true,
         "split_date": "2025-10-03",

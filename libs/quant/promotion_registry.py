@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -61,6 +61,12 @@ class PromotionRecord:
     implementation: str = ""
     evidence: str = ""
     source: str = ""
+    product_status: str = "validated_research"
+    evidence_status: str = "UNKNOWN"
+    fundamental_evidence: str = "UNKNOWN"
+    trade_permission: bool = False
+    basic_evidence: dict[str, Any] = field(default_factory=dict)
+    unknown_fields: list[str] = field(default_factory=list)
 
     @property
     def evidence_age_days(self) -> int | None:
@@ -163,6 +169,12 @@ class PromotionRegistry:
                     implementation=str(row.get("implementation", "")),
                     evidence=str(row.get("evidence", "")),
                     source=str(row.get("source", "")),
+                    product_status=str(row.get("product_status", "validated_research")),
+                    evidence_status=str(row.get("evidence_status", "UNKNOWN")),
+                    fundamental_evidence=str(row.get("fundamental_evidence", "UNKNOWN")),
+                    trade_permission=bool(row.get("trade_permission", False)),
+                    basic_evidence=dict(row.get("basic_evidence") or {}),
+                    unknown_fields=[str(item) for item in (row.get("unknown_fields") or [])],
                 )
             )
         self.loaded_at = str(data.get("generated_at") or self.board_path.stat().st_mtime)

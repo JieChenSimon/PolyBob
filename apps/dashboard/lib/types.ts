@@ -35,6 +35,13 @@ export interface StrategyTemplate {
   runtime_mode: string;
   parameters: Record<string, number | string | boolean | null>;
   risk_limits: Record<string, number | string | boolean | null>;
+  product_status?: string;
+  evidence_status?: string;
+  fundamental_evidence?: string;
+  pit_status?: string;
+  trade_permission?: boolean;
+  unknown_fields?: string[];
+  basic_evidence?: Record<string, unknown>;
 }
 
 export interface StrategyInstance {

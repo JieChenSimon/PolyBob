@@ -44,21 +44,25 @@ Equity = cash + Σ size × last known mark (mid), persisted every
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import math
 import uuid
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Callable
 
 import structlog
 
-from libs.backtest.execution import SlippageModel
+from libs.backtest.execution import ExecutionConfig, MarketState, PaperBroker, SlippageModel
 from libs.db import fact_store
 from libs.db.simulation_store import SimRunRecord, SimulationStore
 from libs.db.strategy_state import StrategyStateStore
 from libs.db.execution_ledger import ExecutionLedger, FillCommand, SettlementCommand
 from libs.events import Topics, get_event_bus
 from libs.research.registry import ExperimentRegistry
+from libs.schemas import Side
 from modules.risk_manager.risk_checker import PortfolioRiskChecker
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import (
@@ -102,6 +106,9 @@ DEFAULT_RUN_CONFIG: dict[str, Any] = {
     # this explicitly instead of silently applying the same rate per snapshot.
     "funding_interval_seconds": 8 * 60 * 60,
     "equity_interval_minutes": 5.0,
+    # ``depth_limited`` routes signals through PaperBroker; the legacy
+    # full-fill path remains available for diagnostic runs that only have BBO.
+    "execution_mode": "full_fill",
     # Feedback guardrails (see modules/simulation/metrics.py docstring).
     "auto_feedback": False,
     "auto_run": False,
@@ -159,7 +166,7 @@ class _ActiveRun:
 
     __slots__ = ("record", "source", "marks", "mark_times", "last_trade_at", "lock",
                  "last_equity_at", "last_feedback_at", "risk_rejections",
-                 "risk_rejection_events")
+                 "risk_rejection_events", "paper_broker")
 
     def __init__(self, record: SimRunRecord, source: SignalSource):
         self.record = record
@@ -176,6 +183,12 @@ class _ActiveRun:
         # Diagnostic-only evidence.  These events do not alter the risk
         # decision; they make a rejected entry/settlement explainable.
         self.risk_rejection_events: list[dict[str, Any]] = []
+        self.paper_broker = PaperBroker(ExecutionConfig(
+            base_latency_ms=0.0,
+            latency_std_ms=0.0,
+            impact_coefficient=float(record.config.get("impact_coefficient", 0.1)),
+            fee_bps=float(record.config.get("fee_bps", 20.0)),
+        ))
 
     def config_value(self, key: str) -> Any:
         return self.record.config.get(key, DEFAULT_RUN_CONFIG.get(key))
@@ -659,6 +672,8 @@ class SimulationService:
                 )
                 continue
             await self._apply_funding(active, snapshot)
+            if str(active.config_value("execution_mode")) == "depth_limited":
+                await self._process_depth_orders(active, snapshot)
             try:
                 signals = await active.source.on_snapshot(topic, snapshot)
             except Exception as exc:
@@ -670,9 +685,238 @@ class SimulationService:
                 )
                 continue
             for signal in signals:
+                if snapshot.get("quality") is not None:
+                    signal = replace(
+                        signal,
+                        signal_meta={
+                            **signal.signal_meta,
+                            "data_quality": snapshot.get("quality"),
+                        },
+                    )
                 await self._process_signal(active, signal)
 
     # ----------------------------------------------------------- trade logic
+
+    @staticmethod
+    def _market_state(snapshot: dict) -> MarketState | None:
+        values = (
+            snapshot.get("bid_price"), snapshot.get("ask_price"),
+            snapshot.get("bid_size"), snapshot.get("ask_size"),
+        )
+        if any(value is None for value in values):
+            return None
+        try:
+            bid, ask, bid_depth, ask_depth = (float(value) for value in values)
+        except (TypeError, ValueError):
+            return None
+        if min(bid, ask, bid_depth, ask_depth) <= 0 or ask < bid:
+            return None
+        stamp = snapshot.get("timestamp")
+        if isinstance(stamp, str):
+            try:
+                stamp = datetime.fromisoformat(stamp)
+            except ValueError:
+                return None
+        if not isinstance(stamp, datetime):
+            return None
+        return MarketState(bid, ask, bid_depth, ask_depth, stamp)
+
+    @staticmethod
+    def _attribution_id(
+        run_id: str, instrument_id: str, side: str, signal_meta: dict[str, Any], timestamp: datetime
+    ) -> str:
+        explicit = signal_meta.get("attribution_id")
+        if explicit:
+            return str(explicit)
+        payload = {
+            "run_id": run_id,
+            "instrument_id": instrument_id,
+            "side": side,
+            "timestamp": timestamp.isoformat(),
+            "signals": signal_meta.get("signals", []),
+            "feature_weights": signal_meta.get("feature_weights", {}),
+        }
+        digest = hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode()
+        ).hexdigest()[:20]
+        return f"attr:{run_id}:{instrument_id}:{digest}"
+
+    @staticmethod
+    def _feature_attribution_rows(signal_meta: dict[str, Any]) -> list[dict[str, Any]]:
+        """Normalize a signal snapshot into descriptive model-attribution rows.
+
+        ``weighted_contribution`` is the signal-fusion score term. It is not
+        economic PnL and is deliberately stored separately from the later
+        realized-outcome association computed by the metrics layer.
+        """
+        scores = signal_meta.get("feature_scores")
+        weights = signal_meta.get("feature_weights")
+        values = signal_meta.get("feature_values")
+        contributions = signal_meta.get("weighted_contributions")
+        if not isinstance(scores, dict):
+            scores = {}
+        if not isinstance(weights, dict):
+            weights = {}
+        if not isinstance(values, dict):
+            values = {}
+        if not isinstance(contributions, dict):
+            contributions = {}
+        names = set(scores) | set(weights) | set(contributions)
+        rows: list[dict[str, Any]] = []
+        for name in sorted(str(item) for item in names):
+            score = scores.get(name) if isinstance(scores.get(name), dict) else {}
+            rows.append({
+                "feature_name": name,
+                "feature_value": values.get(name) if isinstance(values.get(name), (int, float)) else None,
+                "signal_direction": score.get("direction") if isinstance(score.get("direction"), (int, float)) else None,
+                "signal_strength": score.get("strength") if isinstance(score.get("strength"), (int, float)) else None,
+                "model_weight": weights.get(name) if isinstance(weights.get(name), (int, float)) else None,
+                "weighted_contribution": contributions.get(name) if isinstance(contributions.get(name), (int, float)) else None,
+                "method": str(signal_meta.get("attribution_method") or "descriptive_signal_input"),
+                "quality": "available" if scores or weights else "unknown",
+                "source": {
+                    "source": signal_meta.get("source", "unknown"),
+                    "causal_claim": bool(signal_meta.get("causal_claim", False)),
+                    "reason": signal_meta.get("reason"),
+                },
+            })
+        return rows
+
+    async def _process_depth_orders(self, active: _ActiveRun, snapshot: dict) -> None:
+        state = self._market_state(snapshot)
+        market_id = str(snapshot.get("market_id") or snapshot.get("pair_id") or "")
+        if state is None or not market_id:
+            return
+        fills = await active.paper_broker.on_market(market_id, state)
+        for execution in fills:
+            order = active.paper_broker.orders.get(execution.order_id)
+            if order is not None:
+                await self._persist_depth_execution(active, execution, order.metadata or {}, snapshot)
+
+    async def _persist_depth_execution(
+        self, active: _ActiveRun, execution: Any, signal_meta: dict[str, Any], snapshot: dict
+    ) -> None:
+        run_id = active.record.run_id
+        instrument = execution.market_id
+        positions = {
+            p.instrument_id: p for p in await asyncio.to_thread(self.store.list_positions, run_id)
+        }
+        current = positions.get(instrument)
+        current_size = current.size if current else 0.0
+        current_avg = current.avg_price if current else 0.0
+        signed_qty = execution.size if "buy" in execution.side.value else -execution.size
+        effective_price = execution.price + (
+            execution.fee / execution.size if signed_qty > 0 else -execution.fee / execution.size
+        )
+        new_size, new_avg, realized = apply_avg_price_fill(
+            current_size, current_avg, signed_qty, effective_price
+        )
+        execution_timestamp = getattr(execution, "timestamp", None)
+        if isinstance(execution_timestamp, datetime) and execution_timestamp.tzinfo is None:
+            execution_timestamp = execution_timestamp.replace(tzinfo=UTC)
+        executed_at = (
+            execution_timestamp.isoformat()
+            if isinstance(execution_timestamp, datetime)
+            else self._now().isoformat()
+        )
+        metadata = dict(signal_meta)
+        metadata.update({
+            "execution_mode": "depth_limited",
+            "paper_order_id": execution.order_id,
+            "execution_latency_ms": execution.latency_ms,
+        })
+        attribution_id = self._attribution_id(
+            run_id, instrument, "buy" if signed_qty > 0 else "sell", metadata,
+            snapshot["timestamp"] if isinstance(snapshot.get("timestamp"), datetime) else self._now(),
+        )
+        feature_weights = metadata.get("feature_weights")
+        if not isinstance(feature_weights, dict):
+            feature_weights = {}
+        raw_sha = metadata.get("raw_sha256")
+        provenance = raw_sha if isinstance(raw_sha, dict) else (
+            {"raw_sha256": raw_sha} if raw_sha is not None else {}
+        )
+        quote_quality = (
+            "full_depth" if snapshot.get("bid_size", 0) and snapshot.get("ask_size", 0)
+            else "missing_depth"
+        )
+        cost_attribution = {
+            "fee": float(execution.fee),
+            "slippage": float(execution.slippage),
+            "slippage_bps": float(execution.slippage / execution.price * 10_000)
+            if execution.price else None,
+            "quote_quality": quote_quality,
+            "depth": float(snapshot.get("ask_size" if signed_qty > 0 else "bid_size") or 0),
+        }
+        receipt = await asyncio.to_thread(
+            self.ledger.apply_fill,
+            FillCommand(
+                fill_id=f"{run_id}:{instrument}:{execution.order_id}:{uuid.uuid4().hex[:8]}",
+                account_id=f"paper:{run_id}",
+                order_id=execution.order_id,
+                instrument_id=instrument,
+                side="buy" if signed_qty > 0 else "sell",
+                quantity=execution.size,
+                price=execution.price,
+                fee=execution.fee,
+                executed_at=executed_at,
+                metadata={"source": "simulation", "signal_meta": metadata},
+            ),
+        )
+        metadata["ledger_sequence"] = receipt.sequence
+        trade_id = await asyncio.to_thread(
+            self.store.append_trade,
+            run_id,
+            instrument_id=instrument,
+            side="buy" if signed_qty > 0 else "sell",
+            size=execution.size,
+            price=execution.price,
+            fee=execution.fee,
+            slippage=execution.slippage,
+            signal_meta=metadata,
+            realized_pnl=realized,
+            executed_at=executed_at,
+            quote_bid=float(snapshot["bid_price"]),
+            quote_ask=float(snapshot["ask_price"]),
+            bid_depth=float(snapshot["bid_size"]),
+            ask_depth=float(snapshot["ask_size"]),
+            quote_timestamp=(snapshot["timestamp"].isoformat()
+                             if isinstance(snapshot["timestamp"], datetime)
+                             else str(snapshot["timestamp"])),
+            quote_source=str(metadata.get("quote_source") or "market_snapshot"),
+            quote_provenance=provenance,
+            quote_quality=quote_quality,
+            quote_observation_id=metadata.get("quote_observation_id"),
+            attribution_id=attribution_id,
+            feature_weights=feature_weights,
+            cost_attribution=cost_attribution,
+        )
+        observed_at = (
+            snapshot["timestamp"].isoformat()
+            if isinstance(snapshot.get("timestamp"), datetime)
+            else str(snapshot.get("timestamp") or executed_at)
+        )
+        await asyncio.to_thread(
+            self.store.append_feature_attributions,
+            run_id,
+            attribution_id=attribution_id,
+            trade_id=trade_id,
+            instrument_id=instrument,
+            observed_at=observed_at,
+            features=self._feature_attribution_rows(metadata),
+        )
+        await asyncio.to_thread(
+            self.store.upsert_position, run_id, instrument, new_size, new_avg,
+            current.attribution_id if current and abs(current_size) > _EPS else attribution_id,
+        )
+        await asyncio.to_thread(
+            self.store.update_run, run_id,
+            cash=active.record.cash - signed_qty * effective_price,
+        )
+        refreshed = await asyncio.to_thread(self.store.get_run, run_id)
+        if refreshed is not None:
+            active.record = refreshed
+        await self._record_equity(active)
 
     def _age_seconds(self, timestamp: datetime | None) -> float | None:
         if timestamp is None:
@@ -925,6 +1169,55 @@ class SimulationService:
                 )
                 return
 
+            if str(active.config_value("execution_mode")) == "depth_limited":
+                if signal.signal_meta.get("data_quality") != "ok":
+                    return
+                state = self._market_state({
+                    "bid_price": signal.bid,
+                    "ask_price": signal.ask,
+                    "bid_size": signal.bid_depth,
+                    "ask_size": signal.ask_depth,
+                    "timestamp": signal.timestamp,
+                })
+                if state is None:
+                    return
+                if any(
+                    order.market_id == instrument
+                    and order.status in ("open", "partial")
+                    for order in active.paper_broker.orders.values()
+                ):
+                    return
+                order_id = f"{run_id}:{instrument}:paper:{uuid.uuid4().hex[:8]}"
+                order = active.paper_broker.submit_order(
+                    order_id=order_id,
+                    market_id=instrument,
+                    side=Side.BUY_YES if qty > 0 else Side.SELL_YES,
+                    quantity=abs(qty),
+                    limit_price=est_price,
+                    metadata={
+                        **dict(signal.signal_meta),
+                        "confidence": signal.confidence,
+                        "quote_source": signal.signal_meta.get("quote_source", "market_snapshot"),
+                    },
+                )
+                fills = await active.paper_broker.on_market(instrument, state)
+                for execution in fills:
+                    if execution.order_id == order.order_id:
+                        await self._persist_depth_execution(
+                            active,
+                            execution,
+                            order.metadata or {},
+                            {
+                                "market_id": instrument,
+                                "bid_price": signal.bid,
+                                "ask_price": signal.ask,
+                                "bid_size": signal.bid_depth,
+                                "ask_size": signal.ask_depth,
+                                "timestamp": signal.timestamp,
+                            },
+                        )
+                return
+
             fill = self._fill_price(active, signal, qty)
             if fill is None:
                 return
@@ -963,6 +1256,19 @@ class SimulationService:
                     {"raw_sha256": quote_provenance}
                     if quote_provenance is not None else {}
                 )
+            attribution_id = self._attribution_id(
+                run_id, instrument, signal.side, signal_meta, now
+            )
+            feature_weights = signal_meta.get("feature_weights")
+            if not isinstance(feature_weights, dict):
+                feature_weights = {}
+            cost_attribution = {
+                "fee": float(fee),
+                "slippage": float(slippage),
+                "slippage_bps": float(slippage / raw_price * 10_000) if raw_price else None,
+                "quote_quality": quote_quality,
+                "depth": float((signal.ask_depth if qty > 0 else signal.bid_depth) or 0),
+            }
 
             def persist() -> None:
                 receipt = self.ledger.apply_fill(FillCommand(
@@ -973,7 +1279,7 @@ class SimulationService:
                     metadata={"source": "simulation", "signal_meta": signal_meta},
                 ))
                 signal_meta["ledger_sequence"] = receipt.sequence
-                self.store.append_trade(
+                trade_id = self.store.append_trade(
                     run_id,
                     instrument_id=instrument,
                     side=signal.side,
@@ -998,8 +1304,25 @@ class SimulationService:
                         str(signal_meta["quote_observation_id"])
                         if signal_meta.get("quote_observation_id") is not None else None
                     ),
+                    attribution_id=attribution_id,
+                    feature_weights=feature_weights,
+                    cost_attribution=cost_attribution,
                 )
-                self.store.upsert_position(run_id, instrument, new_size, new_avg)
+                self.store.append_feature_attributions(
+                    run_id,
+                    attribution_id=attribution_id,
+                    trade_id=trade_id,
+                    instrument_id=instrument,
+                    observed_at=(
+                        signal.timestamp.isoformat()
+                        if signal.timestamp is not None else executed_at
+                    ),
+                    features=self._feature_attribution_rows(signal_meta),
+                )
+                self.store.upsert_position(
+                    run_id, instrument, new_size, new_avg,
+                    current.attribution_id if current and abs(current_size) > _EPS else attribution_id,
+                )
                 self.store.update_run(run_id, cash=new_cash)
 
             await asyncio.to_thread(persist)
@@ -1033,6 +1356,53 @@ class SimulationService:
             ts=now.isoformat(),
             degraded=degraded,
         )
+        positions = await asyncio.to_thread(self.store.list_positions, active.record.run_id)
+        trades = await asyncio.to_thread(self.store.list_trades, active.record.run_id)
+        settlements = await asyncio.to_thread(self.store.list_settlements, active.record.run_id)
+        instruments = {
+            p.instrument_id for p in positions
+        } | {t.instrument_id for t in trades} | {s.instrument_id for s in settlements}
+        position_by_instrument = {p.instrument_id: p for p in positions}
+        for instrument in instruments:
+            position = position_by_instrument.get(instrument)
+            mark = active.marks.get(instrument)
+            if position is None:
+                position_value = 0.0
+                unrealized = 0.0
+                instrument_degraded = False
+                attribution_id = None
+            else:
+                instrument_degraded = mark is None
+                seen = active.mark_times.get(instrument)
+                if seen is not None:
+                    observed = seen if seen.tzinfo else seen.replace(tzinfo=UTC)
+                    instrument_degraded = instrument_degraded or (
+                        (self._now() - observed).total_seconds()
+                        > float(active.config_value("max_staleness_seconds"))
+                    )
+                mark = mark if mark is not None else position.avg_price
+                position_value = position.size * mark
+                unrealized = position.size * (mark - position.avg_price)
+                attribution_id = position.attribution_id
+            realized = sum(
+                float(t.realized_pnl or 0.0)
+                for t in trades if t.instrument_id == instrument
+            ) + sum(
+                float(s.realized_pnl)
+                for s in settlements if s.instrument_id == instrument
+            )
+            await asyncio.to_thread(
+                self.store.append_instrument_pnl_point,
+                active.record.run_id,
+                instrument_id=instrument,
+                ts=now.isoformat(),
+                pnl=realized + unrealized,
+                realized_pnl=realized,
+                unrealized_pnl=unrealized,
+                position_value=position_value,
+                attribution_id=attribution_id,
+                degraded=instrument_degraded,
+            )
         active.last_equity_at = now
 
     async def _equity_loop(self) -> None:

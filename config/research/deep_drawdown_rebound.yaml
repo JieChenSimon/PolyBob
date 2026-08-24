@@ -1,5 +1,16 @@
 strategy_id: deep_drawdown_rebound_v1
-status: candidate_only
+status: quality_filtered_research
+product_status_zh: 质量过滤后研究
+product_status_en: Quality-filtered research
+evidence_status: UNKNOWN
+fundamental_evidence: UNKNOWN
+pit_status: UNKNOWN
+trade_permission: false
+basic_evidence:
+  real_data_required: true
+  asset_sleeves: [A_SHARE, US_EQUITY, BTC, ALTCOIN]
+  quality_filters: [survivorship_control, liquidity, executable_quote, cost_stress]
+unknown_fields: [fundamental_evidence, strict_historical_pit, survivorship_control, executable_depth, sample_out_of_sample, promotion_result]
 real_data_required: true
 
 # This is a pre-registered research candidate, not a trading permission.  The
@@ -10,6 +21,32 @@ trigger:
   trigger_observation: next_executable_bar_after_close
   lookahead_allowed: false
   confirmation: none
+
+fundamental_filter:
+  dataset: fundamentals
+  required_as_of: announcement_at
+  minimum_history_periods: 4
+  rules:
+    revenue_positive: true
+    gross_margin_floor: 0.15
+    operating_cash_flow_positive: true
+    net_debt_to_operating_cash_flow_max: 5.0
+    going_concern_or_impairment_flags: reject
+  missing_data_action: unknown_no_trade
+  sector_overrides_required: true
+  cyclical_sector_action: require_margin_and_cashflow_recovery
+  sector_profiles:
+    broad_equity:
+      net_debt_to_operating_cash_flow_max: 5.0
+      minimum_positive_ocf_periods: 2
+    storage_semiconductor:
+      symbols: [SNDK, MU, WDC]
+      net_debt_to_operating_cash_flow_max: 2.0
+      minimum_positive_ocf_periods: 2
+      require_three_year_cumulative_fcf_positive: true
+      require_inventory_days_vs_5y_median: true
+      require_revenue_customer_concentration: true
+      missing_cycle_fields_action: unknown_no_trade
 
 execution:
   entry: three_equal_tranches

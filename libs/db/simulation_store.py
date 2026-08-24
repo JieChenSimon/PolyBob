@@ -53,6 +53,7 @@ _SCHEMA_STATEMENTS = (
         instrument_id TEXT NOT NULL,
         size REAL NOT NULL,
         avg_price REAL NOT NULL,
+        attribution_id TEXT,
         updated_at TEXT NOT NULL,
         PRIMARY KEY (run_id, instrument_id)
     )
@@ -78,7 +79,10 @@ _SCHEMA_STATEMENTS = (
         quote_source TEXT NOT NULL DEFAULT 'unknown',
         quote_provenance_json TEXT NOT NULL DEFAULT '{}',
         quote_quality TEXT NOT NULL DEFAULT 'unknown',
-        quote_observation_id TEXT
+        quote_observation_id TEXT,
+        attribution_id TEXT,
+        feature_weights_json TEXT NOT NULL DEFAULT '{}',
+        cost_attribution_json TEXT NOT NULL DEFAULT '{}'
     )
     """,
     """
@@ -92,7 +96,42 @@ _SCHEMA_STATEMENTS = (
         PRIMARY KEY (run_id, ts)
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS sim_instrument_pnl_points (
+        run_id TEXT NOT NULL,
+        instrument_id TEXT NOT NULL,
+        ts TEXT NOT NULL,
+        pnl REAL NOT NULL,
+        realized_pnl REAL NOT NULL,
+        unrealized_pnl REAL NOT NULL,
+        position_value REAL NOT NULL,
+        attribution_id TEXT,
+        degraded INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (run_id, instrument_id, ts)
+    )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS sim_feature_attributions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT NOT NULL,
+        attribution_id TEXT NOT NULL,
+        trade_id INTEGER,
+        instrument_id TEXT NOT NULL,
+        observed_at TEXT NOT NULL,
+        feature_name TEXT NOT NULL,
+        feature_value REAL,
+        signal_direction INTEGER,
+        signal_strength REAL,
+        model_weight REAL,
+        weighted_contribution REAL,
+        method TEXT NOT NULL,
+        quality TEXT NOT NULL DEFAULT 'unknown',
+        source_json TEXT NOT NULL DEFAULT '{}',
+        UNIQUE (run_id, attribution_id, trade_id, feature_name)
+    )
+    """,
     "CREATE INDEX IF NOT EXISTS idx_sim_trades_run ON sim_trades(run_id, id)",
+    "CREATE INDEX IF NOT EXISTS idx_sim_feature_attr_run ON sim_feature_attributions(run_id, observed_at, instrument_id)",
     """
     CREATE TABLE IF NOT EXISTS sim_quote_observations (
         observation_id TEXT PRIMARY KEY,
@@ -198,6 +237,7 @@ class SimPositionRecord:
     instrument_id: str
     size: float
     avg_price: float
+    attribution_id: str | None
     updated_at: str
 
     def to_dict(self) -> dict[str, Any]:
@@ -206,6 +246,7 @@ class SimPositionRecord:
             "instrument_id": self.instrument_id,
             "size": self.size,
             "avg_price": self.avg_price,
+            "attribution_id": self.attribution_id,
             "updated_at": self.updated_at,
         }
 
@@ -232,6 +273,9 @@ class SimTradeRecord:
     quote_provenance: dict[str, Any] = field(default_factory=dict)
     quote_quality: str = "unknown"
     quote_observation_id: str | None = None
+    attribution_id: str | None = None
+    feature_weights: dict[str, float] = field(default_factory=dict)
+    cost_attribution: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -255,6 +299,9 @@ class SimTradeRecord:
             "quote_provenance": dict(self.quote_provenance),
             "quote_quality": self.quote_quality,
             "quote_observation_id": self.quote_observation_id,
+            "attribution_id": self.attribution_id,
+            "feature_weights": dict(self.feature_weights),
+            "cost_attribution": dict(self.cost_attribution),
         }
 
 
@@ -339,6 +386,71 @@ class SimEquityPointRecord:
             "equity": self.equity,
             "cash": self.cash,
             "gross_exposure": self.gross_exposure,
+            "degraded": self.degraded,
+        }
+
+
+@dataclass(frozen=True)
+class SimInstrumentPnlPointRecord:
+    run_id: str
+    instrument_id: str
+    ts: str
+    pnl: float
+    realized_pnl: float
+    unrealized_pnl: float
+    position_value: float
+    attribution_id: str | None
+    degraded: bool
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "run_id": self.run_id,
+            "instrument_id": self.instrument_id,
+            "ts": self.ts,
+            "pnl": self.pnl,
+            "realized_pnl": self.realized_pnl,
+            "unrealized_pnl": self.unrealized_pnl,
+            "position_value": self.position_value,
+            "attribution_id": self.attribution_id,
+            "degraded": self.degraded,
+        }
+
+
+@dataclass(frozen=True)
+class SimFeatureAttributionRecord:
+    attribution_row_id: int
+    run_id: str
+    attribution_id: str
+    trade_id: int | None
+    instrument_id: str
+    observed_at: str
+    feature_name: str
+    feature_value: float | None
+    signal_direction: int | None
+    signal_strength: float | None
+    model_weight: float | None
+    weighted_contribution: float | None
+    method: str
+    quality: str
+    source: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "attribution_row_id": self.attribution_row_id,
+            "run_id": self.run_id,
+            "attribution_id": self.attribution_id,
+            "trade_id": self.trade_id,
+            "instrument_id": self.instrument_id,
+            "observed_at": self.observed_at,
+            "feature_name": self.feature_name,
+            "feature_value": self.feature_value,
+            "signal_direction": self.signal_direction,
+            "signal_strength": self.signal_strength,
+            "model_weight": self.model_weight,
+            "weighted_contribution": self.weighted_contribution,
+            "method": self.method,
+            "quality": self.quality,
+            "source": dict(self.source),
         }
 
 
@@ -370,12 +482,29 @@ class SimulationStore:
             ("quote_provenance_json", "TEXT NOT NULL DEFAULT '{}'"),
             ("quote_quality", "TEXT NOT NULL DEFAULT 'unknown'"),
             ("quote_observation_id", "TEXT"),
+            ("attribution_id", "TEXT"),
+            ("feature_weights_json", "TEXT NOT NULL DEFAULT '{}'"),
+            ("cost_attribution_json", "TEXT NOT NULL DEFAULT '{}'"),
         )
         for name, definition in migrations:
             if name not in columns:
                 connection.execute(
                     f"ALTER TABLE sim_trades ADD COLUMN {name} {definition}"
                 )
+        position_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(sim_positions)").fetchall()
+        }
+        if "attribution_id" not in position_columns:
+            connection.execute("ALTER TABLE sim_positions ADD COLUMN attribution_id TEXT")
+        equity_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(sim_equity_points)").fetchall()
+        }
+        if "degraded" not in equity_columns:
+            connection.execute(
+                "ALTER TABLE sim_equity_points ADD COLUMN degraded INTEGER NOT NULL DEFAULT 0"
+            )
         return connection
 
     # ------------------------------------------------------------------ runs
@@ -477,7 +606,8 @@ class SimulationStore:
     # ------------------------------------------------------------- positions
 
     def upsert_position(
-        self, run_id: str, instrument_id: str, size: float, avg_price: float
+        self, run_id: str, instrument_id: str, size: float, avg_price: float,
+        attribution_id: str | None = None,
     ) -> None:
         with self._connect() as connection:
             if abs(size) < 1e-12:
@@ -488,14 +618,15 @@ class SimulationStore:
                 return
             connection.execute(
                 """
-                INSERT INTO sim_positions (run_id, instrument_id, size, avg_price, updated_at)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO sim_positions (run_id, instrument_id, size, avg_price, attribution_id, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(run_id, instrument_id) DO UPDATE SET
                     size = excluded.size,
                     avg_price = excluded.avg_price,
+                    attribution_id = COALESCE(excluded.attribution_id, sim_positions.attribution_id),
                     updated_at = excluded.updated_at
                 """,
-                (run_id, instrument_id, float(size), float(avg_price), _utcnow_iso()),
+                (run_id, instrument_id, float(size), float(avg_price), attribution_id, _utcnow_iso()),
             )
 
     def list_positions(self, run_id: str) -> list[SimPositionRecord]:
@@ -510,6 +641,7 @@ class SimulationStore:
                 instrument_id=row["instrument_id"],
                 size=float(row["size"]),
                 avg_price=float(row["avg_price"]),
+                attribution_id=row["attribution_id"],
                 updated_at=row["updated_at"],
             )
             for row in rows
@@ -539,6 +671,9 @@ class SimulationStore:
         quote_provenance: Mapping[str, Any] | None = None,
         quote_quality: str = "unknown",
         quote_observation_id: str | None = None,
+        attribution_id: str | None = None,
+        feature_weights: Mapping[str, float] | None = None,
+        cost_attribution: Mapping[str, Any] | None = None,
     ) -> int:
         with self._connect() as connection:
             cursor = connection.execute(
@@ -548,9 +683,10 @@ class SimulationStore:
                     signal_meta_json, realized_pnl, executed_at, quote_bid,
                     quote_ask, bid_depth, ask_depth, quote_timestamp,
                     quote_source, quote_provenance_json, quote_quality,
-                    quote_observation_id
+                    quote_observation_id, attribution_id, feature_weights_json,
+                    cost_attribution_json
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run_id,
@@ -572,6 +708,9 @@ class SimulationStore:
                     _dump_json(dict(quote_provenance or {})),
                     str(quote_quality or "unknown"),
                     quote_observation_id,
+                    attribution_id,
+                    _dump_json(dict(feature_weights or {})),
+                    _dump_json(dict(cost_attribution or {})),
                 ),
             )
             return int(cursor.lastrowid)
@@ -822,6 +961,15 @@ class SimulationStore:
             ).fetchone()
         return float(row["pnl"])
 
+    def list_funding(self, run_id: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT instrument_id, rate, notional, pnl, source, applied_at "
+                "FROM sim_funding WHERE run_id = ? ORDER BY applied_at, id",
+                (run_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
     def count_funding(self, run_id: str) -> int:
         with self._connect() as connection:
             row = connection.execute(
@@ -855,6 +1003,9 @@ class SimulationStore:
             quote_provenance=_load_json(row["quote_provenance_json"], {}) or {},
             quote_quality=row["quote_quality"] or "unknown",
             quote_observation_id=row["quote_observation_id"],
+            attribution_id=row["attribution_id"],
+            feature_weights=_load_json(row["feature_weights_json"], {}) or {},
+            cost_attribution=_load_json(row["cost_attribution_json"], {}) or {},
         )
 
     @staticmethod
@@ -939,10 +1090,154 @@ class SimulationStore:
             for row in rows
         ]
 
+    def append_instrument_pnl_point(
+        self,
+        run_id: str,
+        *,
+        instrument_id: str,
+        ts: str,
+        pnl: float,
+        realized_pnl: float,
+        unrealized_pnl: float,
+        position_value: float,
+        attribution_id: str | None,
+        degraded: bool,
+    ) -> None:
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO sim_instrument_pnl_points (
+                    run_id, instrument_id, ts, pnl, realized_pnl,
+                    unrealized_pnl, position_value, attribution_id, degraded
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(run_id, instrument_id, ts) DO UPDATE SET
+                    pnl = excluded.pnl,
+                    realized_pnl = excluded.realized_pnl,
+                    unrealized_pnl = excluded.unrealized_pnl,
+                    position_value = excluded.position_value,
+                    attribution_id = excluded.attribution_id,
+                    degraded = excluded.degraded
+                """,
+                (
+                    run_id, instrument_id, ts, float(pnl), float(realized_pnl),
+                    float(unrealized_pnl), float(position_value), attribution_id,
+                    1 if degraded else 0,
+                ),
+            )
+
+    def list_instrument_pnl_points(self, run_id: str) -> list[SimInstrumentPnlPointRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM sim_instrument_pnl_points "
+                "WHERE run_id = ? ORDER BY ts, instrument_id",
+                (run_id,),
+            ).fetchall()
+        return [
+            SimInstrumentPnlPointRecord(
+                run_id=row["run_id"], instrument_id=row["instrument_id"],
+                ts=row["ts"], pnl=float(row["pnl"]),
+                realized_pnl=float(row["realized_pnl"]),
+                unrealized_pnl=float(row["unrealized_pnl"]),
+                position_value=float(row["position_value"]),
+                attribution_id=row["attribution_id"],
+                degraded=bool(row["degraded"]),
+            )
+            for row in rows
+        ]
+
+    # ------------------------------------------------------- feature attribution
+
+    def append_feature_attributions(
+        self,
+        run_id: str,
+        *,
+        attribution_id: str,
+        trade_id: int | None,
+        instrument_id: str,
+        observed_at: str,
+        features: list[Mapping[str, Any]],
+    ) -> int:
+        """Persist one immutable feature snapshot associated with a fill.
+
+        The rows describe model inputs and weighted score contributions only.
+        They are intentionally not named economic/causal PnL attribution;
+        outcome association is computed separately from realized fills.
+        Duplicate retries for the same fill/feature are idempotent.
+        """
+        if not attribution_id or not instrument_id or not observed_at:
+            raise ValueError("attribution_id, instrument_id and observed_at are required")
+        inserted = 0
+        with self._connect() as connection:
+            for feature in features:
+                name = str(feature.get("feature_name") or "").strip()
+                if not name:
+                    continue
+                values = (
+                    run_id,
+                    str(attribution_id),
+                    int(trade_id) if trade_id is not None else None,
+                    instrument_id,
+                    observed_at,
+                    name,
+                    feature.get("feature_value"),
+                    feature.get("signal_direction"),
+                    feature.get("signal_strength"),
+                    feature.get("model_weight"),
+                    feature.get("weighted_contribution"),
+                    str(feature.get("method") or "descriptive_signal_input"),
+                    str(feature.get("quality") or "unknown"),
+                    _dump_json(dict(feature.get("source") or {})),
+                )
+                cursor = connection.execute(
+                    """
+                    INSERT OR IGNORE INTO sim_feature_attributions (
+                        run_id, attribution_id, trade_id, instrument_id, observed_at,
+                        feature_name, feature_value, signal_direction, signal_strength,
+                        model_weight, weighted_contribution, method, quality, source_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    values,
+                )
+                inserted += int(cursor.rowcount)
+        return inserted
+
+    def list_feature_attributions(self, run_id: str) -> list[SimFeatureAttributionRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM sim_feature_attributions "
+                "WHERE run_id = ? ORDER BY observed_at, id",
+                (run_id,),
+            ).fetchall()
+        return [
+            SimFeatureAttributionRecord(
+                attribution_row_id=int(row["id"]),
+                run_id=row["run_id"],
+                attribution_id=row["attribution_id"],
+                trade_id=int(row["trade_id"]) if row["trade_id"] is not None else None,
+                instrument_id=row["instrument_id"],
+                observed_at=row["observed_at"],
+                feature_name=row["feature_name"],
+                feature_value=float(row["feature_value"]) if row["feature_value"] is not None else None,
+                signal_direction=int(row["signal_direction"]) if row["signal_direction"] is not None else None,
+                signal_strength=float(row["signal_strength"]) if row["signal_strength"] is not None else None,
+                model_weight=float(row["model_weight"]) if row["model_weight"] is not None else None,
+                weighted_contribution=(
+                    float(row["weighted_contribution"])
+                    if row["weighted_contribution"] is not None else None
+                ),
+                method=row["method"],
+                quality=row["quality"],
+                source=_load_json(row["source_json"], {}) or {},
+            )
+            for row in rows
+        ]
+
 
 __all__ = [
     "RUN_STATUSES",
     "SimEquityPointRecord",
+    "SimFeatureAttributionRecord",
+    "SimInstrumentPnlPointRecord",
     "SimPositionRecord",
     "SimQuoteObservationRecord",
     "SimRunRecord",

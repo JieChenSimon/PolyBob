@@ -67,6 +67,13 @@ describe('promotion board contract', () => {
     'implementation',
     'evidence',
     'failed',
+    'product_status',
+    'evidence_status',
+    'fundamental_evidence',
+    'pit_status',
+    'trade_permission',
+    'basic_evidence',
+    'unknown_fields',
   ] as const;
 
   const board = readJson('data/promotion_board.json');

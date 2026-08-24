@@ -5,7 +5,7 @@ import asyncio
 import math
 import random
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 from datetime import datetime
 import structlog
 import numpy as np
@@ -78,6 +78,7 @@ class PaperOrder:
     remaining: float
     status: str = "open"
     filled_quantity: float = 0.0
+    metadata: dict[str, Any] | None = None
 
 
 class PaperBroker:
@@ -98,19 +99,20 @@ class PaperBroker:
         self, *, order_id: str, market_id: str, side: Side, quantity: float,
         limit_price: float | None = None,
         time_in_force: TimeInForce = TimeInForce.GTC,
+        metadata: dict[str, Any] | None = None,
     ) -> PaperOrder:
         if order_id in self.orders:
             raise ValueError(f"duplicate order_id: {order_id}")
         if quantity <= 0 or (limit_price is not None and limit_price <= 0):
             raise ValueError("quantity and limit_price must be positive")
         order = PaperOrder(order_id, market_id, side, float(quantity), limit_price,
-                           TimeInForce(time_in_force), float(quantity))
+                           TimeInForce(time_in_force), float(quantity), metadata=dict(metadata or {}))
         self.orders[order_id] = order
         return order
 
     async def cancel_order(self, order_id: str) -> PaperOrder:
         order = self.orders[order_id]
-        if order.status == "open":
+        if order.status in ("open", "partial"):
             order.status = "cancelled"
         return order
 
@@ -118,7 +120,7 @@ class PaperBroker:
         """Match all eligible orders against one real snapshot."""
         fills: list[Execution] = []
         for order in list(self.orders.values()):
-            if order.market_id != market_id or order.status != "open":
+            if order.market_id != market_id or order.status not in ("open", "partial"):
                 continue
             buying = "buy" in order.side.value.lower()
             touch = state.best_ask if buying else state.best_bid

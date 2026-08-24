@@ -61,6 +61,8 @@ def test_create_and_list_runs_envelope(sim_api):
     assert "metrics" in run
     assert run["metrics"]["trade_count"] == 0
     assert run["metrics"]["win_rate"] is None
+    assert run["metrics"]["total_return"] is None
+    assert run["metrics"]["max_drawdown"] is None
 
 
 def test_runtime_control_is_paper_only_and_pauses_on_disable(sim_api):
@@ -111,7 +113,10 @@ def test_run_detail_envelope_and_downsampled_curve(sim_api):
     assert response.status_code == 200
     body = response.json()
     assert body["run"]["run_id"] == run_id
-    assert set(body) == {"run", "metrics", "equity_curve", "positions", "trades"}
+    assert set(body) == {
+        "run", "metrics", "equity_curve", "instrument_pnl_curves",
+        "feature_attribution", "positions", "trades",
+    }
     assert body["positions"] == []
     assert body["trades"] == []
     # Server-side cap at 500 points, endpoints keep first/last.
@@ -121,6 +126,63 @@ def test_run_detail_envelope_and_downsampled_curve(sim_api):
     assert curve[0]["equity"] == 5_000.0
     assert curve[-1]["equity"] == 5_699.0
     assert body["metrics"]["total_return"] == pytest.approx(699.0 / 5_000.0)
+    assert body["instrument_pnl_curves"] == {}
+    assert body["feature_attribution"]["status"] == "UNKNOWN"
+
+
+def test_run_detail_exposes_instrument_curve_and_explainable_attribution(sim_api):
+    client, service = sim_api
+    run_id = create_run(client)
+    ts = "2026-07-01T00:00:00+00:00"
+    trade_id = service.store.append_trade(
+        run_id,
+        instrument_id="m1",
+        side="sell",
+        size=1.0,
+        price=102.0,
+        fee=0.2,
+        slippage=0.5,
+        signal_meta={"source": "test", "causal_claim": False},
+        realized_pnl=2.0,
+        executed_at=ts,
+        attribution_id="attr-m1",
+        feature_weights={"trend": 0.7},
+    )
+    service.store.append_feature_attributions(
+        run_id,
+        attribution_id="attr-m1",
+        trade_id=trade_id,
+        instrument_id="m1",
+        observed_at=ts,
+        features=[{
+            "feature_name": "trend",
+            "feature_value": 0.4,
+            "signal_direction": 1,
+            "signal_strength": 0.8,
+            "model_weight": 0.7,
+            "weighted_contribution": 0.56,
+            "method": "model_weighted_signal_contribution",
+            "quality": "available",
+        }],
+    )
+    service.store.append_instrument_pnl_point(
+        run_id,
+        instrument_id="m1",
+        ts=ts,
+        pnl=2.0,
+        realized_pnl=2.0,
+        unrealized_pnl=0.0,
+        position_value=0.0,
+        attribution_id="attr-m1",
+        degraded=False,
+    )
+
+    body = client.get(f"/api/simulation/runs/{run_id}").json()
+    assert "m1" in body["instrument_pnl_curves"]
+    assert body["instrument_pnl_curves"]["m1"][0]["pnl"] == pytest.approx(2.0)
+    assert body["feature_attribution"]["status"] == "available"
+    assert body["feature_attribution"]["causal_claim"] is False
+    assert body["feature_attribution"]["features"][0]["associated_realized_pnl"] == pytest.approx(2.0)
 
 
 def _seed_equity(service, run_id, returns, start=5_000.0):

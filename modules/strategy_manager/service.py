@@ -45,6 +45,13 @@ class StrategyTemplateRecord:
     risk_limits: dict[str, Any]
     runtime_mode: str = "research"
     enabled: bool = True
+    product_status: str = "research"
+    evidence_status: str = "UNKNOWN"
+    fundamental_evidence: str = "UNKNOWN"
+    pit_status: str = "UNKNOWN"
+    trade_permission: bool = False
+    unknown_fields: list[str] = field(default_factory=list)
+    basic_evidence: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -58,6 +65,13 @@ class StrategyTemplateRecord:
             "risk_limits": self.risk_limits,
             "source": self.config_path,
             "enabled": self.enabled,
+            "product_status": self.product_status,
+            "evidence_status": self.evidence_status,
+            "fundamental_evidence": self.fundamental_evidence,
+            "pit_status": self.pit_status,
+            "trade_permission": self.trade_permission,
+            "unknown_fields": self.unknown_fields,
+            "basic_evidence": self.basic_evidence,
         }
 
 
@@ -192,6 +206,13 @@ class StrategyManagerService:
                 parameters=dict(raw.get("parameters") or {}),
                 risk_limits=dict(raw.get("risk_limits") or {}),
                 runtime_mode=runtime_mode,
+                product_status=str(raw.get("product_status") or raw.get("status") or "research"),
+                evidence_status=str(raw.get("evidence_status") or "UNKNOWN"),
+                fundamental_evidence=str(raw.get("fundamental_evidence") or "UNKNOWN"),
+                pit_status=str(raw.get("pit_status") or "UNKNOWN"),
+                trade_permission=bool(raw.get("trade_permission", False)) and runtime_mode == "paper_ready",
+                unknown_fields=[str(item) for item in (raw.get("unknown_fields") or [])],
+                basic_evidence=dict(raw.get("basic_evidence") or {}),
             )
 
         logger.info("strategy_templates_loaded", count=len(self.templates))

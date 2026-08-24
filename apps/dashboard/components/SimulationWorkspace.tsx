@@ -36,6 +36,10 @@ const SimulationEquityChart = dynamic(() => import('./SimulationEquityChart'), {
   ssr: false,
   loading: () => <div className="h-full" />,
 });
+const SimulationInstrumentPnlChart = dynamic(() => import('./SimulationInstrumentPnlChart'), {
+  ssr: false,
+  loading: () => <div className="h-full" />,
+});
 
 interface SimulationMetrics {
   total_return: number | null;
@@ -44,6 +48,19 @@ interface SimulationMetrics {
   max_drawdown: number | null;
   sharpe: number | null;
   trade_count: number | null;
+  per_instrument?: Record<string, {
+    trade_count: number;
+    closed_trades: number;
+    realized_pnl: number;
+    win_rate: number | null;
+  }>;
+  execution_evidence?: {
+    latest_observed_at?: string | null;
+    latest_observed_instrument?: string | null;
+    latest_quote_quality?: string;
+    quote_observation_count?: number;
+    quote_quality_counts?: Record<string, number>;
+  };
 }
 
 interface SimulationRun {
@@ -56,12 +73,32 @@ interface SimulationRun {
   status: 'running' | 'paused' | 'stopped';
   created_at: string;
   metrics: SimulationMetrics | null;
+  config?: Record<string, unknown>;
 }
 
 interface SimulationDetailMetrics extends SimulationMetrics {
   avg_win: number | null;
   avg_loss: number | null;
-  per_instrument?: Array<Record<string, unknown>>;
+  per_instrument?: Record<string, {
+    trade_count: number;
+    closed_trades: number;
+    realized_pnl: number;
+    win_rate: number | null;
+  }>;
+}
+
+interface FeatureAttribution {
+  feature_name: string;
+  average_model_weight: number | null;
+  model_contribution: number | null;
+  associated_realized_pnl: number | null;
+  fill_count: number;
+  closed_fill_count: number;
+  instrument_count: number;
+  methods: string[];
+  quality: string[];
+  attribution_status: string;
+  causal_claim: boolean;
 }
 
 interface SimulationPosition {
@@ -85,6 +122,20 @@ interface SimulationRunDetail {
   run: SimulationRun;
   metrics: SimulationDetailMetrics | null;
   equity_curve: Array<{ ts: number | string; equity: number }>;
+  instrument_pnl_curves: Record<string, Array<{
+    ts: number | string;
+    pnl: number;
+    realized_pnl: number;
+    unrealized_pnl: number;
+    degraded: boolean;
+  }>>;
+  feature_attribution: {
+    status: string;
+    causal_claim: boolean;
+    interpretation: string;
+    row_count: number;
+    features: FeatureAttribution[];
+  };
   positions: SimulationPosition[];
   trades: SimulationTrade[];
 }
@@ -736,6 +787,7 @@ function RunDetailPanel({
 }) {
   const run = detail?.run ?? fallbackRun;
   const metrics = detail?.metrics ?? run?.metrics ?? null;
+  const [selectedInstrument, setSelectedInstrument] = useState<string>('ALL');
   const actions = allowedRunActions(run?.status);
   const thinSample = !hasReliableSample(metrics?.trade_count);
   const sampleCaption = zh ? '样本不足，指标仅供参考' : 'Thin sample; treat as indicative only';
@@ -760,12 +812,53 @@ function RunDetailPanel({
       .sort((a, b) => a.ts - b.ts);
   }, [detail?.equity_curve]);
 
+  const selectedCurveInstrument = selectedInstrument === 'ALL'
+    ? (run?.universe ?? [])[0]
+    : selectedInstrument;
+  const instrumentChartPoints = useMemo(() => {
+    const curve = selectedCurveInstrument
+      ? detail?.instrument_pnl_curves?.[selectedCurveInstrument] ?? []
+      : [];
+    return curve
+      .filter((point) => Number.isFinite(point.pnl))
+      .map((point) => {
+        const ms = toEpochMs(point.ts);
+        return {
+          ts: ms,
+          label: new Date(ms).toLocaleString(undefined, {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+          }),
+          pnl: point.pnl,
+          realized_pnl: point.realized_pnl,
+          unrealized_pnl: point.unrealized_pnl,
+          degraded: point.degraded,
+        };
+      })
+      .sort((a, b) => a.ts - b.ts);
+  }, [detail?.instrument_pnl_curves, selectedCurveInstrument]);
+  const instrumentCurveDegraded = instrumentChartPoints.some((point) => point.degraded);
+
   const trades = useMemo(() => {
     const list = detail?.trades ?? [];
     return [...list]
       .sort((a, b) => Date.parse(b.executed_at) - Date.parse(a.executed_at))
+      .filter((trade) => selectedInstrument === 'ALL' || trade.instrument_id === selectedInstrument)
       .slice(0, 12);
-  }, [detail?.trades]);
+  }, [detail?.trades, selectedInstrument]);
+
+  const instruments = run?.universe ?? [];
+  const latestObservedAt = metrics?.execution_evidence?.latest_observed_at ?? null;
+  const latestObservedInstrument = metrics?.execution_evidence?.latest_observed_instrument ?? null;
+  const selectedFreshnessMatches = selectedInstrument === 'ALL'
+    || latestObservedInstrument === selectedInstrument;
+  const freshnessAge = latestObservedAt ? Math.max(0, Date.now() - Date.parse(latestObservedAt)) : null;
+  const freshnessLabel = freshnessAge === null || !Number.isFinite(freshnessAge)
+    ? (zh ? 'UNKNOWN' : 'UNKNOWN')
+    : freshnessAge <= 60_000
+      ? (zh ? '实时/近 1 分钟' : 'Fresh / <1m')
+      : freshnessAge <= 300_000
+        ? (zh ? '延迟' : 'Delayed')
+        : (zh ? '过期' : 'Stale');
 
   return (
     <>
@@ -903,6 +996,157 @@ function RunDetailPanel({
         ) : null}
       </Card>
 
+      <Card>
+        <SectionHeader
+          title={zh ? '逐标的收益与解释' : 'Per-instrument performance & explanation'}
+          caption={zh
+            ? `当前曲线：${selectedCurveInstrument || 'UNKNOWN'}。这是标的净 PnL 贡献，不是重复分配后的账户 equity。`
+            : `Curve: ${selectedCurveInstrument || 'UNKNOWN'}. This is instrument PnL contribution, not duplicated account equity.`}
+        />
+        <div className="mt-4 h-72">
+          {instrumentChartPoints.length ? (
+            <SimulationInstrumentPnlChart points={instrumentChartPoints} zh={zh} />
+          ) : (
+            <EmptyState
+              className="flex h-full flex-col items-center justify-center"
+              title={zh ? '暂无逐标的收益曲线' : 'No per-instrument PnL curve yet'}
+              hint={zh
+                ? '运行必须产生持久化标的 PnL 点；缺失时保持 UNKNOWN。'
+                : 'The run must persist instrument PnL points; missing evidence stays UNKNOWN.'}
+            />
+          )}
+        </div>
+        {instrumentCurveDegraded ? (
+          <div className="mt-3">
+            <StatusBadge tone="warn">{zh ? 'DEGRADED：部分标记过期或缺失' : 'DEGRADED: stale or missing marks'}</StatusBadge>
+          </div>
+        ) : null}
+        <div className="mt-4 overflow-x-auto">
+          {Object.keys(metrics?.per_instrument ?? {}).length ? (
+            <table className="w-full min-w-[620px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 text-xs uppercase tracking-[0.08em] text-stone-500">
+                  <th className="py-2 pr-3 font-medium">{zh ? '标的' : 'Instrument'}</th>
+                  <th className="py-2 pr-3 text-right font-medium">{zh ? '已实现 PnL' : 'Realized PnL'}</th>
+                  <th className="py-2 pr-3 text-right font-medium">{zh ? '成交' : 'Fills'}</th>
+                  <th className="py-2 text-right font-medium">{zh ? '平仓胜率' : 'Closed win rate'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(metrics?.per_instrument ?? {}).map(([instrument, item]) => (
+                  <tr key={instrument} className="border-b border-stone-100 last:border-b-0">
+                    <td className="mono py-2 pr-3 text-stone-900">{instrument}</td>
+                    <td className={`py-2 pr-3 text-right font-medium ${signToneClass(item.realized_pnl)}`}>{formatSigned(item.realized_pnl, 2)}</td>
+                    <td className="py-2 pr-3 text-right text-stone-700">{item.trade_count}</td>
+                    <td className="py-2 text-right text-stone-700">{formatRatioAsPercent(item.win_rate, 1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-3 text-xs text-amber-800">
+              {zh ? 'UNKNOWN：当前运行没有逐标的成交结果。' : 'UNKNOWN: this run has no per-instrument outcome data.'}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Card>
+        <SectionHeader
+          title={zh ? '特征归因（描述性）' : 'Feature attribution (descriptive)'}
+          caption={zh
+            ? '权重/模型贡献不等于因果收益；已实现盈亏只是同一成交的结果关联。'
+            : 'Weights/model contribution are not causal profit; realized PnL is only an association with the same fill.'}
+        />
+        {detail?.feature_attribution?.features?.length ? (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 text-xs uppercase tracking-[0.08em] text-stone-500">
+                  <th className="py-2 pr-3 font-medium">{zh ? '特征' : 'Feature'}</th>
+                  <th className="py-2 pr-3 text-right font-medium">{zh ? '平均权重' : 'Avg weight'}</th>
+                  <th className="py-2 pr-3 text-right font-medium">{zh ? '模型贡献' : 'Model contribution'}</th>
+                  <th className="py-2 pr-3 text-right font-medium">{zh ? '结果关联 PnL' : 'Outcome PnL association'}</th>
+                  <th className="py-2 pr-3 text-right font-medium">{zh ? '样本' : 'Samples'}</th>
+                  <th className="py-2 font-medium">{zh ? '状态' : 'Status'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detail.feature_attribution.features.map((feature) => (
+                  <tr key={feature.feature_name} className="border-b border-stone-100 last:border-b-0">
+                    <td className="mono py-2 pr-3 text-stone-900">{feature.feature_name}</td>
+                    <td className="py-2 pr-3 text-right text-stone-700">{formatNumber(feature.average_model_weight, 3)}</td>
+                    <td className={`py-2 pr-3 text-right ${signToneClass(feature.model_contribution)}`}>{formatSigned(feature.model_contribution, 3)}</td>
+                    <td className={`py-2 pr-3 text-right ${signToneClass(feature.associated_realized_pnl)}`}>{formatSigned(feature.associated_realized_pnl, 2)}</td>
+                    <td className="py-2 pr-3 text-right text-stone-700">{feature.closed_fill_count}/{feature.fill_count}</td>
+                    <td className="py-2"><StatusBadge tone={feature.attribution_status === 'outcome_association_available' ? 'accent' : 'warn'}>{feature.attribution_status}</StatusBadge></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-3 text-xs text-amber-800">
+            {zh ? 'UNKNOWN：没有与成交绑定的特征快照。' : 'UNKNOWN: no feature snapshots are linked to fills.'}
+          </div>
+        )}
+        <div className="mt-3 text-[11px] text-stone-500">
+          {zh
+            ? `归因状态：${detail?.feature_attribution?.status ?? 'UNKNOWN'} · 因果声明：否 · 方法：模型加权分数 + 同成交结果关联`
+            : `Attribution status: ${detail?.feature_attribution?.status ?? 'UNKNOWN'} · Causal claim: no · Method: weighted model score + same-fill outcome association`}
+        </div>
+      </Card>
+
+      <Card>
+        <SectionHeader
+          title={zh ? '分析上下文' : 'Analysis Context'}
+          caption={zh ? '所有缺失证据保持 UNKNOWN，不用零值补齐。' : 'Missing evidence remains UNKNOWN; no zero imputation.'}
+        />
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <label className="text-xs text-stone-500">
+            {zh ? '当前标的' : 'Selected instrument'}
+            <select
+              value={selectedInstrument}
+              onChange={(event) => setSelectedInstrument(event.target.value)}
+              className="mt-1 w-full rounded-md border border-stone-300 bg-white px-2 py-2 text-sm text-stone-900"
+            >
+              <option value="ALL">{zh ? '全部标的（组合）' : 'All instruments (portfolio)'}</option>
+              {instruments.map((instrument) => <option key={instrument} value={instrument}>{instrument}</option>)}
+            </select>
+          </label>
+          <div>
+            <div className="text-xs text-stone-500">{zh ? '数据新鲜度' : 'Data freshness'}</div>
+            <div className={`mt-1 text-sm font-semibold ${freshnessLabel === 'UNKNOWN' || !selectedFreshnessMatches ? 'text-amber-700' : 'text-stone-900'}`}>{!selectedFreshnessMatches ? 'UNKNOWN' : freshnessLabel}</div>
+            <div className="mt-1 text-[11px] text-stone-400">{latestObservedAt ?? (zh ? '无报价观测' : 'No quote observation')} · {latestObservedInstrument ?? 'UNKNOWN'}</div>
+          </div>
+          <div>
+            <div className="text-xs text-stone-500">{zh ? '报价质量' : 'Quote quality'}</div>
+            <div className="mt-1 text-sm font-semibold text-stone-900">{metrics?.execution_evidence?.latest_quote_quality ?? 'UNKNOWN'}</div>
+            <div className="mt-1 text-[11px] text-stone-400">{zh ? '观测数' : 'Observations'}: {metrics?.execution_evidence?.quote_observation_count ?? 'UNKNOWN'}</div>
+          </div>
+        </div>
+      </Card>
+
+      <Card>
+        <SectionHeader
+          title={zh ? '配置权重（非成交快照）' : 'Configured weights (not fill snapshots)'}
+          caption={zh ? '这里只显示运行配置；实际成交使用的特征快照和模型贡献见下方归因表。' : 'Run configuration only; actual fill snapshots and model contributions are shown in the attribution table below.'}
+        />
+        {run?.config && typeof (run.config as Record<string, unknown>).feature_weights === 'object' ? (
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {Object.entries((run.config as Record<string, Record<string, number>>).feature_weights).map(([name, weight]) => (
+              <div key={name} className="flex items-center justify-between rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-xs">
+                <span className="mono text-stone-600">{name}</span><span className="mono font-semibold text-stone-900">{formatNumber(weight, 3)}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-3 text-xs text-amber-800">
+            {zh ? 'UNKNOWN：该运行没有持久化特征权重。反馈按钮不会凭空生成权重。' : 'UNKNOWN: this run has no persisted feature weights. Feedback cannot invent weights.'}
+          </div>
+        )}
+      </Card>
+
       {isLoading && !detail ? (
         <LoadingSkeleton variant="tiles" count={6} />
       ) : (
@@ -975,7 +1219,7 @@ function RunDetailPanel({
                 </tr>
               </thead>
               <tbody>
-                {detail.positions.map((position) => (
+                {detail.positions.filter((position) => selectedInstrument === 'ALL' || position.instrument_id === selectedInstrument).map((position) => (
                   <tr key={position.instrument_id} className="border-b border-stone-100 last:border-b-0">
                     <td className="mono py-2 pr-3 text-stone-900">{position.instrument_id}</td>
                     <td className="py-2 pr-3 text-right text-stone-700">{formatNumber(position.size, 4)}</td>

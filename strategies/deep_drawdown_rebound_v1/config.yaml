@@ -1,0 +1,32 @@
+strategy_id: deep_drawdown_rebound_v1
+name: 跨资产深度回撤反转（质量过滤后研究）
+description: >-
+  50% 历史峰值回撤后的分批入场研究候选。已通过研究合同质量过滤，
+  但 PIT、样本外、可执行深度和 Promotion 结果未知，禁止交易。
+parameters:
+  drawdown_fraction: 0.50
+  tranche_delays_days: [0, 5, 20]
+  hold_days: [21, 63, 126, 252]
+  research_contract: config/research/deep_drawdown_rebound.yaml
+risk_limits:
+  max_nav_fraction: 0.05
+  require_executable_quote: true
+  trade_permission: false
+  pit_status: UNKNOWN
+status: quality_filtered_research
+product_status: 质量过滤后研究
+evidence_status: UNKNOWN
+fundamental_evidence: UNKNOWN
+pit_status: UNKNOWN
+trade_permission: false
+unknown_fields:
+  - strict_historical_pit
+  - fundamental_evidence
+  - survivorship_control
+  - executable_depth
+  - sample_out_of_sample
+  - promotion_result
+basic_evidence:
+  real_data_required: true
+  asset_sleeves: [A_SHARE, US_EQUITY, BTC, ALTCOIN]
+  quality_filters: [survivorship_control, liquidity, executable_quote, cost_stress]

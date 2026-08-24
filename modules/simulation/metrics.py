@@ -90,6 +90,7 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
     trades = store.list_trades(run_id)
     settlements = store.list_settlements(run_id)
     quote_observations = store.list_quote_observations(run_id)
+    instrument_pnl_points = store.list_instrument_pnl_points(run_id)
     points = store.list_equity_points(run_id)
     quote_quality_counts: dict[str, int] = {}
     synthetic_quote_count = 0
@@ -102,6 +103,7 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
     for observation in quote_observations:
         quality = observation.quality or "unknown"
         observation_quality_counts[quality] = observation_quality_counts.get(quality, 0) + 1
+    latest_quote = max(quote_observations, key=lambda item: item.observed_at, default=None)
     closed = [t for t in trades if t.realized_pnl is not None]
     settlement_pnls = [float(item.realized_pnl) for item in settlements]
     closed_pnls = [float(t.realized_pnl) for t in closed] + settlement_pnls
@@ -114,8 +116,13 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         positions = store.list_positions(run_id)
         latest_equity = run.cash + sum(p.size * p.avg_price for p in positions)
 
+    # Without at least one persisted equity observation there is no measured
+    # equity path.  Cash plus entry-price positions is only a diagnostic
+    # snapshot and must not be presented as a verified 0% return.
     total_return = (
-        latest_equity / run.initial_capital - 1.0 if run.initial_capital > 0 else 0.0
+        latest_equity / run.initial_capital - 1.0
+        if points and run.initial_capital > 0
+        else None
     )
 
     win_rate = len(wins) / len(closed_pnls) if closed_pnls else None
@@ -132,12 +139,12 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
     # exactly the direction that makes a strategy look tradable.
     curve_degraded = any(getattr(point, "degraded", False) for point in points)
 
-    max_drawdown = 0.0
+    max_drawdown = 0.0 if points else None
     peak = None
     for point in points:
         if peak is None or point.equity > peak:
             peak = point.equity
-        if peak and peak > 0:
+        if peak and peak > 0 and max_drawdown is not None:
             drawdown = (peak - point.equity) / peak
             max_drawdown = max(max_drawdown, drawdown)
 
@@ -151,9 +158,14 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
     for trade in trades:
         bucket = per_instrument.setdefault(
             trade.instrument_id,
-            {"trade_count": 0, "closed_trades": 0, "wins": 0, "realized_pnl": 0.0},
+            {
+                "trade_count": 0, "closed_trades": 0, "wins": 0,
+                "realized_pnl": 0.0, "total_fees": 0.0, "total_slippage": 0.0,
+            },
         )
         bucket["trade_count"] += 1
+        bucket["total_fees"] += float(trade.fee)
+        bucket["total_slippage"] += float(trade.slippage) * float(trade.size)
         if trade.realized_pnl is not None:
             bucket["closed_trades"] += 1
             bucket["realized_pnl"] += trade.realized_pnl
@@ -162,7 +174,10 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
     for settlement in settlements:
         bucket = per_instrument.setdefault(
             settlement.instrument_id,
-            {"trade_count": 0, "closed_trades": 0, "wins": 0, "realized_pnl": 0.0},
+            {
+                "trade_count": 0, "closed_trades": 0, "wins": 0,
+                "realized_pnl": 0.0, "total_fees": 0.0, "total_slippage": 0.0,
+            },
         )
         bucket["closed_trades"] += 1
         bucket["realized_pnl"] += settlement.realized_pnl
@@ -173,6 +188,21 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
             bucket["wins"] / bucket["closed_trades"] if bucket["closed_trades"] else None
         )
         bucket.pop("wins")
+        bucket["total_explicit_cost"] = bucket["total_fees"] + bucket["total_slippage"]
+
+    for funding in store.list_funding(run_id):
+        funding_instrument = str(funding["instrument_id"])
+        bucket = per_instrument.setdefault(
+            funding_instrument,
+            {
+                "trade_count": 0, "closed_trades": 0, "wins": 0,
+                "realized_pnl": 0.0, "total_fees": 0.0, "total_slippage": 0.0,
+                "total_explicit_cost": 0.0,
+            },
+        )
+        bucket["funding_pnl"] = bucket.get("funding_pnl", 0.0) + float(funding["pnl"])
+    for bucket in per_instrument.values():
+        bucket.setdefault("funding_pnl", 0.0)
 
     return {
         "total_return": total_return,
@@ -202,7 +232,11 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
             "trade_quote_observation_link_count": sum(
                 1 for trade in trades if trade.quote_observation_id
             ),
+            "latest_observed_at": latest_quote.observed_at if latest_quote else None,
+            "latest_observed_instrument": latest_quote.instrument_id if latest_quote else None,
+            "latest_quote_quality": latest_quote.quality if latest_quote else "unknown",
         },
+        "instrument_pnl_curve": [point.to_dict() for point in instrument_pnl_points],
         "funding_pnl": store.total_funding(run_id),
         # The user's annual/monthly target is a separate, fail-closed gate:
         # short paper runs remain UNKNOWN rather than being treated as a pass.
@@ -211,6 +245,95 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         "avg_loss": avg_loss,
         "per_instrument": per_instrument,
     }
+
+
+def summarize_feature_attribution(store: SimulationStore, run_id: str) -> dict[str, Any]:
+    """Summarize stored feature snapshots without making a causal claim.
+
+    ``model_contribution`` is the weighted signal-score term recorded at the
+    decision. ``associated_realized_pnl`` is a descriptive join to the same
+    fill's realized result. It is not a counterfactual PnL decomposition and
+    must stay visibly separate in API/UI consumers.
+    """
+    rows = store.list_feature_attributions(run_id)
+    trades = {trade.trade_id: trade for trade in store.list_trades(run_id)}
+    grouped: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        bucket = grouped.setdefault(row.feature_name, {
+            "feature_name": row.feature_name,
+            "model_weight_sum": 0.0,
+            "model_weight_count": 0,
+            "model_contribution": 0.0,
+            "associated_realized_pnl": 0.0,
+            "associated_closed_fill_count": 0,
+            "fill_ids": set(),
+            "instrument_ids": set(),
+            "methods": set(),
+            "quality": set(),
+        })
+        if row.model_weight is not None:
+            bucket["model_weight_sum"] += row.model_weight
+            bucket["model_weight_count"] += 1
+        if row.weighted_contribution is not None:
+            bucket["model_contribution"] += row.weighted_contribution
+        if row.trade_id is not None:
+            bucket["fill_ids"].add(row.trade_id)
+            trade = trades.get(row.trade_id)
+            if trade is not None and trade.realized_pnl is not None:
+                # One feature appears once per fill, so this adds each fill's
+                # realized outcome exactly once per feature.
+                bucket["associated_realized_pnl"] += float(trade.realized_pnl)
+                bucket["associated_closed_fill_count"] += 1
+        bucket["instrument_ids"].add(row.instrument_id)
+        bucket["methods"].add(row.method)
+        bucket["quality"].add(row.quality)
+
+    output: list[dict[str, Any]] = []
+    for bucket in grouped.values():
+        closed = bucket["associated_closed_fill_count"]
+        output.append({
+            "feature_name": bucket["feature_name"],
+            "average_model_weight": (
+                bucket["model_weight_sum"] / bucket["model_weight_count"]
+                if bucket["model_weight_count"] else None
+            ),
+            "model_contribution": bucket["model_contribution"] or None,
+            "associated_realized_pnl": (
+                bucket["associated_realized_pnl"] if closed else None
+            ),
+            "fill_count": len(bucket["fill_ids"]),
+            "closed_fill_count": closed,
+            "instrument_count": len(bucket["instrument_ids"]),
+            "methods": sorted(bucket["methods"]),
+            "quality": sorted(bucket["quality"]),
+            "attribution_status": "outcome_association_available" if closed else "descriptive_only",
+            "causal_claim": False,
+        })
+    output.sort(key=lambda item: item["feature_name"])
+    return {
+        "status": "available" if rows else "UNKNOWN",
+        "causal_claim": False,
+        "interpretation": "descriptive_model_contribution_and_fill_outcome_association",
+        "row_count": len(rows),
+        "features": output,
+    }
+
+
+def downsample_instrument_pnl_curves(points: list, max_points: int = 500) -> dict[str, list[dict[str, Any]]]:
+    """Return bounded per-instrument PnL curves while preserving endpoints."""
+    grouped: dict[str, list] = {}
+    for point in points:
+        grouped.setdefault(point.instrument_id, []).append(point)
+    result: dict[str, list[dict[str, Any]]] = {}
+    for instrument, values in grouped.items():
+        values = sorted(values, key=lambda item: item.ts)
+        if len(values) <= max_points:
+            sampled = values
+        else:
+            stride = max(1, (len(values) - 2) // max(1, max_points - 2))
+            sampled = [values[0], *values[1:-1:stride], values[-1]][:max_points - 1] + [values[-1]]
+        result[instrument] = [value.to_dict() for value in sampled]
+    return result
 
 
 def _equity_sharpe(points: list) -> float | None:

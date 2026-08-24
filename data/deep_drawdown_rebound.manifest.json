@@ -1,0 +1,861 @@
+{
+  "experiment": "deep_drawdown_rebound_v1",
+  "as_of": "2026-08-24T18:31:17.002182+00:00",
+  "params": {
+    "model_revision": "deep-drawdown-quality-rebound-v1",
+    "config": "config/research/deep_drawdown_rebound.yaml",
+    "drawdown_fraction": 0.5,
+    "tranche_offsets": [
+      0,
+      5,
+      20
+    ],
+    "horizons_days": [
+      21,
+      63,
+      126,
+      252
+    ],
+    "cost_multiples": [
+      1.0,
+      2.0,
+      3.0
+    ]
+  },
+  "code": {
+    "commit": "f67e77ba4c8ade0691761b350c5c97f76529db26",
+    "dirty": true,
+    "dirty_files": 14,
+    "dirty_sample": [
+      "apps/dashboard/components/StrategyCatalog.tsx",
+      "apps/dashboard/domain/contract.test.ts",
+      "apps/dashboard/lib/types.ts",
+      "libs/backtest/execution.py",
+      "libs/data/sec_fundamentals.py",
+      "libs/data/store.py",
+      "libs/quant/event_study_board.py",
+      "libs/quant/hypothesis.py"
+    ]
+  },
+  "started_at": "2026-08-24T18:31:17.026190+00:00",
+  "inputs": {
+    "daily_bars:A_SHARE": {
+      "symbols": 8,
+      "events": 3,
+      "coverage": [
+        {
+          "symbol": "600519",
+          "rows": 647,
+          "start": "2023-12-11",
+          "end": "2026-08-12",
+          "source": [
+            "tencent_migrated"
+          ]
+        },
+        {
+          "symbol": "000001",
+          "rows": 641,
+          "start": "2023-12-07",
+          "end": "2026-07-31",
+          "source": [
+            "tencent_migrated"
+          ]
+        },
+        {
+          "symbol": "300750",
+          "rows": 641,
+          "start": "2023-12-07",
+          "end": "2026-07-31",
+          "source": [
+            "tencent_migrated"
+          ]
+        },
+        {
+          "symbol": "601318",
+          "rows": 641,
+          "start": "2023-12-07",
+          "end": "2026-07-31",
+          "source": [
+            "tencent_migrated"
+          ]
+        },
+        {
+          "symbol": "000858",
+          "rows": 656,
+          "start": "2023-12-07",
+          "end": "2026-08-21",
+          "source": [
+            "tencent_migrated"
+          ]
+        },
+        {
+          "symbol": "600036",
+          "rows": 641,
+          "start": "2023-12-07",
+          "end": "2026-07-31",
+          "source": [
+            "tencent_migrated"
+          ]
+        },
+        {
+          "symbol": "000651",
+          "rows": 641,
+          "start": "2023-12-07",
+          "end": "2026-07-31",
+          "source": [
+            "tencent_migrated"
+          ]
+        },
+        {
+          "symbol": "002594",
+          "rows": 641,
+          "start": "2023-12-07",
+          "end": "2026-07-31",
+          "source": [
+            "tencent_migrated"
+          ]
+        }
+      ],
+      "strict_historical_pit": false
+    },
+    "fundamentals:A_SHARE": {
+      "symbols": 8,
+      "rows": 0,
+      "coverage": [
+        {
+          "symbol": "600519",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "000001",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "300750",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "601318",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "000858",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "600036",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "000651",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "002594",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        }
+      ],
+      "strict_historical_pit": false
+    },
+    "daily_bars:US_EQUITY": {
+      "symbols": 29,
+      "events": 140,
+      "coverage": [
+        {
+          "symbol": "AAPL",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "MSFT",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "NVDA",
+          "rows": 1266,
+          "start": "2021-08-06",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo",
+            "yahoo_migrated"
+          ]
+        },
+        {
+          "symbol": "AMZN",
+          "rows": 1270,
+          "start": "2021-08-02",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo",
+            "yahoo_migrated"
+          ]
+        },
+        {
+          "symbol": "META",
+          "rows": 1270,
+          "start": "2021-08-02",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo",
+            "yahoo_migrated"
+          ]
+        },
+        {
+          "symbol": "GOOGL",
+          "rows": 1270,
+          "start": "2021-08-02",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo",
+            "yahoo_migrated"
+          ]
+        },
+        {
+          "symbol": "TSLA",
+          "rows": 1270,
+          "start": "2021-08-02",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo",
+            "yahoo_migrated"
+          ]
+        },
+        {
+          "symbol": "AMD",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "JPM",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "BAC",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "WFC",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "C",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "XOM",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "CVX",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "PFE",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "MRK",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "KO",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "NKE",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "DIS",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "VZ",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "T",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "F",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "GM",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "GE",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "BA",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "INTC",
+          "rows": 1265,
+          "start": "2021-08-09",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "SNDK",
+          "rows": 383,
+          "start": "2025-02-13",
+          "end": "2026-08-24",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "MU",
+          "rows": 1255,
+          "start": "2021-08-24",
+          "end": "2026-08-24",
+          "source": [
+            "yahoo"
+          ]
+        },
+        {
+          "symbol": "WDC",
+          "rows": 1255,
+          "start": "2021-08-24",
+          "end": "2026-08-24",
+          "source": [
+            "yahoo"
+          ]
+        }
+      ],
+      "strict_historical_pit": false
+    },
+    "fundamentals:US_EQUITY": {
+      "symbols": 29,
+      "rows": 139,
+      "coverage": [
+        {
+          "symbol": "AAPL",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "MSFT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "NVDA",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "AMZN",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "META",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "GOOGL",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "TSLA",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "AMD",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "JPM",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "BAC",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "WFC",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "C",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "XOM",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "CVX",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "PFE",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "MRK",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "KO",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "NKE",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "DIS",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "VZ",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "T",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "F",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "GM",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "GE",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "BA",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "INTC",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "SNDK",
+          "rows": 7,
+          "start": "2025-03-07",
+          "end": "2026-08-17",
+          "source": [
+            "sec_companyfacts"
+          ]
+        },
+        {
+          "symbol": "MU",
+          "rows": 64,
+          "start": "2010-01-12",
+          "end": "2026-06-25",
+          "source": [
+            "sec_companyfacts"
+          ]
+        },
+        {
+          "symbol": "WDC",
+          "rows": 68,
+          "start": "2009-10-29",
+          "end": "2026-08-14",
+          "source": [
+            "sec_companyfacts"
+          ]
+        }
+      ],
+      "strict_historical_pit": false
+    },
+    "daily_bars:BTC": {
+      "symbols": 1,
+      "events": 5,
+      "coverage": [
+        {
+          "symbol": "BTC-USDT",
+          "rows": 807,
+          "start": "2024-05-27",
+          "end": "2026-08-11",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        }
+      ],
+      "strict_historical_pit": false
+    },
+    "fundamentals:BTC": {
+      "symbols": 1,
+      "rows": 0,
+      "coverage": [
+        {
+          "symbol": "BTC-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        }
+      ],
+      "strict_historical_pit": false
+    },
+    "daily_bars:ALTCOIN": {
+      "symbols": 8,
+      "events": 48,
+      "coverage": [
+        {
+          "symbol": "SOL-USDT",
+          "rows": 803,
+          "start": "2024-05-31",
+          "end": "2026-08-11",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "rows": 801,
+          "start": "2024-05-31",
+          "end": "2026-08-09",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        },
+        {
+          "symbol": "ADA-USDT",
+          "rows": 815,
+          "start": "2024-05-31",
+          "end": "2026-08-23",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        },
+        {
+          "symbol": "AVAX-USDT",
+          "rows": 803,
+          "start": "2024-05-31",
+          "end": "2026-08-11",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        },
+        {
+          "symbol": "LINK-USDT",
+          "rows": 803,
+          "start": "2024-05-31",
+          "end": "2026-08-11",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        },
+        {
+          "symbol": "LTC-USDT",
+          "rows": 801,
+          "start": "2024-05-31",
+          "end": "2026-08-09",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        },
+        {
+          "symbol": "XRP-USDT",
+          "rows": 801,
+          "start": "2024-05-31",
+          "end": "2026-08-09",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        },
+        {
+          "symbol": "BCH-USDT",
+          "rows": 801,
+          "start": "2024-05-31",
+          "end": "2026-08-09",
+          "source": [
+            "okx",
+            "okx_migrated"
+          ]
+        }
+      ],
+      "strict_historical_pit": false
+    },
+    "fundamentals:ALTCOIN": {
+      "symbols": 8,
+      "rows": 0,
+      "coverage": [
+        {
+          "symbol": "SOL-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "ADA-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "AVAX-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "LINK-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "LTC-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "XRP-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        },
+        {
+          "symbol": "BCH-USDT",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
+        }
+      ],
+      "strict_historical_pit": false
+    }
+  },
+  "lineage": {
+    "input_hash": "968bad796cbd79125fd8c5e441530b9ff0fa47f92eafb11d8b1d35233eb9e3ee",
+    "model_hash": "ae16d46aa14bbedf41cb7ca617daf912e59d186b6579859f228a36e70fa89e48",
+    "has_lineage": false
+  },
+  "reproducible": false
+}

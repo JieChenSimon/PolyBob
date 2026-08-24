@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import sqlite3
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -25,6 +26,22 @@ from strategies.signal_fusion import SignalFusion
 
 def make_store(tmp_path) -> SimulationStore:
     return SimulationStore(tmp_path / "sim.sqlite3")
+
+
+def test_simulation_store_migrates_legacy_equity_schema(tmp_path):
+    db_path = tmp_path / "legacy.sqlite3"
+    with sqlite3.connect(db_path) as connection:
+        connection.execute(
+            "CREATE TABLE sim_equity_points (run_id TEXT, ts TEXT, equity REAL, "
+            "cash REAL, gross_exposure REAL, PRIMARY KEY (run_id, ts))"
+        )
+    store = SimulationStore(db_path)
+    store.append_equity_point(
+        "r1", equity=100.0, cash=100.0, gross_exposure=0.0,
+        ts="2026-08-25T00:00:00+00:00", degraded=True,
+    )
+    point = store.list_equity_points("r1")[0]
+    assert point.degraded is True
 
 
 def make_service(tmp_path) -> SimulationService:
@@ -350,6 +367,106 @@ async def test_conservative_fill_buys_at_ask_plus_fee(tmp_path):
     record = service.store.get_run(run_id)
     assert record.cash == pytest.approx(10_000.0 - trade.size * 0.92 - trade.fee)
     assert len(service.store.list_equity_points(run_id)) >= 1
+
+
+@pytest.mark.asyncio
+async def test_depth_limited_entry_requires_quality_and_fills_in_batches(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="depth-limited", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0,
+        config={
+            **RUN_CONFIG,
+            "execution_mode": "depth_limited",
+            "fee_bps": 0.0,
+            "impact_coefficient": 0.0,
+            "min_trade_notional": 0.0,
+        },
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    now = datetime.now(UTC)
+
+    await service._process_signal(
+        service._active[run_id],
+        SimSignal(
+            "m1", "buy", 1.0, bid=0.90, ask=0.92, mid=0.91,
+            bid_depth=2.0, ask_depth=2.0, timestamp=now,
+            signal_meta={"data_quality": "stale"},
+        ),
+    )
+    assert service.store.list_trades(run_id) == []
+
+    signal = SimSignal(
+        "m1", "buy", 1.0, bid=0.90, ask=0.92, mid=0.91,
+        bid_depth=2.0, ask_depth=2.0, timestamp=now,
+        signal_meta={"data_quality": "ok", "quote_source": "test_bbo"},
+    )
+    await service._process_signal(service._active[run_id], signal)
+    assert service.store.list_trades(run_id)[0].size == pytest.approx(2.0)
+    assert service._active[run_id].paper_broker.orders
+    assert next(iter(service._active[run_id].paper_broker.orders.values())).status == "partial"
+
+    # Subsequent real-quality snapshots consume only the available ask depth;
+    # the remaining parent order stays live instead of being overfilled.
+    snapshot = {
+        "market_id": "m1", "timestamp": now, "quality": "ok",
+        "bid_price": 0.90, "ask_price": 0.92, "bid_size": 2.0, "ask_size": 2.0,
+    }
+    await service._process_depth_orders(service._active[run_id], snapshot)
+    await service._process_depth_orders(service._active[run_id], snapshot)
+    assert sum(t.size for t in service.store.list_trades(run_id)) == pytest.approx(6.0)
+    assert service.store.list_positions(run_id)[0].size == pytest.approx(6.0)
+
+
+@pytest.mark.asyncio
+async def test_trade_position_and_instrument_curve_share_attribution_and_weights(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="attribution", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0, config=RUN_CONFIG,
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    now = datetime.now(UTC)
+    await service._process_signal(
+        service._active[run_id],
+        SimSignal(
+            "m1", "buy", 0.8, bid=0.90, ask=0.92, mid=0.91,
+            bid_depth=1_000.0, ask_depth=1_000.0, timestamp=now,
+            signal_meta={
+                "attribution_id": "attr-drawdown-m1",
+                "signals": ["drawdown", "trend"],
+                "feature_weights": {"drawdown": 0.7, "trend": 0.3},
+                "feature_scores": {
+                    "drawdown": {"direction": 1, "strength": 0.8},
+                    "trend": {"direction": 1, "strength": 0.4},
+                },
+                "weighted_contributions": {"drawdown": 0.56, "trend": 0.12},
+                "attribution_method": "model_weighted_signal_contribution",
+                "quote_source": "test_bbo",
+            },
+        ),
+    )
+
+    trade = service.store.list_trades(run_id)[0]
+    position = service.store.list_positions(run_id)[0]
+    points = service.store.list_instrument_pnl_points(run_id)
+    metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    assert trade.attribution_id == "attr-drawdown-m1"
+    assert trade.feature_weights == {"drawdown": 0.7, "trend": 0.3}
+    assert trade.cost_attribution["fee"] == pytest.approx(trade.fee)
+    assert trade.cost_attribution["slippage"] == pytest.approx(trade.slippage)
+    assert position.attribution_id == "attr-drawdown-m1"
+    assert points[-1].instrument_id == "m1"
+    assert points[-1].attribution_id == "attr-drawdown-m1"
+    assert metrics["instrument_pnl_curve"][-1]["attribution_id"] == "attr-drawdown-m1"
+    attribution_rows = service.store.list_feature_attributions(run_id)
+    assert {row.feature_name for row in attribution_rows} == {"drawdown", "trend"}
+    summary = sim_metrics.summarize_feature_attribution(service.store, run_id)
+    assert summary["causal_claim"] is False
+    assert summary["status"] == "available"
+    assert {row["feature_name"] for row in summary["features"]} == {"drawdown", "trend"}
 
 
 def test_trade_quote_provenance_keeps_synthetic_or_missing_depth_explicit(tmp_path):

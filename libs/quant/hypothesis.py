@@ -48,6 +48,37 @@ class InadmissibleHypothesis(ValueError):
     """Raised when a hypothesis has no economic rationale (a chart pattern)."""
 
 
+def declared_trial_count(search_space: dict[str, Any] | None) -> int:
+    """Count every declared filter/threshold/stratum combination."""
+    if not search_space:
+        return 1
+    count = 1
+    for dimension, options in search_space.items():
+        if not str(dimension).strip():
+            raise InadmissibleHypothesis("search_space dimensions must be named")
+        values = tuple(options)
+        if not values:
+            raise InadmissibleHypothesis(f"search_space dimension '{dimension}' is empty")
+        count *= len(values)
+    return count
+
+
+def validate_trial_configuration(search_space: dict[str, Any] | None, selected: dict[str, Any]) -> None:
+    """Reject a reported winner outside the pre-registered search space."""
+    declared = search_space or {}
+    unknown = sorted(set(selected) - set(declared))
+    missing = sorted(set(declared) - set(selected))
+    if unknown or missing:
+        raise InadmissibleHypothesis(
+            f"selected configuration does not match pre-registration; missing={missing}, unknown={unknown}"
+        )
+    for dimension, value in selected.items():
+        if value not in tuple(declared[dimension]):
+            raise InadmissibleHypothesis(
+                f"selected value {value!r} is outside pre-registered {dimension} grid"
+            )
+
+
 @dataclass(frozen=True)
 class Hypothesis:
     """A pre-registered, falsifiable claim about why an edge exists."""
@@ -67,6 +98,10 @@ class Hypothesis:
     # four trials — not one — and the multiple-testing correction only stays
     # honest if the grid is declared here, before the search runs.
     n_configs: int = 1
+    trial_family: str = ""
+    # Fundamental filters, numeric thresholds, industry/asset strata, horizons,
+    # directions and benchmarks all belong here when they can change the winner.
+    search_space: dict[str, tuple[Any, ...]] = field(default_factory=dict)
     registered_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def __post_init__(self) -> None:
@@ -78,6 +113,12 @@ class Hypothesis:
         if self.n_configs < 1:
             raise InadmissibleHypothesis(
                 f"'{self.hypothesis_id}': n_configs must be at least 1."
+            )
+        required = declared_trial_count(self.search_space)
+        if self.n_configs < required:
+            raise InadmissibleHypothesis(
+                f"'{self.hypothesis_id}': n_configs={self.n_configs} understates "
+                f"the declared search space ({required} combinations)."
             )
         if not self.mechanism.strip():
             raise InadmissibleHypothesis(
@@ -144,7 +185,8 @@ class HypothesisRegistry:
         self._save()
 
     def record_search(
-        self, search_id: str, n_configs: int, description: str, *, outcome: str = ""
+        self, search_id: str, n_configs: int, description: str, *, outcome: str = "",
+        trial_family: str = "", search_space: dict[str, Any] | None = None,
     ) -> None:
         """Record an exploratory sweep that produced no promoted hypothesis.
 
@@ -158,12 +200,19 @@ class HypothesisRegistry:
         These carry no ``result`` because there is nothing to claim. They exist
         purely to make :attr:`n_trials` honest.
         """
+        required = declared_trial_count(search_space)
+        if int(n_configs) < required:
+            raise InadmissibleHypothesis(
+                f"search '{search_id}' understates its search space: {n_configs} < {required}"
+            )
         entry = {
             "search": {
                 "search_id": search_id,
                 "n_configs": int(n_configs),
                 "description": description,
                 "outcome": outcome or "no hypothesis promoted",
+                "trial_family": trial_family,
+                "search_space": search_space or {},
             },
             "result": None,
         }
@@ -262,8 +311,10 @@ def _collapse_duplicates(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 __all__ = [
+    "declared_trial_count",
     "Hypothesis",
     "HypothesisRegistry",
     "InadmissibleHypothesis",
     "Rationale",
+    "validate_trial_configuration",
 ]

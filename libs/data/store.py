@@ -151,6 +151,19 @@ DAILY_BARS = Dataset(
     "日线 OHLCV。缺失的字段保持 None,不用 close 顶替、不填 0。",
     price_basis="row_declared",
 )
+FUNDAMENTALS = Dataset(
+    "fundamentals",
+    (
+        "period_end", "announcement_at", "revenue", "gross_profit",
+        "operating_income", "net_income", "operating_cash_flow",
+        "capex", "total_debt", "cash", "shares_outstanding", "sector",
+        "filing_id", "source", "quality_flags",
+    ),
+    "财报与基本面快照。event_date 必须是公开可得日；没有公告时间或 PIT 版本就不能作为交易过滤器。",
+    pit_level="collected_observation_time",
+    price_basis="not_applicable",
+    strict_historical_pit=False,
+)
 FUNDING_RATES = Dataset(
     "funding_rates", ("rate", "source"),
     "永续资金费(日均)。做空腿的收益必须含它,所以缺失就是不可测,不是 0。",
@@ -176,6 +189,7 @@ CORPORATE_ACTIONS = Dataset(
 
 DATASETS: tuple[Dataset, ...] = (
     DAILY_BARS,
+    FUNDAMENTALS,
     FUNDING_RATES,
     INSIDER_FILINGS,
     POSITIONING,
@@ -494,7 +508,7 @@ def symbols(ds: Dataset | str) -> list[str]:
 
 
 __all__ = [
-    "CORPORATE_ACTIONS", "DAILY_BARS", "DATASETS", "EVENT_DATE", "FETCHED_AT", "FUNDING_RATES",
+    "CORPORATE_ACTIONS", "DAILY_BARS", "DATASETS", "EVENT_DATE", "FETCHED_AT", "FUNDAMENTALS", "FUNDING_RATES",
     "INSIDER_FILINGS", "POSITIONING", "STORE_ROOT", "Dataset", "StoreError",
     "close", "coverage", "dataset", "dataset_contracts", "now_utc", "read", "restatements", "symbols",
     "write",

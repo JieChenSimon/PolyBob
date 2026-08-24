@@ -65,7 +65,11 @@ from modules.simulation import (
     UnknownRunError,
     downsample_equity_curve,
 )
-from modules.simulation.metrics import compute_run_metrics
+from modules.simulation.metrics import (
+    compute_run_metrics,
+    downsample_instrument_pnl_curves,
+    summarize_feature_attribution,
+)
 
 
 def configure_logging():
@@ -454,9 +458,9 @@ def require_onchain_monitor() -> OnchainMonitorService:
 
 
 def require_simulation_service() -> SimulationService:
-    require_lab_backtest()
     if simulation_service is None:
         raise HTTPException(status_code=503, detail="Simulation service not ready")
+    require_lab_backtest()
     return simulation_service
 
 
@@ -1839,10 +1843,13 @@ async def get_simulation_run(run_id: str):
         if record is None:
             return None
         points = service.store.list_equity_points(run_id)
+        instrument_points = service.store.list_instrument_pnl_points(run_id)
         return {
             "run": record.to_dict(),
             "metrics": compute_run_metrics(service.store, run_id),
             "equity_curve": downsample_equity_curve(points, max_points=500),
+            "instrument_pnl_curves": downsample_instrument_pnl_curves(instrument_points, max_points=500),
+            "feature_attribution": summarize_feature_attribution(service.store, run_id),
             "positions": [p.to_dict() for p in service.store.list_positions(run_id)],
             "trades": [t.to_dict() for t in service.store.list_trades(run_id, limit=50)],
         }

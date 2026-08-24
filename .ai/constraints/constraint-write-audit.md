@@ -107,3 +107,12 @@
 - operation: create-and-link
 - status: approved-by-explicit-request
 - notes: 用户要求记录全部系统需求、连接任务看板并核对完成状态；需求文档不替代 Development Control 或 Git 事实源。
+
+## 2026-08-25T00:00:00+08:00
+
+- proposal_ref: user-agent-team-scope-correction
+- approved_item_ids: bounded-agent-team-and-single-agent-default
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: create
+- status: approved-by-explicit-request
+- notes: 用户明确要求由主 Agent 判断是否需要团队；默认单 Agent，必要时最多 3 个，避免机械并行和重复审查。

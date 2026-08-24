@@ -343,6 +343,12 @@ def evaluate_spec(
         "run_as_of": None,
         "run_reproducible": None,
         "pit_status": "unknown",
+        "product_status": "validated_research",
+        "evidence_status": "UNKNOWN",
+        "fundamental_evidence": "UNKNOWN",
+        "trade_permission": False,
+        "basic_evidence": {},
+        "unknown_fields": [],
         "out_of_sample": None,
         "cluster_floor": MIN_CLUSTERS,
         "pipeline_searched": False,
@@ -507,6 +513,59 @@ def evaluate_spec(
     return row
 
 
+def _quality_filtered_candidate(n_trials: int) -> dict[str, Any]:
+    """Expose a registered no-result candidate without granting permission."""
+    return {
+        "strategy": "deep_drawdown_rebound_v1",
+        "instrument": "CROSS_ASSET",
+        "domain": "multi_asset",
+        "role": Role.TRADE.value,
+        "hypothesis_id": "deep_drawdown_rebound_v1",
+        "source": "config/research/deep_drawdown_rebound.yaml",
+        "source_strategy": "deep_drawdown_rebound_v1",
+        "implementation": "candidate_only_no_trade",
+        "expected_sign": 1,
+        "t_hurdle": round(deflated_t_stat_threshold(n_trials), 2),
+        "approved": False,
+        "failed": ["candidate_only", "no_result", "pit_unknown", "unknown_evidence"],
+        "notes": "质量过滤后研究候选；无结果、PIT 未知、禁止交易。",
+        "n": None,
+        "win_rate": None,
+        "mean_excess_pct": None,
+        "median_excess_pct": None,
+        "t_stat": None,
+        "t_stat_iid": None,
+        "n_clusters": None,
+        "cluster_by": "",
+        "inference": "unverifiable",
+        "bootstrap_ci_pct": None,
+        "sign_test_p": None,
+        "wild_p": None,
+        "p_floor": None,
+        "resolvable": None,
+        "inference_warnings": [],
+        "evidence_end": None,
+        "max_evidence_age_days": None,
+        "run_as_of": None,
+        "run_reproducible": False,
+        "pit_status": "UNKNOWN",
+        "out_of_sample": None,
+        "cluster_floor": MIN_CLUSTERS,
+        "pipeline_searched": False,
+        "evidence": "质量过滤已登记；真实事件研究与可执行 PIT 证据尚未完成。",
+        "product_status": "质量过滤后研究",
+        "evidence_status": "UNKNOWN",
+        "fundamental_evidence": "UNKNOWN",
+        "trade_permission": False,
+        "basic_evidence": {
+            "real_data_required": True,
+            "asset_sleeves": ["A_SHARE", "US_EQUITY", "BTC", "ALTCOIN"],
+            "quality_filters": ["survivorship_control", "liquidity", "executable_quote", "cost_stress"],
+        },
+        "unknown_fields": ["fundamental_evidence", "strict_historical_pit", "survivorship_control", "executable_depth", "sample_out_of_sample", "promotion_result"],
+    }
+
+
 def _today() -> dt.date:
     return dt.datetime.now(dt.UTC).date()
 
@@ -594,6 +653,10 @@ def build_board(n_trials: int, specs: tuple[EdgeSpec, ...] = EDGE_SPECS) -> dict
         evaluate_spec(spec, payloads[spec.source], n_trials, manifests[spec.source])
         for spec in specs
     ]
+    # A preregistered no-result candidate is visible on the board, but remains
+    # explicitly non-tradable. This prevents the UI from losing the candidate
+    # while preserving fail-closed promotion semantics.
+    rows.append(_quality_filtered_candidate(n_trials))
     rows.sort(key=lambda r: (not r["approved"], r["role"], r["strategy"]))
 
     # Reproducibility: the board is stamped with its inputs, not with "now", so
