@@ -1,6 +1,6 @@
 {
   "experiment": "btc5m_model_vs_market",
-  "as_of": "2026-08-24T16:20:59.655148+00:00",
+  "as_of": "2026-08-24T16:42:23.059381+00:00",
   "params": {
     "n_windows": 5760,
     "edge_threshold": 0.1,
@@ -8,20 +8,20 @@
     "model_revision": "realized-volatility-normal-cdf-v3"
   },
   "code": {
-    "commit": "23123aacd0d4af361d284eb1131356f7f97bdbaf",
+    "commit": "715639e3682e4e07d132561dc3aa6e47fbada0b7",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T16:20:59.679488+00:00",
+  "started_at": "2026-08-24T16:42:23.084061+00:00",
   "inputs": {
     "polymarket_windows": {
-      "settled": 1110,
-      "qualifying_trades": 1110
+      "settled": 539,
+      "qualifying_trades": 410
     }
   },
   "lineage": {
-    "input_hash": "37cfbaa671183636c9aed0adbc19e8ea0c7d39368991126ad1884569f965271d",
+    "input_hash": "81490fd199b068834c19e4f02330d5c333926f9928b422ccb1e7fe853c673f9b",
     "model_hash": "0fbe5231d55d51ee0b9e9003d89e4e15c27febc360096e4b09bd26d4f6e1f3fc",
     "has_lineage": true
   },
