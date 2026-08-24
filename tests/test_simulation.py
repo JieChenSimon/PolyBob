@@ -365,6 +365,33 @@ async def test_funding_snapshot_is_booked_once_and_replayed(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_funding_snapshots_same_settlement_interval_are_idempotent(tmp_path):
+    base = datetime.now(UTC)
+    first = base
+    service = SimulationService(tmp_path / "funding-bucket.sqlite3", clock=lambda: base + timedelta(hours=2))
+    await service.start()
+    run = await service.create_run(
+        name="funding-bucket", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0,
+        config={**RUN_CONFIG, "funding_enabled": True, "funding_interval_seconds": 86400,
+                "max_staleness_seconds": 7200},
+    )
+    await service.start_run(run["run_id"])
+    await service._process_signal(
+        service._active[run["run_id"]],
+        SimSignal("m1", "buy", 1.0, mid=100.0, timestamp=first),
+    )
+    for timestamp in (first, first + timedelta(hours=1), first + timedelta(hours=2)):
+        await service._dispatch("features.snapshots", {
+            "market_id": "m1", "timestamp": timestamp, "mid_price": 100.0,
+            "funding_rate": 0.001,
+        })
+    assert service.store.total_funding(run["run_id"]) < 0
+    assert service.store.count_funding(run["run_id"]) == 1
+    await service.stop()
+
+
+@pytest.mark.asyncio
 async def test_funding_enabled_run_fails_closed_without_rate(tmp_path):
     service = make_service(tmp_path)
     run = await service.create_run(
@@ -623,6 +650,7 @@ def test_metrics_on_hand_built_trades(tmp_path):
     assert metrics["total_fees"] == pytest.approx(0.08)
     assert metrics["total_slippage"] == pytest.approx(0.0)
     assert metrics["total_explicit_cost"] == pytest.approx(0.08)
+    assert metrics["return_target"]["status"] == "UNKNOWN"
     assert metrics["max_drawdown"] == pytest.approx((10_100.0 - 9_900.0) / 10_100.0)
     assert metrics["total_return"] == pytest.approx(10_150.0 / 10_000.0 - 1.0)
     assert metrics["sharpe"] is not None

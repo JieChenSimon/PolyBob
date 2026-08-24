@@ -91,6 +91,7 @@ async def replay_symbol(
             "mid_penalty_bps": 10.0 * cost_multiple,
             "allow_short": True,
             "funding_enabled": True,
+            "funding_interval_seconds": 86400,
             "cooldown_seconds": 0.0,
             "max_staleness_seconds": 172800.0,
             "equity_interval_minutes": 1440.0,

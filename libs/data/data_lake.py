@@ -120,43 +120,56 @@ def write_records(
     rows = [dict(row) for row in records]
     if not rows:
         return {"dataset": dataset, "rows": 0, "status": "empty"}
+    observed = _utc(observed_at)
     for row in rows:
         if not row.get("event_at"):
             raise ValueError(f"{dataset}: every record needs event_at")
-        row.setdefault("observed_at", _utc(observed_at))
-    encoded = json.dumps(rows, sort_keys=True, ensure_ascii=False, default=str,
-                         separators=(",", ":")).encode()
-    digest = _digest(encoded)
-    parts = PART_ROOT / _safe(dataset)
-    for key in partition_by:
-        value = rows[0].get(key, "unknown")
-        parts /= f"{_safe(key)}={_safe(value)}"
-    parts.mkdir(parents=True, exist_ok=True)
-    target = parts / f"part-{digest}.parquet"
-    if not target.exists():
-        table = pa.Table.from_pylist(rows)
-        fd, raw_pending = tempfile.mkstemp(dir=parts, prefix=".pending-", suffix=".parquet")
-        os.close(fd)
-        pending = Path(raw_pending)
-        try:
-            pq.write_table(table, pending, compression="zstd")
-            pending.replace(target)
-        finally:
-            pending.unlink(missing_ok=True)
-        _append_manifest({
-            "kind": "normalized",
-            "dataset": dataset,
-            "source": source,
-            "sha256": digest,
-            "path": str(target),
-            "rows": len(rows),
-            "event_start": min(str(row["event_at"]) for row in rows),
-            "event_end": max(str(row["event_at"]) for row in rows),
-            "observed_at": _utc(observed_at),
-            "partition_by": list(partition_by),
-        })
-    return {"dataset": dataset, "rows": len(rows), "path": str(target), "sha256": digest,
-            "status": "written" if target.exists() else "unknown"}
+        row.setdefault("observed_at", observed)
+
+    # Partition independently. The digest excludes observed_at so repeating the
+    # same normalized payload at a later observation time is idempotent.
+    grouped: dict[tuple[str, ...], list[dict[str, Any]]] = {}
+    for row in rows:
+        key = tuple(str(row.get(part, "unknown")) for part in partition_by)
+        grouped.setdefault(key, []).append(row)
+    written: list[dict[str, Any]] = []
+    for key, group in grouped.items():
+        canonical = []
+        for row in group:
+            value = dict(row)
+            value.pop("observed_at", None)
+            canonical.append(value)
+        canonical.sort(key=lambda value: json.dumps(value, sort_keys=True,
+                                                    ensure_ascii=False, default=str,
+                                                    separators=(",", ":")))
+        digest = _digest(json.dumps(canonical, ensure_ascii=False, sort_keys=True,
+                                    default=str, separators=(",", ":")).encode())
+        parts = PART_ROOT / _safe(dataset)
+        for part, value in zip(partition_by, key):
+            parts /= f"{_safe(part)}={_safe(value)}"
+        parts.mkdir(parents=True, exist_ok=True)
+        target = parts / f"part-{digest}.parquet"
+        if not target.exists():
+            table = pa.Table.from_pylist(group)
+            fd, raw_pending = tempfile.mkstemp(dir=parts, prefix=".pending-", suffix=".parquet")
+            os.close(fd)
+            pending = Path(raw_pending)
+            try:
+                pq.write_table(table, pending, compression="zstd")
+                pending.replace(target)
+            finally:
+                pending.unlink(missing_ok=True)
+            _append_manifest({
+                "kind": "normalized", "dataset": dataset, "source": source,
+                "sha256": digest, "path": str(target), "rows": len(group),
+                "event_start": min(str(row["event_at"]) for row in group),
+                "event_end": max(str(row["event_at"]) for row in group),
+                "observed_at": observed, "partition_by": list(partition_by),
+            })
+        written.append({"path": str(target), "sha256": digest, "rows": len(group)})
+    return {"dataset": dataset, "rows": len(rows), "parts": written,
+            "path": written[0]["path"], "sha256": written[0]["sha256"],
+            "status": "written" if written else "unknown"}
 
 
 def read_manifest() -> list[dict[str, Any]]:

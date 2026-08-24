@@ -18,6 +18,8 @@ def main() -> None:
         payload = json.loads(open(entry["path"], "rb").read())
         for row in payload.get("data", []):
             timestamp = int(row[0])
+            if timestamp < 1_577_836_800_000:  # 2020-01-01; reject corrupt epoch rows
+                continue
             if timestamp in seen:
                 continue
             seen.add(timestamp)
@@ -32,8 +34,8 @@ def main() -> None:
                 "source": "okx_history_candles",
             })
     records.sort(key=lambda item: str(item["event_at"]))
-    result = write_records("btc_1m_bars", records, source="okx_history_candles", partition_by=("symbol",))
-    print(f"materialized btc_1m_bars: {result.get('rows', 0):,} rows")
+    result = write_records("btc_1m_bars_clean", records, source="okx_history_candles", partition_by=("symbol",))
+    print(f"materialized btc_1m_bars_clean: {result.get('rows', 0):,} rows")
 
 
 if __name__ == "__main__":

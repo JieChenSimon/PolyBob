@@ -97,6 +97,10 @@ DEFAULT_RUN_CONFIG: dict[str, Any] = {
     # Paper Lab supports shorting, but a strategy can explicitly be long-only
     # for venues/instruments where short inventory is not available.
     "allow_short": True,
+    # Funding rates must declare the settlement cadence when enabled. Eight
+    # hours matches standard perpetual funding; daily research sources override
+    # this explicitly instead of silently applying the same rate per snapshot.
+    "funding_interval_seconds": 8 * 60 * 60,
     "equity_interval_minutes": 5.0,
     # Feedback guardrails (see modules/simulation/metrics.py docstring).
     "auto_feedback": False,
@@ -576,7 +580,15 @@ class SimulationService:
         timestamp = snapshot.get("timestamp")
         if position is None or mark is None or timestamp is None:
             return
-        applied_at = timestamp.isoformat() if isinstance(timestamp, datetime) else str(timestamp)
+        interval = int(active.config_value("funding_interval_seconds") or 0)
+        if interval > 0:
+            stamp = timestamp if isinstance(timestamp, datetime) else datetime.fromisoformat(str(timestamp))
+            if stamp.tzinfo is None:
+                stamp = stamp.replace(tzinfo=UTC)
+            epoch = int(stamp.timestamp())
+            applied_at = datetime.fromtimestamp(epoch - (epoch % interval), tz=UTC).isoformat()
+        else:
+            applied_at = timestamp.isoformat() if isinstance(timestamp, datetime) else str(timestamp)
         notional = abs(position.size) * mark
         pnl = -position.size * mark * float(rate)
         inserted = await asyncio.to_thread(

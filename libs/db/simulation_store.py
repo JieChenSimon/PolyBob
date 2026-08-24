@@ -454,6 +454,13 @@ class SimulationStore:
             ).fetchone()
         return float(row["pnl"])
 
+    def count_funding(self, run_id: str) -> int:
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT COUNT(*) AS count FROM sim_funding WHERE run_id = ?", (run_id,)
+            ).fetchone()
+        return int(row["count"])
+
     @staticmethod
     def _trade_record(row: sqlite3.Row) -> SimTradeRecord:
         meta = _load_json(row["signal_meta_json"], {})
