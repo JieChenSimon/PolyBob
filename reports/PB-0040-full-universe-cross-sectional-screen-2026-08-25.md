@@ -25,6 +25,9 @@ OOS 没有参与选参。
 
 新增固定门禁：OOS 基准必须至少有 20 个同期可比较标的；否则整个域标记
 `blocked_insufficient_contemporaneous_universe`，不产生收益或 alpha 结论。
+同时允许最多向前端点回看 5 个已知矩阵行，只用于处理交易所假日和 UTC 收盘
+日期差异；不会向未来取价。这样避免把美股 2026-08-24 只有少数标的收盘、
+而多数标的最后观测在 2026-08-21 的情况误判为缺失。
 
 ### A 股
 
@@ -33,20 +36,22 @@ OOS 没有参与选参。
 
 ### 美股
 
-1162 个标的中只有 3 个满足 OOS 起止日都有价格，低于 20 个门槛；本轮结果
-为 UNKNOWN/BLOCKED，不再引用此前基于 3 个标的的异常基准或收益数值。
+允许 5 行向后取价后，1162 个标的可参与同期基准，OOS 等权基准约为
+`+33.96%`；但 54 个组合没有一个训练期超额为正，最好的训练期超额仍为
+`-6.97%`，因此没有候选进入 Paper Lab。该结果也不构成 50% 年化证据。
 
 ## 决策
 
-全量自主发现扩大了覆盖面，但当前 A 股和美股都没有足够的同期横截面，不能
-得出收益或 alpha 结论；本轮不启动全量 Paper Lab，也不 Promotion。下一步
-优先修复美股价格基准/拆并股、A 股历史覆盖和 survivorship 审计，补齐至少
-20 个同期可比较标的后，再做固定样本外 screen。
+全量自主发现扩大了覆盖面；美股的基准时间对齐问题已修复，但策略仍没有
+训练期优势。A 股仍缺少至少 20 个同期可比较标的，继续 UNKNOWN。本轮不启动
+全量 Paper Lab，也不 Promotion。下一步优先修复美股价格基准/拆并股、A 股
+历史覆盖和 survivorship 审计，再做固定样本外 screen。
 
 ## 可复现产物
 
 - 输入：`data/discovered_equity_universe_full.json`
 - 未加门禁的诊断输出：`/tmp/polybob_full_cross_sectional_screen.json`
 - 加同期基准门禁的权威输出：`/tmp/polybob_full_cross_sectional_screen_gated.json`
+- 处理交易日历差异后的权威输出：`/tmp/polybob_full_cross_sectional_screen_stale5.json`
 - 运行器：`scripts/cross_sectional_local_screen.py`
 - 真实数据、成本后、训练选择与滚动折叠结果均保存在运行输出中。

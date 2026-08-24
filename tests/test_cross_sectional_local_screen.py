@@ -10,6 +10,7 @@ from scripts.cross_sectional_local_screen import (
     symbols_from_discovery_manifest,
     equal_weight_benchmark,
     benchmark_eligible_assets,
+    _endpoint_values,
 )
 
 
@@ -73,3 +74,9 @@ def test_equal_weight_benchmark_uses_window_endpoints():
     prices = np.array([[100.0, 110.0, 120.0], [100.0, 90.0, 80.0]])
     assert equal_weight_benchmark(prices, 0, 2) == 0.0
     assert benchmark_eligible_assets(prices, 0, 2) == 2
+
+
+def test_benchmark_uses_only_prior_stale_mark_for_exchange_calendar_gap():
+    prices = np.array([[100.0, 110.0, np.nan], [100.0, 90.0, 80.0]])
+    assert _endpoint_values(prices, 2).tolist() == [110.0, 80.0]
+    assert np.isclose(equal_weight_benchmark(prices, 0, 2), -0.05)

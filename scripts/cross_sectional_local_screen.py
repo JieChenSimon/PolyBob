@@ -116,23 +116,51 @@ def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_b
     }
 
 
-def equal_weight_benchmark(prices: np.ndarray, start: int, end: int) -> float | None:
+def _endpoint_values(prices: np.ndarray, index: int, *, max_stale_bars: int = 5) -> np.ndarray:
+    """Return last known prices at or before an endpoint within a short gap.
+
+    Assets do not all print on the same calendar date: exchanges close on
+    different holidays and the provider may finish a bar at a different UTC
+    date. Requiring an exact matrix row silently reduced the US benchmark to
+    three names. Looking backward only (never forward) keeps the comparison
+    causal while allowing a bounded stale mark; names without such a mark stay
+    unknown.
+    """
+    if index < 0 or index >= prices.shape[1]:
+        return np.full(prices.shape[0], np.nan)
+    values = np.full(prices.shape[0], np.nan)
+    for offset in range(max(0, int(max_stale_bars)) + 1):
+        column = index - offset
+        if column < 0:
+            break
+        candidate = prices[:, column]
+        missing = ~np.isfinite(values)
+        valid = missing & np.isfinite(candidate) & (candidate > 0)
+        values[valid] = candidate[valid]
+    return values
+
+
+def equal_weight_benchmark(prices: np.ndarray, start: int, end: int,
+                           *, max_stale_bars: int = 5) -> float | None:
     """Equal-weight buy-and-hold return over a real contiguous window."""
     if end <= start or end >= prices.shape[1]:
         return None
-    eligible = (prices[:, start] > 0) & (prices[:, end] > 0)
-    eligible &= np.isfinite(prices[:, start]) & np.isfinite(prices[:, end])
+    start_values = _endpoint_values(prices, start, max_stale_bars=max_stale_bars)
+    end_values = _endpoint_values(prices, end, max_stale_bars=max_stale_bars)
+    eligible = np.isfinite(start_values) & np.isfinite(end_values)
     if not eligible.any():
         return None
-    return float(np.mean(prices[eligible, end] / prices[eligible, start] - 1.0))
+    return float(np.mean(end_values[eligible] / start_values[eligible] - 1.0))
 
 
-def benchmark_eligible_assets(prices: np.ndarray, start: int, end: int) -> int:
+def benchmark_eligible_assets(prices: np.ndarray, start: int, end: int,
+                              *, max_stale_bars: int = 5) -> int:
     """Count assets with both endpoint prices for a valid cross-sectional benchmark."""
     if end <= start or end >= prices.shape[1]:
         return 0
-    eligible = (prices[:, start] > 0) & (prices[:, end] > 0)
-    eligible &= np.isfinite(prices[:, start]) & np.isfinite(prices[:, end])
+    start_values = _endpoint_values(prices, start, max_stale_bars=max_stale_bars)
+    end_values = _endpoint_values(prices, end, max_stale_bars=max_stale_bars)
+    eligible = np.isfinite(start_values) & np.isfinite(end_values)
     return int(np.sum(eligible))
 
 
@@ -217,6 +245,8 @@ def main() -> int:
     parser.add_argument("--output", default="data/cross_sectional_local_screen.json")
     parser.add_argument("--min-benchmark-assets", type=int, default=MIN_BENCHMARK_ASSETS,
                         help="minimum contemporaneous assets required for benchmark/OOS comparison")
+    parser.add_argument("--max-benchmark-stale-bars", type=int, default=5,
+                        help="bounded lookback rows for holiday/UTC-stale endpoint marks")
     args = parser.parse_args()
     as_of = datetime.now(UTC)
     manifest = run_manifest.pin("cross_sectional_local_screen", as_of=as_of,
@@ -227,7 +257,8 @@ def main() -> int:
               "parameters": {"candidates": CANDIDATES, "risk_policies": RISK_POLICIES, "cost_bps": COST_BPS,
                               "oos_fraction": 0.3, "long_only": True,
                               "max_single_bar_multiple": MAX_MULTIPLE,
-                              "min_benchmark_assets": args.min_benchmark_assets}, "domains": {}}
+                              "min_benchmark_assets": args.min_benchmark_assets,
+                              "max_benchmark_stale_bars": args.max_benchmark_stale_bars}, "domains": {}}
     all_symbols = (symbols_from_discovery_manifest(args.discovery_manifest)
                    if args.discovery_manifest else store.symbols(store.DAILY_BARS))
     domains = {domain: [] for domain in COST_BPS}
@@ -243,7 +274,10 @@ def main() -> int:
             continue
         cut = int(matrix.shape[1] * 0.7)
         test_days = np.sum(np.sum((matrix[:, cut:] > 0) & np.isfinite(matrix[:, cut:]), axis=0) >= 4)
-        benchmark_assets = benchmark_eligible_assets(matrix, cut, matrix.shape[1] - 1)
+        benchmark_assets = benchmark_eligible_assets(
+            matrix, cut, matrix.shape[1] - 1,
+            max_stale_bars=args.max_benchmark_stale_bars,
+        )
         if test_days < 20 or benchmark_assets < args.min_benchmark_assets:
             report["domains"][domain] = {
                 "status": "blocked_insufficient_contemporaneous_universe",
@@ -264,8 +298,14 @@ def main() -> int:
                 )
                 stress = portfolio_result(matrix, positions, cut, COST_BPS[domain], return_cap=0.20)
                 folds = rolling_folds(matrix, positions, COST_BPS[domain])
-                benchmark = equal_weight_benchmark(matrix, cut, matrix.shape[1] - 1)
-                train_benchmark = equal_weight_benchmark(matrix, candidate["lookback"], cut)
+                benchmark = equal_weight_benchmark(
+                    matrix, cut, matrix.shape[1] - 1,
+                    max_stale_bars=args.max_benchmark_stale_bars,
+                )
+                train_benchmark = equal_weight_benchmark(
+                    matrix, candidate["lookback"], cut,
+                    max_stale_bars=args.max_benchmark_stale_bars,
+                )
                 excess = result["oos_return"] - benchmark if benchmark is not None else None
                 train_excess = (
                     train_result["oos_return"] - train_benchmark
