@@ -12,6 +12,6 @@ checks:
 - text: 通过测试、报告、Git 提交推送并明确晋级或拒绝结论
   done: false
 deps: []
-branch: pb-0027-real-data-pipeline
+branch: pb-0028-sec-insider-hold30
 blocked: null
-updated: '2026-08-24T14:02:12+00:00'
+updated: '2026-08-24T14:03:11+00:00'
