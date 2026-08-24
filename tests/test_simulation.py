@@ -363,6 +363,19 @@ async def test_funding_snapshot_is_booked_once_and_replayed(tmp_path):
     await service._on_feature_snapshot(snapshot)
     assert service.store.total_funding(run["run_id"]) == pytest.approx(total)
 
+
+@pytest.mark.asyncio
+async def test_funding_enabled_run_fails_closed_without_rate(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="funding-required", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0, config={**RUN_CONFIG, "funding_enabled": True},
+    )
+    await service.start_run(run["run_id"])
+    await service._on_feature_snapshot(feature_snapshot(timestamp=datetime.now(UTC)))
+    assert service.store.list_trades(run["run_id"]) == []
+    assert service.store.total_funding(run["run_id"]) == 0.0
+
 @pytest.mark.asyncio
 async def test_no_fill_on_degraded_or_stale_book(tmp_path):
     service = make_service(tmp_path)

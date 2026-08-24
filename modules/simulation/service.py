@@ -480,6 +480,13 @@ class SimulationService:
             # moved only when cash did. Every return, drawdown and Sharpe this
             # project reports is computed from that curve.
             self._update_mark(active, snapshot)
+            if bool(active.config_value("funding_enabled")) and snapshot.get("funding_rate") is None:
+                logger.warning(
+                    "sim_funding_missing",
+                    run_id=active.record.run_id,
+                    instrument=str(key),
+                )
+                continue
             await self._apply_funding(active, snapshot)
             try:
                 signals = await active.source.on_snapshot(topic, snapshot)

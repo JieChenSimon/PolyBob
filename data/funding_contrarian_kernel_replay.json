@@ -1,0 +1,470 @@
+{
+  "generated_at": "2026-08-24T15:11:52.103100+00:00",
+  "real_data_only": true,
+  "execution_kernel": "modules.simulation.SimulationService",
+  "strategy": "funding_contrarian",
+  "symbols": [
+    "BTC-USDT",
+    "ETH-USDT"
+  ],
+  "funding_sources": [
+    "BTC-PERPETUAL",
+    "ETH-PERPETUAL"
+  ],
+  "candidates": [
+    {
+      "threshold_pct": 60.0,
+      "costs": {
+        "1.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.035482502310686226,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 13.240086228956033,
+              "median_max_drawdown": 0.08979273704280515,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": 0.008197091448329419,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 13.240086228956033,
+              "median_max_drawdown": 0.08979273704280515,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": 0.0026754294004366908,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 13.240086228956033,
+              "median_max_drawdown": 0.08979273704280515,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": -0.004636013862129418,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 13.240086228956033,
+              "median_max_drawdown": 0.08979273704280515,
+              "median_closed_trades": 90.5
+            }
+          ]
+        },
+        "2.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.06772368146787372,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 12.930027735435967,
+              "median_max_drawdown": 0.12127014325466202,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": -0.017241751726850607,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 12.930027735435967,
+              "median_max_drawdown": 0.12127014325466202,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.011368280564471644,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 12.930027735435967,
+              "median_max_drawdown": 0.12127014325466202,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": -0.010970577714050855,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 12.930027735435967,
+              "median_max_drawdown": 0.12127014325466202,
+              "median_closed_trades": 90.5
+            }
+          ]
+        },
+        "3.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.09892060084921594,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 12.631258084185209,
+              "median_max_drawdown": 0.16519761954950388,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": -0.04205474478852206,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 12.631258084185209,
+              "median_max_drawdown": 0.16519761954950388,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.025204505736119875,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 12.631258084185209,
+              "median_max_drawdown": 0.16519761954950388,
+              "median_closed_trades": 90.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": -0.017261333616400032,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 12.631258084185209,
+              "median_max_drawdown": 0.16519761954950388,
+              "median_closed_trades": 90.5
+            }
+          ]
+        }
+      },
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": true,
+            "value": 1120.0,
+            "threshold": 200.0,
+            "detail": "1120 observations",
+            "status": "pass"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0146,
+            "threshold": 0.9,
+            "detail": "DSR=0.015 over 9 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": -1.9856,
+            "threshold": 0.3,
+            "detail": "Sharpe under 3.0x costs is -1.99 < 0.3",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": true,
+            "value": 0.5,
+            "threshold": 0.5,
+            "detail": "50% of walk-forward windows stable",
+            "status": "pass"
+          }
+        ],
+        "status": "fail"
+      }
+    },
+    {
+      "threshold_pct": 75.0,
+      "costs": {
+        "1.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.022338215243556725,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 6.4468769105446615,
+              "median_max_drawdown": 0.09207801674788922,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": 0.01983733973128088,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 6.4468769105446615,
+              "median_max_drawdown": 0.09207801674788922,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.005486705190874186,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 6.4468769105446615,
+              "median_max_drawdown": 0.09207801674788922,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": 0.0008494381602163203,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 6.4468769105446615,
+              "median_max_drawdown": 0.09207801674788922,
+              "median_closed_trades": 96.5
+            }
+          ]
+        },
+        "2.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.06182197744468099,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 6.266050725464139,
+              "median_max_drawdown": 0.12135158639201661,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": -0.01244805663170856,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 6.266050725464139,
+              "median_max_drawdown": 0.12135158639201661,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.025271982016879857,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 6.266050725464139,
+              "median_max_drawdown": 0.12135158639201661,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": -0.008726578795738904,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 6.266050725464139,
+              "median_max_drawdown": 0.12135158639201661,
+              "median_closed_trades": 96.5
+            }
+          ]
+        },
+        "3.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.09975271959443732,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 6.092114458630551,
+              "median_max_drawdown": 0.1606669715212943,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": -0.0437471985574342,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 6.092114458630551,
+              "median_max_drawdown": 0.1606669715212943,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.044682915698076864,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 6.092114458630551,
+              "median_max_drawdown": 0.1606669715212943,
+              "median_closed_trades": 96.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": -0.01821359916193549,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 6.092114458630551,
+              "median_max_drawdown": 0.1606669715212943,
+              "median_closed_trades": 96.5
+            }
+          ]
+        }
+      },
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": true,
+            "value": 1120.0,
+            "threshold": 200.0,
+            "detail": "1120 observations",
+            "status": "pass"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0453,
+            "threshold": 0.9,
+            "detail": "DSR=0.045 over 9 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": -2.2653,
+            "threshold": 0.3,
+            "detail": "Sharpe under 3.0x costs is -2.27 < 0.3",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": true,
+            "value": 0.5,
+            "threshold": 0.5,
+            "detail": "50% of walk-forward windows stable",
+            "status": "pass"
+          }
+        ],
+        "status": "fail"
+      }
+    },
+    {
+      "threshold_pct": 90.0,
+      "costs": {
+        "1.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.060389442173834906,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.16589093573514702,
+              "median_max_drawdown": 0.10568564973390365,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": -0.016234062736099786,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.16589093573514702,
+              "median_max_drawdown": 0.10568564973390365,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.021771389754265347,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.16589093573514702,
+              "median_max_drawdown": 0.10568564973390365,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": 0.0003912821297846203,
+              "positive_oos_fraction": 0.5,
+              "median_funding_pnl": 0.16589093573514702,
+              "median_max_drawdown": 0.10568564973390365,
+              "median_closed_trades": 92.5
+            }
+          ]
+        },
+        "2.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.09844394917188665,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2038973086579492,
+              "median_max_drawdown": 0.14396210371794627,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": -0.04799460551955892,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2038973086579492,
+              "median_max_drawdown": 0.14396210371794627,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.041317915277368555,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2038973086579492,
+              "median_max_drawdown": 0.14396210371794627,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": -0.011283658520994,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2038973086579492,
+              "median_max_drawdown": 0.14396210371794627,
+              "median_closed_trades": 92.5
+            }
+          ]
+        },
+        "3.0": {
+          "folds": [
+            {
+              "split_date": "2025-12-22",
+              "median_oos_return": -0.1349980153842088,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2405745904772253,
+              "median_max_drawdown": 0.18450719377775643,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-02-18",
+              "median_oos_return": -0.07876549176763431,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2405745904772253,
+              "median_max_drawdown": 0.18450719377775643,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-04-17",
+              "median_oos_return": -0.06049642780452397,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2405745904772253,
+              "median_max_drawdown": 0.18450719377775643,
+              "median_closed_trades": 92.5
+            },
+            {
+              "split_date": "2026-06-14",
+              "median_oos_return": -0.022836466305195757,
+              "positive_oos_fraction": 0.0,
+              "median_funding_pnl": 0.2405745904772253,
+              "median_max_drawdown": 0.18450719377775643,
+              "median_closed_trades": 92.5
+            }
+          ]
+        }
+      },
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": true,
+            "value": 1120.0,
+            "threshold": 200.0,
+            "detail": "1120 observations",
+            "status": "pass"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0,
+            "threshold": 0.9,
+            "detail": "DSR=0.000 over 9 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": -3.3898,
+            "threshold": 0.3,
+            "detail": "Sharpe under 3.0x costs is -3.39 < 0.3",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": false,
+            "value": 0.25,
+            "threshold": 0.5,
+            "detail": "25% of walk-forward windows stable",
+            "status": "fail"
+          }
+        ],
+        "status": "fail"
+      }
+    }
+  ],
+  "status": "replay_only_not_promoted"
+}
