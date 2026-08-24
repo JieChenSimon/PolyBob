@@ -10,11 +10,12 @@ from pathlib import Path
 
 import pandas as pd
 
+from libs.data import store
 from libs.data.universe import US_LIQUID
 from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import SimSignal
-from scripts.cross_sectional_local_screen import align_frames, read_frames, select_long_only
+from scripts.cross_sectional_local_screen import align_frames, read_frames, select_long_only, symbol_domain
 
 
 class ReplayPositionSource:
@@ -72,6 +73,7 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
         initial_capital=10_000.0,
         config={
             "replay_positions": positions,
+            "position_fraction": max(positions) if positions else 0.0,
             "fee_bps": 20.0,
             "mid_penalty_bps": 10.0,
             "allow_short": False,
@@ -110,18 +112,16 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
             "oos_points": len(oos_points)}
 
 
-async def main_async() -> int:
-    as_of = datetime.now(UTC)
-    frames, rejected = read_frames(list(US_LIQUID), as_of)
+async def replay_domain(domain: str, symbols: list[str], as_of: datetime, out_dir: Path) -> dict:
+    frames, rejected = read_frames(symbols, as_of)
     symbols = list(frames)
     matrix_frame = align_frames(frames)
     matrix = matrix_frame.to_numpy(dtype=float).T
     if len(symbols) < 4 or matrix.shape[1] < 300:
-        raise RuntimeError("insufficient clean liquid universe")
+        return {"domain": domain, "status": "blocked_insufficient_data", "symbols": len(symbols),
+                "quality_rejected": rejected}
     positions = select_long_only(matrix, lookback=60, top_frac=0.3, rebalance_days=10)
     split_date = str(matrix_frame.index[int(matrix_frame.shape[0] * 0.7)])
-    out_dir = Path("data/.kernel_replay")
-    out_dir.mkdir(parents=True, exist_ok=True)
     results = []
     for symbol, target in zip(symbols, positions):
         series = frames[symbol]
@@ -132,21 +132,37 @@ async def main_async() -> int:
                                            aligned_target.tolist(), split_date, out_dir))
     returns = [item.get("oos_return") for item in results]
     returns = [float(value) for value in returns if value is not None]
+    return {"domain": domain, "split_date": split_date, "symbols": len(symbols),
+            "quality_rejected": rejected,
+            "mean_kernel_oos_return": sum(returns) / len(returns) if returns else None,
+            "median_kernel_oos_return": sorted(returns)[len(returns) // 2] if returns else None,
+            "positive_oos_fraction": sum(value > 0 for value in returns) / len(returns) if returns else None,
+            "oos_closed_trade_median": sorted(item["oos_closed_trades"] for item in results)[len(results) // 2] if results else None,
+            "results": results, "status": "replay_only_not_promoted"}
+
+
+async def main_async() -> int:
+    as_of = datetime.now(UTC)
+    all_symbols = store.symbols(store.DAILY_BARS)
+    domain_inputs = {
+        "us_equity": list(US_LIQUID),
+        "a_share": [s for s in all_symbols if symbol_domain(s) == "a_share"],
+        "crypto": [s for s in all_symbols if symbol_domain(s) == "crypto"],
+    }
+    out_dir = Path("data/.kernel_replay")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    domains = {domain: await replay_domain(domain, symbols, as_of, out_dir)
+               for domain, symbols in domain_inputs.items()}
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
         "strategy": {"lookback": 60, "top_frac": 0.3, "rebalance_days": 10},
         "execution_config": {"fee_bps": 20.0, "mid_penalty_bps": 10.0, "allow_short": False},
-        "split_date": split_date, "symbols": len(symbols), "quality_rejected": rejected,
-        "mean_kernel_oos_return": sum(returns) / len(returns) if returns else None,
-        "median_kernel_oos_return": sorted(returns)[len(returns) // 2] if returns else None,
-        "positive_oos_fraction": sum(value > 0 for value in returns) / len(returns) if returns else None,
-        "results": results,
-        "status": "replay_only_not_promoted",
+        "domains": domains, "status": "replay_only_not_promoted",
     }
     out = Path("data/cross_sectional_kernel_replay.json")
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
-    print(json.dumps({k: report[k] for k in ("symbols", "quality_rejected", "split_date", "mean_kernel_oos_return", "median_kernel_oos_return", "positive_oos_fraction", "status")}, ensure_ascii=False, indent=2))
+    print(json.dumps(domains, ensure_ascii=False, indent=2, default=str))
     print(f"写入 {out}")
     return 0
 

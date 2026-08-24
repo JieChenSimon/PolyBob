@@ -24,6 +24,8 @@ def test_cross_sectional_selection_is_long_only_and_bounded():
     positions = select_long_only(prices, lookback=5, top_frac=0.25)
     assert np.all(positions >= 0)
     assert np.all(positions <= 1)
+    nonzero_sums = positions.sum(axis=0)[positions.sum(axis=0) > 0]
+    assert np.all(nonzero_sums <= 1.0 + 1e-12)
 
 
 def test_cross_sectional_rejects_unresolved_price_jump():

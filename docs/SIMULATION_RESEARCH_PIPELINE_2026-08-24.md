@@ -86,7 +86,7 @@
 
 ### Paper Lab kernel replay
 
-新增 [cross_sectional_kernel_replay.json](../data/cross_sectional_kernel_replay.json)，把同一组日期对齐后的 `60/30/10` 因果信号逐标的注入 `SimulationService`，使用真实 Paper Lab 的 20bp fee、10bp mid penalty、权益标记、成交账本和 long-only 约束。26 个流动性美股标的的独立 OOS（切分日 2025-02-14）平均 kernel return 为 +0.515%，中位数仅 +0.001%，正收益标的比例 50%，每个标的 OOS 闭合交易中位数 3 笔；均值由少数 AMD/INTC 等标的拉动，状态保持 `replay_only_not_promoted`。
+新增 [cross_sectional_kernel_replay.json](../data/cross_sectional_kernel_replay.json)，把同一组日期对齐后的 `60/30/10` 因果信号逐标的注入 `SimulationService`，使用真实 Paper Lab 的 20bp fee、10bp mid penalty、权益标记、成交账本和 long-only 约束。跨资产独立 OOS replay 结果为：美股 26 个标的平均 +1.30%、中位数接近 0、正收益比例 50%；A 股 62 个标的平均 +0.093%、中位数 -0.098%、正收益比例 40.3%；加密 57 个清洁标的（另剔除 9 个价格质量异常）平均 -0.857%、中位数 -0.997%、正收益比例 29.8%。各域 OOS 闭合交易中位数只有 2–3 笔，全部保持 `replay_only_not_promoted`。
 
 因此横截面组合暂不进入模拟盘自动运行。下一轮应继续做独立日历簇、幸存者偏差、组合最大回撤和成本敏感性复核，并把候选与 kernel replay 的逐笔账本对账；若不能在多折中保持中位数绝对收益和相对收益均为正，就淘汰该候选。
 

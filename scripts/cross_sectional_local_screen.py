@@ -27,6 +27,7 @@ def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
     """Return causal weights; day t only ranks returns ending at t."""
     n_assets, n_days = prices.shape
     positions = np.zeros_like(prices, dtype=float)
+    target_k = max(1, int(round(n_assets * top_frac)))
     for day in range(lookback, n_days - 1):
         if (day - lookback) % rebalance_days and day > lookback:
             positions[:, day] = positions[:, day - 1]
@@ -37,9 +38,12 @@ def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
         if len(indices) < 4:
             continue
         scores = now[indices] / past[indices] - 1.0
-        k = max(1, int(round(len(indices) * top_frac)))
+        k = min(target_k, len(indices))
         winners = indices[np.argsort(scores)[-k:]]
-        positions[winners, day] = 1.0 / len(winners)
+        # Keep the target weight fixed across dates so the Paper Lab
+        # position_fraction can reproduce the research portfolio exactly.
+        # If fewer names are valid, the unallocated remainder stays in cash.
+        positions[winners, day] = 1.0 / target_k
     return positions
 
 
