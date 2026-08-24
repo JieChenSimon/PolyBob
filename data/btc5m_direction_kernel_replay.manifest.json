@@ -1,0 +1,42 @@
+{
+  "schema_version": "btc5m-report-lineage-v1",
+  "report_name": "direction_kernel_replay",
+  "report_path": "data/btc5m_direction_kernel_replay.json",
+  "report_sha256": "2b0e7a3c2d1a28627ece43b7bf3c4fbdc09ebec44546ccdeb2a78019cd23c5b7",
+  "generated_at": "2026-08-24T18:02:42.232710+00:00",
+  "source_generated_at": "2026-08-24T16:11:20.946645+00:00",
+  "code": {
+    "commit": "329711abedb8f23d7c37ccb9bf7d6fae26617d35",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
+  },
+  "reproducible": true,
+  "real_data_only": true,
+  "pit_status": "UNKNOWN",
+  "tradable_evidence": false,
+  "dataset_paths": [
+    "data/datasets/parts/btc_1m_bars_clean/symbol=BTC-USDT/part-ae8ddc0b2df4015002c196b18ec9e0839418cd6e6e0365580fcc2d1ab6b515e6.parquet"
+  ],
+  "dataset_sha256": "73148a5cc73226ccffae378e2a4938bc7fda1ade15832b754525a5447b78b1f6",
+  "date_range": {
+    "first": null,
+    "last": null
+  },
+  "parameters": {
+    "thresholds": [
+      0.55,
+      0.6,
+      0.65
+    ],
+    "cost_multiples": [
+      1.0,
+      2.0,
+      3.0
+    ]
+  },
+  "degradation": {
+    "status": "diagnostic_only",
+    "reason": "historical report lacks strict PIT contract"
+  }
+}
