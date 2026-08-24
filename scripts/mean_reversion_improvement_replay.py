@@ -45,12 +45,6 @@ def symmetric_positions(prices: list[float], lookback: int, entry_bps: int,
     return positions
 
 
-def _returns(points: list, split: str) -> list[float]:
-    ordered = sorted(points, key=lambda p: p.ts)
-    return [b.equity / a.equity - 1.0 for a, b in zip(ordered, ordered[1:])
-            if b.ts >= split and a.equity > 0]
-
-
 async def run_variant(candidate: dict, frames: dict, split: str, out_dir: Path,
                       cost_multiple: float = 1.0) -> dict:
     rows = []
@@ -63,11 +57,6 @@ async def run_variant(candidate: dict, frames: dict, split: str, out_dir: Path,
             position_fraction=candidate["position_fraction"],
             allow_short=candidate["allow_short"], fee_bps=20.0 * cost_multiple,
             mid_penalty_bps=10.0 * cost_multiple,
-        )
-        row["oos_returns"] = _returns(
-            # the replay function intentionally returns only aggregate metrics;
-            # use its reported OOS return as the comparable portfolio observation.
-            [], split,
         )
         rows.append(row)
     oos = [float(row["oos_return"]) for row in rows if row.get("oos_return") is not None]
