@@ -31,7 +31,7 @@ TRANCHE_OFFSETS = (0, 5, 20)
 HORIZONS = (21, 63, 126, 252)
 MIN_ASSET_CLUSTERS = 20
 MIN_DATE_CLUSTERS = 20
-US_REBOUND_SYMBOLS = tuple(dict.fromkeys((*US_LIQUID, "SNDK", "MU", "WDC")))
+US_REBOUND_SYMBOLS = tuple(dict.fromkeys((*US_LIQUID, "SNDK", "MU", "WDC", "MRVL")))
 
 
 @dataclass(frozen=True)

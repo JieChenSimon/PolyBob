@@ -47,6 +47,12 @@ fundamental_filter:
       require_inventory_days_vs_5y_median: true
       require_revenue_customer_concentration: true
       missing_cycle_fields_action: unknown_no_trade
+    semiconductor_cyclical:
+      symbols: [MRVL]
+      net_debt_to_operating_cash_flow_max: 5.0
+      minimum_positive_ocf_periods: 2
+      require_margin_and_cashflow_recovery: true
+      missing_cycle_fields_action: unknown_no_trade
 
 execution:
   entry: three_equal_tranches

@@ -96,3 +96,18 @@ data/datasets/
 # Local forecasting weights. Model files are reproducible downloads and can be
 # hundreds of MB; manifests and benchmark evidence belong in Git, weights do not.
 data/models/
+
+# Replay scratch and large local research products.  The reproducible runner,
+# compact report, manifest and progress schema belong in Git; detailed replay
+# payloads and SQLite/WAL scratch files remain local evidence and must not be
+# accidentally staged as a giant commit.
+data/.kernel_replay_*/
+data/deep_drawdown_kernel_replay.json
+data/deep_drawdown_kernel_*replay.json
+data/deep_drawdown_kernel_progress.json
+data/deep_drawdown_kernel_*progress.json
+data/simulation_research_matrix_report.json
+data/simulation_research_progress.json
+data/drawdown_universe_*replay.json
+data/drawdown_universe_*progress.json
+output/

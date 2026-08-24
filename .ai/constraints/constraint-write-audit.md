@@ -143,3 +143,11 @@
 - operation: create
 - status: approved-by-explicit-request
 - notes: 用户要求盘点大量小文件、识别数据/缓存/临时物/日志来源，按专业标准合并压缩去重并治理重复日志；保留原始证据、PIT、manifest 和审计账本，禁止未经校验的宽泛删除。
+
+## 2026-08-25T05:30:00+08:00
+- proposal_ref: user-autonomous-drawdown-universe-discovery
+- approved_item_ids: training-window-candidate-discovery-and-domain-specific-applicability
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`, `reports/PB-0040-probe-and-universe-2026-08-25.md`
+- operation: create
+- status: approved-by-explicit-request
+- notes: 用户要求系统自主发现 A 股、美股和加密标的，并指出低回撤核心资产不应被强行套用 50% 深回撤策略；新增训练窗口冻结、OOS 禁止反选和分层适用性约束。

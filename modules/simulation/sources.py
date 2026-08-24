@@ -423,9 +423,14 @@ class DeepDrawdownSignalSource:
         self.hold_days = max(1, int(config.get("hold_days", 63)))
         self.max_nav_fraction = max(0.0, min(1.0, float(config.get("max_nav_fraction", 0.05))))
         self.confidence = float(config.get("rebound_confidence", 0.7))
+        self.confirmation_bars = max(0, int(config.get("confirmation_bars", 0)))
+        self.probe_fraction = max(0.0, min(1.0, float(config.get("probe_fraction", 0.0))))
         self._index: dict[str, int] = {}
         self._prior_peak: dict[str, float] = {}
+        self._prior_mid: dict[str, float] = {}
         self._triggered: dict[str, bool] = {}
+        self._confirmation_count: dict[str, int] = {}
+        self._pending_event: dict[str, dict[str, Any]] = {}
         self._active_until: dict[str, int] = {}
         self._pending: dict[str, list[dict[str, Any]]] = {}
 
@@ -462,6 +467,8 @@ class DeepDrawdownSignalSource:
                     "position_fraction": target,
                     "event_index": item.get("event_index"),
                     "event_date": item.get("event_date"),
+                    "trigger_date": item.get("trigger_date"),
+                    "confirmation_bars": item.get("confirmation_bars", self.confirmation_bars),
                     "hold_days": self.hold_days,
                     "causal_claim": False,
                     "evidence_status": "UNKNOWN_NO_TRADE",
@@ -473,33 +480,106 @@ class DeepDrawdownSignalSource:
             and mid <= prior_peak * (1.0 - self.drawdown_fraction)
         )
         if triggered and not self._triggered.get(instrument, False) and index >= self._active_until.get(instrument, -1):
-            event_id = f"{instrument}:{index}"
             self._triggered[instrument] = True
-            last_exit = index
-            denominator = max(1, len(self.tranche_delays_days))
-            for tranche, offset in enumerate(self.tranche_delays_days, start=1):
-                entry_index = index + 1 + offset
-                exit_index = entry_index + self.hold_days
-                last_exit = max(last_exit, exit_index)
+            self._pending_event[instrument] = {
+                "event_id": f"{instrument}:{index}",
+                "trigger_index": index,
+                "trigger_date": timestamp.isoformat(),
+                "trigger_close": mid,
+            }
+            self._confirmation_count[instrument] = 0
+            if self.confirmation_bars > 0 and self.probe_fraction > 0:
+                denominator = max(1, len(self.tranche_delays_days))
+                probe_target = self.max_nav_fraction * min(
+                    self.probe_fraction, 1.0 / denominator
+                )
+                probe_entry = index + 1
+                probe_exit = probe_entry + self.hold_days
                 self._pending[instrument].append({
-                    "due_index": entry_index,
-                    "target_fraction": self.max_nav_fraction * tranche / denominator,
-                    "event_id": event_id,
-                    "tranche": tranche,
+                    "due_index": probe_entry,
+                    "target_fraction": probe_target,
+                    "event_id": self._pending_event[instrument]["event_id"],
+                    "tranche": "probe",
                     "event_index": index,
                     "event_date": timestamp.isoformat(),
+                    "trigger_date": timestamp.isoformat(),
+                    "confirmation_bars": self.confirmation_bars,
                 })
                 self._pending[instrument].append({
-                    "due_index": exit_index,
+                    "due_index": probe_exit,
                     "target_fraction": 0.0,
-                    "event_id": event_id,
-                    "tranche": f"exit_{tranche}",
+                    "event_id": self._pending_event[instrument]["event_id"],
+                    "tranche": "exit_probe",
                     "event_index": index,
                     "event_date": timestamp.isoformat(),
+                    "trigger_date": timestamp.isoformat(),
+                    "confirmation_bars": self.confirmation_bars,
                 })
-            self._active_until[instrument] = last_exit
+                self._pending_event[instrument]["probe"] = True
+        pending_event = self._pending_event.get(instrument)
+        if pending_event is not None:
+            prior_mid = self._prior_mid.get(instrument)
+            if index > int(pending_event["trigger_index"]):
+                if prior_mid is not None and mid > prior_mid:
+                    self._confirmation_count[instrument] = self._confirmation_count.get(instrument, 0) + 1
+                else:
+                    self._confirmation_count[instrument] = 0
+            confirmed = (
+                self.confirmation_bars == 0
+                or self._confirmation_count.get(instrument, 0) >= self.confirmation_bars
+            )
+            if confirmed and (
+                self.confirmation_bars == 0
+                or index > int(pending_event["trigger_index"])
+            ):
+                event_id = str(pending_event["event_id"])
+                pending_event = {
+                    **pending_event,
+                    "event_index": index,
+                    "event_date": timestamp.isoformat(),
+                    "confirmation_bars": self.confirmation_bars,
+                }
+                self._pending_event.pop(instrument, None)
+                last_exit = index
+                denominator = max(1, len(self.tranche_delays_days))
+                start_tranche = 2 if pending_event.get("probe") else 1
+                remaining_offsets = self.tranche_delays_days[start_tranche - 1:]
+                if remaining_offsets:
+                    first_offset = remaining_offsets[0]
+                    remaining_offsets = tuple(
+                        offset - first_offset for offset in remaining_offsets
+                    )
+                for tranche, offset in enumerate(
+                    remaining_offsets, start=start_tranche
+                ):
+                    entry_index = index + 1 + offset
+                    exit_index = entry_index + self.hold_days
+                    last_exit = max(last_exit, exit_index)
+                    self._pending[instrument].append({
+                        "due_index": entry_index,
+                        "target_fraction": self.max_nav_fraction * tranche / denominator,
+                        "event_id": event_id,
+                        "tranche": tranche,
+                        "event_index": index,
+                        "event_date": timestamp.isoformat(),
+                        "trigger_date": pending_event["trigger_date"],
+                        "confirmation_bars": self.confirmation_bars,
+                    })
+                    self._pending[instrument].append({
+                        "due_index": exit_index,
+                        "target_fraction": 0.0,
+                        "event_id": event_id,
+                        "tranche": f"exit_{tranche}",
+                        "event_index": index,
+                        "event_date": timestamp.isoformat(),
+                        "trigger_date": pending_event["trigger_date"],
+                        "confirmation_bars": self.confirmation_bars,
+                    })
+                self._active_until[instrument] = last_exit
         elif not triggered:
             self._triggered[instrument] = False
+            self._confirmation_count[instrument] = 0
+        self._prior_mid[instrument] = mid
         self._prior_peak[instrument] = max(prior_peak or mid, mid)
         return signals
 

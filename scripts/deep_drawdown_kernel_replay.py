@@ -118,7 +118,8 @@ def _event_stats(events: list[dict[str, Any]], *, oos: bool | None = None,
 
 
 async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
-                    cost_multiple: float, db_path: Path, name: str) -> dict[str, Any]:
+                    cost_multiple: float, db_path: Path, name: str,
+                    confirmation_bars: int = 0, probe_fraction: float = 0.0) -> dict[str, Any]:
     if len(rows) < MIN_ROWS:
         return {"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
                 "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
@@ -139,6 +140,8 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                 "hold_days": hold_days,
                 "max_nav_fraction": 0.05,
                 "position_fraction": 0.05,
+                "confirmation_bars": confirmation_bars,
+                "probe_fraction": probe_fraction,
                 "allow_short": False,
                 # With daily bars there is no historical BBO.  Represent the
                 # declared round-trip cost as two fee legs and do not invent a
@@ -180,6 +183,8 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             "end": rows[-1]["event_at"].date().isoformat(),
             "hold_days": hold_days,
             "cost_multiple": cost_multiple,
+            "confirmation_bars": confirmation_bars,
+            "probe_fraction": probe_fraction,
             "round_trip_cost_bps": round_trip_bps,
             "metrics": metrics,
             "events": events,
@@ -204,7 +209,15 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
 
 async def run(args: argparse.Namespace) -> dict[str, Any]:
     available = set(store.symbols(store.DAILY_BARS))
-    requested = [item.strip() for item in args.symbols.split(",") if item.strip()] if args.symbols else sorted(available)
+    if args.symbols:
+        requested = [item.strip() for item in args.symbols.split(",") if item.strip()]
+    elif args.symbols_file:
+        payload = json.loads(Path(args.symbols_file).read_text(encoding="utf-8"))
+        if isinstance(payload, dict):
+            payload = payload.get("candidate_symbols", [])
+        requested = [str(item).strip() for item in payload if str(item).strip()]
+    else:
+        requested = sorted(available)
     symbols = [symbol for symbol in requested if symbol in available]
     missing = [symbol for symbol in requested if symbol not in available]
     rows_by_symbol = {symbol: _bars(symbol, as_of=datetime.now(UTC), start=None, end=None)
@@ -219,7 +232,9 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         db_path = Path(args.output_dir) / f"{symbol}-{hold_days}d-{multiple:g}x-{uuid.uuid4().hex[:8]}.sqlite3"
         result = await _run_case(symbol, rows_by_symbol[symbol], hold_days=hold_days,
                                  cost_multiple=multiple, db_path=db_path,
-                                 name=f"deep-drawdown:{symbol}:{hold_days}d:{multiple:g}x")
+                                 name=f"deep-drawdown:{symbol}:{hold_days}d:{multiple:g}x",
+                                 confirmation_bars=args.confirmation_bars,
+                                 probe_fraction=args.probe_fraction)
         results.append(result)
         progress.complete_one(f"{symbol}:{hold_days}d:{multiple:g}x")
     report = {
@@ -248,9 +263,13 @@ def main() -> int:
         pass
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--symbols", default=None)
+    parser.add_argument("--symbols-file", default=None,
+                        help="JSON list or discovery manifest with candidate_symbols")
     parser.add_argument("--output", default="data/deep_drawdown_kernel_replay.json")
     parser.add_argument("--progress", default="data/deep_drawdown_kernel_progress.json")
     parser.add_argument("--output-dir", default="data/.kernel_replay_deep_drawdown")
+    parser.add_argument("--confirmation-bars", type=int, default=0)
+    parser.add_argument("--probe-fraction", type=float, default=0.0)
     args = parser.parse_args()
     report = asyncio.run(run(args))
     print(json.dumps({"symbols": report["universe_count"], "cases": report["case_count"],

@@ -31,6 +31,11 @@ US_LIQUID = (
     "PFE", "MRK", "KO", "NKE", "DIS", "VZ", "T", "F", "GM", "GE", "BA", "INTC",
 )
 
+# High-volatility semiconductor/cycle names used by the separate deep-drawdown
+# research universe. They are deliberately not mixed into the core liquid
+# benchmark universe, where a missing 50% drawdown is an expected outcome.
+US_CYCLICAL_REBOUND = ("SNDK", "MU", "WDC", "MRVL")
+
 # Benchmarks. SPY is the excess-return baseline for every US event study, so it is
 # named here rather than typed as a string in each one.
 US_BENCHMARK = "SPY"
@@ -106,6 +111,7 @@ __all__ = [
     "US_BENCHMARK",
     "US_INDEX_PROXIES",
     "US_LIQUID",
+    "US_CYCLICAL_REBOUND",
     "altcoin_pairs",
     "altcoin_swaps",
     "domain",
