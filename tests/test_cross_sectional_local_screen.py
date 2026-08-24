@@ -2,7 +2,14 @@ import numpy as np
 
 import pandas as pd
 
-from scripts.cross_sectional_local_screen import align_frames, apply_risk_policy, has_unresolved_price_jump, select_long_only
+from scripts.cross_sectional_local_screen import (
+    align_frames,
+    apply_risk_policy,
+    has_unresolved_price_jump,
+    select_long_only,
+    symbols_from_discovery_manifest,
+    equal_weight_benchmark,
+)
 
 
 def test_cross_sectional_selection_uses_only_past_prices():
@@ -52,3 +59,15 @@ def test_cross_sectional_frames_align_on_event_date_not_row_number():
     assert aligned.loc["2024-01-03", "A"] == 11.0
     assert aligned.loc["2024-01-03", "B"] == 20.0
     assert pd.isna(aligned.loc["2024-01-02", "B"])
+
+
+def test_discovery_screen_excludes_unknown_symbols(tmp_path):
+    path = tmp_path / "manifest.json"
+    path.write_text('{"candidates": [{"symbol": "AAPL", "status": "READY_FOR_RESEARCH"}, '
+                    '{"symbol": "BAD", "status": "UNKNOWN"}]}')
+    assert symbols_from_discovery_manifest(str(path)) == ["AAPL"]
+
+
+def test_equal_weight_benchmark_uses_window_endpoints():
+    prices = np.array([[100.0, 110.0, 120.0], [100.0, 90.0, 80.0]])
+    assert equal_weight_benchmark(prices, 0, 2) == 0.0

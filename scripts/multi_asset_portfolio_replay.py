@@ -35,6 +35,8 @@ class MultiPositionSource:
     def __init__(self, config: dict):
         self.positions = {str(symbol): [float(value) for value in values]
                           for symbol, values in config["positions_by_symbol"].items()}
+        self.fractions = {str(symbol): float(value) for symbol, value in
+                          config.get("position_fraction_by_instrument", {}).items()}
         self.index = defaultdict(int)
         self.previous = defaultdict(float)
 
@@ -54,7 +56,12 @@ class MultiPositionSource:
         return [SimSignal(
             instrument_id=symbol, side=side, confidence=1.0,
             mid=float(snapshot["mid_price"]), timestamp=snapshot["timestamp"],
-            signal_meta={"source": "multi_asset_portfolio_replay", "target": target},
+            signal_meta={"source": "multi_asset_portfolio_replay", "target": target,
+                         # Cross-sectional research targets are weights, not just
+                         # directions. Preserve that sizing in the real paper
+                         # execution path instead of silently flattening every
+                         # target to the same notional.
+                         "position_fraction": abs(target) * self.fractions.get(symbol, 1.0)},
         )]
 
 

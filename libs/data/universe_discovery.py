@@ -63,7 +63,7 @@ def discover_a_share_roster() -> list[RosterMember]:
     return sorted({item.symbol: item for item in result}.values(), key=lambda x: x.symbol)
 
 
-def _coverage(member: RosterMember, min_bars: int) -> dict[str, Any]:
+def _coverage(member: RosterMember, min_bars: int, min_dollar_volume: float) -> dict[str, Any]:
     frame = store.read(store.DAILY_BARS, member.symbol)
     rows = len(frame)
     reasons: list[str] = []
@@ -79,6 +79,15 @@ def _coverage(member: RosterMember, min_bars: int) -> dict[str, Any]:
     price_basis = next(iter(bases)) if len(bases) == 1 else ("mixed" if bases else "unknown")
     if price_basis in {"unknown", "mixed"}:
         reasons.append("price_basis_unknown_or_mixed")
+    avg_dollar_volume = None
+    if rows and "volume" in frame.columns:
+        dollar_volume = (frame["close"].astype(float) * frame["volume"].astype(float)).dropna()
+        if len(dollar_volume):
+            avg_dollar_volume = float(dollar_volume.tail(60).median())
+    if avg_dollar_volume is None:
+        reasons.append("dollar_volume_unknown")
+    elif avg_dollar_volume < min_dollar_volume:
+        reasons.append(f"median_dollar_volume<{min_dollar_volume:g}")
     status = "READY_FOR_RESEARCH" if not reasons else "UNKNOWN"
     return {
         **asdict(member),
@@ -87,6 +96,7 @@ def _coverage(member: RosterMember, min_bars: int) -> dict[str, Any]:
         "start": str(frame[store.EVENT_DATE].min())[:10] if rows else None,
         "latest": latest,
         "price_basis": price_basis,
+        "median_dollar_volume_60": avg_dollar_volume,
         "reasons": reasons,
     }
 
@@ -95,6 +105,7 @@ def discover_equity_candidates(
     *, domains: Iterable[str] = ("us_equity", "a_share"),
     limit: int | None = None,
     min_bars: int = 200,
+    min_dollar_volume: float = 5_000_000.0,
 ) -> dict[str, Any]:
     """Build a deterministic, auditable candidate manifest from real rosters."""
     members: list[RosterMember] = []
@@ -123,13 +134,14 @@ def discover_equity_candidates(
                 start = len(bounded) - domain_count
                 bounded = bounded[:start + limit]
         ordered_members = bounded
-    rows = [_coverage(member, min_bars) for member in ordered_members]
+    rows = [_coverage(member, min_bars, min_dollar_volume) for member in ordered_members]
     rows.sort(key=lambda row: (row["status"] != "READY_FOR_RESEARCH", -row["bars"], row["domain"], row["symbol"]))
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "real_data_only": True,
         "selection_is_not_promotion": True,
         "min_bars": min_bars,
+        "min_dollar_volume": min_dollar_volume,
         "limit_per_domain": limit,
         "provider_errors": errors,
         "counts": {

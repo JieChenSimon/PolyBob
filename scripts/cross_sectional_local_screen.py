@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import argparse
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -114,6 +115,17 @@ def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_b
     }
 
 
+def equal_weight_benchmark(prices: np.ndarray, start: int, end: int) -> float | None:
+    """Equal-weight buy-and-hold return over a real contiguous window."""
+    if end <= start or end >= prices.shape[1]:
+        return None
+    eligible = (prices[:, start] > 0) & (prices[:, end] > 0)
+    eligible &= np.isfinite(prices[:, start]) & np.isfinite(prices[:, end])
+    if not eligible.any():
+        return None
+    return float(np.mean(prices[eligible, end] / prices[eligible, start] - 1.0))
+
+
 def rolling_folds(prices: np.ndarray, positions: np.ndarray, cost_bps: float,
                   train_days: int = 252, test_days: int = 126) -> list[dict]:
     folds = []
@@ -171,6 +183,15 @@ def symbol_domain(symbol: str) -> str:
     return "us_equity"
 
 
+def symbols_from_discovery_manifest(path: str) -> list[str]:
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    return [
+        str(row["symbol"])
+        for row in payload.get("candidates", [])
+        if row.get("status") == "READY_FOR_RESEARCH" and row.get("symbol")
+    ]
+
+
 def has_unresolved_price_jump(values: np.ndarray, maximum: float) -> bool:
     values = np.asarray(values, dtype=float)
     if len(values) < 300 or np.any(~np.isfinite(values)) or np.any(values <= 0):
@@ -180,6 +201,11 @@ def has_unresolved_price_jump(values: np.ndarray, maximum: float) -> bool:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--discovery-manifest", default=None,
+                        help="only use READY_FOR_RESEARCH symbols from a discovery manifest")
+    parser.add_argument("--output", default="data/cross_sectional_local_screen.json")
+    args = parser.parse_args()
     as_of = datetime.now(UTC)
     manifest = run_manifest.pin("cross_sectional_local_screen", as_of=as_of,
                                params={"candidates": CANDIDATES, "risk_policies": RISK_POLICIES,
@@ -189,7 +215,8 @@ def main() -> int:
               "parameters": {"candidates": CANDIDATES, "risk_policies": RISK_POLICIES, "cost_bps": COST_BPS,
                               "oos_fraction": 0.3, "long_only": True,
                               "max_single_bar_multiple": MAX_MULTIPLE}, "domains": {}}
-    all_symbols = store.symbols(store.DAILY_BARS)
+    all_symbols = (symbols_from_discovery_manifest(args.discovery_manifest)
+                   if args.discovery_manifest else store.symbols(store.DAILY_BARS))
     domains = {domain: [] for domain in COST_BPS}
     for symbol in all_symbols:
         domains[symbol_domain(symbol)].append(symbol)
@@ -216,21 +243,42 @@ def main() -> int:
             for risk_policy in RISK_POLICIES:
                 positions = apply_risk_policy(matrix, base_positions, risk_policy)
                 result = portfolio_result(matrix, positions, cut, COST_BPS[domain])
+                train_result = portfolio_result(
+                    matrix, positions, candidate["lookback"], COST_BPS[domain], end=cut
+                )
                 stress = portfolio_result(matrix, positions, cut, COST_BPS[domain], return_cap=0.20)
                 folds = rolling_folds(matrix, positions, COST_BPS[domain])
-                eligible = (matrix[:, cut] > 0) & (matrix[:, -1] > 0)
-                benchmark = float(np.mean(matrix[eligible, -1] / matrix[eligible, cut] - 1.0)) if eligible.any() else None
+                benchmark = equal_weight_benchmark(matrix, cut, matrix.shape[1] - 1)
+                train_benchmark = equal_weight_benchmark(matrix, candidate["lookback"], cut)
                 excess = result["oos_return"] - benchmark if benchmark is not None else None
+                train_excess = (
+                    train_result["oos_return"] - train_benchmark
+                    if train_benchmark is not None and train_result["oos_return"] is not None else None
+                )
                 rows.append({**candidate, "risk_policy": risk_policy, **result, "benchmark_return": benchmark,
+                         "train_return": train_result["oos_return"],
+                         "train_benchmark_return": train_benchmark,
+                         "train_excess_return": train_excess,
                          "excess_return": excess,
                          "stress_oos_return_cap_20pct": stress["oos_return"],
                          "rolling_folds": folds,
                          "rolling_median_excess": float(np.median([f["excess_return"] for f in folds])) if folds else None,
-                         "status": "screen_only" if result["oos_return"] is not None and result["oos_return"] > 0 and excess is not None and excess > 0 else "tested_no_edge"})
+                         "status": "screen_only" if train_excess is not None and train_excess > 0 and
+                         result["oos_return"] is not None and result["oos_return"] > 0 and
+                         excess is not None and excess > 0 else "tested_no_edge"})
+        eligible_rows = [row for row in rows if row.get("train_excess_return") is not None]
+        selected = max(eligible_rows, key=lambda row: row["train_excess_return"]) if eligible_rows else None
+        if selected is not None and selected["train_excess_return"] <= 0:
+            selected = None
         report["domains"][domain] = {"status": "screened", "symbols": len(used),
-                                     "rejected_quality": rejected_quality, "rows": rows}
+                                     "rejected_quality": rejected_quality, "rows": rows,
+                                     "selection": {
+                                         "method": "max training excess only; OOS held out",
+                                         "selected": selected,
+                                         "status": "selected_on_training" if selected else "no_positive_training_edge",
+                                     }}
     report["manifest"] = manifest.to_dict()
-    out = Path("data/cross_sectional_local_screen.json")
+    out = Path(args.output)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
     manifest.save(out)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
