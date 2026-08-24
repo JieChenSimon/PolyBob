@@ -77,21 +77,16 @@ def _candidates_for_domain(domain: str) -> tuple[dict[str, Any], ...]:
          "min_rebalance_bps": 25.0}
         for candidate in MOMENTUM_CANDIDATES
         )
-    # For shortable venues, isolate turnover and sign hypotheses without
-    # changing the trend windows. Every extra trial is counted in PBO.
+    # For shortable venues, isolate the turnover hypothesis without changing
+    # direction or trend windows. The inverse signal remains an explicit
+    # source option, but is excluded until it survives independent splits.
     turnover = tuple(
         {**candidate,
          "id": f"{candidate['id']}_r25",
          "min_rebalance_bps": 25.0}
         for candidate in MOMENTUM_CANDIDATES
     )
-    inverse = tuple(
-        {**candidate,
-         "id": f"{candidate['id']}_inverse",
-         "invert_signal": True}
-        for candidate in MOMENTUM_CANDIDATES
-    )
-    return MOMENTUM_CANDIDATES + turnover + inverse
+    return MOMENTUM_CANDIDATES + turnover
 
 
 def _parse_date(value: str | None) -> datetime | None:
@@ -225,10 +220,13 @@ def _optimization_action(reasons: list[str]) -> str:
 
 
 def _select_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """Select on training evidence only; OOS is never an optimization input."""
+    """Select on robust training evidence only; OOS is never an input."""
     eligible = [item for item in candidates
-                if item.get("score_train_mean_return") is not None]
-    return max(eligible, key=lambda item: item["score_train_mean_return"]) if eligible else None
+                if item.get("score_train_median_return") is not None
+                and item["score_train_median_return"] >= 0]
+    return max(eligible, key=lambda item: (
+        item["score_train_median_return"], item.get("score_train_mean_return") or 0.0
+    )) if eligible else None
 
 
 async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_of: datetime,
@@ -245,15 +243,18 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
                 symbol, period, config, db_path=db_path, name=f"{label}:{symbol}:{name}",
                 retain_db=retain_runs,
             )})
-    def mean_return(period_name: str) -> float | None:
+    def period_stats(period_name: str) -> tuple[float | None, float | None]:
         period_results = [item["result"] for item in results if item["period"] == period_name]
         analyzed_period = [item for item in period_results if item.get("status") == "ANALYZED"]
         values = [item["metrics"].get("total_return") for item in analyzed_period]
         values = [float(value) for value in values if value is not None]
-        return sum(values) / len(values) if values else None
+        if not values:
+            return None, None
+        import statistics
+        return sum(values) / len(values), statistics.median(values)
 
-    train_score = mean_return("train")
-    oos_score = mean_return("oos")
+    train_score, train_median = period_stats("train")
+    oos_score, oos_median = period_stats("oos")
     oos = [item["result"] for item in results if item["period"] == "oos"]
     analyzed = [item for item in oos if item.get("status") == "ANALYZED"]
     by_timestamp: dict[str, list[float]] = {}
@@ -268,7 +269,9 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
                       if len(values) == len(analyzable_oos)]
     return {"candidate": config, "symbols": symbols,
             "score_train_mean_return": train_score,
+            "score_train_median_return": train_median,
             "score_oos_mean_return": oos_score,
+            "score_oos_median_return": oos_median,
             "oos_portfolio_returns": common_returns,
             "results": results, "status": "ANALYZED" if analyzed else "BLOCKED"}
 
