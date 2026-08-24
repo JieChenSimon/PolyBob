@@ -130,6 +130,12 @@
 
 为增加真正的独立时间覆盖，补齐并本地缓存了 SEC Form 345 的 2021Q3–2023Q4 数据（约 70 万条原始交易记录），固定同一 market20 规则重放到 2021Q3–2026Q2。扩展窗口覆盖 1,533 个可回放标的、4,984 个通过 regime filter 的事件（过滤前 9,062 个），因本地日线覆盖限制可回放覆盖率约 57.4%；标准成本收益 11.11%、最大回撤 9.31%、利润因子 1.475、Sharpe 0.484，四折 OOS 仍为正，但 2022Q2、2023Q1、2024Q2、2025Q1 出现负季度，2024Q3 贡献异常集中。2×/3× 成本收益降至 8.19%/5.34%，Sharpe 降至 0.365/0.247；扩展历史候选 DSR 仅 0.074，仍不晋级。该结果支持“候选跨周期有正名义收益”，但不支持“已证明稳定 alpha”。
 
+### 更严格 SEC 集群门槛与统一组合回放
+
+新增 [insider_kernel_replay_extended_market20_min3.json](../data/insider_kernel_replay_extended_market20_min3.json)，在同一扩展历史、同一 SPY 20 日状态过滤、同一 20 日持有期和标准成本下，把集群门槛从至少 2 名内部人提高到至少 3 名。结果为 2,159 个事件、923 个可回放标的，收益 +5.40%、最大回撤 7.67%、利润因子 1.321、Sharpe 0.325，四折 OOS 仍为 +5.42%/+5.88%/+5.09%/+3.96%，权益曲线完整；相对 market20 基线（+11.11%、Sharpe 0.484）没有改善，因此淘汰，不把更少交易误认为更强 alpha。
+
+新增 `scripts/multi_asset_portfolio_replay.py` 及其测试，尝试让 SEC insider 和加密 TSMOM 共享一个真实 `SimulationService` 账户，统一竞争现金、费用、滑点、持仓和净值。当前美股单腿回放仍有 2,500 个标的、3,534 笔成交，但净值曲线被内核标记为 `equity_curve_degraded=true`，因此总收益、回撤和 Sharpe 保持 UNKNOWN；已加入逐标的长缺口拒绝与最后可交易日强制平仓，问题仍需下一轮定位，不能把已实现 PnL（+1,853）冒充有效组合收益。该路径明确保持 `replay_only_not_promoted`。
+
 ## 外部真实 OHLCV focused scoreboard
 
 在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：
