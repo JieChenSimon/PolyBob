@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -40,6 +41,7 @@ CACHE_DIR = Path("data/market_cache/btc5m")
 CHECKPOINT = CACHE_DIR / "collection_checkpoint.json"
 COLLECTOR_SPEC = "btc5m-v3-completed-bar-open-strike-cache-checkpoint"
 N_WINDOWS = 220           # settled 5-minute windows to reconstruct
+MAX_NEW_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_MAX_NEW_WINDOWS", "60"))
 EDGE_THRESHOLD = 0.10     # model must disagree with the market by >= 10 points
 FEE = 0.02                # round-trip spread/fee assumption, in probability terms
 
@@ -63,8 +65,8 @@ def preregister(registry: HypothesisRegistry) -> None:
 def _get(url: str, timeout: float = 20.0):
     raw = fetch_cached_bytes(
         url, cache_dir=CACHE_DIR / "responses",
-        policy=FetchPolicy(attempts=4, timeout_seconds=timeout,
-                           initial_backoff_seconds=0.5, max_backoff_seconds=10.0),
+        policy=FetchPolicy(attempts=2, timeout_seconds=min(timeout, 8.0),
+                           initial_backoff_seconds=0.5, max_backoff_seconds=4.0),
         headers=UA,
         dataset="btc5m_provider_raw", source=url.split('/')[2],
     )
@@ -117,6 +119,7 @@ def main() -> None:
     preregister(registry)
     manifest = run_manifest.pin("btc5m_model_vs_market", params={
         "n_windows": N_WINDOWS, "edge_threshold": EDGE_THRESHOLD, "fee": FEE,
+        "model_revision": "realized-volatility-normal-cdf-v3",
     })
     print(f"观测时点 as_of = {manifest.as_of.isoformat()}")
     print(f"累计试验 {registry.n_trials}\n")
@@ -130,12 +133,18 @@ def main() -> None:
         samples = [tuple(item) for item in saved_samples if isinstance(item, list) and len(item) == 4]
     completed = checkpoint.setdefault("items", {})
     provider_failures = int(checkpoint.get("provider_failures", 0))
+    new_attempts = 0
+    budget_exhausted = False
 
     for i in range(1, N_WINDOWS + 1):
         window_start = base - i * 300
         key = str(window_start)
         if key in completed:
             continue
+        if new_attempts >= MAX_NEW_WINDOWS:
+            budget_exhausted = True
+            break
+        new_attempts += 1
         try:
             event = _get(f"https://gamma-api.polymarket.com/events/slug/btc-updown-5m-{window_start}")
         except HttpFetchError:
@@ -147,9 +156,16 @@ def main() -> None:
         markets = event.get("markets") or []
         if not markets:
             completed[key] = "no_market"
+            save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
+                                         "samples": [list(s) for s in samples],
+                                         "provider_failures": provider_failures})
             continue
         market = markets[0]
         if not market.get("closed"):
+            completed[key] = "open"
+            save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
+                                         "samples": [list(s) for s in samples],
+                                         "provider_failures": provider_failures})
             continue
         try:
             outcome_prices = json.loads(market.get("outcomePrices", "[]"))
@@ -286,7 +302,11 @@ def main() -> None:
     out.write_text(json.dumps({
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "n_windows": len(samples), "edge_threshold": EDGE_THRESHOLD, "fee": FEE,
-        "collection_status": "complete" if provider_failures == 0 else "partial",
+        "collection_status": "complete" if (
+            len(samples) >= N_WINDOWS and provider_failures == 0 and not budget_exhausted
+        ) else "partial",
+        "new_attempts": new_attempts,
+        "budget_exhausted": budget_exhausted,
         "provider_failures": provider_failures,
         "hold_days": 1,          # the replay/board reads this to pick the cluster unit
         "inference": "cluster_robust",
