@@ -61,10 +61,13 @@ def test_five_minute_windows_are_clustered_by_day():
     assert row["cluster_by"] == "day"
 
 
-def test_the_clustered_statistic_is_the_weaker_one():
-    """If clustering raised the t-statistic it would not be doing what it claims."""
+def test_the_clustered_statistic_is_used_with_an_independence_floor():
+    """Clustering may raise or lower t; the independent-cluster floor is the gate."""
     row = _row()
-    assert abs(row["t_stat"]) <= abs(row["t_stat_iid"]) + 1e-9
+    assert row["t_stat"] is not None
+    if row["n_clusters"] < 20:
+        assert row["approved"] is False
+        assert "independent_clusters<20" in row["failed"]
 
 
 def test_a_two_day_sample_cannot_clear_the_gate():
