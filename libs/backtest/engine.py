@@ -208,16 +208,33 @@ def simulate_position_series(
     ))
     equity = [initial]
     ts = datetime(1970, 1, 1)
-    current = 0.0
+    current_target = 0.0
     for price, target in zip(values, targets):
-        delta = float(target - current)
+        # ``target`` is an exposure fraction, while BacktestEngine stores
+        # signed asset units. A stable target must not rebalance every bar as
+        # price moves; only a target change creates an order. Convert the new
+        # target using current marked equity, then compare with actual units.
+        current_units = float(engine.positions.get("series", 0.0))
+        if float(target) == current_target:
+            delta = 0.0
+        else:
+            status, marked_equity = engine.mark_to_market({"series": float(price)})
+            if status != "ok" or marked_equity is None:
+                raise ValueError(f"cannot size portfolio target: {status}")
+            fee_rate = cost_bps / 10_000.0
+            # Leave room for the taker fee when sizing a positive target;
+            # otherwise a nominal 100% target would be rejected because its
+            # notional plus fee exceeds the available cash.
+            fee_adjustment = 1.0 + fee_rate + 1e-12 if target > 0 else 1.0
+            desired_units = float(target) * marked_equity / float(price) / fee_adjustment
+            delta = desired_units - current_units
         if delta > 0:
-            if not engine.execute_signal(ts, "series", Side.BUY_YES, float(price), delta / float(price)):
+            if not engine.execute_signal(ts, "series", Side.BUY_YES, float(price), delta):
                 raise ValueError("position target violates cash or margin constraints")
         elif delta < 0:
-            if not engine.execute_signal(ts, "series", Side.SELL_YES, float(price), -delta / float(price)):
+            if not engine.execute_signal(ts, "series", Side.SELL_YES, float(price), -delta):
                 raise ValueError("position target violates short/position constraints")
-        current = float(target)
+        current_target = float(target)
         engine.update_equity(ts, {"series": float(price)})
         equity.append(engine.equity_curve[-1][1])
     curve = np.asarray(equity[1:], dtype=float)

@@ -34,3 +34,12 @@ def test_position_series_is_causal_and_costed():
     # the future bar-2 close to manufacture a return.
     assert returns[0] > 0.09
     assert result["total_fees"] > 0
+
+
+def test_position_series_closes_after_price_move_without_unit_mismatch():
+    returns, result = simulate_position_series(
+        [100.0, 120.0, 80.0], [1.0, 1.0, 0.0], cost_bps=0.0
+    )
+
+    assert len(returns) == 2
+    assert result["num_trades"] == 2

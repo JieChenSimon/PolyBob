@@ -1,6 +1,6 @@
 {
-  "run_id": "quant-20260823T192540677463Z",
-  "generated_at": "2026-08-23T19:25:40.677463+00:00",
+  "run_id": "quant-20260824T100714546429Z",
+  "generated_at": "2026-08-24T10:07:14.546429+00:00",
   "real_data_only": true,
   "parameters": {
     "candidates": [
@@ -32,9 +32,9 @@
         {
           "symbol": "AAPL",
           "status": "tested_no_edge",
-          "oos_return": 0.92733926589941,
-          "oos_sharpe": 1.0985109204456869,
-          "oos_max_drawdown": 0.19810040233739745,
+          "oos_return": 0.9350559873638025,
+          "oos_sharpe": 1.1043208699836458,
+          "oos_max_drawdown": 0.19809627343170677,
           "baseline_return": 1.0007280422733182,
           "folds": 15,
           "selected_params": [
@@ -103,9 +103,9 @@
         {
           "symbol": "MSFT",
           "status": "tested_no_edge",
-          "oos_return": -0.22965707050517614,
-          "oos_sharpe": -0.27006186370192775,
-          "oos_max_drawdown": 0.4078895849242141,
+          "oos_return": -0.22656329061419933,
+          "oos_sharpe": -0.2642991411166001,
+          "oos_max_drawdown": 0.40786607765023664,
           "baseline_return": 0.8723700921817934,
           "folds": 16,
           "selected_params": [
@@ -178,9 +178,9 @@
         {
           "symbol": "NVDA",
           "status": "tested_no_edge",
-          "oos_return": 3.1494478588979877,
-          "oos_sharpe": 1.1170454486374135,
-          "oos_max_drawdown": 0.424311357641322,
+          "oos_return": 3.1680988164479356,
+          "oos_sharpe": 1.1197564154648634,
+          "oos_max_drawdown": 0.42402481689687044,
           "baseline_return": 14.65699323046993,
           "folds": 16,
           "selected_params": [
@@ -253,9 +253,9 @@
         {
           "symbol": "AMZN",
           "status": "tested_no_edge",
-          "oos_return": 0.12222276601331039,
-          "oos_sharpe": 0.24252627375585042,
-          "oos_max_drawdown": 0.2688440383271016,
+          "oos_return": 0.12832060838321313,
+          "oos_sharpe": 0.24863329926762934,
+          "oos_max_drawdown": 0.2673679529964106,
           "baseline_return": 0.9833187021759557,
           "folds": 16,
           "selected_params": [
@@ -328,9 +328,9 @@
         {
           "symbol": "META",
           "status": "tested_no_edge",
-          "oos_return": 1.1900503450557838,
-          "oos_sharpe": 0.8406612132629708,
-          "oos_max_drawdown": 0.4596599837481129,
+          "oos_return": 1.1986417320886078,
+          "oos_sharpe": 0.8439458468568097,
+          "oos_max_drawdown": 0.4585670667823314,
           "baseline_return": 2.6751286285321645,
           "folds": 16,
           "selected_params": [
@@ -403,9 +403,9 @@
         {
           "symbol": "GOOGL",
           "status": "tested_no_edge",
-          "oos_return": 1.0584609431681962,
-          "oos_sharpe": 0.8718545414989264,
-          "oos_max_drawdown": 0.2673478808792332,
+          "oos_return": 1.0718143196038352,
+          "oos_sharpe": 0.8782656620818847,
+          "oos_max_drawdown": 0.26699257105493623,
           "baseline_return": 2.1117160187399264,
           "folds": 16,
           "selected_params": [
@@ -478,9 +478,9 @@
         {
           "symbol": "TSLA",
           "status": "candidate_beats_baseline",
-          "oos_return": 1.3427152145877979,
-          "oos_sharpe": 0.7287649658147128,
-          "oos_max_drawdown": 0.4195342842517805,
+          "oos_return": 1.3544196491418563,
+          "oos_sharpe": 0.7318014335022094,
+          "oos_max_drawdown": 0.4192168947617039,
           "baseline_return": 0.27902703467902534,
           "folds": 16,
           "selected_params": [
@@ -553,9 +553,9 @@
         {
           "symbol": "AMD",
           "status": "tested_no_edge",
-          "oos_return": 0.6661015852419303,
-          "oos_sharpe": 0.5168799953869517,
-          "oos_max_drawdown": 0.6154129889907065,
+          "oos_return": 0.6687608464543111,
+          "oos_sharpe": 0.5178394720447486,
+          "oos_max_drawdown": 0.6157582671689097,
           "baseline_return": 4.944604903551076,
           "folds": 16,
           "selected_params": [
@@ -628,9 +628,9 @@
         {
           "symbol": "JPM",
           "status": "tested_no_edge",
-          "oos_return": 0.201038509341253,
-          "oos_sharpe": 0.3597194961578376,
-          "oos_max_drawdown": 0.2292625720232322,
+          "oos_return": 0.20770210713243986,
+          "oos_sharpe": 0.3677783479226307,
+          "oos_max_drawdown": 0.228472396710501,
           "baseline_return": 1.6712492438439837,
           "folds": 15,
           "selected_params": [
@@ -699,9 +699,9 @@
         {
           "symbol": "BAC",
           "status": "tested_no_edge",
-          "oos_return": -0.0062907975483489365,
-          "oos_sharpe": 0.07964442625069923,
-          "oos_max_drawdown": 0.23506036798257124,
+          "oos_return": -0.0013288657667005488,
+          "oos_sharpe": 0.0872140092838879,
+          "oos_max_drawdown": 0.23389631906805608,
           "baseline_return": 0.6985748992090068,
           "folds": 15,
           "selected_params": [
@@ -770,9 +770,9 @@
         {
           "symbol": "WFC",
           "status": "tested_no_edge",
-          "oos_return": 0.33329741603375007,
-          "oos_sharpe": 0.48049799001043403,
-          "oos_max_drawdown": 0.1869370985717006,
+          "oos_return": 0.33928719109934335,
+          "oos_sharpe": 0.4861677616960069,
+          "oos_max_drawdown": 0.18651579823801123,
           "baseline_return": 0.8763440860215055,
           "folds": 15,
           "selected_params": [
@@ -841,9 +841,9 @@
         {
           "symbol": "C",
           "status": "tested_no_edge",
-          "oos_return": 0.516234504046053,
-          "oos_sharpe": 0.6231497975901186,
-          "oos_max_drawdown": 0.26582414970608337,
+          "oos_return": 0.5245826546354504,
+          "oos_sharpe": 0.6296215927997859,
+          "oos_max_drawdown": 0.26506419263660375,
           "baseline_return": 1.7743526597478958,
           "folds": 15,
           "selected_params": [
@@ -912,9 +912,9 @@
         {
           "symbol": "XOM",
           "status": "tested_no_edge",
-          "oos_return": 0.042044753244506516,
-          "oos_sharpe": 0.15367107081780676,
-          "oos_max_drawdown": 0.32120159920008773,
+          "oos_return": 0.04677518439859041,
+          "oos_sharpe": 0.16020152501244547,
+          "oos_max_drawdown": 0.31880243826666244,
           "baseline_return": 0.36545316547031925,
           "folds": 15,
           "selected_params": [
@@ -983,9 +983,9 @@
         {
           "symbol": "CVX",
           "status": "tested_no_edge",
-          "oos_return": -0.12311670063605273,
-          "oos_sharpe": -0.10884502222613363,
-          "oos_max_drawdown": 0.3443073954753526,
+          "oos_return": -0.1191129277946068,
+          "oos_sharpe": -0.1018980497749992,
+          "oos_max_drawdown": 0.342300214478239,
           "baseline_return": 0.01950921885492285,
           "folds": 15,
           "selected_params": [
@@ -1054,9 +1054,9 @@
         {
           "symbol": "PFE",
           "status": "candidate_beats_baseline",
-          "oos_return": -0.1859132103992086,
-          "oos_sharpe": -0.3275533056217681,
-          "oos_max_drawdown": 0.38419014215929403,
+          "oos_return": -0.184263027880614,
+          "oos_sharpe": -0.32357612365095334,
+          "oos_max_drawdown": 0.3835556094886745,
           "baseline_return": -0.4451586049581574,
           "folds": 15,
           "selected_params": [
@@ -1125,9 +1125,9 @@
         {
           "symbol": "MRK",
           "status": "candidate_beats_baseline",
-          "oos_return": 0.45592553537140135,
-          "oos_sharpe": 0.6948398694950089,
-          "oos_max_drawdown": 0.16792434366795483,
+          "oos_return": 0.4610422811164605,
+          "oos_sharpe": 0.7004610765122603,
+          "oos_max_drawdown": 0.16751368731446492,
           "baseline_return": 0.23361793811648468,
           "folds": 15,
           "selected_params": [
@@ -1196,9 +1196,9 @@
         {
           "symbol": "KO",
           "status": "tested_no_edge",
-          "oos_return": 0.24186349983443178,
-          "oos_sharpe": 0.522464970932941,
-          "oos_max_drawdown": 0.11850178145691004,
+          "oos_return": 0.24807745099262468,
+          "oos_sharpe": 0.5327827723164227,
+          "oos_max_drawdown": 0.11849437028183574,
           "baseline_return": 0.4620445589200519,
           "folds": 16,
           "selected_params": [
@@ -1271,9 +1271,9 @@
         {
           "symbol": "NKE",
           "status": "candidate_beats_baseline",
-          "oos_return": -0.5087147294405815,
-          "oos_sharpe": -0.7303583006646364,
-          "oos_max_drawdown": 0.5903175801240037,
+          "oos_return": -0.5070141392000563,
+          "oos_sharpe": -0.7256775124200188,
+          "oos_max_drawdown": 0.5895110847286633,
           "baseline_return": -0.6242625639730127,
           "folds": 16,
           "selected_params": [
@@ -1346,9 +1346,9 @@
         {
           "symbol": "DIS",
           "status": "tested_no_edge",
-          "oos_return": -0.17141547773629806,
-          "oos_sharpe": -0.1592320126671494,
-          "oos_max_drawdown": 0.45920847691463074,
+          "oos_return": -0.16884107876248622,
+          "oos_sharpe": -0.1549366836981004,
+          "oos_max_drawdown": 0.45862317896519256,
           "baseline_return": -0.04357088965955391,
           "folds": 16,
           "selected_params": [
@@ -1421,9 +1421,9 @@
         {
           "symbol": "VZ",
           "status": "tested_no_edge",
-          "oos_return": -0.2582129590117538,
-          "oos_sharpe": -0.47831641404562764,
-          "oos_max_drawdown": 0.3632882428502764,
+          "oos_return": -0.25598374711763705,
+          "oos_sharpe": -0.4721955729562497,
+          "oos_max_drawdown": 0.3620006791847157,
           "baseline_return": 0.22075232956293456,
           "folds": 15,
           "selected_params": [
@@ -1492,9 +1492,9 @@
         {
           "symbol": "T",
           "status": "tested_no_edge",
-          "oos_return": -0.016471512774933195,
-          "oos_sharpe": 0.06171915726285222,
-          "oos_max_drawdown": 0.19625605620020792,
+          "oos_return": -0.01158124212820233,
+          "oos_sharpe": 0.06955022172421893,
+          "oos_max_drawdown": 0.19507226781414988,
           "baseline_return": 0.2540854916520565,
           "folds": 15,
           "selected_params": [
@@ -1563,9 +1563,9 @@
         {
           "symbol": "F",
           "status": "tested_no_edge",
-          "oos_return": -0.2062323291941941,
-          "oos_sharpe": -0.07254533502930612,
-          "oos_max_drawdown": 0.5266301770005304,
+          "oos_return": -0.20265900541119253,
+          "oos_sharpe": -0.06815791992066371,
+          "oos_max_drawdown": 0.5263978083117147,
           "baseline_return": -0.06610501863836815,
           "folds": 16,
           "selected_params": [
@@ -1638,9 +1638,9 @@
         {
           "symbol": "GM",
           "status": "tested_no_edge",
-          "oos_return": 0.3810256276409796,
-          "oos_sharpe": 0.46141517426396006,
-          "oos_max_drawdown": 0.4569204272583981,
+          "oos_return": 0.3865435260433425,
+          "oos_sharpe": 0.46543017500605177,
+          "oos_max_drawdown": 0.45662769730435426,
           "baseline_return": 1.2021624546890801,
           "folds": 15,
           "selected_params": [
@@ -1709,9 +1709,9 @@
         {
           "symbol": "GE",
           "status": "tested_no_edge",
-          "oos_return": 2.127202199326223,
-          "oos_sharpe": 1.4185792857794923,
-          "oos_max_drawdown": 0.25594422333457423,
+          "oos_return": 2.1459748534123113,
+          "oos_sharpe": 1.4246054653980826,
+          "oos_max_drawdown": 0.2563131869375226,
           "baseline_return": 5.949143536401181,
           "folds": 15,
           "selected_params": [
@@ -1780,9 +1780,9 @@
         {
           "symbol": "BA",
           "status": "tested_no_edge",
-          "oos_return": -0.20711444139845714,
-          "oos_sharpe": -0.12778574879232918,
-          "oos_max_drawdown": 0.5086367409414563,
+          "oos_return": -0.20315214198632847,
+          "oos_sharpe": -0.12218446048052191,
+          "oos_max_drawdown": 0.5083843418398072,
           "baseline_return": 0.3735171602429235,
           "folds": 16,
           "selected_params": [
@@ -1855,9 +1855,9 @@
         {
           "symbol": "INTC",
           "status": "tested_no_edge",
-          "oos_return": -0.3305370230314283,
-          "oos_sharpe": -0.009610793018783894,
-          "oos_max_drawdown": 0.7626132074454811,
+          "oos_return": -0.3291407950098548,
+          "oos_sharpe": -0.008365459684604384,
+          "oos_max_drawdown": 0.7624830642118781,
           "baseline_return": 1.9386623430941254,
           "folds": 16,
           "selected_params": [
@@ -1929,14 +1929,17 @@
         }
       ],
       "portfolio": {
-        "status": "tested",
+        "status": "tested_no_edge",
         "symbols": 26,
-        "oos_return": 0.40428052969333,
-        "oos_sharpe": 0.30721676159984623,
-        "oos_max_drawdown": 0.3628509655158698,
+        "oos_return": 0.4105944979477787,
+        "oos_sharpe": 0.31258019319887975,
+        "oos_max_drawdown": 0.362227625250929,
         "baseline_return": 1.6301637946615601,
+        "excess_return": -1.219569296713782,
+        "median_excess_return": -0.556863098575707,
+        "positive_excess_fraction": 0.15384615384615385,
         "positive_symbol_fraction": 0.5769230769230769,
-        "median_oos_return": 0.1616306376772817,
+        "median_oos_return": 0.1680113577578265,
         "positive_fold_fraction": 0.4665012406947891,
         "folds": 403
       }
@@ -1946,9 +1949,9 @@
         {
           "symbol": "600519",
           "status": "tested_no_edge",
-          "oos_return": -0.11011473250593029,
-          "oos_sharpe": -0.5455032701557946,
-          "oos_max_drawdown": 0.17050161305181832,
+          "oos_return": -0.10728291916310218,
+          "oos_sharpe": -0.5275604767442975,
+          "oos_max_drawdown": 0.16918553178943108,
           "baseline_return": -0.009155170136836976,
           "folds": 6,
           "selected_params": [
@@ -1981,9 +1984,9 @@
         {
           "symbol": "000001",
           "status": "tested_no_edge",
-          "oos_return": -0.028744962713464495,
-          "oos_sharpe": -0.10108967973903268,
-          "oos_max_drawdown": 0.17924392448271909,
+          "oos_return": -0.026436603850462315,
+          "oos_sharpe": -0.08699677195588346,
+          "oos_max_drawdown": 0.17922692773148274,
           "baseline_return": 0.10530317430146363,
           "folds": 6,
           "selected_params": [
@@ -2016,9 +2019,9 @@
         {
           "symbol": "300750",
           "status": "tested_no_edge",
-          "oos_return": -0.20279162302414144,
-          "oos_sharpe": -0.37919146983990626,
-          "oos_max_drawdown": 0.30911924597031815,
+          "oos_return": -0.20090606824588886,
+          "oos_sharpe": -0.3732978971841173,
+          "oos_max_drawdown": 0.3091463411119406,
           "baseline_return": 0.6665261382799326,
           "folds": 6,
           "selected_params": [
@@ -2051,9 +2054,9 @@
         {
           "symbol": "601318",
           "status": "tested_no_edge",
-          "oos_return": 0.03530049630151466,
-          "oos_sharpe": 0.21701151890245346,
-          "oos_max_drawdown": 0.2530786113104949,
+          "oos_return": 0.03785094241072029,
+          "oos_sharpe": 0.2253280183571836,
+          "oos_max_drawdown": 0.2524646326238884,
           "baseline_return": 0.22530967525945766,
           "folds": 6,
           "selected_params": [
@@ -2086,9 +2089,9 @@
         {
           "symbol": "000858",
           "status": "candidate_beats_baseline",
-          "oos_return": -0.05775885164565109,
-          "oos_sharpe": -0.28659529915407866,
-          "oos_max_drawdown": 0.12749720943817555,
+          "oos_return": -0.05776735887402085,
+          "oos_sharpe": -0.2860056438505269,
+          "oos_max_drawdown": 0.1275038313566399,
           "baseline_return": -0.42208872833543043,
           "folds": 6,
           "selected_params": [
@@ -2121,9 +2124,9 @@
         {
           "symbol": "600036",
           "status": "tested_no_edge",
-          "oos_return": -0.059754809191804203,
-          "oos_sharpe": -0.22290972247022495,
-          "oos_max_drawdown": 0.2445658722932521,
+          "oos_return": -0.05752467341357426,
+          "oos_sharpe": -0.21120251096120382,
+          "oos_max_drawdown": 0.2433495712774122,
           "baseline_return": 0.08180428134556572,
           "folds": 6,
           "selected_params": [
@@ -2156,9 +2159,9 @@
         {
           "symbol": "000651",
           "status": "tested_no_edge",
-          "oos_return": -0.21081233208191363,
-          "oos_sharpe": -0.9996722751338764,
-          "oos_max_drawdown": 0.27024468324633744,
+          "oos_return": -0.20893758155028308,
+          "oos_sharpe": -0.9868260882898431,
+          "oos_max_drawdown": 0.27024951648364237,
           "baseline_return": 0.004702864471996637,
           "folds": 6,
           "selected_params": [
@@ -2191,9 +2194,9 @@
         {
           "symbol": "002594",
           "status": "tested_no_edge",
-          "oos_return": -0.13657703988354553,
-          "oos_sharpe": -0.2735420540963508,
-          "oos_max_drawdown": 0.3928280657985337,
+          "oos_return": -0.1338449129621978,
+          "oos_sharpe": -0.2646294715508454,
+          "oos_max_drawdown": 0.39086211727273157,
           "baseline_return": 0.06551996528743564,
           "folds": 6,
           "selected_params": [
@@ -2225,14 +2228,17 @@
         }
       ],
       "portfolio": {
-        "status": "tested",
+        "status": "tested_no_edge",
         "symbols": 8,
-        "oos_return": -0.096406731843117,
-        "oos_sharpe": -0.32393653146085133,
-        "oos_max_drawdown": 0.24338490319895617,
+        "oos_return": -0.09435614695610113,
+        "oos_sharpe": -0.3138988552724417,
+        "oos_max_drawdown": 0.24274855870589612,
         "baseline_return": 0.08974027505919806,
+        "excess_return": -0.1840964220152992,
+        "median_excess_return": -0.16339384380393868,
+        "positive_excess_fraction": 0.125,
         "positive_symbol_fraction": 0.125,
-        "median_oos_return": -0.08493477084886725,
+        "median_oos_return": -0.08252513901856151,
         "positive_fold_fraction": 0.3125,
         "folds": 48
       }
@@ -2242,9 +2248,9 @@
         {
           "symbol": "SOL-USDT",
           "status": "tested_no_edge",
-          "oos_return": -0.33941348618354905,
-          "oos_sharpe": -0.36707146354087317,
-          "oos_max_drawdown": 0.6105777532295178,
+          "oos_return": -0.33801107079632586,
+          "oos_sharpe": -0.36399914420796,
+          "oos_max_drawdown": 0.6101627052355187,
           "baseline_return": -0.33333333333333337,
           "folds": 8,
           "selected_params": [
@@ -2285,9 +2291,9 @@
         {
           "symbol": "DOGE-USDT",
           "status": "candidate_beats_baseline",
-          "oos_return": -0.2710591091914971,
-          "oos_sharpe": -0.17896807835256373,
-          "oos_max_drawdown": 0.5979444379506783,
+          "oos_return": -0.26884728280051173,
+          "oos_sharpe": -0.17491178212168665,
+          "oos_max_drawdown": 0.5971399762217259,
           "baseline_return": -0.6000342974734194,
           "folds": 8,
           "selected_params": [
@@ -2328,9 +2334,9 @@
         {
           "symbol": "ADA-USDT",
           "status": "candidate_beats_baseline",
-          "oos_return": -0.2970203976903303,
-          "oos_sharpe": -0.36822280749252817,
-          "oos_max_drawdown": 0.4256225876225801,
+          "oos_return": -0.2964643578478221,
+          "oos_sharpe": -0.3659493295160127,
+          "oos_max_drawdown": 0.42568264558229885,
           "baseline_return": -0.7049180327868851,
           "folds": 8,
           "selected_params": [
@@ -2371,9 +2377,9 @@
         {
           "symbol": "AVAX-USDT",
           "status": "candidate_beats_baseline",
-          "oos_return": 0.08448200316186472,
-          "oos_sharpe": 0.3052629072714691,
-          "oos_max_drawdown": 0.4227046154660956,
+          "oos_return": 0.08651752969560866,
+          "oos_sharpe": 0.30777657815110776,
+          "oos_max_drawdown": 0.4221347194675318,
           "baseline_return": -0.6533259114945729,
           "folds": 8,
           "selected_params": [
@@ -2414,9 +2420,9 @@
         {
           "symbol": "LINK-USDT",
           "status": "candidate_beats_baseline",
-          "oos_return": 0.27090912677830414,
-          "oos_sharpe": 0.502078593939672,
-          "oos_max_drawdown": 0.34882522424735907,
+          "oos_return": 0.45908015726658835,
+          "oos_sharpe": 0.6846345434232252,
+          "oos_max_drawdown": 0.2917275599405956,
           "baseline_return": -0.30355863386673043,
           "folds": 8,
           "selected_params": [
@@ -2449,17 +2455,17 @@
               "slow": 40
             },
             {
-              "fast": 20,
-              "slow": 60
+              "fast": 10,
+              "slow": 40
             }
           ]
         },
         {
           "symbol": "LTC-USDT",
           "status": "tested_no_edge",
-          "oos_return": -0.5018517644359755,
-          "oos_sharpe": -0.698395070621037,
-          "oos_max_drawdown": 0.6308193738172179,
+          "oos_return": -0.5003571531499098,
+          "oos_sharpe": -0.6937794713930758,
+          "oos_max_drawdown": 0.6300632458332702,
           "baseline_return": -0.4691732835123774,
           "folds": 8,
           "selected_params": [
@@ -2500,9 +2506,9 @@
         {
           "symbol": "XRP-USDT",
           "status": "candidate_beats_baseline",
-          "oos_return": -0.46722465067215724,
-          "oos_sharpe": -0.830006306104743,
-          "oos_max_drawdown": 0.4772477678939663,
+          "oos_return": -0.4660654303946462,
+          "oos_sharpe": -0.8256626875481565,
+          "oos_max_drawdown": 0.4761326144098914,
           "baseline_return": -0.5208207883644449,
           "folds": 8,
           "selected_params": [
@@ -2543,9 +2549,9 @@
         {
           "symbol": "BCH-USDT",
           "status": "candidate_beats_baseline",
-          "oos_return": 0.09505919357931791,
-          "oos_sharpe": 0.30253622109699346,
-          "oos_max_drawdown": 0.30123202356496426,
+          "oos_return": 0.09847948160651887,
+          "oos_sharpe": 0.3073699926595996,
+          "oos_max_drawdown": 0.3004528545527241,
           "baseline_return": -0.31267874165872256,
           "folds": 8,
           "selected_params": [
@@ -2585,15 +2591,18 @@
         }
       ],
       "portfolio": {
-        "status": "tested",
+        "status": "tested_no_edge",
         "symbols": 8,
-        "oos_return": -0.1782648855817528,
-        "oos_sharpe": -0.16659825047545132,
-        "oos_max_drawdown": 0.47687172297404734,
+        "oos_return": -0.15320851580256248,
+        "oos_sharpe": -0.14056516256911988,
+        "oos_max_drawdown": 0.46918704015544455,
         "baseline_return": -0.4872303778113108,
+        "excess_return": 0.3340218620087483,
+        "median_excess_return": 0.36982034480598536,
+        "positive_excess_fraction": 0.75,
         "positive_symbol_fraction": 0.375,
-        "median_oos_return": -0.2840397534409137,
-        "positive_fold_fraction": 0.328125,
+        "median_oos_return": -0.2826558203241669,
+        "positive_fold_fraction": 0.34375,
         "folds": 64
       }
     }

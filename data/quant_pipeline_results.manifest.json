@@ -1,6 +1,6 @@
 {
   "experiment": "multi_asset_walk_forward",
-  "as_of": "2026-08-23T19:25:40.677617+00:00",
+  "as_of": "2026-08-24T10:07:14.546572+00:00",
   "params": {
     "candidates": [
       {
@@ -26,19 +26,15 @@
     "step": 63
   },
   "code": {
-    "commit": "256e5ae450cb616710bf8c66c595ecbd2e843ad5",
+    "commit": "4063830989640955746c08300fc4438c15c4e6c2",
     "dirty": true,
-    "dirty_files": 6,
+    "dirty_files": 2,
     "dirty_sample": [
-      "libs/db/simulation_store.py",
-      "libs/quant/research_pipeline.py",
-      "modules/simulation/metrics.py",
-      "modules/simulation/service.py",
-      "scripts/btc5m_mispricing.py",
-      "scripts/run_quant_pipeline.py"
+      "libs/backtest/engine.py",
+      "libs/quant/research_pipeline.py"
     ]
   },
-  "started_at": "2026-08-23T19:25:40.704600+00:00",
+  "started_at": "2026-08-24T10:07:14.572315+00:00",
   "inputs": {
     "daily_bars:us_equity": {
       "symbols": [
@@ -71,12 +67,12 @@
       ],
       "coverage": {
         "dataset": "daily_bars",
-        "symbols": 1554,
-        "rows": 8427673,
+        "symbols": 2843,
+        "rows": 9036974,
         "start": "2021-07-26",
         "end": "2026-08-21",
         "first_fetch": "2026-07-27 15:26:23.165584+08:00",
-        "last_fetch": "2026-08-24 02:51:26.154284+08:00"
+        "last_fetch": "2026-08-24 13:44:38.800373+08:00"
       }
     },
     "daily_bars:a_share": {
@@ -92,12 +88,12 @@
       ],
       "coverage": {
         "dataset": "daily_bars",
-        "symbols": 1554,
-        "rows": 8427673,
+        "symbols": 2843,
+        "rows": 9036974,
         "start": "2021-07-26",
         "end": "2026-08-21",
         "first_fetch": "2026-07-27 15:26:23.165584+08:00",
-        "last_fetch": "2026-08-24 02:51:26.154284+08:00"
+        "last_fetch": "2026-08-24 13:44:38.800373+08:00"
       }
     },
     "daily_bars:altcoin": {
@@ -113,14 +109,19 @@
       ],
       "coverage": {
         "dataset": "daily_bars",
-        "symbols": 1554,
-        "rows": 8427673,
+        "symbols": 2843,
+        "rows": 9036974,
         "start": "2021-07-26",
         "end": "2026-08-21",
         "first_fetch": "2026-07-27 15:26:23.165584+08:00",
-        "last_fetch": "2026-08-24 02:51:26.154284+08:00"
+        "last_fetch": "2026-08-24 13:44:38.800373+08:00"
       }
     }
+  },
+  "lineage": {
+    "input_hash": "c6dc32d237f2905bbc03ce59ebad40029d67ea5e877d4b9263ab25bfced9973c",
+    "model_hash": null,
+    "has_lineage": false
   },
   "reproducible": false
 }

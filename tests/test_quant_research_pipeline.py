@@ -22,5 +22,17 @@ def test_walk_forward_requires_oos_and_reports_baseline():
     assert len(result.folds) > 0
 
 
+def test_portfolio_gate_does_not_call_positive_return_that_loses_to_baseline():
+    prices = np.linspace(100, 150, 500)
+    result = walk_forward_symbol(
+        "TEST", prices, candidates=({"fast": 5, "slow": 20},),
+        cost_bps=10, train_size=200, test_size=50, step=50,
+    )
+    portfolio = aggregate_portfolio([result])
+    assert "excess_return" in portfolio
+    if (portfolio["oos_return"] or 0) > 0 and (portfolio["baseline_return"] or 0) > (portfolio["oos_return"] or 0):
+        assert portfolio["status"] == "tested_no_edge"
+
+
 def test_empty_portfolio_is_unknown_not_zero():
     assert aggregate_portfolio([])["status"] == "unknown"

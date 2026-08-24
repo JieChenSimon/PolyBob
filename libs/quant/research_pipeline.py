@@ -141,15 +141,25 @@ def aggregate_portfolio(results: Sequence[WalkForwardResult]) -> dict[str, float
         return {"status": "unknown", "symbols": 0, "oos_return": None,
                 "oos_sharpe": None, "oos_max_drawdown": None}
     returns = np.array([float(r.oos_return) for r in usable])
-    baseline = np.array([float(r.baseline_return) for r in usable if r.baseline_return is not None])
+    paired = [(float(r.oos_return), float(r.baseline_return))
+              for r in usable if r.baseline_return is not None]
+    baseline = np.array([item[1] for item in paired])
+    excess = np.array([item[0] - item[1] for item in paired])
     folds = [fold for result in usable for fold in result.folds]
     return {
-        "status": "tested",
+        "status": (
+            "tested_edge"
+            if len(excess) and float(np.median(excess)) > 0 and float(np.median(returns)) > 0
+            else "tested_no_edge"
+        ),
         "symbols": len(usable),
         "oos_return": float(np.mean(returns)),
         "oos_sharpe": float(np.mean([r.oos_sharpe or 0.0 for r in usable])),
         "oos_max_drawdown": float(np.mean([r.oos_max_drawdown or 0.0 for r in usable])),
         "baseline_return": float(np.mean(baseline)) if len(baseline) else None,
+        "excess_return": float(np.mean(excess)) if len(excess) else None,
+        "median_excess_return": float(np.median(excess)) if len(excess) else None,
+        "positive_excess_fraction": float(np.mean(excess > 0)) if len(excess) else None,
         "positive_symbol_fraction": float(np.mean(returns > 0)),
         "median_oos_return": float(np.median(returns)),
         "positive_fold_fraction": (
