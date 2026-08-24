@@ -1,6 +1,6 @@
 {
   "experiment": "insider_cluster_buy",
-  "as_of": "2026-08-24T05:44:38.805886+00:00",
+  "as_of": "2026-08-24T05:59:42.836532+00:00",
   "params": {
     "quarters": [
       [
@@ -55,15 +55,12 @@
     "benchmark": "SPY"
   },
   "code": {
-    "commit": "76e3d1aa4a99ed4ba536c7cb5d97cc74a65d2868",
-    "dirty": true,
-    "dirty_files": 2,
-    "dirty_sample": [
-      "scripts/insider_experiment.py",
-      "scripts/materialize_sec_dataset.py"
-    ]
+    "commit": "102421c5cb51c0f40378ffc0897eef93ae9830c0",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
   },
-  "started_at": "2026-08-24T05:44:38.931152+00:00",
+  "started_at": "2026-08-24T05:59:42.979932+00:00",
   "inputs": {
     "insider_filings": {
       "quarters": 10,
@@ -117,5 +114,5 @@
     "model_hash": null,
     "has_lineage": false
   },
-  "reproducible": false
+  "reproducible": true
 }
