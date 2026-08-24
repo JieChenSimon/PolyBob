@@ -1,29 +1,31 @@
 {
-  "generated_at": "2026-08-24T16:42:23.392716+00:00",
+  "generated_at": "2026-08-24T16:46:42.318192+00:00",
   "real_data_only": true,
-  "n_windows": 539,
+  "n_windows": 508,
   "edge_threshold": 0.1,
   "fee": 0.02,
+  "normalized_dataset": "btc5m_settled_windows_v5",
+  "per_window_provenance": true,
   "collection_status": "partial",
-  "new_attempts": 0,
+  "new_attempts": 500,
   "budget_exhausted": true,
   "provider_failures": 0,
   "hold_days": 1,
   "inference": "cluster_robust",
   "result": {
     "strategy": "btc5m_mispricing",
-    "n": 410,
+    "n": 386,
     "n_clusters": 3,
-    "mean_excess_pct": 24.565,
+    "mean_excess_pct": 24.473,
     "median_excess_pct": 47.5,
-    "win_rate": 0.7537,
-    "t_stat": 54.74,
-    "t_stat_iid": 11.89,
+    "win_rate": 0.7539,
+    "t_stat": 60.64,
+    "t_stat_iid": 11.46,
     "t_hurdle": 4.2,
     "significant": false,
     "bootstrap_ci_pct": [
       23.743,
-      26.589
+      27.214
     ],
     "sign_test_p": 0.0,
     "wild_p": 0.25,
@@ -37,9 +39,9 @@
       "only 3 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
       "3 个独立单元最细只能表达 p=2.5e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
     ],
-    "mean_pnl_per_contract": 0.2456,
-    "brier_model": 0.1823,
-    "brier_market": 0.2425,
+    "mean_pnl_per_contract": 0.2447,
+    "brier_model": 0.1832,
+    "brier_market": 0.2434,
     "events": [
       {
         "date": "2026-08-22",
@@ -124,102 +126,6 @@
       {
         "date": "2026-08-22",
         "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.575
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.345
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.485
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": -0.185
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.445
-      },
-      {
-        "date": "2026-08-22",
-        "excess": -0.525
-      },
-      {
-        "date": "2026-08-22",
-        "excess": -0.525
-      },
-      {
-        "date": "2026-08-22",
-        "excess": -0.455
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.485
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.555
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.495
-      },
-      {
-        "date": "2026-08-22",
-        "excess": -0.525
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.465
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.485
-      },
-      {
-        "date": "2026-08-22",
-        "excess": -0.245
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.485
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.475
-      },
-      {
-        "date": "2026-08-22",
-        "excess": 0.565
       },
       {
         "date": "2026-08-23",
