@@ -17,12 +17,15 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import time
 import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
+
+from libs.data.data_lake import record_raw
 
 
 # ---- current model (replica of _win_probability_up price part) --------------
@@ -67,7 +70,20 @@ def fetch_1m(symbol: str, minutes: int = 2000) -> np.ndarray | None:
             if after:
                 url += f"&after={after}"
             req = urllib.request.Request(url, headers={"User-Agent": "PolyBobCal/0.1"})
-            payload = json.loads(urllib.request.urlopen(req, timeout=20).read())
+            raw = None
+            for attempt in range(4):
+                try:
+                    raw = urllib.request.urlopen(req, timeout=60).read()
+                    break
+                except Exception as exc:
+                    if attempt == 3:
+                        print(f"page failed after retries: {exc}", flush=True)
+                    else:
+                        time.sleep(2 ** attempt)
+            if raw is None:
+                break
+            record_raw("btc5m_provider_raw", raw, source="okx_history_candles", request=url)
+            payload = json.loads(raw)
             rows = payload.get("data") or []
             if not rows or payload.get("code") not in (None, "0", 0):
                 break
@@ -85,7 +101,8 @@ def fetch_1m(symbol: str, minutes: int = 2000) -> np.ndarray | None:
             time.sleep(0.05)
     except Exception as exc:
         print("fetch failed:", exc)
-        return None
+        if not out:
+            return None
     unique = {int(row[0]): row for row in out}
     return np.array([unique[k] for k in sorted(unique)[-minutes:]], dtype=float)
 
@@ -110,7 +127,9 @@ VOL_WIN = 30  # trailing minutes for realized-vol estimate
 
 def main():
     print("Fetching BTC 1m klines…")
-    k = fetch_1m("BTCUSDT")
+    requested_minutes = max(2_000, int(os.environ.get("POLYBOB_BTC5M_MINUTES", "2000")))
+    print(f"requested real 1m bars: {requested_minutes}")
+    k = fetch_1m("BTCUSDT", minutes=requested_minutes)
     if k is None:
         return
     times = k[:, 0].astype(np.int64); opens = k[:, 1]; closes = k[:, 2]
