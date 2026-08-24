@@ -88,10 +88,13 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         raise KeyError(run_id)
 
     trades = store.list_trades(run_id)
+    settlements = store.list_settlements(run_id)
     points = store.list_equity_points(run_id)
     closed = [t for t in trades if t.realized_pnl is not None]
-    wins = [t for t in closed if t.realized_pnl > 0]
-    losses = [t for t in closed if t.realized_pnl < 0]
+    settlement_pnls = [float(item.realized_pnl) for item in settlements]
+    closed_pnls = [float(t.realized_pnl) for t in closed] + settlement_pnls
+    wins = [pnl for pnl in closed_pnls if pnl > 0]
+    losses = [pnl for pnl in closed_pnls if pnl < 0]
 
     if points:
         latest_equity = points[-1].equity
@@ -103,9 +106,9 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         latest_equity / run.initial_capital - 1.0 if run.initial_capital > 0 else 0.0
     )
 
-    win_rate = len(wins) / len(closed) if closed else None
-    gross_profit = sum(t.realized_pnl for t in wins)
-    gross_loss = -sum(t.realized_pnl for t in losses)
+    win_rate = len(wins) / len(closed_pnls) if closed_pnls else None
+    gross_profit = sum(wins)
+    gross_loss = -sum(losses)
     profit_factor = gross_profit / gross_loss if gross_loss > 0 else None
     avg_win = gross_profit / len(wins) if wins else None
     avg_loss = -gross_loss / len(losses) if losses else None
@@ -144,6 +147,15 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
             bucket["realized_pnl"] += trade.realized_pnl
             if trade.realized_pnl > 0:
                 bucket["wins"] += 1
+    for settlement in settlements:
+        bucket = per_instrument.setdefault(
+            settlement.instrument_id,
+            {"trade_count": 0, "closed_trades": 0, "wins": 0, "realized_pnl": 0.0},
+        )
+        bucket["closed_trades"] += 1
+        bucket["realized_pnl"] += settlement.realized_pnl
+        if settlement.realized_pnl > 0:
+            bucket["wins"] += 1
     for bucket in per_instrument.values():
         bucket["win_rate"] = (
             bucket["wins"] / bucket["closed_trades"] if bucket["closed_trades"] else None
@@ -159,8 +171,9 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         "equity_curve_degraded": curve_degraded,
         "sharpe": sharpe,
         "trade_count": len(trades),
-        "closed_trade_count": len(closed),
-        "realized_pnl": sum(t.realized_pnl for t in closed),
+        "closed_trade_count": len(closed_pnls),
+        "settlement_count": len(settlements),
+        "realized_pnl": sum(closed_pnls),
         "total_fees": sum(t.fee for t in trades),
         # SimulationStore records slippage as a per-unit price difference;
         # convert it to cash before aggregating with fees.

@@ -56,7 +56,7 @@ from libs.backtest.execution import SlippageModel
 from libs.db import fact_store
 from libs.db.simulation_store import SimRunRecord, SimulationStore
 from libs.db.strategy_state import StrategyStateStore
-from libs.db.execution_ledger import ExecutionLedger, FillCommand
+from libs.db.execution_ledger import ExecutionLedger, FillCommand, SettlementCommand
 from libs.events import Topics, get_event_bus
 from libs.research.registry import ExperimentRegistry
 from modules.risk_manager.risk_checker import PortfolioRiskChecker
@@ -457,6 +457,125 @@ class SimulationService:
             if refreshed is not None:
                 active.record = refreshed
         return result
+
+    # --------------------------------------------------------- binary settlement
+
+    async def settle_binary_position(
+        self,
+        run_id: str,
+        *,
+        settlement_id: str,
+        market_id: str,
+        instrument_id: str,
+        quantity: float,
+        payout_per_token: float,
+        settled_at: datetime | str,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Settle long binary-contract tokens through both durable projections.
+
+        Settlement is not a synthetic sell signal: it has no venue price,
+        spread, slippage, or fee. The exact 0/1 payout is an independent
+        economic event recorded in the execution ledger and mirrored into the
+        simulation store. Repeating the same command replays both receipts
+        without changing cash, position, or the equity curve's final state.
+        """
+        active = self._active.get(run_id)
+        record = active.record if active is not None else await asyncio.to_thread(
+            self.store.get_run, run_id
+        )
+        if record is None:
+            raise UnknownRunError(run_id)
+
+        if active is not None:
+            async with active.lock:
+                return await self._settle_binary_position_locked(
+                    active,
+                    run_id=run_id,
+                    settlement_id=settlement_id,
+                    market_id=market_id,
+                    instrument_id=instrument_id,
+                    quantity=quantity,
+                    payout_per_token=payout_per_token,
+                    settled_at=settled_at,
+                    metadata=metadata,
+                )
+        return await self._settle_binary_position_locked(
+            None,
+            run_id=run_id,
+            settlement_id=settlement_id,
+            market_id=market_id,
+            instrument_id=instrument_id,
+            quantity=quantity,
+            payout_per_token=payout_per_token,
+            settled_at=settled_at,
+            metadata=metadata,
+        )
+
+    async def _settle_binary_position_locked(
+        self,
+        active: _ActiveRun | None,
+        *,
+        run_id: str,
+        settlement_id: str,
+        market_id: str,
+        instrument_id: str,
+        quantity: float,
+        payout_per_token: float,
+        settled_at: datetime | str,
+        metadata: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        if isinstance(settled_at, datetime):
+            stamp = settled_at if settled_at.tzinfo else settled_at.replace(tzinfo=UTC)
+            settled_at_text = stamp.isoformat()
+        else:
+            settled_at_text = str(settled_at)
+
+        ledger_receipt = await asyncio.to_thread(
+            self.ledger.apply_settlement,
+            SettlementCommand(
+                settlement_id=settlement_id,
+                account_id=f"paper:{run_id}",
+                market_id=market_id,
+                instrument_id=instrument_id,
+                quantity=quantity,
+                payout_per_token=payout_per_token,
+                settled_at=settled_at_text,
+                metadata={"source": "simulation", **dict(metadata or {})},
+            ),
+        )
+        store_record, store_replayed = await asyncio.to_thread(
+            self.store.apply_settlement,
+            run_id,
+            settlement_id=settlement_id,
+            market_id=market_id,
+            instrument_id=instrument_id,
+            quantity=float(quantity),
+            payout_per_token=float(payout_per_token),
+            settled_at=settled_at_text,
+            metadata={"source": "simulation", **dict(metadata or {})},
+        )
+
+        settlement_replayed = bool(ledger_receipt.replayed or store_replayed)
+        if active is not None:
+            refreshed = await asyncio.to_thread(self.store.get_run, run_id)
+            if refreshed is not None:
+                active.record = refreshed
+            if not settlement_replayed:
+                await self._record_equity(active)
+
+        return {
+            "settlement_id": settlement_id,
+            "replayed": settlement_replayed,
+            "ledger_sequence": ledger_receipt.sequence,
+            "payout_per_token": str(ledger_receipt.payout_per_token),
+            "cash_after": str(ledger_receipt.cash_after),
+            "position_after": str(ledger_receipt.position_after),
+            "gross_realized_delta": str(ledger_receipt.gross_realized_delta),
+            "net_realized_delta": str(ledger_receipt.net_realized_delta),
+            "store_replayed": store_replayed,
+            "simulation_settlement": store_record.to_dict(),
+        }
 
     # ------------------------------------------------------------- snapshots
 

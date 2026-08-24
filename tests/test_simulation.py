@@ -7,6 +7,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from libs.db import fact_store
+from libs.db.execution_ledger import FillCommand
 from libs.db.simulation_store import SimRunRecord, SimulationStore
 from libs.events import Topics, get_event_bus
 from modules.risk_manager.risk_checker import RiskDecision
@@ -61,6 +62,82 @@ RUN_CONFIG = {
     "impact_coefficient": 0.0,  # exact fill assertions
     "fee_bps": 20.0,
 }
+
+
+async def _seed_binary_position(service: SimulationService, run_id: str) -> None:
+    """Seed matching ledger/store projections for a service settlement test."""
+    service.ledger.apply_fill(FillCommand(
+        fill_id="entry-1",
+        account_id=f"paper:{run_id}",
+        order_id="order-entry-1",
+        instrument_id="market-1",
+        side="buy",
+        quantity="10",
+        price="0.4",
+        executed_at="2026-08-13T09:00:00+00:00",
+    ))
+    service.store.append_trade(
+        run_id,
+        instrument_id="market-1",
+        side="buy",
+        size=10.0,
+        price=0.4,
+        fee=0.0,
+        slippage=0.0,
+        signal_meta={"source": "test"},
+        realized_pnl=None,
+        executed_at="2026-08-13T09:00:00+00:00",
+    )
+    service.store.upsert_position(run_id, "market-1", 10.0, 0.4)
+    service.store.update_run(run_id, cash=996.0)
+
+
+@pytest.mark.asyncio
+async def test_service_binary_settlement_updates_both_projections_equity_and_replays(
+    tmp_path,
+):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="binary-settlement",
+        strategy_id="momentum_dualma_v1",
+        universe=["market-1"],
+        initial_capital=1000.0,
+        config=RUN_CONFIG,
+    )
+    run_id = run["run_id"]
+    await _seed_binary_position(service, run_id)
+
+    first = await service.settle_binary_position(
+        run_id,
+        settlement_id="settlement-1",
+        market_id="event-1",
+        instrument_id="market-1",
+        quantity=10.0,
+        payout_per_token=1.0,
+        settled_at=datetime(2026, 8, 13, 10, tzinfo=UTC),
+        metadata={"outcome": "YES"},
+    )
+    points_after_first = len(service.store.list_equity_points(run_id))
+    replay = await service.settle_binary_position(
+        run_id,
+        settlement_id="settlement-1",
+        market_id="event-1",
+        instrument_id="market-1",
+        quantity=10.0,
+        payout_per_token=1.0,
+        settled_at="2026-08-13T10:00:00+00:00",
+        metadata={"outcome": "YES"},
+    )
+
+    assert first["replayed"] is False
+    assert replay["replayed"] is True
+    assert first["ledger_sequence"] == replay["ledger_sequence"]
+    assert service.get_run_record(run_id).cash == pytest.approx(1006.0)
+    assert service.store.list_positions(run_id) == []
+    assert len(service.store.list_settlements(run_id)) == 1
+    assert len(service.store.list_equity_points(run_id)) == points_after_first
+    assert service.ledger.get_account(f"paper:{run_id}").cash == 1006
+    assert service.ledger.verify_projection(f"paper:{run_id}").consistent is True
 
 
 # ---------------------------------------------------------------------- store
@@ -285,6 +362,39 @@ async def test_initial_capital_position_sizing_does_not_compound(tmp_path):
     positions = {p.instrument_id: p for p in service.store.list_positions(run_id)}
     assert positions["m1"].size == pytest.approx(5_000.0 / 0.97, rel=1e-6)
     assert positions["m2"].size == pytest.approx(5_000.0 / 0.97, rel=1e-6)
+
+
+@pytest.mark.asyncio
+async def test_binary_settlement_uses_authoritative_payout_path(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="binary-settlement", strategy_id="spread_reversion_v1",
+        universe=["m1"], initial_capital=10_000.0,
+        config={**RUN_CONFIG, "position_fraction": 0.05, "min_trade_notional": 0.0},
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    now = datetime.now(UTC)
+    await service._process_signal(
+        service._active[run_id],
+        SimSignal("m1", "buy", 1.0, bid=0.40, ask=0.40, mid=0.40, timestamp=now),
+    )
+    position = service.store.list_positions(run_id)[0]
+    result = await service.settle_binary_position(
+        run_id, settlement_id="settle-m1", market_id="market-1",
+        instrument_id="m1", quantity=position.size, payout_per_token=1.0,
+        settled_at=now.isoformat(),
+    )
+    assert result["replayed"] is False
+    assert result["payout_per_token"] == "1"
+    assert service.store.list_positions(run_id) == []
+    assert len(service.store.list_settlements(run_id)) == 1
+    replay = await service.settle_binary_position(
+        run_id, settlement_id="settle-m1", market_id="market-1",
+        instrument_id="m1", quantity=position.size, payout_per_token=1.0,
+        settled_at=now.isoformat(),
+    )
+    assert replay["replayed"] is True
 
 
 @pytest.mark.asyncio

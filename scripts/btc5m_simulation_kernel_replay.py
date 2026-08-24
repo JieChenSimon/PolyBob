@@ -98,6 +98,9 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
     run_id = str(run["run_id"])
     await service.start_run(run_id)
     traded = 0
+    settlements = 0
+    settlement_failures: list[dict[str, str]] = []
+    settlement_skipped = 0
     for row in rows:
         edge = float(row["model_probability"]) - float(row["market_probability"])
         if abs(edge) < EDGE_THRESHOLD:
@@ -109,32 +112,48 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
         entry_ts = datetime.fromtimestamp(int(row["decision_ts"]), tz=UTC)
         settle_ts = datetime.fromtimestamp(int(row["window_end"]), tz=UTC)
         bid, ask, mid = _quote(probability, multiple)
-        for timestamp, signal_side, price in (
-            (entry_ts, "buy", mid),
-            (settle_ts, "sell", 0.9999 if outcome else 0.0001),
-        ):
-            clock.current = timestamp
-            settle_bid = max(0.0001, price - 0.0001)
-            settle_ask = min(0.9999, price + 0.0001)
-            await service._dispatch("features.snapshots", {
-                "market_id": instrument, "timestamp": timestamp,
-                "mid_price": price if signal_side == "sell" else mid,
-                "bid_price": (settle_bid if signal_side == "sell" else bid),
-                "ask_price": (settle_ask if signal_side == "sell" else ask),
-                "signal_side": signal_side,
-                "signal_meta": {
+        clock.current = entry_ts
+        await service._dispatch("features.snapshots", {
+            "market_id": instrument, "timestamp": entry_ts,
+            "mid_price": mid, "bid_price": bid, "ask_price": ask,
+            "signal_side": "buy",
+            "signal_meta": {
+                "source": "btc5m_event_kernel_diagnostic",
+                "execution_stage": "entry", "window_start": row["window_start"],
+                "raw_sha256": {
+                    "gamma": row.get("gamma_raw_sha256"),
+                    "clob": row.get("clob_raw_sha256"),
+                    "okx": row.get("okx_raw_sha256"),
+                },
+                "execution_basis": "historical_probability_plus_fixed_spread_stress",
+            },
+        })
+        positions = [p for p in service.store.list_positions(run_id)
+                     if p.instrument_id == instrument and p.size > 0]
+        if not positions:
+            settlement_skipped += 1
+            continue
+        clock.current = settle_ts
+        try:
+            await service.settle_binary_position(
+                run_id, settlement_id=f"btc5m:{row['window_start']}:{'UP' if buy_up else 'DOWN'}",
+                market_id=f"BTC5M:{row['window_start']}", instrument_id=instrument,
+                quantity=positions[0].size, payout_per_token=1.0 if outcome else 0.0,
+                settled_at=settle_ts.isoformat(), metadata={
                     "source": "btc5m_event_kernel_diagnostic",
-                    "execution_stage": "entry" if signal_side == "buy" else "settlement",
-                    "window_start": row["window_start"],
+                    "execution_stage": "settlement", "window_start": row["window_start"],
                     "raw_sha256": {
                         "gamma": row.get("gamma_raw_sha256"),
                         "clob": row.get("clob_raw_sha256"),
                         "okx": row.get("okx_raw_sha256"),
                     },
-                    "execution_basis": "historical_probability_plus_fixed_spread_stress",
+                    "execution_basis": "binary_payout_0_or_1; no_sell_fill",
                 },
-            })
-            await service._record_equity(service._active[run_id])
+            )
+            settlements += 1
+        except Exception as exc:  # preserve failure evidence, do not hide it
+            settlement_failures.append({"instrument": instrument, "error": str(exc)})
+        await service._record_equity(service._active[run_id])
         traded += 1
     active = service._active.get(run_id)
     risk_rejections = active.risk_rejections if active is not None else None
@@ -163,7 +182,10 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
     for suffix in ("", "-wal", "-shm"):
         db.with_name(db.name + suffix).unlink(missing_ok=True)
     return {"cost_multiple": multiple, "candidate_events": traded,
-            "fills": trades, "risk_rejections": risk_rejections,
+            "fills": trades, "settlements": settlements,
+            "settlement_skipped": settlement_skipped,
+            "settlement_failures": settlement_failures,
+            "risk_rejections": risk_rejections,
             "risk_rejection_reasons": dict(rejection_reasons),
             "risk_rejections_by_stage": dict(rejection_by_stage),
             "open_positions": open_positions,

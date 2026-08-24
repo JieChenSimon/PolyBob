@@ -96,6 +96,22 @@ _SCHEMA_STATEMENTS = (
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_sim_funding_run ON sim_funding(run_id, id)",
+    """
+    CREATE TABLE IF NOT EXISTS sim_settlements (
+        settlement_id TEXT PRIMARY KEY,
+        run_id TEXT NOT NULL,
+        market_id TEXT NOT NULL,
+        instrument_id TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        payout_per_token REAL NOT NULL CHECK (payout_per_token IN (0.0, 1.0)),
+        cash_delta REAL NOT NULL,
+        realized_pnl REAL NOT NULL,
+        settled_at TEXT NOT NULL,
+        metadata_json TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_sim_settlements_run ON sim_settlements(run_id, settled_at)",
 )
 
 RUN_STATUSES = ("running", "paused", "stopped")
@@ -191,6 +207,34 @@ class SimTradeRecord:
             "signal_meta": dict(self.signal_meta),
             "realized_pnl": self.realized_pnl,
             "executed_at": self.executed_at,
+        }
+
+
+@dataclass(frozen=True)
+class SimSettlementRecord:
+    settlement_id: str
+    run_id: str
+    market_id: str
+    instrument_id: str
+    quantity: float
+    payout_per_token: float
+    cash_delta: float
+    realized_pnl: float
+    settled_at: str
+    metadata: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "settlement_id": self.settlement_id,
+            "run_id": self.run_id,
+            "market_id": self.market_id,
+            "instrument_id": self.instrument_id,
+            "quantity": self.quantity,
+            "payout_per_token": self.payout_per_token,
+            "cash_delta": self.cash_delta,
+            "realized_pnl": self.realized_pnl,
+            "settled_at": self.settled_at,
+            "metadata": dict(self.metadata),
         }
 
 
@@ -446,6 +490,99 @@ class SimulationStore:
             )
             return cursor.rowcount == 1
 
+    def apply_settlement(
+        self,
+        run_id: str,
+        *,
+        settlement_id: str,
+        market_id: str,
+        instrument_id: str,
+        quantity: float,
+        payout_per_token: float,
+        settled_at: str,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> tuple[SimSettlementRecord, bool]:
+        """Atomically record settlement and update run cash/position projections."""
+        if payout_per_token not in (0.0, 1.0):
+            raise ValueError("payout_per_token must be exactly 0 or 1")
+        if quantity <= 0:
+            raise ValueError("settlement quantity must be positive")
+        with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            existing = connection.execute(
+                "SELECT * FROM sim_settlements WHERE settlement_id = ?", (settlement_id,)
+            ).fetchone()
+            if existing is not None:
+                record = self._settlement_record(existing)
+                if (
+                    record.run_id != run_id
+                    or record.market_id != market_id
+                    or record.instrument_id != instrument_id
+                    or abs(record.quantity - float(quantity)) > 1e-12
+                    or abs(record.payout_per_token - float(payout_per_token)) > 1e-12
+                ):
+                    raise ValueError("settlement_id was reused with different economic content")
+                connection.rollback()
+                return record, True
+
+            position = connection.execute(
+                "SELECT * FROM sim_positions WHERE run_id = ? AND instrument_id = ?",
+                (run_id, instrument_id),
+            ).fetchone()
+            current_size = float(position["size"]) if position else 0.0
+            if current_size <= 0 or quantity > current_size + 1e-12:
+                raise ValueError(
+                    f"settlement quantity {quantity} exceeds long position {current_size}"
+                )
+            current_avg = float(position["avg_price"])
+            cash_delta = float(quantity) * float(payout_per_token)
+            realized_pnl = float(quantity) * (float(payout_per_token) - current_avg)
+            new_size = current_size - float(quantity)
+            now = _utcnow_iso()
+            connection.execute(
+                """
+                INSERT INTO sim_settlements (
+                    settlement_id, run_id, market_id, instrument_id, quantity,
+                    payout_per_token, cash_delta, realized_pnl, settled_at,
+                    metadata_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    settlement_id, run_id, market_id, instrument_id, float(quantity),
+                    float(payout_per_token), cash_delta, realized_pnl, settled_at,
+                    _dump_json(dict(metadata or {})), now,
+                ),
+            )
+            connection.execute(
+                "UPDATE sim_runs SET cash = cash + ?, updated_at = ? WHERE run_id = ?",
+                (cash_delta, now, run_id),
+            )
+            if abs(new_size) < 1e-12:
+                connection.execute(
+                    "DELETE FROM sim_positions WHERE run_id = ? AND instrument_id = ?",
+                    (run_id, instrument_id),
+                )
+            else:
+                connection.execute(
+                    "UPDATE sim_positions SET size = ?, updated_at = ? "
+                    "WHERE run_id = ? AND instrument_id = ?",
+                    (new_size, now, run_id, instrument_id),
+                )
+            row = connection.execute(
+                "SELECT * FROM sim_settlements WHERE settlement_id = ?", (settlement_id,)
+            ).fetchone()
+            connection.commit()
+        return self._settlement_record(row), False
+
+    def list_settlements(self, run_id: str) -> list[SimSettlementRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM sim_settlements WHERE run_id = ? "
+                "ORDER BY settled_at, settlement_id",
+                (run_id,),
+            ).fetchall()
+        return [self._settlement_record(row) for row in rows]
+
     def total_funding(self, run_id: str) -> float:
         with self._connect() as connection:
             row = connection.execute(
@@ -478,6 +615,22 @@ class SimulationStore:
                 float(row["realized_pnl"]) if row["realized_pnl"] is not None else None
             ),
             executed_at=row["executed_at"],
+        )
+
+    @staticmethod
+    def _settlement_record(row: sqlite3.Row) -> SimSettlementRecord:
+        metadata = _load_json(row["metadata_json"], {})
+        return SimSettlementRecord(
+            settlement_id=row["settlement_id"],
+            run_id=row["run_id"],
+            market_id=row["market_id"],
+            instrument_id=row["instrument_id"],
+            quantity=float(row["quantity"]),
+            payout_per_token=float(row["payout_per_token"]),
+            cash_delta=float(row["cash_delta"]),
+            realized_pnl=float(row["realized_pnl"]),
+            settled_at=row["settled_at"],
+            metadata=metadata if isinstance(metadata, dict) else {},
         )
 
     # ---------------------------------------------------------------- equity

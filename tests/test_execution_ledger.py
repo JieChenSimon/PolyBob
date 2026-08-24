@@ -5,7 +5,13 @@ from decimal import Decimal
 
 import pytest
 
-from libs.db.execution_ledger import ExecutionLedger, FillCommand, FillConflict
+from libs.db.execution_ledger import (
+    ExecutionLedger,
+    FillCommand,
+    FillConflict,
+    SettlementCommand,
+    SettlementError,
+)
 
 
 def _fill(fill_id: str, side: str, quantity: str, price: str, fee: str) -> FillCommand:
@@ -19,6 +25,23 @@ def _fill(fill_id: str, side: str, quantity: str, price: str, fee: str) -> FillC
         price=price,
         fee=fee,
         executed_at=f"2026-08-13T0{fill_id[-1]}:00:00+00:00",
+    )
+
+
+def _settlement(
+    settlement_id: str,
+    *,
+    quantity: str = "10",
+    payout: str = "1",
+) -> SettlementCommand:
+    return SettlementCommand(
+        settlement_id=settlement_id,
+        account_id="paper-main",
+        market_id="market-1",
+        instrument_id="AAPL",
+        quantity=quantity,
+        payout_per_token=payout,
+        settled_at="2026-08-13T10:00:00+00:00",
     )
 
 
@@ -178,3 +201,68 @@ def test_invalid_economic_values_are_rejected_without_a_ledger_event(
 
     with sqlite3.connect(ledger.db_path) as connection:
         assert connection.execute("SELECT COUNT(*) FROM execution_fill_ledger").fetchone()[0] == 0
+
+
+@pytest.mark.parametrize(
+    ("payout", "expected_cash", "expected_pnl"),
+    [("1", Decimal("1006"), Decimal("6")), ("0", Decimal("996"), Decimal("-4"))],
+)
+def test_binary_settlement_known_answer_and_projection(
+    tmp_path, payout, expected_cash, expected_pnl
+):
+    ledger = ExecutionLedger(tmp_path / f"ledger-{payout}.sqlite3")
+    ledger.register_account("paper-main", initial_cash="1000")
+    ledger.apply_fill(_fill("fill-1", "buy", "10", "0.4", "0"))
+
+    receipt = ledger.apply_settlement(_settlement("settlement-1", payout=payout))
+
+    assert receipt.replayed is False
+    assert receipt.payout_per_token == Decimal(payout)
+    assert receipt.cash_after == expected_cash
+    assert receipt.position_after == Decimal("0")
+    assert receipt.gross_realized_delta == expected_pnl
+    assert receipt.net_realized_delta == expected_pnl
+    account = ledger.get_account("paper-main")
+    assert account.cash == expected_cash
+    assert account.gross_realized_pnl == expected_pnl
+    assert account.net_realized_pnl == expected_pnl
+    assert account.positions["AAPL"].quantity == Decimal("0")
+    assert ledger.verify_projection("paper-main").consistent is True
+
+
+def test_binary_settlement_replay_is_idempotent_and_conflicts_on_changed_payload(tmp_path):
+    ledger = ExecutionLedger(tmp_path / "ledger.sqlite3")
+    ledger.register_account("paper-main", initial_cash="1000")
+    ledger.apply_fill(_fill("fill-1", "buy", "10", "0.4", "0"))
+    command = _settlement("settlement-1", quantity="4", payout="1")
+
+    first = ledger.apply_settlement(command)
+    replay = ledger.apply_settlement(command)
+
+    assert replay.replayed is True
+    assert replay.sequence == first.sequence
+    assert ledger.get_account("paper-main").cash == Decimal("1000")
+    assert ledger.get_account("paper-main").positions["AAPL"].quantity == Decimal("6")
+    assert ledger.verify_projection("paper-main").consistent is True
+
+    with pytest.raises(FillConflict):
+        ledger.apply_settlement(_settlement("settlement-1", quantity="4", payout="0"))
+
+
+def test_binary_settlement_rejects_invalid_payout_and_excess_quantity_without_event(tmp_path):
+    ledger = ExecutionLedger(tmp_path / "ledger.sqlite3")
+    ledger.register_account("paper-main", initial_cash="1000")
+    ledger.apply_fill(_fill("fill-1", "buy", "2", "0.4", "0"))
+
+    with pytest.raises(ValueError, match="payout_per_token"):
+        ledger.apply_settlement(_settlement("settlement-invalid", payout="0.5"))
+    with pytest.raises(SettlementError, match="exceeds long position"):
+        ledger.apply_settlement(_settlement("settlement-excess", quantity="3", payout="1"))
+
+    with sqlite3.connect(ledger.db_path) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM execution_fill_ledger WHERE event_type = 'settlement'"
+        ).fetchone()[0] == 0
+    assert ledger.get_account("paper-main").cash == Decimal("999.2")
+    assert ledger.get_account("paper-main").positions["AAPL"].quantity == Decimal("2")
+    assert ledger.verify_projection("paper-main").consistent is True

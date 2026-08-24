@@ -41,6 +41,10 @@ class FillConflict(ExecutionLedgerError):
     """Raised when a fill id is reused with different economic content."""
 
 
+class SettlementError(ExecutionLedgerError):
+    """Raised when a binary-contract settlement cannot be applied safely."""
+
+
 @dataclass(frozen=True)
 class FillCommand:
     fill_id: str
@@ -53,6 +57,21 @@ class FillCommand:
     fee: Decimal | str | int | float = ZERO
     currency: str = "USD"
     executed_at: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class SettlementCommand:
+    """Settle long binary-contract tokens at an exact 0-or-1 payout."""
+
+    settlement_id: str
+    account_id: str
+    market_id: str
+    instrument_id: str
+    quantity: Decimal | str | int | float
+    payout_per_token: Decimal | str | int | float
+    currency: str = "USD"
+    settled_at: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -87,6 +106,19 @@ class FillReceipt:
     position_after: Decimal
     avg_cost_after: Decimal
     fee: Decimal
+    gross_realized_delta: Decimal
+    net_realized_delta: Decimal
+
+
+@dataclass(frozen=True)
+class SettlementReceipt:
+    sequence: int
+    settlement_id: str
+    replayed: bool
+    cash_after: Decimal
+    position_after: Decimal
+    avg_cost_after: Decimal
+    payout_per_token: Decimal
     gross_realized_delta: Decimal
     net_realized_delta: Decimal
 
@@ -151,12 +183,19 @@ _SCHEMA = (
         executed_at TEXT NOT NULL,
         executed_at_explicit INTEGER NOT NULL DEFAULT 0,
         recorded_at TEXT NOT NULL,
+        event_type TEXT NOT NULL DEFAULT 'fill',
+        settlement_id TEXT,
+        market_id TEXT,
         FOREIGN KEY (account_id) REFERENCES execution_accounts(account_id)
     )
     """,
     """
     CREATE INDEX IF NOT EXISTS idx_execution_fill_account_sequence
     ON execution_fill_ledger (account_id, sequence)
+    """,
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_execution_settlement_id
+    ON execution_fill_ledger (settlement_id) WHERE settlement_id IS NOT NULL
     """,
     """
     CREATE TRIGGER IF NOT EXISTS execution_fill_ledger_no_update
@@ -239,6 +278,25 @@ class ExecutionLedger:
                 if not self._ready:
                     for statement in _SCHEMA:
                         connection.execute(statement)
+                    columns = {
+                        row[1]
+                        for row in connection.execute(
+                            "PRAGMA table_info(execution_fill_ledger)"
+                        ).fetchall()
+                    }
+                    if "event_type" not in columns:
+                        connection.execute(
+                            "ALTER TABLE execution_fill_ledger ADD COLUMN "
+                            "event_type TEXT NOT NULL DEFAULT 'fill'"
+                        )
+                    if "settlement_id" not in columns:
+                        connection.execute(
+                            "ALTER TABLE execution_fill_ledger ADD COLUMN settlement_id TEXT"
+                        )
+                    if "market_id" not in columns:
+                        connection.execute(
+                            "ALTER TABLE execution_fill_ledger ADD COLUMN market_id TEXT"
+                        )
                     connection.commit()
                     self._ready = True
         return connection
@@ -420,6 +478,123 @@ class ExecutionLedger:
         finally:
             connection.close()
 
+    def apply_settlement(self, command: SettlementCommand) -> SettlementReceipt:
+        """Atomically settle long binary tokens and update ledger projections.
+
+        Settlement is a distinct event, not a market sell.  Payout is exactly
+        zero or one per token, fees are always zero, and a settlement can never
+        consume more tokens than the current long position.
+        """
+        normalized = self._normalize_settlement(command)
+        request_hash = self._settlement_request_hash(normalized)
+        connection = self._connect()
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            existing = connection.execute(
+                "SELECT * FROM execution_fill_ledger WHERE settlement_id = ?",
+                (normalized.settlement_id,),
+            ).fetchone()
+            if existing is not None:
+                if existing["event_type"] != "settlement" or existing["request_hash"] != request_hash:
+                    raise FillConflict(
+                        f"settlement_id {normalized.settlement_id!r} was already used "
+                        "with different economic content"
+                    )
+                connection.rollback()
+                return self._settlement_receipt(existing, replayed=True)
+
+            account = connection.execute(
+                "SELECT * FROM execution_accounts WHERE account_id = ?",
+                (normalized.account_id,),
+            ).fetchone()
+            if account is None:
+                raise UnknownExecutionAccount(normalized.account_id)
+            if account["currency"] != normalized.currency:
+                raise ExecutionLedgerError(
+                    f"settlement currency {normalized.currency} does not match account "
+                    f"currency {account['currency']}"
+                )
+            position = connection.execute(
+                "SELECT * FROM execution_positions WHERE account_id = ? AND instrument_id = ?",
+                (normalized.account_id, normalized.instrument_id),
+            ).fetchone()
+            current_quantity = Decimal(position["quantity"]) if position else ZERO
+            if current_quantity <= ZERO or normalized.quantity > current_quantity:
+                raise SettlementError(
+                    f"settlement quantity {normalized.quantity} exceeds long position "
+                    f"{current_quantity} for {normalized.instrument_id}"
+                )
+            current_avg = Decimal(position["avg_cost"])
+            current_position_fees = Decimal(position["total_fees"])
+            current_position_gross = Decimal(position["gross_realized_pnl"])
+            current_position_net = Decimal(position["net_realized_pnl"])
+            new_quantity = current_quantity - normalized.quantity
+            new_avg = ZERO if new_quantity == ZERO else current_avg
+            gross_delta = (normalized.payout_per_token - current_avg) * normalized.quantity
+            cash_delta = normalized.payout_per_token * normalized.quantity
+            cash_after = Decimal(account["cash"]) + cash_delta
+            gross_after = Decimal(account["gross_realized_pnl"]) + gross_delta
+            net_after = Decimal(account["net_realized_pnl"]) + gross_delta
+            recorded_at = _now()
+            cursor = connection.execute(
+                """
+                INSERT INTO execution_fill_ledger (
+                    fill_id, request_hash, account_id, order_id, instrument_id,
+                    side, quantity, price, fee, currency, cash_delta, cash_after,
+                    position_after, avg_cost_after, gross_realized_delta,
+                    net_realized_delta, metadata_json, executed_at,
+                    executed_at_explicit, recorded_at, event_type, settlement_id,
+                    market_id
+                ) VALUES (?, ?, ?, ?, ?, 'settlement', ?, ?, '0', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 'settlement', ?, ?)
+                """,
+                (
+                    f"settlement:{normalized.settlement_id}",
+                    request_hash,
+                    normalized.account_id,
+                    f"settlement:{normalized.market_id}",
+                    normalized.instrument_id,
+                    _text(normalized.quantity),
+                    _text(normalized.payout_per_token),
+                    normalized.currency,
+                    _text(cash_delta),
+                    _text(cash_after),
+                    _text(new_quantity),
+                    _text(new_avg),
+                    _text(gross_delta),
+                    _text(gross_delta),
+                    json.dumps(normalized.metadata, sort_keys=True, separators=(",", ":"), default=str),
+                    normalized.settled_at,
+                    recorded_at,
+                    normalized.settlement_id,
+                    normalized.market_id,
+                ),
+            )
+            self._write_projections(
+                connection,
+                normalized,
+                cash_after=cash_after,
+                account_total_fees=Decimal(account["total_fees"]),
+                account_gross_realized=gross_after,
+                account_net_realized=net_after,
+                quantity=new_quantity,
+                avg_cost=new_avg,
+                position_total_fees=current_position_fees,
+                position_gross_realized=current_position_gross + gross_delta,
+                position_net_realized=current_position_net + gross_delta,
+                updated_at=recorded_at,
+            )
+            row = connection.execute(
+                "SELECT * FROM execution_fill_ledger WHERE sequence = ?",
+                (cursor.lastrowid,),
+            ).fetchone()
+            connection.commit()
+            return self._settlement_receipt(row, replayed=False)
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+
     def _write_projections(
         self,
         connection: sqlite3.Connection,
@@ -522,6 +697,25 @@ class ExecutionLedger:
                 PositionSnapshot(instrument, ZERO, ZERO, ZERO, ZERO, ZERO),
             )
             quantity = Decimal(row["quantity"])
+            if (row["event_type"] or "fill") == "settlement":
+                payout = Decimal(row["price"])
+                if quantity > current.quantity or current.quantity <= ZERO:
+                    raise SettlementError("settlement replay exceeds the recorded position")
+                gross_delta = (payout - current.avg_cost) * quantity
+                new_quantity = current.quantity - quantity
+                new_avg = ZERO if new_quantity == ZERO else current.avg_cost
+                cash += payout * quantity
+                gross_total += gross_delta
+                net_total += gross_delta
+                positions[instrument] = PositionSnapshot(
+                    instrument_id=instrument,
+                    quantity=new_quantity,
+                    avg_cost=new_avg,
+                    total_fees=current.total_fees,
+                    gross_realized_pnl=current.gross_realized_pnl + gross_delta,
+                    net_realized_pnl=current.net_realized_pnl + gross_delta,
+                )
+                continue
             signed_quantity = quantity if row["side"] == "buy" else -quantity
             fee = Decimal(row["fee"])
             price = Decimal(row["price"])
@@ -617,6 +811,49 @@ class ExecutionLedger:
         )
 
     @staticmethod
+    def _normalize_settlement(command: SettlementCommand) -> SettlementCommand:
+        settlement_id = command.settlement_id.strip()
+        account_id = command.account_id.strip()
+        market_id = command.market_id.strip()
+        instrument_id = command.instrument_id.strip().upper()
+        currency = command.currency.strip().upper()
+        quantity = _decimal(command.quantity, "quantity")
+        payout = _decimal(command.payout_per_token, "payout_per_token")
+        if not all((settlement_id, account_id, market_id, instrument_id, currency)):
+            raise ValueError("settlement_id, account_id, market_id, instrument_id and currency are required")
+        if quantity <= ZERO:
+            raise ValueError("settlement quantity must be positive")
+        if payout not in {ZERO, Decimal("1")}:
+            raise ValueError("payout_per_token must be exactly 0 or 1")
+        settled_at = command.settled_at or _now()
+        try:
+            parsed_at = datetime.fromisoformat(settled_at.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("settled_at must be ISO-8601") from exc
+        if parsed_at.tzinfo is None or parsed_at.utcoffset() is None:
+            raise ValueError("settled_at must include a UTC offset or Z")
+        return SettlementCommand(
+            settlement_id=settlement_id,
+            account_id=account_id,
+            market_id=market_id,
+            instrument_id=instrument_id,
+            quantity=quantity,
+            payout_per_token=payout,
+            currency=currency,
+            settled_at=parsed_at.astimezone(UTC).isoformat(),
+            metadata=dict(command.metadata),
+        )
+
+    @staticmethod
+    def _settlement_request_hash(command: SettlementCommand) -> str:
+        payload = asdict(command)
+        payload.pop("settled_at", None)
+        payload["quantity"] = _text(command.quantity)  # type: ignore[arg-type]
+        payload["payout_per_token"] = _text(command.payout_per_token)  # type: ignore[arg-type]
+        encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode()
+        return hashlib.sha256(encoded).hexdigest()
+
+    @staticmethod
     def _request_hash(command: FillCommand) -> str:
         payload = asdict(command)
         # A retry may omit the venue timestamp and receive a fresh local default.
@@ -642,6 +879,20 @@ class ExecutionLedger:
             position_after=Decimal(row["position_after"]),
             avg_cost_after=Decimal(row["avg_cost_after"]),
             fee=Decimal(row["fee"]),
+            gross_realized_delta=Decimal(row["gross_realized_delta"]),
+            net_realized_delta=Decimal(row["net_realized_delta"]),
+        )
+
+    @staticmethod
+    def _settlement_receipt(row: sqlite3.Row, *, replayed: bool) -> SettlementReceipt:
+        return SettlementReceipt(
+            sequence=int(row["sequence"]),
+            settlement_id=row["settlement_id"],
+            replayed=replayed,
+            cash_after=Decimal(row["cash_after"]),
+            position_after=Decimal(row["position_after"]),
+            avg_cost_after=Decimal(row["avg_cost_after"]),
+            payout_per_token=Decimal(row["price"]),
             gross_realized_delta=Decimal(row["gross_realized_delta"]),
             net_realized_delta=Decimal(row["net_realized_delta"]),
         )
@@ -679,6 +930,9 @@ __all__ = [
     "ExecutionLedgerError",
     "FillCommand",
     "FillConflict",
+    "SettlementCommand",
+    "SettlementError",
+    "SettlementReceipt",
     "FillReceipt",
     "PositionSnapshot",
     "ProjectionVerification",
