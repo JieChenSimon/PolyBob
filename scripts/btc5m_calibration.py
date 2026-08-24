@@ -17,7 +17,10 @@ from __future__ import annotations
 
 import json
 import math
+import time
 import urllib.request
+from datetime import UTC, datetime
+from pathlib import Path
 
 import numpy as np
 
@@ -53,26 +56,38 @@ def prob_v2_real_vol(cur: float, strike: float, remaining_s: int, sigma_per_min:
     return _norm_cdf(math.log(cur / strike) / denom)
 
 
-def fetch_1m(symbol: str, minutes: int = 12000) -> np.ndarray | None:
+def fetch_1m(symbol: str, minutes: int = 2000) -> np.ndarray | None:
+    """Fetch real contiguous OKX history; Binance can be region-blocked (451)."""
     out: list[list[float]] = []
-    end = None
+    after = None
     try:
         while len(out) < minutes:
-            url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval=1m&limit=1000"
-            if end:
-                url += f"&endTime={end}"
+            inst_id = "BTC-USDT" if symbol == "BTCUSDT" else symbol.replace("USDT", "-USDT")
+            url = f"https://www.okx.com/api/v5/market/history-candles?instId={inst_id}&bar=1m&limit=100"
+            if after:
+                url += f"&after={after}"
             req = urllib.request.Request(url, headers={"User-Agent": "PolyBobCal/0.1"})
-            rows = json.loads(urllib.request.urlopen(req, timeout=20).read())
-            if not rows:
+            payload = json.loads(urllib.request.urlopen(req, timeout=20).read())
+            rows = payload.get("data") or []
+            if not rows or payload.get("code") not in (None, "0", 0):
                 break
             out = [[int(r[0]), float(r[1]), float(r[4])] for r in rows] + out
-            end = int(rows[0][0]) - 1
-            if len(rows) < 1000:
+            next_after = rows[-1][0]
+            if next_after == after:
                 break
+            after = next_after
+            if len(out) % 500 < 100:
+                print(f"  fetched {len(out)} raw 1m bars", flush=True)
+            if len(rows) < 1000:
+                # OKX history-candles pages are normally 100 rows; keep paging
+                # until the requested window is covered.
+                continue
+            time.sleep(0.05)
     except Exception as exc:
         print("fetch failed:", exc)
         return None
-    return np.array(out[-minutes:], dtype=float)
+    unique = {int(row[0]): row for row in out}
+    return np.array([unique[k] for k in sorted(unique)[-minutes:]], dtype=float)
 
 
 def brier(p, o):
@@ -100,7 +115,7 @@ def main():
         return
     times = k[:, 0].astype(np.int64); opens = k[:, 1]; closes = k[:, 2]
     # index by minute-open time for contiguous trailing windows
-    logret = np.diff(np.log(closes), prepend=0.0)
+    logret = np.diff(np.log(closes), prepend=np.log(closes[0]))
 
     # aligned 5-minute windows: need 5 contiguous minutes + VOL_WIN trailing mins
     step = 5 * 60_000
@@ -109,7 +124,8 @@ def main():
     i = 0
     n = len(times)
     while i + 5 <= n:
-        if wid_of[i + 4] == wid_of[i] and (i == 0 or True):
+        contiguous = all(times[i + j + 1] - times[i + j] == 60_000 for j in range(4))
+        if wid_of[i + 4] == wid_of[i] and contiguous:
             # ensure the 5 are contiguous minutes of the same 5-min bucket
             if all(wid_of[i + j] == wid_of[i] for j in range(5)) and i >= VOL_WIN:
                 windows.append(i)
@@ -118,6 +134,7 @@ def main():
             i += 1
     print(f"usable 5-min windows: {len(windows)}")
 
+    report_rows = []
     for decision_min in (1, 2, 3):
         remaining = (5 - decision_min) * 60
         p1, p2, outs, naive = [], [], [], []
@@ -131,6 +148,19 @@ def main():
             p2.append(prob_v2_real_vol(cur, strike, remaining, sigma))
             outs.append(outcome); naive.append(1 if cur > strike else 0)
         p1 = np.array(p1); p2 = np.array(p2); outs = np.array(outs)
+        row = {
+            "decision_minute": decision_min,
+            "remaining_seconds": remaining,
+            "samples": int(len(outs)),
+            "up_rate": float(outs.mean()) if len(outs) else None,
+            "brier_v1_guessed_vol": brier(p1, outs),
+            "brier_v2_real_vol": brier(p2, outs),
+            "accuracy_v1_guessed_vol": float(np.mean((p1 > 0.5) == (outs == 1))),
+            "accuracy_v2_real_vol": float(np.mean((p2 > 0.5) == (outs == 1))),
+            "reliability_v1": reliability(p1, outs),
+            "reliability_v2": reliability(p2, outs),
+        }
+        report_rows.append(row)
         print(f"\n=== 决策点 进场{decision_min}min (剩{remaining}s), 样本 {len(outs)}  上涨占比 {outs.mean():.3f} ===")
         print(f"  Brier   旧(猜测vol)={brier(p1,outs):.4f}   新(真实vol)={brier(p2,outs):.4f}   恒0.5=0.2500  (越低越好)")
         print(f"  准确率  旧={np.mean((p1>0.5)==(outs==1)):.3f}   新={np.mean((p2>0.5)==(outs==1)):.3f}")
@@ -142,6 +172,18 @@ def main():
             s1 = f"旧 预测{a[2]:.2f}→实际{a[3]:.2f}" if a else "旧 —"
             s2 = f"新 预测{b[2]:.2f}→实际{b[3]:.2f}" if b else "新 —"
             print(f"    {label}   {s1:26}   {s2}")
+    out = Path("data/btc5m_calibration.json")
+    out.write_text(json.dumps({
+        "generated_at": datetime.now(UTC).isoformat(),
+        "source": "okx_history_candles",
+        "real_data_only": True,
+        "raw_1m_bars": int(len(k)),
+        "usable_5m_windows": int(len(windows)),
+        "independent_days": int(len(set(time.strftime("%Y-%m-%d", time.gmtime(t / 1000)) for t in times))),
+        "rows": report_rows,
+        "status": "calibration_only_not_trading_evidence",
+    }, ensure_ascii=False, indent=2) + "\n")
+    print(f"写入 {out}")
 
 
 if __name__ == "__main__":
