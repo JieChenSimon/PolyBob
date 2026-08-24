@@ -728,6 +728,23 @@
         "outcome": "每一步都有先验理由,但序列本身是分叉路径花园:t 值被从 2.35 一路推到 4.21。16 是这条流水线上'本来可以被报告出来'的组合数,而不是我承认试过的那几个。"
       },
       "result": null
+    },
+    {
+      "hypothesis": {
+        "hypothesis_id": "deep_drawdown_rebound_v1",
+        "claim": "Assets that lose at least 50% from a prior point-in-time peak may earn positive cost-adjusted forward returns after staged entry, but the effect must be tested separately by asset domain and holding horizon.",
+        "rationale": "behavioural",
+        "mechanism": "Forced selling and attention shocks can create temporary dislocations, while limits to arbitrage and uncertainty delay recovery; permanent impairment is an explicit competing outcome.",
+        "literature": "Pre-registered as a drawdown-conditioned reversal candidate; related momentum-crash evidence motivates regime and risk controls, not a claim that every 50% drawdown recovers.",
+        "direction": "long_after_drawdown",
+        "universe": "A_SHARE,US_EQUITY,BTC,ALTCOIN with PIT and survivorship controls",
+        "horizon_days": 252,
+        "cost_bps": 40.0,
+        "min_sharpe": 0.5,
+        "n_configs": 16,
+        "registered_at": "2026-08-24T18:19:41.347650+00:00"
+      },
+      "result": null
     }
   ]
 }

@@ -3,31 +3,22 @@
   "report_name": "event_kernel_replay",
   "report_path": "data/btc5m_event_kernel_replay.json",
   "report_sha256": "dbf6100843b625c4aee81d71b7115425b21923346681b0b4b0cfc72f5db0fe3a",
-  "generated_at": "2026-08-24T18:12:47.328840+00:00",
+  "generated_at": "2026-08-24T18:18:51.445455+00:00",
   "source_generated_at": "2026-08-24T17:57:42.921912+00:00",
   "code": {
-    "commit": "12556c1f668433a81862e40e8537cf55839a0c43",
-    "dirty": true,
-    "dirty_files": 4,
-    "dirty_sample": [
-      "libs/db/simulation_store.py",
-      "libs/quant/statistical_manifest.py",
-      "modules/simulation/metrics.py",
-      "modules/simulation/service.py"
-    ]
+    "commit": "ad2e8c9fe587cfcb2c9f5b4918e1dc5c0fef0570",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
   },
-  "reproducible": false,
+  "reproducible": true,
   "real_data_only": true,
   "pit_status": "UNKNOWN",
   "tradable_evidence": false,
   "dataset_paths": [
-    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-06d49ac064d9ec3ab3f5fd3f284a512e3f29927f3981fc8d7c28523a90eaefaf.parquet",
-    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-90d8e09033873e27a0ab4451b695935bac86b3b413617a6002758dad15716a55.parquet",
-    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-a30d16a5c5244c9ffd82a1b0c75d0c4062decefb6f319f2182d649023938891d.parquet",
-    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-b18cbc809e0eba58a78cc4ec8d985ccbb61de51a128baca451b170306a97e919.parquet",
-    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-cd015de1c769ea2796390000f2440c83690f20c51c7ba71e4450720020d12a54.parquet"
+    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-4ab64c7a9f608381ba17b2bffe3da40a0ceb06e67fbf03e293030810e8392bc5.parquet"
   ],
-  "dataset_sha256": "e07376a17f5deeff774dcef31b048d4a60bb7be71f425352a4a538f0da4d4c7d",
+  "dataset_sha256": "bc3de45a47cf723f008abc40afb3d6532e07027ea53ab8d166683fd2a120b7e0",
   "date_range": {
     "first": null,
     "last": null

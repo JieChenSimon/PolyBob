@@ -1,0 +1,51 @@
+strategy_id: deep_drawdown_rebound_v1
+status: candidate_only
+real_data_required: true
+
+# This is a pre-registered research candidate, not a trading permission.  The
+# four sleeves share the economic question but are evaluated independently.
+trigger:
+  peak_definition: prior_close_high_since_pit_universe_entry
+  drawdown_fraction: 0.50
+  trigger_observation: next_executable_bar_after_close
+  lookahead_allowed: false
+  confirmation: none
+
+execution:
+  entry: three_equal_tranches
+  tranche_delays_days: [0, 5, 20]
+  max_nav_fraction: 0.05
+  require_executable_quote: true
+  missing_quote_action: no_fill_unknown
+  sizing_basis: initial_nav_not_compounded
+
+asset_sleeves:
+  A_SHARE:
+    price_basis: split_adjusted_close
+    costs_bps: 40
+    holds_days: [21, 63, 126, 252]
+    exclusions: [suspended, limit_down, missing_pit_membership, delisted_without_exit_quote]
+  US_EQUITY:
+    price_basis: split_adjusted_close
+    costs_bps: 20
+    holds_days: [21, 63, 126, 252]
+    exclusions: [missing_pit_membership, delisted_without_exit_quote]
+  BTC:
+    price_basis: spot_close
+    costs_bps: 12
+    holds_days: [21, 63, 126, 252]
+    exclusions: [missing_quote, missing_depth]
+  ALTCOIN:
+    price_basis: spot_close
+    costs_bps: 35
+    holds_days: [21, 63, 126, 252]
+    exclusions: [missing_quote, missing_depth, delisted_or_zero_liquidity]
+
+gates:
+  min_independent_clusters: 20
+  require_train_validation_test: true
+  require_cost_stress: [1, 2, 3]
+  require_strict_pit: true
+  require_survivorship_control: true
+  require_max_drawdown_limit: true
+  promotion_default: unknown

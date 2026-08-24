@@ -3,20 +3,15 @@
   "report_name": "calibration",
   "report_path": "data/btc5m_calibration.json",
   "report_sha256": "9c739e5b3f3c6c59330ced0e3c7fe18ac59320cd713de1579d00d311b22292b3",
-  "generated_at": "2026-08-24T18:12:47.195267+00:00",
+  "generated_at": "2026-08-24T18:18:51.311611+00:00",
   "source_generated_at": "2026-08-24T15:40:05.718125+00:00",
   "code": {
-    "commit": "12556c1f668433a81862e40e8537cf55839a0c43",
-    "dirty": true,
-    "dirty_files": 4,
-    "dirty_sample": [
-      "libs/db/simulation_store.py",
-      "libs/quant/statistical_manifest.py",
-      "modules/simulation/metrics.py",
-      "modules/simulation/service.py"
-    ]
+    "commit": "ad2e8c9fe587cfcb2c9f5b4918e1dc5c0fef0570",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
   },
-  "reproducible": false,
+  "reproducible": true,
   "real_data_only": true,
   "pit_status": "UNKNOWN",
   "tradable_evidence": false,

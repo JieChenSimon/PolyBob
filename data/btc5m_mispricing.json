@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T18:14:20.709202+00:00",
+  "generated_at": "2026-08-24T18:18:50.367310+00:00",
   "real_data_only": true,
   "n_windows": 3545,
   "edge_threshold": 0.1,
@@ -18,9 +18,9 @@
     "raw_sha_set_sha256": "e13cf99b8903356e3ae9b4fb4cf0472bd2f58964bfccdc6a27a65829d9c14090",
     "normalized_manifest_sha256": "861cd2b9eb94b8d3d1f5e2a2a2e23f6564c8e2eb080a2c1bfb7954b5e03a121f"
   },
-  "collection_status": "complete",
+  "collection_status": "partial",
   "new_attempts": 0,
-  "budget_exhausted": false,
+  "budget_exhausted": true,
   "provider_failures": 0,
   "hold_days": 1,
   "inference": "cluster_robust",

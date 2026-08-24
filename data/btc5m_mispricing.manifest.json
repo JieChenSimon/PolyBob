@@ -1,8 +1,8 @@
 {
   "experiment": "btc5m_model_vs_market",
-  "as_of": "2026-08-24T18:14:19.827273+00:00",
+  "as_of": "2026-08-24T18:18:49.612512+00:00",
   "params": {
-    "n_windows": 0,
+    "n_windows": 5760,
     "edge_threshold": 0.1,
     "fee": 0.02,
     "model_revision": "realized-volatility-normal-cdf-v3",
@@ -10,17 +10,12 @@
     "time_split": "fixed_chronological"
   },
   "code": {
-    "commit": "12556c1f668433a81862e40e8537cf55839a0c43",
-    "dirty": true,
-    "dirty_files": 4,
-    "dirty_sample": [
-      "libs/db/simulation_store.py",
-      "libs/quant/statistical_manifest.py",
-      "modules/simulation/metrics.py",
-      "modules/simulation/service.py"
-    ]
+    "commit": "ad2e8c9fe587cfcb2c9f5b4918e1dc5c0fef0570",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
   },
-  "started_at": "2026-08-24T18:14:19.857826+00:00",
+  "started_at": "2026-08-24T18:18:49.638756+00:00",
   "inputs": {
     "polymarket_windows": {
       "settled": 3545,
@@ -42,7 +37,7 @@
   "lineage": {
     "input_hash": "063e677763514ae573982d8d502ab3f352f39675d30aaf4ce5e9e39026a495df",
     "model_hash": "0fbe5231d55d51ee0b9e9003d89e4e15c27febc360096e4b09bd26d4f6e1f3fc",
-    "has_lineage": false
+    "has_lineage": true
   },
-  "reproducible": false
+  "reproducible": true
 }

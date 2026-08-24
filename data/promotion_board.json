@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-24T18:12:46.258715+00:00",
+  "generated_at": "2026-08-24T18:18:50.367310+00:00",
   "real_data_only": true,
-  "n_trials": 255,
-  "t_hurdle": 4.2,
+  "n_trials": 271,
+  "t_hurdle": 4.22,
   "sources": {
     "data/billboard_results.json": "2026-08-10T05:45:48.301411+00:00",
-    "data/btc5m_mispricing.json": "2026-08-24T18:12:46.258715+00:00",
+    "data/btc5m_mispricing.json": "2026-08-24T18:18:50.367310+00:00",
     "data/insider_results.json": "2026-08-24T06:00:13.582718+00:00",
     "data/us_crypto_results.json": "2026-08-10T05:45:40.483335+00:00"
   },
@@ -28,7 +28,7 @@
       "source_strategy": "H1 全部上榜(超额,净成本)",
       "implementation": "avoidance_filter_only_no_shorting",
       "expected_sign": -1,
-      "t_hurdle": 4.2,
+      "t_hurdle": 4.22,
       "approved": true,
       "failed": [],
       "notes": "A股个股融券受限,负漂移只能作为回避过滤器,不能作为做空策略。",
@@ -87,7 +87,7 @@
       "source_strategy": "散户极度做多后 做空(含资金费)",
       "implementation": "short_perp_when_retail_crowded_long",
       "expected_sign": 1,
-      "t_hurdle": 4.2,
+      "t_hurdle": 4.22,
       "approved": false,
       "failed": [
         "independent_clusters<20",
@@ -114,7 +114,7 @@
       "resolvable": false,
       "inference_warnings": [
         "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "14 个独立单元最细只能表达 p=1.2e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+        "14 个独立单元最细只能表达 p=1.2e-04,而门槛 t=4.22 要求 p≤2.5e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "evidence_end": "2026-08-04",
       "max_evidence_age_days": 90,
@@ -138,12 +138,11 @@
       "source_strategy": "btc5m_mispricing",
       "implementation": "take_side_when_model_beats_market_price",
       "expected_sign": 1,
-      "t_hurdle": 4.2,
+      "t_hurdle": 4.22,
       "approved": false,
       "failed": [
         "collection_partial",
         "independent_clusters<20",
-        "run_not_reproducible_dirty_tree",
         "no_pit_contract_cannot_trade"
       ],
       "notes": "旗舰标的:必须和别的边用同一条门槛,不因投入大而放宽。",
@@ -166,12 +165,12 @@
       "resolvable": false,
       "inference_warnings": [
         "only 13 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "13 个独立单元最细只能表达 p=2.4e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+        "13 个独立单元最细只能表达 p=2.4e-04,而门槛 t=4.22 要求 p≤2.5e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "evidence_end": "2026-08-24",
       "max_evidence_age_days": 30,
-      "run_as_of": "2026-08-24T18:12:45.491895+00:00",
-      "run_reproducible": false,
+      "run_as_of": "2026-08-24T18:18:49.612512+00:00",
+      "run_reproducible": true,
       "pit_status": "unknown",
       "out_of_sample": {
         "available": true,
@@ -205,12 +204,12 @@
       "source_strategy": "内部人集群买入(≥2人)",
       "implementation": "long_after_cluster_filing",
       "expected_sign": 1,
-      "t_hurdle": 4.2,
+      "t_hurdle": 4.22,
       "approved": false,
       "failed": [
         "independent_clusters<30",
         "wrong_sign_vs_preregistration",
-        "|t_clustered|<4.20",
+        "|t_clustered|<4.22",
         "non_strict_pit_data_cannot_trade",
         "effect_reverses_out_of_sample"
       ],
