@@ -1,6 +1,6 @@
 id: PB-0032
 title: 加密主流币 TSMOM 候选复核
-state: doing
+state: done
 p: P1
 area: quant
 why: 验证加密全域 TSMOM 的负收益是否由低质量山寨币和信号阈值造成，并通过真实成交内核保留绝对收益证据
@@ -14,4 +14,4 @@ checks:
 deps: []
 branch: pb-0032-crypto-tsmom-major
 blocked: null
-updated: '2026-08-24T14:37:11+00:00'
+updated: '2026-08-24T14:37:15+00:00'
