@@ -229,6 +229,21 @@ def _oos_evidence(period_returns: list[dict[str, Any]], split: datetime) -> dict
     }
 
 
+def _task_state_snapshot(task_id: str = "PB-0027") -> dict[str, Any]:
+    """Read the repo-native task state without mutating the board."""
+    path = ROOT / "tasks" / "items" / f"{task_id}.yml"
+    if not path.exists():
+        return {"id": task_id, "status": "UNKNOWN", "checks_done": None,
+                "checks_total": None}
+    lines = path.read_text(encoding="utf-8").splitlines()
+    state = next((line.split(":", 1)[1].strip() for line in lines
+                  if line.startswith("state:")), "UNKNOWN")
+    checks = [line.strip() for line in lines if line.strip().startswith("done:")]
+    done = sum(line == "done: true" for line in checks)
+    return {"id": task_id, "status": state, "checks_done": done,
+            "checks_total": len(checks)}
+
+
 def _verdict(result: dict[str, Any]) -> tuple[str, list[str]]:
     if result.get("status") != "ANALYZED":
         return "BLOCKED", [str(result.get("reason", "not analyzed"))]
@@ -466,7 +481,11 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         experiment="simulation_research_pipeline",
         as_of=as_of,
         params={"min_rows": MIN_ROWS, "min_closed_trades": MIN_CLOSED_TRADES,
-                "candidate_count": len(MOMENTUM_CANDIDATES), "selected": selected and selected["candidate"]},
+                "candidate_count": len(MOMENTUM_CANDIDATES),
+                "selected_by_domain": {
+                    domain: selected["candidate"] if selected else None
+                    for domain, selected in selected_by_domain.items()
+                }},
     )
     manifest.record_input("daily_bars", symbols=len(all_symbols), start=start.date().isoformat(),
                           end=end.date().isoformat(), coverage=coverage["daily_bars"])
@@ -501,6 +520,16 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         },
         "promotion": {"status": "BLOCKED", "reason": "This pipeline has no promotion authority; independent statistical gate required"},
         "manifest": manifest.to_dict(),
+        "pipeline_run": {
+            "command": "uv run --locked python scripts/simulation_research_pipeline.py",
+            "git_commit": manifest.code.get("commit"),
+            "task": _task_state_snapshot(),
+            "data_snapshot": {
+                "manifest_input_hash": manifest.input_hash,
+                "as_of": as_of.isoformat(),
+                "coverage": coverage,
+            },
+        },
     }
     Path(args.report).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
