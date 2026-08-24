@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T11:42:14.894291+00:00",
+  "generated_at": "2026-08-24T11:49:43.462541+00:00",
   "real_data_only": true,
   "execution_kernel": "modules.simulation.SimulationService",
   "strategy": {
@@ -7388,6 +7388,40 @@
       "oos_closed_trades": 864
     }
   ],
+  "concentration": {
+    "instruments": 1221,
+    "positive_instrument_fraction": 0.506961506961507,
+    "top1_positive_pnl_share": 0.1930060640187239,
+    "top5_positive_pnl_share": 0.46161652661489105,
+    "top10_positive_pnl_share": 0.627271156807224,
+    "median_instrument_realized_pnl": 0.4122524241620496
+  },
+  "calendar_period_pnl": {
+    "2024-Q1": 5.230518172603493,
+    "2024-Q2": -7.79347096138977,
+    "2024-Q3": 1487.8071541934828,
+    "2024-Q4": 2244.255702576107,
+    "2025-Q1": -1669.2233989399513,
+    "2025-Q2": 707.4522872400405,
+    "2025-Q3": 2568.9217071888997,
+    "2025-Q4": 764.1468920338295,
+    "2026-Q1": 1991.06941540418,
+    "2026-Q2": 970.2150091252158,
+    "2026-Q3": 475.0238815546816
+  },
+  "calendar_period_closed_trades": {
+    "2024-Q1": 1,
+    "2024-Q2": 1,
+    "2024-Q3": 370,
+    "2024-Q4": 171,
+    "2025-Q1": 165,
+    "2025-Q2": 278,
+    "2025-Q3": 195,
+    "2025-Q4": 187,
+    "2026-Q1": 184,
+    "2026-Q2": 276,
+    "2026-Q3": 100
+  },
   "risk_rejections": 0,
   "max_gross_exposure": 102637.51975540402,
   "max_gross_leverage": 0.9928584268129251,

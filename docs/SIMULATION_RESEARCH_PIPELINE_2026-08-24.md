@@ -116,6 +116,8 @@
 
 成本加倍压力测试 [insider_kernel_replay_original_cost_stress.json](../data/insider_kernel_replay_original_cost_stress.json) 显示原始候选在 40bp fee、20bp 中价惩罚下收益降至 +25.67%，利润因子 1.20，四折 OOS 仍为 +25.68%、+27.58%、+15.01%、+13.80%；这说明该候选比短持有版本更耐成本，但尚未通过独立事件聚类、收益集中度、PBO/DSR、幸存者偏差和真实容量门禁，全部保持 `replay_only_not_promoted`。
 
+新增集中度与日历审计字段：原始候选在 1,221 个可回放标的中约 50.7% 的标的实现正的已实现 PnL，最大单标的贡献占正 PnL 19.3%，前 5/10 个标的分别占 46.2%/62.7%；2024Q2 和 2025Q1 为负 PnL 季度，其余季度为正。该分布不是单一异常个股造成，但收益仍明显集中，且存在完整季度回撤，不能替代按事件日期聚类的显著性检验。
+
 ## 外部真实 OHLCV focused scoreboard
 
 在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：

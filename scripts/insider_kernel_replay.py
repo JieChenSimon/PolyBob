@@ -117,6 +117,22 @@ def oos_return(points, split_date: str) -> float | None:
     return float(end.equity / start.equity - 1.0)
 
 
+def concentration(metrics: dict) -> dict:
+    values = [float(item["realized_pnl"]) for item in metrics.get("per_instrument", {}).values()
+              if item.get("realized_pnl") is not None]
+    positive = sorted((value for value in values if value > 0), reverse=True)
+    total = sum(values)
+    return {
+        "instruments": len(values),
+        "positive_instrument_fraction": (sum(value > 0 for value in values) / len(values)
+                                          if values else None),
+        "top1_positive_pnl_share": positive[0] / total if positive and total > 0 else None,
+        "top5_positive_pnl_share": sum(positive[:5]) / total if positive and total > 0 else None,
+        "top10_positive_pnl_share": sum(positive[:10]) / total if positive and total > 0 else None,
+        "median_instrument_realized_pnl": float(np.median(values)) if values else None,
+    }
+
+
 async def main_async(args: argparse.Namespace) -> int:
     as_of = datetime.now(UTC)
     trades = [trade for year, quarter in QUARTERS
@@ -191,6 +207,18 @@ async def main_async(args: argparse.Namespace) -> int:
         "oos_closed_trades": sum(1 for trade in trades_out
                                   if trade.executed_at >= split and trade.realized_pnl is not None),
     } for split in splits]
+    period_pnl: dict[str, float] = defaultdict(float)
+    period_closed: dict[str, int] = defaultdict(int)
+    for trade in trades_out:
+        if trade.realized_pnl is None:
+            continue
+        executed = trade.executed_at
+        if isinstance(executed, str):
+            executed = datetime.fromisoformat(executed.replace("Z", "+00:00"))
+        quarter = (executed.month - 1) // 3 + 1
+        period = f"{executed.year}-Q{quarter}"
+        period_pnl[period] += float(trade.realized_pnl)
+        period_closed[period] += 1
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
@@ -203,6 +231,9 @@ async def main_async(args: argparse.Namespace) -> int:
         "candidate_family_size": 18,
         "selection_note": "candidate was observed in the existing train/OOS optimizer; kernel replay remains independent evidence",
         "full_metrics": metrics, "folds": folds,
+        "concentration": concentration(metrics),
+        "calendar_period_pnl": dict(sorted(period_pnl.items())),
+        "calendar_period_closed_trades": dict(sorted(period_closed.items())),
         "risk_rejections": risk_rejections,
         "max_gross_exposure": max_gross,
         "max_gross_leverage": max_leverage,
