@@ -98,6 +98,10 @@
 
 新增 [mean_reversion_multifold_replay.json](../data/mean_reversion_multifold_replay.json)，对同一组 26 个美股流动性标的固定使用该候选，不重新选参，按真实日期的 50%/60%/70%/80% 切分进行四折 Paper Lab replay。四折绝对 OOS 中位数分别为 +9.23%、+12.55%、+4.76%、+4.30%，但相对买入持有中位数分别为 -48.49pp、-38.64pp、-24.06pp、-13.06pp；相对基准为正的标的比例仅 15.4%、19.2%、15.4%、19.2%。因此该候选的正绝对收益主要来自上涨市场暴露，并未创造可重复的超额收益；趋势过滤候选的本地筛选也未改善相对基准表现，均不晋级。
 
+### 横截面动量多折 kernel replay
+
+新增 [cross_sectional_multifold_replay.json](../data/cross_sectional_multifold_replay.json)，固定使用日期对齐的 `60日回看 / 30%赢家 / 10日换仓`，不在折内重新选参。四折绝对 OOS 中位数为 +0.60%、+0.73%、-0.15%、-0.43%，而相对买入持有中位数为 -55.64pp、-45.11pp、-30.22pp、-23.70pp；相对基准为正的标的比例仅 7.7%、7.7%、15.4%、23.1%。策略完整区间最大回撤中位数约 4.8%，但低回撤来自极低参与度和极少成交（每折闭合交易中位数 2–5 笔），不是收益优势。横截面动量候选同样保持 `replay_only_not_promoted`。
+
 ## 外部真实 OHLCV focused scoreboard
 
 在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：

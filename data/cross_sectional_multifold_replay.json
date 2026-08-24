@@ -1,0 +1,3751 @@
+{
+  "generated_at": "2026-08-24T11:16:39.344263+00:00",
+  "real_data_only": true,
+  "execution_kernel": "modules.simulation.SimulationService",
+  "strategy": {
+    "lookback": 60,
+    "top_frac": 0.3,
+    "rebalance_days": 10,
+    "long_only": true
+  },
+  "execution_config": {
+    "fee_bps": 20.0,
+    "mid_penalty_bps": 10.0,
+    "allow_short": false
+  },
+  "universe": "US_LIQUID",
+  "symbols": [
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "GOOGL",
+    "TSLA",
+    "AMD",
+    "JPM",
+    "BAC",
+    "WFC",
+    "C",
+    "XOM",
+    "CVX",
+    "PFE",
+    "MRK",
+    "KO",
+    "NKE",
+    "DIS",
+    "VZ",
+    "T",
+    "F",
+    "GM",
+    "GE",
+    "BA",
+    "INTC"
+  ],
+  "quality_rejected": 0,
+  "split_fractions": [
+    0.5,
+    0.6,
+    0.7,
+    0.8
+  ],
+  "folds": [
+    {
+      "split_date": "2024-02-09",
+      "symbols": 26,
+      "mean_oos_return": 0.0206739928280623,
+      "median_oos_return": 0.005958464022902676,
+      "positive_oos_fraction": 0.5384615384615384,
+      "mean_excess_oos_return": -0.6773093363088023,
+      "median_excess_oos_return": -0.5563757747696116,
+      "positive_excess_fraction": 0.07692307692307693,
+      "median_full_max_drawdown": 0.04817520848819852,
+      "median_oos_closed_trades": 5.0,
+      "results": [
+        {
+          "symbol": "AAPL",
+          "run_id": "sim_2bc2f696d9",
+          "metrics": {
+            "total_return": -0.0018917505774035392,
+            "equity": 9981.082494225964,
+            "win_rate": 0.375,
+            "profit_factor": 0.9652666344089982,
+            "max_drawdown": 0.048738287892855316,
+            "equity_curve_degraded": false,
+            "sharpe": -0.009974908148273502,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -18.917505774035384,
+            "total_fees": 39.545396753709234,
+            "total_slippage": 3.4362699890135104,
+            "total_explicit_cost": 42.981666742722744,
+            "funding_pnl": 0.0,
+            "avg_win": 175.2439555761192,
+            "avg_loss": -108.92987450047858,
+            "per_instrument": {
+              "AAPL": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -18.917505774035384,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": 0.0276194740658795,
+          "oos_closed_trades": 4,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.6426826363219449,
+          "excess_oos_return": -0.6150631622560654
+        },
+        {
+          "symbol": "MSFT",
+          "run_id": "sim_305e1ad90b",
+          "metrics": {
+            "total_return": 0.03043157363582294,
+            "equity": 10304.315736358229,
+            "win_rate": 0.4,
+            "profit_factor": 2.046667873315722,
+            "max_drawdown": 0.01666200862025812,
+            "equity_curve_degraded": false,
+            "sharpe": 0.44071733091921805,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 304.3157363582293,
+            "total_fees": 51.41186091699177,
+            "total_slippage": 7.6094500122067075,
+            "total_explicit_cost": 59.02131092919848,
+            "funding_pnl": 0.0,
+            "avg_win": 148.76572999602578,
+            "avg_loss": -48.45786393764565,
+            "per_instrument": {
+              "MSFT": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 304.3157363582293,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.0032452728786738216,
+          "oos_closed_trades": 4,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.1669363389634857,
+          "excess_oos_return": -0.16369106608481188
+        },
+        {
+          "symbol": "NVDA",
+          "run_id": "sim_b3e6a54336",
+          "metrics": {
+            "total_return": 0.31854993973501156,
+            "equity": 13185.499397350115,
+            "win_rate": 0.5,
+            "profit_factor": 6.1393213667846265,
+            "max_drawdown": 0.06969567929465968,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8733129925682701,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 3185.4993973501187,
+            "total_fees": 54.26949069638514,
+            "total_slippage": 1.6517540006636615,
+            "total_explicit_cost": 55.9212446970488,
+            "funding_pnl": 0.0,
+            "avg_win": 951.3320494232239,
+            "avg_loss": -154.95720008569435,
+            "per_instrument": {
+              "NVDA": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 3185.4993973501187,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": 0.0881076118755062,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 2.083241262995064,
+          "excess_oos_return": -1.9951336511195579
+        },
+        {
+          "symbol": "AMZN",
+          "run_id": "sim_4ad8582729",
+          "metrics": {
+            "total_return": -0.024049161594545843,
+            "equity": 9759.508384054541,
+            "win_rate": 0.5384615384615384,
+            "profit_factor": 0.6754263681835143,
+            "max_drawdown": 0.05886859460033975,
+            "equity_curve_degraded": false,
+            "sharpe": -0.19041495062908964,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -240.4916159454569,
+            "total_fees": 63.243475575788324,
+            "total_slippage": 4.141224990844506,
+            "total_explicit_cost": 67.38470056663283,
+            "funding_pnl": 0.0,
+            "avg_win": 71.49351941567853,
+            "avg_loss": -123.49104197586779,
+            "per_instrument": {
+              "AMZN": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -240.4916159454569,
+                "win_rate": 0.5384615384615384
+              }
+            }
+          },
+          "oos_return": -0.010582757807737098,
+          "oos_closed_trades": 6,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.5227862132561363,
+          "excess_oos_return": -0.5333689710638734
+        },
+        {
+          "symbol": "META",
+          "run_id": "sim_80d731f5f6",
+          "metrics": {
+            "total_return": 0.07156003330818339,
+            "equity": 10715.600333081833,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 2.421706187428694,
+            "max_drawdown": 0.05832072131557342,
+            "equity_curve_degraded": false,
+            "sharpe": 0.4452776064011112,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 715.600333081835,
+            "total_fees": 48.854311615817764,
+            "total_slippage": 8.461210052489804,
+            "total_explicit_cost": 57.31552166830757,
+            "funding_pnl": 0.0,
+            "avg_win": 243.78788946323434,
+            "avg_loss": -125.83477855858422,
+            "per_instrument": {
+              "META": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 715.600333081835,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": -0.027151669841867454,
+          "oos_closed_trades": 6,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.17000005194481393,
+          "excess_oos_return": -0.1971517217866814
+        },
+        {
+          "symbol": "GOOGL",
+          "run_id": "sim_c5122b3fa2",
+          "metrics": {
+            "total_return": 0.02347722782112638,
+            "equity": 10234.772278211263,
+            "win_rate": 0.4444444444444444,
+            "profit_factor": 1.4118233003788465,
+            "max_drawdown": 0.04445280070797148,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2144458028829583,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 234.77227821126377,
+            "total_fees": 45.463919872324524,
+            "total_slippage": 3.2436974945066908,
+            "total_explicit_cost": 48.707617366831215,
+            "funding_pnl": 0.0,
+            "avg_win": 201.21310059239698,
+            "avg_loss": -114.01602483166485,
+            "per_instrument": {
+              "GOOGL": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 234.77227821126377,
+                "win_rate": 0.4444444444444444
+              }
+            }
+          },
+          "oos_return": 0.038643742342380216,
+          "oos_closed_trades": 4,
+          "oos_points": 635,
+          "benchmark_oos_return": 1.363237603110028,
+          "excess_oos_return": -1.3245938607676477
+        },
+        {
+          "symbol": "TSLA",
+          "run_id": "sim_23debf3c59",
+          "metrics": {
+            "total_return": -0.06130015619058082,
+            "equity": 9386.998438094191,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 0.5592259208848965,
+            "max_drawdown": 0.14664558357387622,
+            "equity_curve_degraded": false,
+            "sharpe": -0.2185778350321804,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": -613.0015619058104,
+            "total_fees": 50.53737427050149,
+            "total_slippage": 6.481116638183153,
+            "total_explicit_cost": 57.01849090868463,
+            "funding_pnl": 0.0,
+            "avg_win": 259.2457067415531,
+            "avg_loss": -173.84233526630868,
+            "per_instrument": {
+              "TSLA": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": -613.0015619058104,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": 0.056425125808732934,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.9142223571690067,
+          "excess_oos_return": -0.8577972313602737
+        },
+        {
+          "symbol": "AMD",
+          "run_id": "sim_70b77df61b",
+          "metrics": {
+            "total_return": 0.26226003398142606,
+            "equity": 12622.60033981426,
+            "win_rate": 0.75,
+            "profit_factor": 7.277211603703694,
+            "max_drawdown": 0.07008601866365392,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7546601364116489,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 2622.60033981426,
+            "total_fees": 47.79586684174716,
+            "total_slippage": 2.6557699890136064,
+            "total_explicit_cost": 50.45163683076077,
+            "funding_pnl": 0.0,
+            "avg_win": 506.73289430806295,
+            "avg_loss": -208.898513017059,
+            "per_instrument": {
+              "AMD": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 2622.60033981426,
+                "win_rate": 0.75
+              }
+            }
+          },
+          "oos_return": 0.13386628422489988,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 1.7945083138097129,
+          "excess_oos_return": -1.660642029584813
+        },
+        {
+          "symbol": "JPM",
+          "run_id": "sim_4a6c3af592",
+          "metrics": {
+            "total_return": 0.003294801480067555,
+            "equity": 10032.948014800675,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 1.1198230426931748,
+            "max_drawdown": 0.02811443171971396,
+            "equity_curve_degraded": false,
+            "sharpe": 0.05607366039802148,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 32.948014800677264,
+            "total_fees": 44.86892721782217,
+            "total_slippage": 3.4778899917601223,
+            "total_explicit_cost": 48.34681720958229,
+            "funding_pnl": 0.0,
+            "avg_win": 61.584058217035704,
+            "avg_loss": -68.74306907112532,
+            "per_instrument": {
+              "JPM": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 32.948014800677264,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": 0.016814586871508608,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 1.0113271191886866,
+          "excess_oos_return": -0.994512532317178
+        },
+        {
+          "symbol": "BAC",
+          "run_id": "sim_59e69bab49",
+          "metrics": {
+            "total_return": -0.05245635152771866,
+            "equity": 9475.436484722813,
+            "win_rate": 0.15384615384615385,
+            "profit_factor": 0.27197656713950125,
+            "max_drawdown": 0.06775308751195497,
+            "equity_curve_degraded": false,
+            "sharpe": -0.7765890962103502,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -524.5635152771873,
+            "total_fees": 61.810997724680256,
+            "total_slippage": 1.1346199989318215,
+            "total_explicit_cost": 62.945617723612074,
+            "funding_pnl": 0.0,
+            "avg_win": 97.98378574928125,
+            "avg_loss": -65.50282607052272,
+            "per_instrument": {
+              "BAC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -524.5635152771873,
+                "win_rate": 0.15384615384615385
+              }
+            }
+          },
+          "oos_return": -0.011451415789826225,
+          "oos_closed_trades": 7,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.8626207915520117,
+          "excess_oos_return": -0.8740722073418379
+        },
+        {
+          "symbol": "WFC",
+          "run_id": "sim_b82b910859",
+          "metrics": {
+            "total_return": 0.0022252762328935916,
+            "equity": 10022.252762328937,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 1.0481876787586508,
+            "max_drawdown": 0.047313482538128185,
+            "equity_curve_degraded": false,
+            "sharpe": 0.032773997915477006,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 22.252762328938353,
+            "total_fees": 54.83187163310073,
+            "total_slippage": 1.4176899757384476,
+            "total_explicit_cost": 56.24956160883918,
+            "funding_pnl": 0.0,
+            "avg_win": 161.34879214222684,
+            "avg_loss": -57.72420176221777,
+            "per_instrument": {
+              "WFC": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 22.252762328938353,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": 0.035230793138161465,
+          "oos_closed_trades": 7,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.7340227297580006,
+          "excess_oos_return": -0.6987919366198392
+        },
+        {
+          "symbol": "C",
+          "run_id": "sim_c18addfe1b",
+          "metrics": {
+            "total_return": -0.002425402161903678,
+            "equity": 9975.745978380963,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9574737625952451,
+            "max_drawdown": 0.0349301937533266,
+            "equity_curve_degraded": false,
+            "sharpe": -0.011305980148243383,
+            "trade_count": 24,
+            "closed_trade_count": 12,
+            "realized_pnl": -24.254021619039026,
+            "total_fees": 60.47609736922429,
+            "total_slippage": 1.9936000099180973,
+            "total_explicit_cost": 62.46969737914239,
+            "funding_pnl": 0.0,
+            "avg_win": 136.5191864766941,
+            "avg_loss": -71.29134594072691,
+            "per_instrument": {
+              "C": {
+                "trade_count": 24,
+                "closed_trades": 12,
+                "realized_pnl": -24.254021619039026,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.014693504951591163,
+          "oos_closed_trades": 9,
+          "oos_points": 635,
+          "benchmark_oos_return": 1.424939982987392,
+          "excess_oos_return": -1.4396334879389832
+        },
+        {
+          "symbol": "XOM",
+          "run_id": "sim_80d1c3f5d6",
+          "metrics": {
+            "total_return": 0.03279154325920697,
+            "equity": 10327.91543259207,
+            "win_rate": 0.4,
+            "profit_factor": 1.696094474605713,
+            "max_drawdown": 0.05078096111626385,
+            "equity_curve_degraded": false,
+            "sharpe": 0.25306341294989304,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 327.91543259207106,
+            "total_fees": 51.6052736113287,
+            "total_slippage": 2.137190013885345,
+            "total_explicit_cost": 53.74246362521404,
+            "funding_pnl": 0.0,
+            "avg_win": 199.7485878882988,
+            "avg_loss": -78.51315316018737,
+            "per_instrument": {
+              "XOM": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 327.91543259207106,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.008671655167131531,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.5880542336424814,
+          "excess_oos_return": -0.5793825784753499
+        },
+        {
+          "symbol": "CVX",
+          "run_id": "sim_2abb420444",
+          "metrics": {
+            "total_return": -0.0038578641955766546,
+            "equity": 9961.421358044234,
+            "win_rate": 0.5,
+            "profit_factor": 0.9014951375640944,
+            "max_drawdown": 0.06582963003368617,
+            "equity_curve_degraded": false,
+            "sharpe": -0.021856081942456362,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -38.57864195576519,
+            "total_fees": 30.2017895805346,
+            "total_slippage": 1.7965099945067067,
+            "total_explicit_cost": 31.998299575041308,
+            "funding_pnl": 0.0,
+            "avg_win": 117.68778811833708,
+            "avg_loss": -130.54733543692544,
+            "per_instrument": {
+              "CVX": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -38.57864195576519,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": -0.013452075349315473,
+          "oos_closed_trades": 2,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.3324030087329479,
+          "excess_oos_return": -0.3458550840822634
+        },
+        {
+          "symbol": "PFE",
+          "run_id": "sim_cfe9e6e792",
+          "metrics": {
+            "total_return": -0.019326274897789375,
+            "equity": 9806.737251022107,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.48931021860405927,
+            "max_drawdown": 0.043396555017537634,
+            "equity_curve_degraded": false,
+            "sharpe": -0.26080857124313334,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -193.2627489778946,
+            "total_fees": 44.43765847891164,
+            "total_slippage": 0.678149999618487,
+            "total_explicit_cost": 45.11580847853012,
+            "funding_pnl": 0.0,
+            "avg_win": 61.72399330953644,
+            "avg_loss": -63.072454817750646,
+            "per_instrument": {
+              "PFE": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -193.2627489778946,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.01232880342323961,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.018135654897880382,
+          "excess_oos_return": -0.03046445832111999
+        },
+        {
+          "symbol": "MRK",
+          "run_id": "sim_22252b1365",
+          "metrics": {
+            "total_return": 0.05827353178979999,
+            "equity": 10582.735317898,
+            "win_rate": 0.625,
+            "profit_factor": 7.955391436016089,
+            "max_drawdown": 0.02514706209450588,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6647242478391756,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 582.7353178979984,
+            "total_fees": 42.159041785489286,
+            "total_slippage": 1.8132700042723542,
+            "total_explicit_cost": 43.97231178976164,
+            "funding_pnl": 0.0,
+            "avg_win": 133.3034265609987,
+            "avg_loss": -27.92727163566502,
+            "per_instrument": {
+              "MRK": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 582.7353178979984,
+                "win_rate": 0.625
+              }
+            }
+          },
+          "oos_return": 0.03267624481875386,
+          "oos_closed_trades": 4,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.20488114932751533,
+          "excess_oos_return": -0.17220490450876147
+        },
+        {
+          "symbol": "KO",
+          "run_id": "sim_5165923cd0",
+          "metrics": {
+            "total_return": -0.003925535418764725,
+            "equity": 9960.744645812352,
+            "win_rate": 0.375,
+            "profit_factor": 0.6964902466582754,
+            "max_drawdown": 0.019348787645364907,
+            "equity_curve_degraded": false,
+            "sharpe": -0.05790429225358987,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -39.255354187645054,
+            "total_fees": 40.10829986231824,
+            "total_slippage": 1.1359000053405097,
+            "total_explicit_cost": 41.24419986765875,
+            "funding_pnl": 0.0,
+            "avg_win": 30.027559268172194,
+            "avg_loss": -25.867606398432326,
+            "per_instrument": {
+              "KO": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -39.255354187645054,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": -0.006559837262389845,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.5226474291504326,
+          "excess_oos_return": -0.5292072664128225
+        },
+        {
+          "symbol": "NKE",
+          "run_id": "sim_8a0f9873e6",
+          "metrics": {
+            "total_return": -0.040512371235503664,
+            "equity": 9594.876287644964,
+            "win_rate": 0.16666666666666666,
+            "profit_factor": 0.00805875638252243,
+            "max_drawdown": 0.04256923955390358,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5937851091253662,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -405.1237123550376,
+            "total_fees": 28.7417469221975,
+            "total_slippage": 1.3033200073241318,
+            "total_explicit_cost": 30.04506692952163,
+            "funding_pnl": 0.0,
+            "avg_win": 3.291317226357152,
+            "avg_loss": -81.68300591627894,
+            "per_instrument": {
+              "NKE": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -405.1237123550376,
+                "win_rate": 0.16666666666666666
+              }
+            }
+          },
+          "oos_return": -0.009369853114843063,
+          "oos_closed_trades": 2,
+          "oos_points": 635,
+          "benchmark_oos_return": -0.6072082524803988,
+          "excess_oos_return": 0.5978383993655557
+        },
+        {
+          "symbol": "DIS",
+          "run_id": "sim_18df56ac77",
+          "metrics": {
+            "total_return": -0.0394964935436416,
+            "equity": 9605.035064563584,
+            "win_rate": 0.25,
+            "profit_factor": 0.3004194361424075,
+            "max_drawdown": 0.04761212908354173,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5471619938421451,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -394.964935436416,
+            "total_fees": 38.14614836529649,
+            "total_slippage": 1.7447399978636469,
+            "total_explicit_cost": 39.890888363160144,
+            "funding_pnl": 0.0,
+            "avg_win": 84.80448809608728,
+            "avg_loss": -94.09565193809841,
+            "per_instrument": {
+              "DIS": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -394.964935436416,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": -0.0018298287691348447,
+          "oos_closed_trades": 4,
+          "oos_points": 635,
+          "benchmark_oos_return": -0.024968356372093825,
+          "excess_oos_return": 0.02313852760295898
+        },
+        {
+          "symbol": "VZ",
+          "run_id": "sim_67db200eb0",
+          "metrics": {
+            "total_return": -0.024585660700859435,
+            "equity": 9754.143392991406,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.4166497593197262,
+            "max_drawdown": 0.034510289807224946,
+            "equity_curve_degraded": false,
+            "sharpe": -0.35125552860056275,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -245.8566070085982,
+            "total_fees": 43.98872268487607,
+            "total_slippage": 0.8051399993895885,
+            "total_explicit_cost": 44.79386268426566,
+            "funding_pnl": 0.0,
+            "avg_win": 58.5332155503705,
+            "avg_loss": -70.24270894328494,
+            "per_instrument": {
+              "VZ": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -245.8566070085982,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.015487975019644828,
+          "oos_closed_trades": 3,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.23903785898275176,
+          "excess_oos_return": -0.2545258340023966
+        },
+        {
+          "symbol": "T",
+          "run_id": "sim_cb516a7764",
+          "metrics": {
+            "total_return": 0.024145973944860177,
+            "equity": 10241.459739448603,
+            "win_rate": 0.375,
+            "profit_factor": 1.9867817591505976,
+            "max_drawdown": 0.024830266547657964,
+            "equity_curve_degraded": false,
+            "sharpe": 0.27885149208140136,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 241.45973944860455,
+            "total_fees": 40.85033719289399,
+            "total_slippage": 0.32903456115720964,
+            "total_explicit_cost": 41.17937175405118,
+            "funding_pnl": 0.0,
+            "avg_win": 162.05130177202972,
+            "avg_loss": -48.93883317349692,
+            "per_instrument": {
+              "T": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 241.45973944860455,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": 0.019575884580291802,
+          "oos_closed_trades": 3,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.5035672636373161,
+          "excess_oos_return": -0.4839913790570243
+        },
+        {
+          "symbol": "F",
+          "run_id": "sim_5dca841537",
+          "metrics": {
+            "total_return": -0.0872095547577797,
+            "equity": 9127.904452422203,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.14997074654432124,
+            "max_drawdown": 0.11851786027293532,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6617907617564727,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -872.0955475777942,
+            "total_fees": 41.062939311504145,
+            "total_slippage": 0.2515500001907238,
+            "total_explicit_cost": 41.314489311694864,
+            "funding_pnl": 0.0,
+            "avg_win": 51.28796834403686,
+            "avg_loss": -170.9932421016508,
+            "per_instrument": {
+              "F": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -872.0955475777942,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.037569166976451074,
+          "oos_closed_trades": 6,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.12314886462210195,
+          "excess_oos_return": -0.16071803159855302
+        },
+        {
+          "symbol": "GM",
+          "run_id": "sim_e3d4453409",
+          "metrics": {
+            "total_return": -0.028230278813950238,
+            "equity": 9717.697211860497,
+            "win_rate": 0.2857142857142857,
+            "profit_factor": 0.5517969838692414,
+            "max_drawdown": 0.05043119039102676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.22681879214265033,
+            "trade_count": 28,
+            "closed_trade_count": 14,
+            "realized_pnl": -282.302788139504,
+            "total_fees": 67.50814771216685,
+            "total_slippage": 1.4710699958800575,
+            "total_explicit_cost": 68.9792177080469,
+            "funding_pnl": 0.0,
+            "avg_win": 86.88798458900281,
+            "avg_loss": -62.985472649551525,
+            "per_instrument": {
+              "GM": {
+                "trade_count": 28,
+                "closed_trades": 14,
+                "realized_pnl": -282.302788139504,
+                "win_rate": 0.2857142857142857
+              }
+            }
+          },
+          "oos_return": -0.003902847502799456,
+          "oos_closed_trades": 11,
+          "oos_points": 635,
+          "benchmark_oos_return": 1.2750322596054864,
+          "excess_oos_return": -1.278935107108286
+        },
+        {
+          "symbol": "GE",
+          "run_id": "sim_d8a3638997",
+          "metrics": {
+            "total_return": 0.18140819371478245,
+            "equity": 11814.081937147825,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 4.185980260401377,
+            "max_drawdown": 0.04621119104816946,
+            "equity_curve_degraded": false,
+            "sharpe": 1.1139293239976882,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 1814.081937147824,
+            "total_fees": 66.89097187934867,
+            "total_slippage": 4.405944713592419,
+            "total_explicit_cost": 71.29691659294109,
+            "funding_pnl": 0.0,
+            "avg_win": 595.8692897468557,
+            "avg_loss": -81.34217454851408,
+            "per_instrument": {
+              "GE": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 1814.081937147824,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": 0.05105531619591974,
+          "oos_closed_trades": 8,
+          "oos_points": 635,
+          "benchmark_oos_return": 2.1392132571221145,
+          "excess_oos_return": -2.0881579409261946
+        },
+        {
+          "symbol": "BA",
+          "run_id": "sim_8ea9742311",
+          "metrics": {
+            "total_return": -0.04483020662019899,
+            "equity": 9551.69793379801,
+            "win_rate": 0.2222222222222222,
+            "profit_factor": 0.6271813891273332,
+            "max_drawdown": 0.09281683122138037,
+            "equity_curve_degraded": false,
+            "sharpe": -0.389505424889685,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -448.30206620199203,
+            "total_fees": 42.28125630041197,
+            "total_slippage": 3.495730010986165,
+            "total_explicit_cost": 45.776986311398126,
+            "funding_pnl": 0.0,
+            "avg_win": 377.08245300722024,
+            "avg_loss": -171.7809960309189,
+            "per_instrument": {
+              "BA": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -448.30206620199203,
+                "win_rate": 0.2222222222222222
+              }
+            }
+          },
+          "oos_return": 0.012543386186731231,
+          "oos_closed_trades": 4,
+          "oos_points": 635,
+          "benchmark_oos_return": 0.023802675167207132,
+          "excess_oos_return": -0.011259288980475901
+        },
+        {
+          "symbol": "INTC",
+          "run_id": "sim_f9886fc115",
+          "metrics": {
+            "total_return": 0.13609114782989962,
+            "equity": 11360.911478298996,
+            "win_rate": 0.3076923076923077,
+            "profit_factor": 2.424900401226092,
+            "max_drawdown": 0.11028889376577841,
+            "equity_curve_degraded": false,
+            "sharpe": 0.39535574876753793,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": 1360.911478298994,
+            "total_fees": 66.68652657704024,
+            "total_slippage": 1.0116399993895762,
+            "total_explicit_cost": 67.6981665764298,
+            "funding_pnl": 0.0,
+            "avg_win": 579.0009580530664,
+            "avg_loss": -106.12137265703021,
+            "per_instrument": {
+              "INTC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": 1360.911478298994,
+                "win_rate": 0.3076923076923077
+              }
+            }
+          },
+          "oos_return": 0.1774281711838892,
+          "oos_closed_trades": 5,
+          "oos_points": 635,
+          "benchmark_oos_return": 1.119294110466452,
+          "excess_oos_return": -0.9418659392825628
+        }
+      ]
+    },
+    {
+      "split_date": "2024-08-13",
+      "symbols": 26,
+      "mean_oos_return": 0.019071387250221603,
+      "median_oos_return": 0.007338710985272168,
+      "positive_oos_fraction": 0.5769230769230769,
+      "mean_excess_oos_return": -0.679771788924334,
+      "median_excess_oos_return": -0.4511368710800497,
+      "positive_excess_fraction": 0.07692307692307693,
+      "median_full_max_drawdown": 0.04817520848819852,
+      "median_oos_closed_trades": 4.0,
+      "results": [
+        {
+          "symbol": "AAPL",
+          "run_id": "sim_365cc19eff",
+          "metrics": {
+            "total_return": -0.0018917505774035392,
+            "equity": 9981.082494225964,
+            "win_rate": 0.375,
+            "profit_factor": 0.9652666344089982,
+            "max_drawdown": 0.048738287892855316,
+            "equity_curve_degraded": false,
+            "sharpe": -0.009974908148273502,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -18.917505774035384,
+            "total_fees": 39.545396753709234,
+            "total_slippage": 3.4362699890135104,
+            "total_explicit_cost": 42.981666742722744,
+            "funding_pnl": 0.0,
+            "avg_win": 175.2439555761192,
+            "avg_loss": -108.92987450047858,
+            "per_instrument": {
+              "AAPL": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -18.917505774035384,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": 0.00992707134083548,
+          "oos_closed_trades": 4,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.4221027345169901,
+          "excess_oos_return": -0.4121756631761546
+        },
+        {
+          "symbol": "MSFT",
+          "run_id": "sim_e304dfbd3e",
+          "metrics": {
+            "total_return": 0.03043157363582294,
+            "equity": 10304.315736358229,
+            "win_rate": 0.4,
+            "profit_factor": 2.046667873315722,
+            "max_drawdown": 0.01666200862025812,
+            "equity_curve_degraded": false,
+            "sharpe": 0.44071733091921805,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 304.3157363582293,
+            "total_fees": 51.41186091699177,
+            "total_slippage": 7.6094500122067075,
+            "total_explicit_cost": 59.02131092919848,
+            "funding_pnl": 0.0,
+            "avg_win": 148.76572999602578,
+            "avg_loss": -48.45786393764565,
+            "per_instrument": {
+              "MSFT": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 304.3157363582293,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.0038047571159471882,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.18787638734166778,
+          "excess_oos_return": -0.1840716302257206
+        },
+        {
+          "symbol": "NVDA",
+          "run_id": "sim_f218d67f89",
+          "metrics": {
+            "total_return": 0.31854993973501156,
+            "equity": 13185.499397350115,
+            "win_rate": 0.5,
+            "profit_factor": 6.1393213667846265,
+            "max_drawdown": 0.06969567929465968,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8733129925682701,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 3185.4993973501187,
+            "total_fees": 54.26949069638514,
+            "total_slippage": 1.6517540006636615,
+            "total_explicit_cost": 55.9212446970488,
+            "funding_pnl": 0.0,
+            "avg_win": 951.3320494232239,
+            "avg_loss": -154.95720008569435,
+            "per_instrument": {
+              "NVDA": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 3185.4993973501187,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": 0.006534514195333241,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.9695469439767146,
+          "excess_oos_return": -0.9630124297813814
+        },
+        {
+          "symbol": "AMZN",
+          "run_id": "sim_9e62018249",
+          "metrics": {
+            "total_return": -0.024049161594545843,
+            "equity": 9759.508384054541,
+            "win_rate": 0.5384615384615384,
+            "profit_factor": 0.6754263681835143,
+            "max_drawdown": 0.05886859460033975,
+            "equity_curve_degraded": false,
+            "sharpe": -0.19041495062908964,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -240.4916159454569,
+            "total_fees": 63.243475575788324,
+            "total_slippage": 4.141224990844506,
+            "total_explicit_cost": 67.38470056663283,
+            "funding_pnl": 0.0,
+            "avg_win": 71.49351941567853,
+            "avg_loss": -123.49104197586779,
+            "per_instrument": {
+              "AMZN": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -240.4916159454569,
+                "win_rate": 0.5384615384615384
+              }
+            }
+          },
+          "oos_return": -0.006643163875357017,
+          "oos_closed_trades": 2,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.5505395692502473,
+          "excess_oos_return": -0.5571827331256043
+        },
+        {
+          "symbol": "META",
+          "run_id": "sim_39405d6583",
+          "metrics": {
+            "total_return": 0.07156003330818339,
+            "equity": 10715.600333081833,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 2.421706187428694,
+            "max_drawdown": 0.05832072131557342,
+            "equity_curve_degraded": false,
+            "sharpe": 0.4452776064011112,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 715.600333081835,
+            "total_fees": 48.854311615817764,
+            "total_slippage": 8.461210052489804,
+            "total_explicit_cost": 57.31552166830757,
+            "funding_pnl": 0.0,
+            "avg_win": 243.78788946323434,
+            "avg_loss": -125.83477855858422,
+            "per_instrument": {
+              "META": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 715.600333081835,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": -0.013493038362044962,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.06580097180695166,
+          "excess_oos_return": -0.07929401016899662
+        },
+        {
+          "symbol": "GOOGL",
+          "run_id": "sim_eb6fc4c529",
+          "metrics": {
+            "total_return": 0.02347722782112638,
+            "equity": 10234.772278211263,
+            "win_rate": 0.4444444444444444,
+            "profit_factor": 1.4118233003788465,
+            "max_drawdown": 0.04445280070797148,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2144458028829583,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 234.77227821126377,
+            "total_fees": 45.463919872324524,
+            "total_slippage": 3.2436974945066908,
+            "total_explicit_cost": 48.707617366831215,
+            "funding_pnl": 0.0,
+            "avg_win": 201.21310059239698,
+            "avg_loss": -114.01602483166485,
+            "per_instrument": {
+              "GOOGL": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 234.77227821126377,
+                "win_rate": 0.4444444444444444
+              }
+            }
+          },
+          "oos_return": 0.03607339362942552,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": 1.1247151493577796,
+          "excess_oos_return": -1.088641755728354
+        },
+        {
+          "symbol": "TSLA",
+          "run_id": "sim_1479297daa",
+          "metrics": {
+            "total_return": -0.06130015619058082,
+            "equity": 9386.998438094191,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 0.5592259208848965,
+            "max_drawdown": 0.14664558357387622,
+            "equity_curve_degraded": false,
+            "sharpe": -0.2185778350321804,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": -613.0015619058104,
+            "total_fees": 50.53737427050149,
+            "total_slippage": 6.481116638183153,
+            "total_explicit_cost": 57.01849090868463,
+            "funding_pnl": 0.0,
+            "avg_win": 259.2457067415531,
+            "avg_loss": -173.84233526630868,
+            "per_instrument": {
+              "TSLA": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": -613.0015619058104,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": 0.0567748375545678,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.8373587283338375,
+          "excess_oos_return": -0.7805838907792697
+        },
+        {
+          "symbol": "AMD",
+          "run_id": "sim_cdb9983c57",
+          "metrics": {
+            "total_return": 0.26226003398142606,
+            "equity": 12622.60033981426,
+            "win_rate": 0.75,
+            "profit_factor": 7.277211603703694,
+            "max_drawdown": 0.07008601866365392,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7546601364116489,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 2622.60033981426,
+            "total_fees": 47.79586684174716,
+            "total_slippage": 2.6557699890136064,
+            "total_explicit_cost": 50.45163683076077,
+            "funding_pnl": 0.0,
+            "avg_win": 506.73289430806295,
+            "avg_loss": -208.898513017059,
+            "per_instrument": {
+              "AMD": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 2622.60033981426,
+                "win_rate": 0.75
+              }
+            }
+          },
+          "oos_return": 0.14152238035304454,
+          "oos_closed_trades": 4,
+          "oos_points": 508,
+          "benchmark_oos_return": 2.4601885297688066,
+          "excess_oos_return": -2.318666149415762
+        },
+        {
+          "symbol": "JPM",
+          "run_id": "sim_a5338f1236",
+          "metrics": {
+            "total_return": 0.003294801480067555,
+            "equity": 10032.948014800675,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 1.1198230426931748,
+            "max_drawdown": 0.02811443171971396,
+            "equity_curve_degraded": false,
+            "sharpe": 0.05607366039802148,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 32.948014800677264,
+            "total_fees": 44.86892721782217,
+            "total_slippage": 3.4778899917601223,
+            "total_explicit_cost": 48.34681720958229,
+            "funding_pnl": 0.0,
+            "avg_win": 61.584058217035704,
+            "avg_loss": -68.74306907112532,
+            "per_instrument": {
+              "JPM": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 32.948014800677264,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": 0.014835203433327449,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.7051262544709236,
+          "excess_oos_return": -0.6902910510375961
+        },
+        {
+          "symbol": "BAC",
+          "run_id": "sim_a29b7b3d22",
+          "metrics": {
+            "total_return": -0.05245635152771866,
+            "equity": 9475.436484722813,
+            "win_rate": 0.15384615384615385,
+            "profit_factor": 0.27197656713950125,
+            "max_drawdown": 0.06775308751195497,
+            "equity_curve_degraded": false,
+            "sharpe": -0.7765890962103502,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -524.5635152771873,
+            "total_fees": 61.810997724680256,
+            "total_slippage": 1.1346199989318215,
+            "total_explicit_cost": 62.945617723612074,
+            "funding_pnl": 0.0,
+            "avg_win": 97.98378574928125,
+            "avg_loss": -65.50282607052272,
+            "per_instrument": {
+              "BAC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -524.5635152771873,
+                "win_rate": 0.15384615384615385
+              }
+            }
+          },
+          "oos_return": -0.007533051137077251,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.6161907672528861,
+          "excess_oos_return": -0.6237238183899634
+        },
+        {
+          "symbol": "WFC",
+          "run_id": "sim_9450eb58a5",
+          "metrics": {
+            "total_return": 0.0022252762328935916,
+            "equity": 10022.252762328937,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 1.0481876787586508,
+            "max_drawdown": 0.047313482538128185,
+            "equity_curve_degraded": false,
+            "sharpe": 0.032773997915477006,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 22.252762328938353,
+            "total_fees": 54.83187163310073,
+            "total_slippage": 1.4176899757384476,
+            "total_explicit_cost": 56.24956160883918,
+            "funding_pnl": 0.0,
+            "avg_win": 161.34879214222684,
+            "avg_loss": -57.72420176221777,
+            "per_instrument": {
+              "WFC": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 22.252762328938353,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": 0.018141858905303954,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.6104493685415862,
+          "excess_oos_return": -0.5923075096362822
+        },
+        {
+          "symbol": "C",
+          "run_id": "sim_290d3d2ea3",
+          "metrics": {
+            "total_return": -0.002425402161903678,
+            "equity": 9975.745978380963,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9574737625952451,
+            "max_drawdown": 0.0349301937533266,
+            "equity_curve_degraded": false,
+            "sharpe": -0.011305980148243383,
+            "trade_count": 24,
+            "closed_trade_count": 12,
+            "realized_pnl": -24.254021619039026,
+            "total_fees": 60.47609736922429,
+            "total_slippage": 1.9936000099180973,
+            "total_explicit_cost": 62.46969737914239,
+            "funding_pnl": 0.0,
+            "avg_win": 136.5191864766941,
+            "avg_loss": -71.29134594072691,
+            "per_instrument": {
+              "C": {
+                "trade_count": 24,
+                "closed_trades": 12,
+                "realized_pnl": -24.254021619039026,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.007321053505407127,
+          "oos_closed_trades": 6,
+          "oos_points": 508,
+          "benchmark_oos_return": 1.2761063891628304,
+          "excess_oos_return": -1.2834274426682375
+        },
+        {
+          "symbol": "XOM",
+          "run_id": "sim_efcce192ec",
+          "metrics": {
+            "total_return": 0.03279154325920697,
+            "equity": 10327.91543259207,
+            "win_rate": 0.4,
+            "profit_factor": 1.696094474605713,
+            "max_drawdown": 0.05078096111626385,
+            "equity_curve_degraded": false,
+            "sharpe": 0.25306341294989304,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 327.91543259207106,
+            "total_fees": 51.6052736113287,
+            "total_slippage": 2.137190013885345,
+            "total_explicit_cost": 53.74246362521404,
+            "funding_pnl": 0.0,
+            "avg_win": 199.7485878882988,
+            "avg_loss": -78.51315316018737,
+            "per_instrument": {
+              "XOM": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 327.91543259207106,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.017727445998444225,
+          "oos_closed_trades": 4,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.38747899672564334,
+          "excess_oos_return": -0.3697515507271991
+        },
+        {
+          "symbol": "CVX",
+          "run_id": "sim_b3d9b50bcd",
+          "metrics": {
+            "total_return": -0.0038578641955766546,
+            "equity": 9961.421358044234,
+            "win_rate": 0.5,
+            "profit_factor": 0.9014951375640944,
+            "max_drawdown": 0.06582963003368617,
+            "equity_curve_degraded": false,
+            "sharpe": -0.021856081942456362,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -38.57864195576519,
+            "total_fees": 30.2017895805346,
+            "total_slippage": 1.7965099945067067,
+            "total_explicit_cost": 31.998299575041308,
+            "funding_pnl": 0.0,
+            "avg_win": 117.68778811833708,
+            "avg_loss": -130.54733543692544,
+            "per_instrument": {
+              "CVX": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -38.57864195576519,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": -0.013452075349315473,
+          "oos_closed_trades": 2,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.415459924320533,
+          "excess_oos_return": -0.4289119996698485
+        },
+        {
+          "symbol": "PFE",
+          "run_id": "sim_8b094a68ac",
+          "metrics": {
+            "total_return": -0.019326274897789375,
+            "equity": 9806.737251022107,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.48931021860405927,
+            "max_drawdown": 0.043396555017537634,
+            "equity_curve_degraded": false,
+            "sharpe": -0.26080857124313334,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -193.2627489778946,
+            "total_fees": 44.43765847891164,
+            "total_slippage": 0.678149999618487,
+            "total_explicit_cost": 45.11580847853012,
+            "funding_pnl": 0.0,
+            "avg_win": 61.72399330953644,
+            "avg_loss": -63.072454817750646,
+            "per_instrument": {
+              "PFE": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -193.2627489778946,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.001147695913183422,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": -0.013356803441996523,
+          "excess_oos_return": 0.012209107528813101
+        },
+        {
+          "symbol": "MRK",
+          "run_id": "sim_da6482a60f",
+          "metrics": {
+            "total_return": 0.05827353178979999,
+            "equity": 10582.735317898,
+            "win_rate": 0.625,
+            "profit_factor": 7.955391436016089,
+            "max_drawdown": 0.02514706209450588,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6647242478391756,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 582.7353178979984,
+            "total_fees": 42.159041785489286,
+            "total_slippage": 1.8132700042723542,
+            "total_explicit_cost": 43.97231178976164,
+            "funding_pnl": 0.0,
+            "avg_win": 133.3034265609987,
+            "avg_loss": -27.92727163566502,
+            "per_instrument": {
+              "MRK": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 582.7353178979984,
+                "win_rate": 0.625
+              }
+            }
+          },
+          "oos_return": 0.03839384708246785,
+          "oos_closed_trades": 2,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.34428972981200623,
+          "excess_oos_return": -0.3058958827295384
+        },
+        {
+          "symbol": "KO",
+          "run_id": "sim_e1696faf64",
+          "metrics": {
+            "total_return": -0.003925535418764725,
+            "equity": 9960.744645812352,
+            "win_rate": 0.375,
+            "profit_factor": 0.6964902466582754,
+            "max_drawdown": 0.019348787645364907,
+            "equity_curve_degraded": false,
+            "sharpe": -0.05790429225358987,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -39.255354187645054,
+            "total_fees": 40.10829986231824,
+            "total_slippage": 1.1359000053405097,
+            "total_explicit_cost": 41.24419986765875,
+            "funding_pnl": 0.0,
+            "avg_win": 30.027559268172194,
+            "avg_loss": -25.867606398432326,
+            "per_instrument": {
+              "KO": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -39.255354187645054,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": -0.005263226022919398,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.33636498343961363,
+          "excess_oos_return": -0.34162820946253303
+        },
+        {
+          "symbol": "NKE",
+          "run_id": "sim_873f1c3a7d",
+          "metrics": {
+            "total_return": -0.040512371235503664,
+            "equity": 9594.876287644964,
+            "win_rate": 0.16666666666666666,
+            "profit_factor": 0.00805875638252243,
+            "max_drawdown": 0.04256923955390358,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5937851091253662,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -405.1237123550376,
+            "total_fees": 28.7417469221975,
+            "total_slippage": 1.3033200073241318,
+            "total_explicit_cost": 30.04506692952163,
+            "funding_pnl": 0.0,
+            "avg_win": 3.291317226357152,
+            "avg_loss": -81.68300591627894,
+            "per_instrument": {
+              "NKE": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -405.1237123550376,
+                "win_rate": 0.16666666666666666
+              }
+            }
+          },
+          "oos_return": -0.009369853114843063,
+          "oos_closed_trades": 2,
+          "oos_points": 508,
+          "benchmark_oos_return": -0.45391212949036996,
+          "excess_oos_return": 0.4445422763755269
+        },
+        {
+          "symbol": "DIS",
+          "run_id": "sim_478dde9b0c",
+          "metrics": {
+            "total_return": -0.0394964935436416,
+            "equity": 9605.035064563584,
+            "win_rate": 0.25,
+            "profit_factor": 0.3004194361424075,
+            "max_drawdown": 0.04761212908354173,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5471619938421451,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -394.964935436416,
+            "total_fees": 38.14614836529649,
+            "total_slippage": 1.7447399978636469,
+            "total_explicit_cost": 39.890888363160144,
+            "funding_pnl": 0.0,
+            "avg_win": 84.80448809608728,
+            "avg_loss": -94.09565193809841,
+            "per_instrument": {
+              "DIS": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -394.964935436416,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": 0.008142907775211095,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.25398490524904127,
+          "excess_oos_return": -0.24584199747383018
+        },
+        {
+          "symbol": "VZ",
+          "run_id": "sim_c0f99147e1",
+          "metrics": {
+            "total_return": -0.024585660700859435,
+            "equity": 9754.143392991406,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.4166497593197262,
+            "max_drawdown": 0.034510289807224946,
+            "equity_curve_degraded": false,
+            "sharpe": -0.35125552860056275,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -245.8566070085982,
+            "total_fees": 43.98872268487607,
+            "total_slippage": 0.8051399993895885,
+            "total_explicit_cost": 44.79386268426566,
+            "funding_pnl": 0.0,
+            "avg_win": 58.5332155503705,
+            "avg_loss": -70.24270894328494,
+            "per_instrument": {
+              "VZ": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -245.8566070085982,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.015487975019644828,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.22008394404884624,
+          "excess_oos_return": -0.23557191906849106
+        },
+        {
+          "symbol": "T",
+          "run_id": "sim_25855e92b3",
+          "metrics": {
+            "total_return": 0.024145973944860177,
+            "equity": 10241.459739448603,
+            "win_rate": 0.375,
+            "profit_factor": 1.9867817591505976,
+            "max_drawdown": 0.024830266547657964,
+            "equity_curve_degraded": false,
+            "sharpe": 0.27885149208140136,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 241.45973944860455,
+            "total_fees": 40.85033719289399,
+            "total_slippage": 0.32903456115720964,
+            "total_explicit_cost": 41.17937175405118,
+            "funding_pnl": 0.0,
+            "avg_win": 162.05130177202972,
+            "avg_loss": -48.93883317349692,
+            "per_instrument": {
+              "T": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 241.45973944860455,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": 0.015353956152038828,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.3015954975971138,
+          "excess_oos_return": -0.28624154144507497
+        },
+        {
+          "symbol": "F",
+          "run_id": "sim_393f4e59d6",
+          "metrics": {
+            "total_return": -0.0872095547577797,
+            "equity": 9127.904452422203,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.14997074654432124,
+            "max_drawdown": 0.11851786027293532,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6617907617564727,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -872.0955475777942,
+            "total_fees": 41.062939311504145,
+            "total_slippage": 0.2515500001907238,
+            "total_explicit_cost": 41.314489311694864,
+            "funding_pnl": 0.0,
+            "avg_win": 51.28796834403686,
+            "avg_loss": -170.9932421016508,
+            "per_instrument": {
+              "F": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -872.0955475777942,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.011901260830540328,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.46146048165971054,
+          "excess_oos_return": -0.47336174249025087
+        },
+        {
+          "symbol": "GM",
+          "run_id": "sim_b1c95b3984",
+          "metrics": {
+            "total_return": -0.028230278813950238,
+            "equity": 9717.697211860497,
+            "win_rate": 0.2857142857142857,
+            "profit_factor": 0.5517969838692414,
+            "max_drawdown": 0.05043119039102676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.22681879214265033,
+            "trade_count": 28,
+            "closed_trade_count": 14,
+            "realized_pnl": -282.302788139504,
+            "total_fees": 67.50814771216685,
+            "total_slippage": 1.4710699958800575,
+            "total_explicit_cost": 68.9792177080469,
+            "funding_pnl": 0.0,
+            "avg_win": 86.88798458900281,
+            "avg_loss": -62.985472649551525,
+            "per_instrument": {
+              "GM": {
+                "trade_count": 28,
+                "closed_trades": 14,
+                "realized_pnl": -282.302788139504,
+                "win_rate": 0.2857142857142857
+              }
+            }
+          },
+          "oos_return": 0.01915760026856228,
+          "oos_closed_trades": 7,
+          "oos_points": 508,
+          "benchmark_oos_return": 1.0453593131451053,
+          "excess_oos_return": -1.026201712876543
+        },
+        {
+          "symbol": "GE",
+          "run_id": "sim_aa77fc0766",
+          "metrics": {
+            "total_return": 0.18140819371478245,
+            "equity": 11814.081937147825,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 4.185980260401377,
+            "max_drawdown": 0.04621119104816946,
+            "equity_curve_degraded": false,
+            "sharpe": 1.1139293239976882,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 1814.081937147824,
+            "total_fees": 66.89097187934867,
+            "total_slippage": 4.405944713592419,
+            "total_explicit_cost": 71.29691659294109,
+            "funding_pnl": 0.0,
+            "avg_win": 595.8692897468557,
+            "avg_loss": -81.34217454851408,
+            "per_instrument": {
+              "GE": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 1814.081937147824,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": -0.002652068932110785,
+          "oos_closed_trades": 7,
+          "oos_points": 508,
+          "benchmark_oos_return": 1.0876730707191444,
+          "excess_oos_return": -1.0903251396512552
+        },
+        {
+          "symbol": "BA",
+          "run_id": "sim_a52c7c5e66",
+          "metrics": {
+            "total_return": -0.04483020662019899,
+            "equity": 9551.69793379801,
+            "win_rate": 0.2222222222222222,
+            "profit_factor": 0.6271813891273332,
+            "max_drawdown": 0.09281683122138037,
+            "equity_curve_degraded": false,
+            "sharpe": -0.389505424889685,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -448.30206620199203,
+            "total_fees": 42.28125630041197,
+            "total_slippage": 3.495730010986165,
+            "total_explicit_cost": 45.776986311398126,
+            "funding_pnl": 0.0,
+            "avg_win": 377.08245300722024,
+            "avg_loss": -171.7809960309189,
+            "per_instrument": {
+              "BA": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -448.30206620199203,
+                "win_rate": 0.2222222222222222
+              }
+            }
+          },
+          "oos_return": 0.026302585579806692,
+          "oos_closed_trades": 3,
+          "oos_points": 508,
+          "benchmark_oos_return": 0.3050630023509673,
+          "excess_oos_return": -0.2787604167711606
+        },
+        {
+          "symbol": "INTC",
+          "run_id": "sim_b9e6a257c2",
+          "metrics": {
+            "total_return": 0.13609114782989962,
+            "equity": 11360.911478298996,
+            "win_rate": 0.3076923076923077,
+            "profit_factor": 2.424900401226092,
+            "max_drawdown": 0.11028889376577841,
+            "equity_curve_degraded": false,
+            "sharpe": 0.39535574876753793,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": 1360.911478298994,
+            "total_fees": 66.68652657704024,
+            "total_slippage": 1.0116399993895762,
+            "total_explicit_cost": 67.6981665764298,
+            "funding_pnl": 0.0,
+            "avg_win": 579.0009580530664,
+            "avg_loss": -106.12137265703021,
+            "per_instrument": {
+              "INTC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": 1360.911478298994,
+                "win_rate": 0.3076923076923077
+              }
+            }
+          },
+          "oos_return": 0.1774281711838892,
+          "oos_closed_trades": 5,
+          "oos_points": 508,
+          "benchmark_oos_return": 3.6523758706218663,
+          "excess_oos_return": -3.474947699437977
+        }
+      ]
+    },
+    {
+      "split_date": "2025-02-14",
+      "symbols": 26,
+      "mean_oos_return": 0.012985846545726867,
+      "median_oos_return": -0.0015004011266240291,
+      "positive_oos_fraction": 0.5,
+      "mean_excess_oos_return": -0.4878990578250556,
+      "median_excess_oos_return": -0.3021879406923635,
+      "positive_excess_fraction": 0.15384615384615385,
+      "median_full_max_drawdown": 0.04817520848819852,
+      "median_oos_closed_trades": 3.0,
+      "results": [
+        {
+          "symbol": "AAPL",
+          "run_id": "sim_5cb651fe87",
+          "metrics": {
+            "total_return": -0.0018917505774035392,
+            "equity": 9981.082494225964,
+            "win_rate": 0.375,
+            "profit_factor": 0.9652666344089982,
+            "max_drawdown": 0.048738287892855316,
+            "equity_curve_degraded": false,
+            "sharpe": -0.009974908148273502,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -18.917505774035384,
+            "total_fees": 39.545396753709234,
+            "total_slippage": 3.4362699890135104,
+            "total_explicit_cost": 42.981666742722744,
+            "funding_pnl": 0.0,
+            "avg_win": 175.2439555761192,
+            "avg_loss": -108.92987450047858,
+            "per_instrument": {
+              "AAPL": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -18.917505774035384,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": 0.007653247124911333,
+          "oos_closed_trades": 3,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.28079330794097634,
+          "excess_oos_return": -0.273140060816065
+        },
+        {
+          "symbol": "MSFT",
+          "run_id": "sim_b0755104e7",
+          "metrics": {
+            "total_return": 0.03043157363582294,
+            "equity": 10304.315736358229,
+            "win_rate": 0.4,
+            "profit_factor": 2.046667873315722,
+            "max_drawdown": 0.01666200862025812,
+            "equity_curve_degraded": false,
+            "sharpe": 0.44071733091921805,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 304.3157363582293,
+            "total_fees": 51.41186091699177,
+            "total_slippage": 7.6094500122067075,
+            "total_explicit_cost": 59.02131092919848,
+            "funding_pnl": 0.0,
+            "avg_win": 148.76572999602578,
+            "avg_loss": -48.45786393764565,
+            "per_instrument": {
+              "MSFT": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 304.3157363582293,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.0038047571159471882,
+          "oos_closed_trades": 3,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.17708379250812567,
+          "excess_oos_return": -0.17327903539217848
+        },
+        {
+          "symbol": "NVDA",
+          "run_id": "sim_d2f25bd96f",
+          "metrics": {
+            "total_return": 0.31854993973501156,
+            "equity": 13185.499397350115,
+            "win_rate": 0.5,
+            "profit_factor": 6.1393213667846265,
+            "max_drawdown": 0.06969567929465968,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8733129925682701,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 3185.4993973501187,
+            "total_fees": 54.26949069638514,
+            "total_slippage": 1.6517540006636615,
+            "total_explicit_cost": 55.9212446970488,
+            "funding_pnl": 0.0,
+            "avg_win": 951.3320494232239,
+            "avg_loss": -154.95720008569435,
+            "per_instrument": {
+              "NVDA": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 3185.4993973501187,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": 0.025725816821490444,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.5871092606722146,
+          "excess_oos_return": -0.5613834438507241
+        },
+        {
+          "symbol": "AMZN",
+          "run_id": "sim_137a326fe8",
+          "metrics": {
+            "total_return": -0.024049161594545843,
+            "equity": 9759.508384054541,
+            "win_rate": 0.5384615384615384,
+            "profit_factor": 0.6754263681835143,
+            "max_drawdown": 0.05886859460033975,
+            "equity_curve_degraded": false,
+            "sharpe": -0.19041495062908964,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -240.4916159454569,
+            "total_fees": 63.243475575788324,
+            "total_slippage": 4.141224990844506,
+            "total_explicit_cost": 67.38470056663283,
+            "funding_pnl": 0.0,
+            "avg_win": 71.49351941567853,
+            "avg_loss": -123.49104197586779,
+            "per_instrument": {
+              "AMZN": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -240.4916159454569,
+                "win_rate": 0.5384615384615384
+              }
+            }
+          },
+          "oos_return": -0.027750206923749632,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.12267226793684372,
+          "excess_oos_return": -0.15042247486059335
+        },
+        {
+          "symbol": "META",
+          "run_id": "sim_d3e4422bd7",
+          "metrics": {
+            "total_return": 0.07156003330818339,
+            "equity": 10715.600333081833,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 2.421706187428694,
+            "max_drawdown": 0.05832072131557342,
+            "equity_curve_degraded": false,
+            "sharpe": 0.4452776064011112,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 715.600333081835,
+            "total_fees": 48.854311615817764,
+            "total_slippage": 8.461210052489804,
+            "total_explicit_cost": 57.31552166830757,
+            "funding_pnl": 0.0,
+            "avg_win": 243.78788946323434,
+            "avg_loss": -125.83477855858422,
+            "per_instrument": {
+              "META": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 715.600333081835,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": -0.014448723191248236,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": -0.24522341844627926,
+          "excess_oos_return": 0.23077469525503103
+        },
+        {
+          "symbol": "GOOGL",
+          "run_id": "sim_671a776f24",
+          "metrics": {
+            "total_return": 0.02347722782112638,
+            "equity": 10234.772278211263,
+            "win_rate": 0.4444444444444444,
+            "profit_factor": 1.4118233003788465,
+            "max_drawdown": 0.04445280070797148,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2144458028829583,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 234.77227821126377,
+            "total_fees": 45.463919872324524,
+            "total_slippage": 3.2436974945066908,
+            "total_explicit_cost": 48.707617366831215,
+            "funding_pnl": 0.0,
+            "avg_win": 201.21310059239698,
+            "avg_loss": -114.01602483166485,
+            "per_instrument": {
+              "GOOGL": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 234.77227821126377,
+                "win_rate": 0.4444444444444444
+              }
+            }
+          },
+          "oos_return": 0.04265377148747884,
+          "oos_closed_trades": 3,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.8524766759153368,
+          "excess_oos_return": -0.809822904427858
+        },
+        {
+          "symbol": "TSLA",
+          "run_id": "sim_e988908065",
+          "metrics": {
+            "total_return": -0.06130015619058082,
+            "equity": 9386.998438094191,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 0.5592259208848965,
+            "max_drawdown": 0.14664558357387622,
+            "equity_curve_degraded": false,
+            "sharpe": -0.2185778350321804,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": -613.0015619058104,
+            "total_fees": 50.53737427050149,
+            "total_slippage": 6.481116638183153,
+            "total_explicit_cost": 57.01849090868463,
+            "funding_pnl": 0.0,
+            "avg_win": 259.2457067415531,
+            "avg_loss": -173.84233526630868,
+            "per_instrument": {
+              "TSLA": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": -613.0015619058104,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": -0.027266174241040164,
+          "oos_closed_trades": 4,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.01944143075431759,
+          "excess_oos_return": -0.046707604995357754
+        },
+        {
+          "symbol": "AMD",
+          "run_id": "sim_44c0e58338",
+          "metrics": {
+            "total_return": 0.26226003398142606,
+            "equity": 12622.60033981426,
+            "win_rate": 0.75,
+            "profit_factor": 7.277211603703694,
+            "max_drawdown": 0.07008601866365392,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7546601364116489,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 2622.60033981426,
+            "total_fees": 47.79586684174716,
+            "total_slippage": 2.6557699890136064,
+            "total_explicit_cost": 50.45163683076077,
+            "funding_pnl": 0.0,
+            "avg_win": 506.73289430806295,
+            "avg_loss": -208.898513017059,
+            "per_instrument": {
+              "AMD": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 2622.60033981426,
+                "win_rate": 0.75
+              }
+            }
+          },
+          "oos_return": 0.15810351483304164,
+          "oos_closed_trades": 3,
+          "oos_points": 381,
+          "benchmark_oos_return": 3.2326268699898195,
+          "excess_oos_return": -3.074523355156778
+        },
+        {
+          "symbol": "JPM",
+          "run_id": "sim_56634cfd3e",
+          "metrics": {
+            "total_return": 0.003294801480067555,
+            "equity": 10032.948014800675,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 1.1198230426931748,
+            "max_drawdown": 0.02811443171971396,
+            "equity_curve_degraded": false,
+            "sharpe": 0.05607366039802148,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 32.948014800677264,
+            "total_fees": 44.86892721782217,
+            "total_slippage": 3.4778899917601223,
+            "total_explicit_cost": 48.34681720958229,
+            "funding_pnl": 0.0,
+            "avg_win": 61.584058217035704,
+            "avg_loss": -68.74306907112532,
+            "per_instrument": {
+              "JPM": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 32.948014800677264,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": -0.014016850208909304,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.27236529115946695,
+          "excess_oos_return": -0.28638214136837625
+        },
+        {
+          "symbol": "BAC",
+          "run_id": "sim_7d71aff058",
+          "metrics": {
+            "total_return": -0.05245635152771866,
+            "equity": 9475.436484722813,
+            "win_rate": 0.15384615384615385,
+            "profit_factor": 0.27197656713950125,
+            "max_drawdown": 0.06775308751195497,
+            "equity_curve_degraded": false,
+            "sharpe": -0.7765890962103502,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -524.5635152771873,
+            "total_fees": 61.810997724680256,
+            "total_slippage": 1.1346199989318215,
+            "total_explicit_cost": 62.945617723612074,
+            "funding_pnl": 0.0,
+            "avg_win": 97.98378574928125,
+            "avg_loss": -65.50282607052272,
+            "per_instrument": {
+              "BAC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -524.5635152771873,
+                "win_rate": 0.15384615384615385
+              }
+            }
+          },
+          "oos_return": 0.00130594443083476,
+          "oos_closed_trades": 3,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.33153456051362795,
+          "excess_oos_return": -0.3302286160827932
+        },
+        {
+          "symbol": "WFC",
+          "run_id": "sim_0d0656119b",
+          "metrics": {
+            "total_return": 0.0022252762328935916,
+            "equity": 10022.252762328937,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 1.0481876787586508,
+            "max_drawdown": 0.047313482538128185,
+            "equity_curve_degraded": false,
+            "sharpe": 0.032773997915477006,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 22.252762328938353,
+            "total_fees": 54.83187163310073,
+            "total_slippage": 1.4176899757384476,
+            "total_explicit_cost": 56.24956160883918,
+            "funding_pnl": 0.0,
+            "avg_win": 161.34879214222684,
+            "avg_loss": -57.72420176221777,
+            "per_instrument": {
+              "WFC": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 22.252762328938353,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": -0.010892352119426185,
+          "oos_closed_trades": 5,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.06328469195097419,
+          "excess_oos_return": -0.07417704407040038
+        },
+        {
+          "symbol": "C",
+          "run_id": "sim_750ac3a5fe",
+          "metrics": {
+            "total_return": -0.002425402161903678,
+            "equity": 9975.745978380963,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9574737625952451,
+            "max_drawdown": 0.0349301937533266,
+            "equity_curve_degraded": false,
+            "sharpe": -0.011305980148243383,
+            "trade_count": 24,
+            "closed_trade_count": 12,
+            "realized_pnl": -24.254021619039026,
+            "total_fees": 60.47609736922429,
+            "total_slippage": 1.9936000099180973,
+            "total_explicit_cost": 62.46969737914239,
+            "funding_pnl": 0.0,
+            "avg_win": 136.5191864766941,
+            "avg_loss": -71.29134594072691,
+            "per_instrument": {
+              "C": {
+                "trade_count": 24,
+                "closed_trades": 12,
+                "realized_pnl": -24.254021619039026,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.02517688277511776,
+          "oos_closed_trades": 6,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.6035322331702848,
+          "excess_oos_return": -0.6287091159454026
+        },
+        {
+          "symbol": "XOM",
+          "run_id": "sim_1c5275ffe1",
+          "metrics": {
+            "total_return": 0.03279154325920697,
+            "equity": 10327.91543259207,
+            "win_rate": 0.4,
+            "profit_factor": 1.696094474605713,
+            "max_drawdown": 0.05078096111626385,
+            "equity_curve_degraded": false,
+            "sharpe": 0.25306341294989304,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 327.91543259207106,
+            "total_fees": 51.6052736113287,
+            "total_slippage": 2.137190013885345,
+            "total_explicit_cost": 53.74246362521404,
+            "funding_pnl": 0.0,
+            "avg_win": 199.7485878882988,
+            "avg_loss": -78.51315316018737,
+            "per_instrument": {
+              "XOM": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 327.91543259207106,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.022043436744137335,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.5269583353765641,
+          "excess_oos_return": -0.5049148986324268
+        },
+        {
+          "symbol": "CVX",
+          "run_id": "sim_66add738c2",
+          "metrics": {
+            "total_return": -0.0038578641955766546,
+            "equity": 9961.421358044234,
+            "win_rate": 0.5,
+            "profit_factor": 0.9014951375640944,
+            "max_drawdown": 0.06582963003368617,
+            "equity_curve_degraded": false,
+            "sharpe": -0.021856081942456362,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -38.57864195576519,
+            "total_fees": 30.2017895805346,
+            "total_slippage": 1.7965099945067067,
+            "total_explicit_cost": 31.998299575041308,
+            "funding_pnl": 0.0,
+            "avg_win": 117.68778811833708,
+            "avg_loss": -130.54733543692544,
+            "per_instrument": {
+              "CVX": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -38.57864195576519,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": -0.013452075349315473,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.31684627817903177,
+          "excess_oos_return": -0.33029835352834724
+        },
+        {
+          "symbol": "PFE",
+          "run_id": "sim_f3473ec7af",
+          "metrics": {
+            "total_return": -0.019326274897789375,
+            "equity": 9806.737251022107,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.48931021860405927,
+            "max_drawdown": 0.043396555017537634,
+            "equity_curve_degraded": false,
+            "sharpe": -0.26080857124313334,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -193.2627489778946,
+            "total_fees": 44.43765847891164,
+            "total_slippage": 0.678149999618487,
+            "total_explicit_cost": 45.11580847853012,
+            "funding_pnl": 0.0,
+            "avg_win": 61.72399330953644,
+            "avg_loss": -63.072454817750646,
+            "per_instrument": {
+              "PFE": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -193.2627489778946,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": 2.6087600971891334e-05,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.0947738051100282,
+          "excess_oos_return": -0.0947477175090563
+        },
+        {
+          "symbol": "MRK",
+          "run_id": "sim_a59f1bb102",
+          "metrics": {
+            "total_return": 0.05827353178979999,
+            "equity": 10582.735317898,
+            "win_rate": 0.625,
+            "profit_factor": 7.955391436016089,
+            "max_drawdown": 0.02514706209450588,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6647242478391756,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 582.7353178979984,
+            "total_fees": 42.159041785489286,
+            "total_slippage": 1.8132700042723542,
+            "total_explicit_cost": 43.97231178976164,
+            "funding_pnl": 0.0,
+            "avg_win": 133.3034265609987,
+            "avg_loss": -27.92727163566502,
+            "per_instrument": {
+              "MRK": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 582.7353178979984,
+                "win_rate": 0.625
+              }
+            }
+          },
+          "oos_return": 0.03839384708246785,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.8070363226787507,
+          "excess_oos_return": -0.7686424755962828
+        },
+        {
+          "symbol": "KO",
+          "run_id": "sim_289c39b214",
+          "metrics": {
+            "total_return": -0.003925535418764725,
+            "equity": 9960.744645812352,
+            "win_rate": 0.375,
+            "profit_factor": 0.6964902466582754,
+            "max_drawdown": 0.019348787645364907,
+            "equity_curve_degraded": false,
+            "sharpe": -0.05790429225358987,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -39.255354187645054,
+            "total_fees": 40.10829986231824,
+            "total_slippage": 1.1359000053405097,
+            "total_explicit_cost": 41.24419986765875,
+            "funding_pnl": 0.0,
+            "avg_win": 30.027559268172194,
+            "avg_loss": -25.867606398432326,
+            "per_instrument": {
+              "KO": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -39.255354187645054,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": -0.0072023950649681145,
+          "oos_closed_trades": 4,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.3107913449513826,
+          "excess_oos_return": -0.3179937400163507
+        },
+        {
+          "symbol": "NKE",
+          "run_id": "sim_bbbccd3ab5",
+          "metrics": {
+            "total_return": -0.040512371235503664,
+            "equity": 9594.876287644964,
+            "win_rate": 0.16666666666666666,
+            "profit_factor": 0.00805875638252243,
+            "max_drawdown": 0.04256923955390358,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5937851091253662,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -405.1237123550376,
+            "total_fees": 28.7417469221975,
+            "total_slippage": 1.3033200073241318,
+            "total_explicit_cost": 30.04506692952163,
+            "funding_pnl": 0.0,
+            "avg_win": 3.291317226357152,
+            "avg_loss": -81.68300591627894,
+            "per_instrument": {
+              "NKE": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -405.1237123550376,
+                "win_rate": 0.16666666666666666
+              }
+            }
+          },
+          "oos_return": -0.0030268898542199496,
+          "oos_closed_trades": 1,
+          "oos_points": 381,
+          "benchmark_oos_return": -0.44324547423497884,
+          "excess_oos_return": 0.4402185843807589
+        },
+        {
+          "symbol": "DIS",
+          "run_id": "sim_1feef891a8",
+          "metrics": {
+            "total_return": -0.0394964935436416,
+            "equity": 9605.035064563584,
+            "win_rate": 0.25,
+            "profit_factor": 0.3004194361424075,
+            "max_drawdown": 0.04761212908354173,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5471619938421451,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -394.964935436416,
+            "total_fees": 38.14614836529649,
+            "total_slippage": 1.7447399978636469,
+            "total_explicit_cost": 39.890888363160144,
+            "funding_pnl": 0.0,
+            "avg_win": 84.80448809608728,
+            "avg_loss": -94.09565193809841,
+            "per_instrument": {
+              "DIS": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -394.964935436416,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": -0.009325542654805674,
+          "oos_closed_trades": 3,
+          "oos_points": 381,
+          "benchmark_oos_return": -0.0165160837583489,
+          "excess_oos_return": 0.007190541103543224
+        },
+        {
+          "symbol": "VZ",
+          "run_id": "sim_c0ca16d7dc",
+          "metrics": {
+            "total_return": -0.024585660700859435,
+            "equity": 9754.143392991406,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.4166497593197262,
+            "max_drawdown": 0.034510289807224946,
+            "equity_curve_degraded": false,
+            "sharpe": -0.35125552860056275,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -245.8566070085982,
+            "total_fees": 43.98872268487607,
+            "total_slippage": 0.8051399993895885,
+            "total_explicit_cost": 44.79386268426566,
+            "funding_pnl": 0.0,
+            "avg_win": 58.5332155503705,
+            "avg_loss": -70.24270894328494,
+            "per_instrument": {
+              "VZ": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -245.8566070085982,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.009923074424159961,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.2049220190009844,
+          "excess_oos_return": -0.21484509342514435
+        },
+        {
+          "symbol": "T",
+          "run_id": "sim_dcbfdb7cbf",
+          "metrics": {
+            "total_return": 0.024145973944860177,
+            "equity": 10241.459739448603,
+            "win_rate": 0.375,
+            "profit_factor": 1.9867817591505976,
+            "max_drawdown": 0.024830266547657964,
+            "equity_curve_degraded": false,
+            "sharpe": 0.27885149208140136,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 241.45973944860455,
+            "total_fees": 40.85033719289399,
+            "total_slippage": 0.32903456115720964,
+            "total_explicit_cost": 41.17937175405118,
+            "funding_pnl": 0.0,
+            "avg_win": 162.05130177202972,
+            "avg_loss": -48.93883317349692,
+            "per_instrument": {
+              "T": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 241.45973944860455,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": -0.0124378501595519,
+          "oos_closed_trades": 2,
+          "oos_points": 381,
+          "benchmark_oos_return": -0.013265636222092203,
+          "excess_oos_return": 0.0008277860625403033
+        },
+        {
+          "symbol": "F",
+          "run_id": "sim_46ae1f5b6f",
+          "metrics": {
+            "total_return": -0.0872095547577797,
+            "equity": 9127.904452422203,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.14997074654432124,
+            "max_drawdown": 0.11851786027293532,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6617907617564727,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -872.0955475777942,
+            "total_fees": 41.062939311504145,
+            "total_slippage": 0.2515500001907238,
+            "total_explicit_cost": 41.314489311694864,
+            "funding_pnl": 0.0,
+            "avg_win": 51.28796834403686,
+            "avg_loss": -170.9932421016508,
+            "per_instrument": {
+              "F": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -872.0955475777942,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.011901260830540328,
+          "oos_closed_trades": 5,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.5411763913903713,
+          "excess_oos_return": -0.5530776522209117
+        },
+        {
+          "symbol": "GM",
+          "run_id": "sim_e05cf8899d",
+          "metrics": {
+            "total_return": -0.028230278813950238,
+            "equity": 9717.697211860497,
+            "win_rate": 0.2857142857142857,
+            "profit_factor": 0.5517969838692414,
+            "max_drawdown": 0.05043119039102676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.22681879214265033,
+            "trade_count": 28,
+            "closed_trade_count": 14,
+            "realized_pnl": -282.302788139504,
+            "total_fees": 67.50814771216685,
+            "total_slippage": 1.4710699958800575,
+            "total_explicit_cost": 68.9792177080469,
+            "funding_pnl": 0.0,
+            "avg_win": 86.88798458900281,
+            "avg_loss": -62.985472649551525,
+            "per_instrument": {
+              "GM": {
+                "trade_count": 28,
+                "closed_trades": 14,
+                "realized_pnl": -282.302788139504,
+                "win_rate": 0.2857142857142857
+              }
+            }
+          },
+          "oos_return": 0.013311229036970795,
+          "oos_closed_trades": 4,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.8360827192698213,
+          "excess_oos_return": -0.8227714902328505
+        },
+        {
+          "symbol": "GE",
+          "run_id": "sim_c54742b7d3",
+          "metrics": {
+            "total_return": 0.18140819371478245,
+            "equity": 11814.081937147825,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 4.185980260401377,
+            "max_drawdown": 0.04621119104816946,
+            "equity_curve_degraded": false,
+            "sharpe": 1.1139293239976882,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 1814.081937147824,
+            "total_fees": 66.89097187934867,
+            "total_slippage": 4.405944713592419,
+            "total_explicit_cost": 71.29691659294109,
+            "funding_pnl": 0.0,
+            "avg_win": 595.8692897468557,
+            "avg_loss": -81.34217454851408,
+            "per_instrument": {
+              "GE": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 1814.081937147824,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": 0.00648976468374185,
+          "oos_closed_trades": 5,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.6719619605332257,
+          "excess_oos_return": -0.6654721958494838
+        },
+        {
+          "symbol": "BA",
+          "run_id": "sim_3da745d8a6",
+          "metrics": {
+            "total_return": -0.04483020662019899,
+            "equity": 9551.69793379801,
+            "win_rate": 0.2222222222222222,
+            "profit_factor": 0.6271813891273332,
+            "max_drawdown": 0.09281683122138037,
+            "equity_curve_degraded": false,
+            "sharpe": -0.389505424889685,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -448.30206620199203,
+            "total_fees": 42.28125630041197,
+            "total_slippage": 3.495730010986165,
+            "total_explicit_cost": 45.776986311398126,
+            "funding_pnl": 0.0,
+            "avg_win": 377.08245300722024,
+            "avg_loss": -171.7809960309189,
+            "per_instrument": {
+              "BA": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -448.30206620199203,
+                "win_rate": 0.2222222222222222
+              }
+            }
+          },
+          "oos_return": 0.026302585579806692,
+          "oos_closed_trades": 3,
+          "oos_points": 381,
+          "benchmark_oos_return": 0.15509056367664398,
+          "excess_oos_return": -0.12878797809683729
+        },
+        {
+          "symbol": "INTC",
+          "run_id": "sim_7a6d4b6d5b",
+          "metrics": {
+            "total_return": 0.13609114782989962,
+            "equity": 11360.911478298996,
+            "win_rate": 0.3076923076923077,
+            "profit_factor": 2.424900401226092,
+            "max_drawdown": 0.11028889376577841,
+            "equity_curve_degraded": false,
+            "sharpe": 0.39535574876753793,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": 1360.911478298994,
+            "total_fees": 66.68652657704024,
+            "total_slippage": 1.0116399993895762,
+            "total_explicit_cost": 67.6981665764298,
+            "funding_pnl": 0.0,
+            "avg_win": 579.0009580530664,
+            "avg_loss": -106.12137265703021,
+            "per_instrument": {
+              "INTC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": 1360.911478298994,
+                "win_rate": 0.3076923076923077
+              }
+            }
+          },
+          "oos_return": 0.1786382854441506,
+          "oos_closed_trades": 4,
+          "oos_points": 381,
+          "benchmark_oos_return": 2.732698003623251,
+          "excess_oos_return": -2.5540597181791007
+        }
+      ]
+    },
+    {
+      "split_date": "2025-08-19",
+      "symbols": 26,
+      "mean_oos_return": 0.010430055277119508,
+      "median_oos_return": -0.004292511161512691,
+      "positive_oos_fraction": 0.38461538461538464,
+      "mean_excess_oos_return": -0.3407065563479628,
+      "median_excess_oos_return": -0.23702112953139087,
+      "positive_excess_fraction": 0.23076923076923078,
+      "median_full_max_drawdown": 0.04817520848819852,
+      "median_oos_closed_trades": 2.0,
+      "results": [
+        {
+          "symbol": "AAPL",
+          "run_id": "sim_6f5e1ce91a",
+          "metrics": {
+            "total_return": -0.0018917505774035392,
+            "equity": 9981.082494225964,
+            "win_rate": 0.375,
+            "profit_factor": 0.9652666344089982,
+            "max_drawdown": 0.048738287892855316,
+            "equity_curve_degraded": false,
+            "sharpe": -0.009974908148273502,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -18.917505774035384,
+            "total_fees": 39.545396753709234,
+            "total_slippage": 3.4362699890135104,
+            "total_explicit_cost": 42.981666742722744,
+            "funding_pnl": 0.0,
+            "avg_win": 175.2439555761192,
+            "avg_loss": -108.92987450047858,
+            "per_instrument": {
+              "AAPL": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -18.917505774035384,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": 0.007653247124911333,
+          "oos_closed_trades": 3,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.33981552653330205,
+          "excess_oos_return": -0.3321622794083907
+        },
+        {
+          "symbol": "MSFT",
+          "run_id": "sim_a2d479ed31",
+          "metrics": {
+            "total_return": 0.03043157363582294,
+            "equity": 10304.315736358229,
+            "win_rate": 0.4,
+            "profit_factor": 2.046667873315722,
+            "max_drawdown": 0.01666200862025812,
+            "equity_curve_degraded": false,
+            "sharpe": 0.44071733091921805,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 304.3157363582293,
+            "total_fees": 51.41186091699177,
+            "total_slippage": 7.6094500122067075,
+            "total_explicit_cost": 59.02131092919848,
+            "funding_pnl": 0.0,
+            "avg_win": 148.76572999602578,
+            "avg_loss": -48.45786393764565,
+            "per_instrument": {
+              "MSFT": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 304.3157363582293,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": -0.009845318075428766,
+          "oos_closed_trades": 2,
+          "oos_points": 254,
+          "benchmark_oos_return": -0.06548053945118637,
+          "excess_oos_return": 0.055635221375757604
+        },
+        {
+          "symbol": "NVDA",
+          "run_id": "sim_e4ede06b69",
+          "metrics": {
+            "total_return": 0.31854993973501156,
+            "equity": 13185.499397350115,
+            "win_rate": 0.5,
+            "profit_factor": 6.1393213667846265,
+            "max_drawdown": 0.06969567929465968,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8733129925682701,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 3185.4993973501187,
+            "total_fees": 54.26949069638514,
+            "total_slippage": 1.6517540006636615,
+            "total_explicit_cost": 55.9212446970488,
+            "funding_pnl": 0.0,
+            "avg_win": 951.3320494232239,
+            "avg_loss": -154.95720008569435,
+            "per_instrument": {
+              "NVDA": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 3185.4993973501187,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": -0.01190039612216165,
+          "oos_closed_trades": 2,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.17971544256399974,
+          "excess_oos_return": -0.1916158386861614
+        },
+        {
+          "symbol": "AMZN",
+          "run_id": "sim_021ab13d9f",
+          "metrics": {
+            "total_return": -0.024049161594545843,
+            "equity": 9759.508384054541,
+            "win_rate": 0.5384615384615384,
+            "profit_factor": 0.6754263681835143,
+            "max_drawdown": 0.05886859460033975,
+            "equity_curve_degraded": false,
+            "sharpe": -0.19041495062908964,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -240.4916159454569,
+            "total_fees": 63.243475575788324,
+            "total_slippage": 4.141224990844506,
+            "total_explicit_cost": 67.38470056663283,
+            "funding_pnl": 0.0,
+            "avg_win": 71.49351941567853,
+            "avg_loss": -123.49104197586779,
+            "per_instrument": {
+              "AMZN": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -240.4916159454569,
+                "win_rate": 0.5384615384615384
+              }
+            }
+          },
+          "oos_return": -0.010950666418932609,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.11724048013144084,
+          "excess_oos_return": -0.12819114655037345
+        },
+        {
+          "symbol": "META",
+          "run_id": "sim_8140c0f116",
+          "metrics": {
+            "total_return": 0.07156003330818339,
+            "equity": 10715.600333081833,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 2.421706187428694,
+            "max_drawdown": 0.05832072131557342,
+            "equity_curve_degraded": false,
+            "sharpe": 0.4452776064011112,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 715.600333081835,
+            "total_fees": 48.854311615817764,
+            "total_slippage": 8.461210052489804,
+            "total_explicit_cost": 57.31552166830757,
+            "funding_pnl": 0.0,
+            "avg_win": 243.78788946323434,
+            "avg_loss": -125.83477855858422,
+            "per_instrument": {
+              "META": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 715.600333081835,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": -0.00070576379299081,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": -0.2833964998460937,
+          "excess_oos_return": 0.2826907360531029
+        },
+        {
+          "symbol": "GOOGL",
+          "run_id": "sim_69ac7feeb5",
+          "metrics": {
+            "total_return": 0.02347722782112638,
+            "equity": 10234.772278211263,
+            "win_rate": 0.4444444444444444,
+            "profit_factor": 1.4118233003788465,
+            "max_drawdown": 0.04445280070797148,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2144458028829583,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 234.77227821126377,
+            "total_fees": 45.463919872324524,
+            "total_slippage": 3.2436974945066908,
+            "total_explicit_cost": 48.707617366831215,
+            "funding_pnl": 0.0,
+            "avg_win": 201.21310059239698,
+            "avg_loss": -114.01602483166485,
+            "per_instrument": {
+              "GOOGL": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 234.77227821126377,
+                "win_rate": 0.4444444444444444
+              }
+            }
+          },
+          "oos_return": 0.04338725141695465,
+          "oos_closed_trades": 2,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.6944472104384214,
+          "excess_oos_return": -0.6510599590214667
+        },
+        {
+          "symbol": "TSLA",
+          "run_id": "sim_c50f37ab59",
+          "metrics": {
+            "total_return": -0.06130015619058082,
+            "equity": 9386.998438094191,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 0.5592259208848965,
+            "max_drawdown": 0.14664558357387622,
+            "equity_curve_degraded": false,
+            "sharpe": -0.2185778350321804,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": -613.0015619058104,
+            "total_fees": 50.53737427050149,
+            "total_slippage": 6.481116638183153,
+            "total_explicit_cost": 57.01849090868463,
+            "funding_pnl": 0.0,
+            "avg_win": 259.2457067415531,
+            "avg_loss": -173.84233526630868,
+            "per_instrument": {
+              "TSLA": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": -613.0015619058104,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": -0.01087079460467577,
+          "oos_closed_trades": 2,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.08264703838999465,
+          "excess_oos_return": -0.09351783299467042
+        },
+        {
+          "symbol": "AMD",
+          "run_id": "sim_e371ed068c",
+          "metrics": {
+            "total_return": 0.26226003398142606,
+            "equity": 12622.60033981426,
+            "win_rate": 0.75,
+            "profit_factor": 7.277211603703694,
+            "max_drawdown": 0.07008601866365392,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7546601364116489,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 2622.60033981426,
+            "total_fees": 47.79586684174716,
+            "total_slippage": 2.6557699890136064,
+            "total_explicit_cost": 50.45163683076077,
+            "funding_pnl": 0.0,
+            "avg_win": 506.73289430806295,
+            "avg_loss": -208.898513017059,
+            "per_instrument": {
+              "AMD": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 2622.60033981426,
+                "win_rate": 0.75
+              }
+            }
+          },
+          "oos_return": 0.09084471628693547,
+          "oos_closed_trades": 3,
+          "oos_points": 254,
+          "benchmark_oos_return": 1.6867832499141726,
+          "excess_oos_return": -1.5959385336272371
+        },
+        {
+          "symbol": "JPM",
+          "run_id": "sim_5305aed967",
+          "metrics": {
+            "total_return": 0.003294801480067555,
+            "equity": 10032.948014800675,
+            "win_rate": 0.5555555555555556,
+            "profit_factor": 1.1198230426931748,
+            "max_drawdown": 0.02811443171971396,
+            "equity_curve_degraded": false,
+            "sharpe": 0.05607366039802148,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": 32.948014800677264,
+            "total_fees": 44.86892721782217,
+            "total_slippage": 3.4778899917601223,
+            "total_explicit_cost": 48.34681720958229,
+            "funding_pnl": 0.0,
+            "avg_win": 61.584058217035704,
+            "avg_loss": -68.74306907112532,
+            "per_instrument": {
+              "JPM": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": 32.948014800677264,
+                "win_rate": 0.5555555555555556
+              }
+            }
+          },
+          "oos_return": 0.007783070458997177,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.20598219066446632,
+          "excess_oos_return": -0.19819912020546915
+        },
+        {
+          "symbol": "BAC",
+          "run_id": "sim_4d59ef98a7",
+          "metrics": {
+            "total_return": -0.05245635152771866,
+            "equity": 9475.436484722813,
+            "win_rate": 0.15384615384615385,
+            "profit_factor": 0.27197656713950125,
+            "max_drawdown": 0.06775308751195497,
+            "equity_curve_degraded": false,
+            "sharpe": -0.7765890962103502,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": -524.5635152771873,
+            "total_fees": 61.810997724680256,
+            "total_slippage": 1.1346199989318215,
+            "total_explicit_cost": 62.945617723612074,
+            "funding_pnl": 0.0,
+            "avg_win": 97.98378574928125,
+            "avg_loss": -65.50282607052272,
+            "per_instrument": {
+              "BAC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": -524.5635152771873,
+                "win_rate": 0.15384615384615385
+              }
+            }
+          },
+          "oos_return": 0.00130594443083476,
+          "oos_closed_trades": 3,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.2873539437379895,
+          "excess_oos_return": -0.28604799930715474
+        },
+        {
+          "symbol": "WFC",
+          "run_id": "sim_032f799998",
+          "metrics": {
+            "total_return": 0.0022252762328935916,
+            "equity": 10022.252762328937,
+            "win_rate": 0.2727272727272727,
+            "profit_factor": 1.0481876787586508,
+            "max_drawdown": 0.047313482538128185,
+            "equity_curve_degraded": false,
+            "sharpe": 0.032773997915477006,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 22.252762328938353,
+            "total_fees": 54.83187163310073,
+            "total_slippage": 1.4176899757384476,
+            "total_explicit_cost": 56.24956160883918,
+            "funding_pnl": 0.0,
+            "avg_win": 161.34879214222684,
+            "avg_loss": -57.72420176221777,
+            "per_instrument": {
+              "WFC": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 22.252762328938353,
+                "win_rate": 0.2727272727272727
+              }
+            }
+          },
+          "oos_return": -0.01367067040795411,
+          "oos_closed_trades": 3,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.08264454667762733,
+          "excess_oos_return": -0.09631521708558144
+        },
+        {
+          "symbol": "C",
+          "run_id": "sim_53590ab070",
+          "metrics": {
+            "total_return": -0.002425402161903678,
+            "equity": 9975.745978380963,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9574737625952451,
+            "max_drawdown": 0.0349301937533266,
+            "equity_curve_degraded": false,
+            "sharpe": -0.011305980148243383,
+            "trade_count": 24,
+            "closed_trade_count": 12,
+            "realized_pnl": -24.254021619039026,
+            "total_fees": 60.47609736922429,
+            "total_slippage": 1.9936000099180973,
+            "total_explicit_cost": 62.46969737914239,
+            "funding_pnl": 0.0,
+            "avg_win": 136.5191864766941,
+            "avg_loss": -71.29134594072691,
+            "per_instrument": {
+              "C": {
+                "trade_count": 24,
+                "closed_trades": 12,
+                "realized_pnl": -24.254021619039026,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.013589266410285461,
+          "oos_closed_trades": 5,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.3972616449887787,
+          "excess_oos_return": -0.41085091139906416
+        },
+        {
+          "symbol": "XOM",
+          "run_id": "sim_69c6ec98d1",
+          "metrics": {
+            "total_return": 0.03279154325920697,
+            "equity": 10327.91543259207,
+            "win_rate": 0.4,
+            "profit_factor": 1.696094474605713,
+            "max_drawdown": 0.05078096111626385,
+            "equity_curve_degraded": false,
+            "sharpe": 0.25306341294989304,
+            "trade_count": 20,
+            "closed_trade_count": 10,
+            "realized_pnl": 327.91543259207106,
+            "total_fees": 51.6052736113287,
+            "total_slippage": 2.137190013885345,
+            "total_explicit_cost": 53.74246362521404,
+            "funding_pnl": 0.0,
+            "avg_win": 199.7485878882988,
+            "avg_loss": -78.51315316018737,
+            "per_instrument": {
+              "XOM": {
+                "trade_count": 20,
+                "closed_trades": 10,
+                "realized_pnl": 327.91543259207106,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.028635755464985202,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.5471326716806773,
+          "excess_oos_return": -0.518496916215692
+        },
+        {
+          "symbol": "CVX",
+          "run_id": "sim_6a9c2cb7de",
+          "metrics": {
+            "total_return": -0.0038578641955766546,
+            "equity": 9961.421358044234,
+            "win_rate": 0.5,
+            "profit_factor": 0.9014951375640944,
+            "max_drawdown": 0.06582963003368617,
+            "equity_curve_degraded": false,
+            "sharpe": -0.021856081942456362,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -38.57864195576519,
+            "total_fees": 30.2017895805346,
+            "total_slippage": 1.7965099945067067,
+            "total_explicit_cost": 31.998299575041308,
+            "funding_pnl": 0.0,
+            "avg_win": 117.68778811833708,
+            "avg_loss": -130.54733543692544,
+            "per_instrument": {
+              "CVX": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -38.57864195576519,
+                "win_rate": 0.5
+              }
+            }
+          },
+          "oos_return": 0.007821880739494302,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.3215940934381709,
+          "excess_oos_return": -0.3137722126986766
+        },
+        {
+          "symbol": "PFE",
+          "run_id": "sim_fd6a71489f",
+          "metrics": {
+            "total_return": -0.019326274897789375,
+            "equity": 9806.737251022107,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.48931021860405927,
+            "max_drawdown": 0.043396555017537634,
+            "equity_curve_degraded": false,
+            "sharpe": -0.26080857124313334,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -193.2627489778946,
+            "total_fees": 44.43765847891164,
+            "total_slippage": 0.678149999618487,
+            "total_explicit_cost": 45.11580847853012,
+            "funding_pnl": 0.0,
+            "avg_win": 61.72399330953644,
+            "avg_loss": -63.072454817750646,
+            "per_instrument": {
+              "PFE": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -193.2627489778946,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.001930422317809266,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.11966493962979019,
+          "excess_oos_return": -0.12159536194759946
+        },
+        {
+          "symbol": "MRK",
+          "run_id": "sim_ad0d5621a2",
+          "metrics": {
+            "total_return": 0.05827353178979999,
+            "equity": 10582.735317898,
+            "win_rate": 0.625,
+            "profit_factor": 7.955391436016089,
+            "max_drawdown": 0.02514706209450588,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6647242478391756,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 582.7353178979984,
+            "total_fees": 42.159041785489286,
+            "total_slippage": 1.8132700042723542,
+            "total_explicit_cost": 43.97231178976164,
+            "funding_pnl": 0.0,
+            "avg_win": 133.3034265609987,
+            "avg_loss": -27.92727163566502,
+            "per_instrument": {
+              "MRK": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 582.7353178979984,
+                "win_rate": 0.625
+              }
+            }
+          },
+          "oos_return": 0.03839384708246785,
+          "oos_closed_trades": 2,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.8113274856407586,
+          "excess_oos_return": -0.7729336385582908
+        },
+        {
+          "symbol": "KO",
+          "run_id": "sim_757344e34d",
+          "metrics": {
+            "total_return": -0.003925535418764725,
+            "equity": 9960.744645812352,
+            "win_rate": 0.375,
+            "profit_factor": 0.6964902466582754,
+            "max_drawdown": 0.019348787645364907,
+            "equity_curve_degraded": false,
+            "sharpe": -0.05790429225358987,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -39.255354187645054,
+            "total_fees": 40.10829986231824,
+            "total_slippage": 1.1359000053405097,
+            "total_explicit_cost": 41.24419986765875,
+            "funding_pnl": 0.0,
+            "avg_win": 30.027559268172194,
+            "avg_loss": -25.867606398432326,
+            "per_instrument": {
+              "KO": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -39.255354187645054,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": -0.006654600005216116,
+          "oos_closed_trades": 3,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.3178070605176666,
+          "excess_oos_return": -0.3244616605228827
+        },
+        {
+          "symbol": "NKE",
+          "run_id": "sim_de1f4960de",
+          "metrics": {
+            "total_return": -0.040512371235503664,
+            "equity": 9594.876287644964,
+            "win_rate": 0.16666666666666666,
+            "profit_factor": 0.00805875638252243,
+            "max_drawdown": 0.04256923955390358,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5937851091253662,
+            "trade_count": 12,
+            "closed_trade_count": 6,
+            "realized_pnl": -405.1237123550376,
+            "total_fees": 28.7417469221975,
+            "total_slippage": 1.3033200073241318,
+            "total_explicit_cost": 30.04506692952163,
+            "funding_pnl": 0.0,
+            "avg_win": 3.291317226357152,
+            "avg_loss": -81.68300591627894,
+            "per_instrument": {
+              "NKE": {
+                "trade_count": 12,
+                "closed_trades": 6,
+                "realized_pnl": -405.1237123550376,
+                "win_rate": 0.16666666666666666
+              }
+            }
+          },
+          "oos_return": -0.011514704917120921,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": -0.47358907192450816,
+          "excess_oos_return": 0.46207436700738724
+        },
+        {
+          "symbol": "DIS",
+          "run_id": "sim_9d66bb9564",
+          "metrics": {
+            "total_return": -0.0394964935436416,
+            "equity": 9605.035064563584,
+            "win_rate": 0.25,
+            "profit_factor": 0.3004194361424075,
+            "max_drawdown": 0.04761212908354173,
+            "equity_curve_degraded": false,
+            "sharpe": -0.5471619938421451,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": -394.964935436416,
+            "total_fees": 38.14614836529649,
+            "total_slippage": 1.7447399978636469,
+            "total_explicit_cost": 39.890888363160144,
+            "funding_pnl": 0.0,
+            "avg_win": 84.80448809608728,
+            "avg_loss": -94.09565193809841,
+            "per_instrument": {
+              "DIS": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": -394.964935436416,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": 0.0,
+          "oos_closed_trades": 0,
+          "oos_points": 254,
+          "benchmark_oos_return": -0.07524670993415872,
+          "excess_oos_return": 0.07524670993415872
+        },
+        {
+          "symbol": "VZ",
+          "run_id": "sim_cc06acbf13",
+          "metrics": {
+            "total_return": -0.024585660700859435,
+            "equity": 9754.143392991406,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.4166497593197262,
+            "max_drawdown": 0.034510289807224946,
+            "equity_curve_degraded": false,
+            "sharpe": -0.35125552860056275,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -245.8566070085982,
+            "total_fees": 43.98872268487607,
+            "total_slippage": 0.8051399993895885,
+            "total_explicit_cost": 44.79386268426566,
+            "funding_pnl": 0.0,
+            "avg_win": 58.5332155503705,
+            "avg_loss": -70.24270894328494,
+            "per_instrument": {
+              "VZ": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -245.8566070085982,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.006659064789783065,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.11398966980997494,
+          "excess_oos_return": -0.120648734599758
+        },
+        {
+          "symbol": "T",
+          "run_id": "sim_959617ab54",
+          "metrics": {
+            "total_return": 0.024145973944860177,
+            "equity": 10241.459739448603,
+            "win_rate": 0.375,
+            "profit_factor": 1.9867817591505976,
+            "max_drawdown": 0.024830266547657964,
+            "equity_curve_degraded": false,
+            "sharpe": 0.27885149208140136,
+            "trade_count": 16,
+            "closed_trade_count": 8,
+            "realized_pnl": 241.45973944860455,
+            "total_fees": 40.85033719289399,
+            "total_slippage": 0.32903456115720964,
+            "total_explicit_cost": 41.17937175405118,
+            "funding_pnl": 0.0,
+            "avg_win": 162.05130177202972,
+            "avg_loss": -48.93883317349692,
+            "per_instrument": {
+              "T": {
+                "trade_count": 16,
+                "closed_trades": 8,
+                "realized_pnl": 241.45973944860455,
+                "win_rate": 0.375
+              }
+            }
+          },
+          "oos_return": -0.013442910308327782,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": -0.12551864284890346,
+          "excess_oos_return": 0.11207573254057568
+        },
+        {
+          "symbol": "F",
+          "run_id": "sim_0dde605fd1",
+          "metrics": {
+            "total_return": -0.0872095547577797,
+            "equity": 9127.904452422203,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.14997074654432124,
+            "max_drawdown": 0.11851786027293532,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6617907617564727,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -872.0955475777942,
+            "total_fees": 41.062939311504145,
+            "total_slippage": 0.2515500001907238,
+            "total_explicit_cost": 41.314489311694864,
+            "funding_pnl": 0.0,
+            "avg_win": 51.28796834403686,
+            "avg_loss": -170.9932421016508,
+            "per_instrument": {
+              "F": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -872.0955475777942,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.018426053390868002,
+          "oos_closed_trades": 4,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.2574170854664446,
+          "excess_oos_return": -0.2758431388573126
+        },
+        {
+          "symbol": "GM",
+          "run_id": "sim_ad1f61be72",
+          "metrics": {
+            "total_return": -0.028230278813950238,
+            "equity": 9717.697211860497,
+            "win_rate": 0.2857142857142857,
+            "profit_factor": 0.5517969838692414,
+            "max_drawdown": 0.05043119039102676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.22681879214265033,
+            "trade_count": 28,
+            "closed_trade_count": 14,
+            "realized_pnl": -282.302788139504,
+            "total_fees": 67.50814771216685,
+            "total_slippage": 1.4710699958800575,
+            "total_explicit_cost": 68.9792177080469,
+            "funding_pnl": 0.0,
+            "avg_win": 86.88798458900281,
+            "avg_loss": -62.985472649551525,
+            "per_instrument": {
+              "GM": {
+                "trade_count": 28,
+                "closed_trades": 14,
+                "realized_pnl": -282.302788139504,
+                "win_rate": 0.2857142857142857
+              }
+            }
+          },
+          "oos_return": 0.016718263644630582,
+          "oos_closed_trades": 3,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.5637560202917744,
+          "excess_oos_return": -0.5470377566471438
+        },
+        {
+          "symbol": "GE",
+          "run_id": "sim_42ca8109de",
+          "metrics": {
+            "total_return": 0.18140819371478245,
+            "equity": 11814.081937147825,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 4.185980260401377,
+            "max_drawdown": 0.04621119104816946,
+            "equity_curve_degraded": false,
+            "sharpe": 1.1139293239976882,
+            "trade_count": 22,
+            "closed_trade_count": 11,
+            "realized_pnl": 1814.081937147824,
+            "total_fees": 66.89097187934867,
+            "total_slippage": 4.405944713592419,
+            "total_explicit_cost": 71.29691659294109,
+            "funding_pnl": 0.0,
+            "avg_win": 595.8692897468557,
+            "avg_loss": -81.34217454851408,
+            "per_instrument": {
+              "GE": {
+                "trade_count": 22,
+                "closed_trades": 11,
+                "realized_pnl": 1814.081937147824,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": -0.026940259959385537,
+          "oos_closed_trades": 5,
+          "oos_points": 254,
+          "benchmark_oos_return": 0.2977089933917425,
+          "excess_oos_return": -0.32464925335112804
+        },
+        {
+          "symbol": "BA",
+          "run_id": "sim_38baa1917c",
+          "metrics": {
+            "total_return": -0.04483020662019899,
+            "equity": 9551.69793379801,
+            "win_rate": 0.2222222222222222,
+            "profit_factor": 0.6271813891273332,
+            "max_drawdown": 0.09281683122138037,
+            "equity_curve_degraded": false,
+            "sharpe": -0.389505424889685,
+            "trade_count": 18,
+            "closed_trade_count": 9,
+            "realized_pnl": -448.30206620199203,
+            "total_fees": 42.28125630041197,
+            "total_slippage": 3.495730010986165,
+            "total_explicit_cost": 45.776986311398126,
+            "funding_pnl": 0.0,
+            "avg_win": 377.08245300722024,
+            "avg_loss": -171.7809960309189,
+            "per_instrument": {
+              "BA": {
+                "trade_count": 18,
+                "closed_trades": 9,
+                "realized_pnl": -448.30206620199203,
+                "win_rate": 0.2222222222222222
+              }
+            }
+          },
+          "oos_return": -0.019296854914712558,
+          "oos_closed_trades": 1,
+          "oos_points": 254,
+          "benchmark_oos_return": -0.07835293845759717,
+          "excess_oos_return": 0.05905608354288461
+        },
+        {
+          "symbol": "INTC",
+          "run_id": "sim_040732dcff",
+          "metrics": {
+            "total_return": 0.13609114782989962,
+            "equity": 11360.911478298996,
+            "win_rate": 0.3076923076923077,
+            "profit_factor": 2.424900401226092,
+            "max_drawdown": 0.11028889376577841,
+            "equity_curve_degraded": false,
+            "sharpe": 0.39535574876753793,
+            "trade_count": 26,
+            "closed_trade_count": 13,
+            "realized_pnl": 1360.911478298994,
+            "total_fees": 66.68652657704024,
+            "total_slippage": 1.0116399993895762,
+            "total_explicit_cost": 67.6981665764298,
+            "funding_pnl": 0.0,
+            "avg_win": 579.0009580530664,
+            "avg_loss": -106.12137265703021,
+            "per_instrument": {
+              "INTC": {
+                "trade_count": 26,
+                "closed_trades": 13,
+                "realized_pnl": 1360.911478298994,
+                "win_rate": 0.3076923076923077
+              }
+            }
+          },
+          "oos_return": 0.20503520699054834,
+          "oos_closed_trades": 3,
+          "oos_points": 254,
+          "benchmark_oos_return": 2.8068470108073953,
+          "excess_oos_return": -2.601811803816847
+        }
+      ]
+    }
+  ],
+  "status": "replay_only_not_promoted"
+}
