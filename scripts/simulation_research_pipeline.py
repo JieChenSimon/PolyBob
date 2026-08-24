@@ -165,6 +165,8 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
     points = service.store.list_equity_points(run_id)
+    trades = service.store.list_trades(run_id)
+    turnover_notional = sum(float(trade.size) * float(trade.price) for trade in trades)
     period_returns: list[dict[str, Any]] = []
     for previous, current in zip(points, points[1:]):
         if previous.equity > 0:
@@ -181,9 +183,49 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
         "start": rows[0]["event_at"].date().isoformat(),
         "end": rows[-1]["event_at"].date().isoformat(),
         "metrics": metrics,
+        "turnover_notional": turnover_notional,
+        "turnover_ratio": turnover_notional / 10_000.0,
         "period_returns": period_returns,
         "run_id": run_id,
         "audit_db_retained": retain_db,
+    }
+
+
+def _oos_evidence(period_returns: list[dict[str, Any]], split: datetime) -> dict[str, Any]:
+    """Summarise a held-out equity slice without selecting on it."""
+    oos: list[tuple[datetime, float]] = []
+    for point in period_returns:
+        value = point.get("ts")
+        timestamp = value if isinstance(value, datetime) else datetime.fromisoformat(
+            str(value).replace("Z", "+00:00")
+        )
+        timestamp = timestamp if timestamp.tzinfo else timestamp.replace(tzinfo=UTC)
+        if timestamp >= split:
+            oos.append((timestamp, float(point["return"])))
+    if not oos:
+        return {"return": None, "max_drawdown": None, "stability_rate": None,
+                "observations": 0, "status": "UNKNOWN"}
+    wealth = 1.0
+    peak = 1.0
+    max_drawdown = 0.0
+    quarter_start: dict[tuple[int, int], float] = {}
+    quarter_end: dict[tuple[int, int], float] = {}
+    for timestamp, value in oos:
+        key = (timestamp.year, (timestamp.month - 1) // 3 + 1)
+        quarter_start.setdefault(key, wealth)
+        wealth *= 1.0 + value
+        peak = max(peak, wealth)
+        max_drawdown = max(max_drawdown, (peak - wealth) / peak)
+        quarter_end[key] = wealth
+    quarter_returns = [quarter_end[key] / quarter_start[key] - 1.0 for key in quarter_end]
+    return {
+        "return": wealth - 1.0,
+        "max_drawdown": max_drawdown,
+        "stability_rate": (sum(value > 0 for value in quarter_returns) / len(quarter_returns)
+                            if quarter_returns else None),
+        "observations": len(oos),
+        "quarters": len(quarter_returns),
+        "status": "ANALYZED",
     }
 
 
@@ -200,6 +242,23 @@ def _verdict(result: dict[str, Any]) -> tuple[str, list[str]]:
         reasons.append("return_unknown")
     elif metrics["total_return"] <= 0:
         reasons.append("non_positive_return")
+    evidence = result.get("research_evidence", {})
+    oos = evidence.get("oos", {})
+    if oos.get("return") is None:
+        reasons.append("oos_return_unknown")
+    elif oos["return"] <= 0:
+        reasons.append("non_positive_oos_return")
+    if oos.get("stability_rate") is None:
+        reasons.append("oos_stability_unknown")
+    elif oos["stability_rate"] < 0.5:
+        reasons.append("oos_stability<50%")
+    multiple_testing = evidence.get("multiple_testing", {})
+    if multiple_testing.get("status") != "ANALYZED":
+        reasons.append("multiple_testing_unknown")
+    elif multiple_testing.get("pbo") is None:
+        reasons.append("pbo_unknown")
+    elif multiple_testing["pbo"] > 0.25:
+        reasons.append("pbo>25%")
     if metrics.get("max_drawdown") is not None and metrics["max_drawdown"] > 0.25:
         reasons.append("max_drawdown>25%")
     return ("PASS" if not reasons else "FAIL"), reasons
@@ -210,12 +269,18 @@ def _optimization_action(reasons: list[str]) -> str:
     actions: list[str] = []
     if "non_positive_return" in reasons:
         actions.append("test slower trend windows and stricter separation; inspect turnover/cost drag")
+    if "non_positive_oos_return" in reasons or "oos_stability<50%" in reasons:
+        actions.append("reject the candidate and test only pre-registered alternatives on a fresh calibration/OOS split")
     if any(reason.startswith("closed_trades<") for reason in reasons):
         actions.append("test a lower separation threshold only on calibration data; require more OOS time")
     if "max_drawdown>25%" in reasons:
         actions.append("test lower position_fraction and a volatility/drawdown cap")
     if "equity_curve_degraded" in reasons or "return_unknown" in reasons:
         actions.append("repair mark coverage before any strategy optimization")
+    if "oos_return_unknown" in reasons or "oos_stability_unknown" in reasons:
+        actions.append("extend independent OOS coverage; keep the candidate blocked until return and stability are observed")
+    if "multiple_testing_unknown" in reasons:
+        actions.append("compute candidate-family PBO/deflated statistics before promotion")
     return "; ".join(actions) if actions else "no automatic change; independent confirmation required"
 
 
@@ -224,6 +289,21 @@ def _select_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any] | None
     eligible = [item for item in candidates
                 if item.get("score_train_median_return") is not None
                 and item["score_train_median_return"] >= 0]
+    return max(eligible, key=lambda item: (
+        item["score_train_median_return"], item.get("score_train_mean_return") or 0.0
+    )) if eligible else None
+
+
+def _diagnostic_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Choose the least-bad train-observed candidate for coverage diagnostics.
+
+    This is never a promotion selection. It prevents a domain with no positive
+    training candidate from disappearing from the per-instrument audit matrix.
+    The caller records the fallback status and the normal OOS/PBO gates remain
+    mandatory.
+    """
+    eligible = [item for item in candidates
+                if item.get("score_train_median_return") is not None]
     return max(eligible, key=lambda item: (
         item["score_train_median_return"], item.get("score_train_mean_return") or 0.0
     )) if eligible else None
@@ -300,6 +380,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     }
     candidates: dict[str, list[dict[str, Any]]] = {}
     selected_by_domain: dict[str, dict[str, Any] | None] = {}
+    selection_status_by_domain: dict[str, str] = {}
     pbo_by_domain: dict[str, dict[str, Any]] = {}
     for domain, calibration in calibration_by_domain.items():
         candidates[domain] = []
@@ -312,6 +393,14 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         # score is recorded for validation only; using it here is look-ahead
         # bias and makes the supposedly out-of-sample comparison invalid.
         selected_by_domain[domain] = _select_candidate(candidates[domain])
+        if selected_by_domain[domain] is not None:
+            selection_status_by_domain[domain] = "selected_on_positive_training_median"
+        else:
+            selected_by_domain[domain] = _diagnostic_candidate(candidates[domain])
+            selection_status_by_domain[domain] = (
+                "diagnostic_fallback_no_positive_train_candidate"
+                if selected_by_domain[domain] is not None else "no_candidate_data"
+            )
         matrices = [item["oos_portfolio_returns"] for item in candidates[domain]
                     if len(item["oos_portfolio_returns"]) >= 20]
         if len(matrices) >= 2:
@@ -342,6 +431,31 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     for item in full_results:
         item["verdict"], item["reasons"] = _verdict(item)
         item["optimization_action"] = _optimization_action(item["reasons"])
+        if item.get("status") == "ANALYZED":
+            domain = item["domain"]
+            metrics = item["metrics"]
+            pbo = pbo_by_domain.get(domain, {})
+            item["research_evidence"] = {
+                "sample": {
+                    "rows": item.get("rows"),
+                    "closed_trades": metrics.get("closed_trade_count"),
+                    "observations": len(item.get("period_returns", [])),
+                },
+                "full": {
+                    "return": metrics.get("total_return"),
+                    "max_drawdown": metrics.get("max_drawdown"),
+                    "explicit_cost": metrics.get("total_explicit_cost"),
+                    "turnover_notional": item.get("turnover_notional"),
+                    "turnover_ratio": item.get("turnover_ratio"),
+                },
+                "oos": _oos_evidence(item.get("period_returns", []), split),
+                "multiple_testing": (
+                    {"status": "ANALYZED", **pbo}
+                    if "pbo" in pbo else
+                    {"status": "BLOCKED", "reason": pbo.get("reason", "PBO unavailable")}
+                ),
+            }
+            item["verdict"], item["reasons"] = _verdict(item)
         # The full run is an instrument-level diagnostic. Keep the report small;
         # calibration runs retain their OOS series for PBO computation.
         item.pop("period_returns", None)
@@ -366,6 +480,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             domain: selected["candidate"] if selected else None
             for domain, selected in selected_by_domain.items()
         },
+        "selection_status_by_domain": selection_status_by_domain,
         "optimization_trace": {
             "selection": "training mean return only; OOS is held out for validation and cannot select the candidate",
             "failure_feedback": "each full-result verdict emits bounded next-step actions; no live strategy mutation occurs",

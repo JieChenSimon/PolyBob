@@ -136,6 +136,8 @@
 
 新增 `scripts/multi_asset_portfolio_replay.py` 及其测试，尝试让 SEC insider 和加密 TSMOM 共享一个真实 `SimulationService` 账户，统一竞争现金、费用、滑点、持仓和净值。当前美股单腿回放仍有 2,500 个标的、3,534 笔成交，但净值曲线被内核标记为 `equity_curve_degraded=true`，因此总收益、回撤和 Sharpe 保持 UNKNOWN；已加入逐标的长缺口拒绝与最后可交易日强制平仓，问题仍需下一轮定位，不能把已实现 PnL（+1,853）冒充有效组合收益。该路径明确保持 `replay_only_not_promoted`。
 
+本轮补齐 [simulation_research_report_oos_contract_full.json](../data/simulation_research_report_oos_contract_full.json) 的逐标的证据合同：2,849 个本地真实标的中，2,748 个完成同一成交内核的全历史与 OOS 回放并写出样本、收益、最大回撤、显式成本、换手、OOS 收益/回撤、季度稳定率和 PBO；101 个因历史不足保持 BLOCKED。全量结果没有 PASS：PBO 超过 25% 的 2,748 个标的全部被拒绝，另有大量标的成本后收益非正或 OOS 稳定率不足。期间发现并修复了一个门禁漏洞：仅“计算出 PBO”不能算通过，PBO 过拟合、OOS 非正和稳定率低于 50% 现在都会进入 FAIL 归因；没有正训练候选的资产域只使用明确标注的诊断回退，不参与晋级选择。
+
 ## 外部真实 OHLCV focused scoreboard
 
 在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：
