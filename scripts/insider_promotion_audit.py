@@ -1,0 +1,69 @@
+"""Apply the canonical PromotionGate to insider Paper Lab equity curves."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import numpy as np
+
+from libs.quant.promotion import PromotionGate, annualized_sharpe
+
+
+def daily_returns(report: dict) -> np.ndarray:
+    curve = report.get("equity_curve", [])
+    values = np.asarray([float(point["equity"]) for point in curve], dtype=float)
+    if len(values) < 2 or np.any(values[:-1] <= 0):
+        return np.asarray([], dtype=float)
+    return values[1:] / values[:-1] - 1.0
+
+
+def main() -> int:
+    base_path = Path("data/insider_kernel_replay_original_unlevered.json")
+    cost_paths = {
+        1.0: base_path,
+        2.0: Path("data/insider_kernel_replay_original_unlevered_2x.json"),
+        3.0: Path("data/insider_kernel_replay_original_unlevered_3x.json"),
+    }
+    reports = {multiple: json.loads(path.read_text()) for multiple, path in cost_paths.items()}
+    returns = {multiple: daily_returns(report) for multiple, report in reports.items()}
+    base = returns[1.0]
+    fold_returns = [float(fold["oos_return"]) for fold in reports[1.0]["folds"]]
+    stability = sum(value > 0 for value in fold_returns) / len(fold_returns)
+    gate = PromotionGate(
+        n_trials=int(reports[1.0].get("candidate_family_size", 18)),
+        min_dsr=0.95,
+        min_observations=60,
+        min_oos_stability_rate=0.75,
+        cost_min_sharpe=0.5,
+        periods_per_year=252,
+    )
+    decision = gate.evaluate(
+        base,
+        cost_returns_fn=lambda multiple: returns[float(multiple)],
+        cost_multiples=(1.0, 2.0, 3.0),
+        oos_stability_rate=stability,
+    )
+    report = {
+        "real_data_only": True,
+        "source_reports": {str(multiple): str(path) for multiple, path in cost_paths.items()},
+        "candidate_family_size": reports[1.0].get("candidate_family_size"),
+        "daily_observations": len(base),
+        "base_annualized_sharpe": annualized_sharpe(base),
+        "cost_annualized_sharpe": {
+            str(multiple): annualized_sharpe(values) for multiple, values in returns.items()
+        },
+        "oos_fold_returns": fold_returns,
+        "oos_stability_rate": stability,
+        "promotion": decision.to_dict(),
+        "status": "replay_only_not_promoted",
+    }
+    out = Path("data/insider_promotion_audit.json")
+    out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    print(f"写入 {out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

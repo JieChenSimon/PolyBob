@@ -219,6 +219,12 @@ async def main_async(args: argparse.Namespace) -> int:
         period = f"{executed.year}-Q{quarter}"
         period_pnl[period] += float(trade.realized_pnl)
         period_closed[period] += 1
+    equity_curve = [{
+        "timestamp": point.ts.isoformat() if hasattr(point.ts, "isoformat") else str(point.ts),
+        "equity": float(point.equity),
+        "gross_exposure": float(point.gross_exposure),
+        "degraded": bool(point.degraded),
+    } for point in points]
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
@@ -234,6 +240,7 @@ async def main_async(args: argparse.Namespace) -> int:
         "concentration": concentration(metrics),
         "calendar_period_pnl": dict(sorted(period_pnl.items())),
         "calendar_period_closed_trades": dict(sorted(period_closed.items())),
+        "equity_curve": equity_curve,
         "risk_rejections": risk_rejections,
         "max_gross_exposure": max_gross,
         "max_gross_leverage": max_leverage,

@@ -1,0 +1,62 @@
+{
+  "real_data_only": true,
+  "source_reports": {
+    "1.0": "data/insider_kernel_replay_original_unlevered.json",
+    "2.0": "data/insider_kernel_replay_original_unlevered_2x.json",
+    "3.0": "data/insider_kernel_replay_original_unlevered_3x.json"
+  },
+  "candidate_family_size": 18,
+  "daily_observations": 1269,
+  "base_annualized_sharpe": 0.5035695866914304,
+  "cost_annualized_sharpe": {
+    "1.0": 0.5035695866914304,
+    "2.0": 0.3466112925616846,
+    "3.0": 0.19103763505373764
+  },
+  "oos_fold_returns": [
+    0.09537927779735567,
+    0.09801278800480762,
+    0.05969238207355687,
+    0.04804975889556151
+  ],
+  "oos_stability_rate": 1.0,
+  "promotion": {
+    "approved": false,
+    "checks": [
+      {
+        "name": "min_observations",
+        "passed": true,
+        "value": 1269.0,
+        "threshold": 60.0,
+        "detail": "1269 observations",
+        "status": "pass"
+      },
+      {
+        "name": "deflated_sharpe",
+        "passed": false,
+        "value": 0.2345,
+        "threshold": 0.95,
+        "detail": "DSR=0.234 over 18 trial(s)",
+        "status": "fail"
+      },
+      {
+        "name": "cost_stress",
+        "passed": false,
+        "value": 0.191,
+        "threshold": 0.5,
+        "detail": "Sharpe under 3.0x costs is 0.19 < 0.5",
+        "status": "fail"
+      },
+      {
+        "name": "oos_stability",
+        "passed": true,
+        "value": 1.0,
+        "threshold": 0.75,
+        "detail": "100% of walk-forward windows stable",
+        "status": "pass"
+      }
+    ],
+    "status": "fail"
+  },
+  "status": "replay_only_not_promoted"
+}
