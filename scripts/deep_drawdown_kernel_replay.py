@@ -170,6 +170,20 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             if active is not None:
                 await service._record_equity(active)
         clock.current = rows[-1]["event_at"]
+        active = service._active.get(run_id)
+        execution_diagnostics = {
+            "signal_count": int(active.signal_count) if active is not None else None,
+            "stale_signal_count": int(active.stale_signal_count) if active is not None else None,
+            "unfillable_signal_count": int(active.unfillable_signal_count) if active is not None else None,
+            "risk_rejection_count": int(active.risk_rejections) if active is not None else None,
+            "risk_rejection_reasons": (
+                sorted({reason for event in active.risk_rejection_events
+                        for reason in event.get("reasons", [])})
+                if active is not None else []
+            ),
+            "bankruptcy_block_count": int(active.bankruptcy_block_count) if active is not None else None,
+            "bankrupt": bool(active is not None and active.bankruptcy_block_count > 0),
+        }
         await service.stop_run(run_id)
         trades = service.store.list_trades(run_id)
         events = _event_summaries(trades, split=split)
@@ -187,6 +201,7 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             "probe_fraction": probe_fraction,
             "round_trip_cost_bps": round_trip_bps,
             "metrics": metrics,
+            "execution_diagnostics": execution_diagnostics,
             "events": events,
             "event_stats": {
                 "all": _event_stats(events, cost_multiple=cost_multiple),

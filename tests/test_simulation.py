@@ -814,6 +814,7 @@ async def test_no_fill_on_degraded_or_stale_book(tmp_path):
     )
     await service._process_signal(active, no_ts)
     assert service.store.list_trades(run_id) == []
+    assert active.unfillable_signal_count >= 2
 
     # Mid-only quote pays the penalty (10 bps against the trade).
     mid_only = SimSignal(

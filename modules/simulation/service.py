@@ -170,7 +170,9 @@ class _ActiveRun:
     """In-memory companion of a persisted run (source binding, marks, locks)."""
 
     __slots__ = ("record", "source", "marks", "mark_times", "last_trade_at", "lock",
-                 "last_equity_at", "last_feedback_at", "risk_rejections",
+                 "last_equity_at", "last_feedback_at", "signal_count",
+                 "stale_signal_count", "unfillable_signal_count",
+                 "bankruptcy_block_count", "risk_rejections",
                  "risk_rejection_events", "paper_broker")
 
     def __init__(self, record: SimRunRecord, source: SignalSource):
@@ -184,6 +186,10 @@ class _ActiveRun:
         self.lock = asyncio.Lock()
         self.last_equity_at: datetime | None = None
         self.last_feedback_at: datetime | None = None
+        self.signal_count = 0
+        self.stale_signal_count = 0
+        self.unfillable_signal_count = 0
+        self.bankruptcy_block_count = 0
         self.risk_rejections = 0
         # Diagnostic-only evidence.  These events do not alter the risk
         # decision; they make a rejected entry/settlement explainable.
@@ -1063,6 +1069,7 @@ class SimulationService:
         async with active.lock:
             if active.record.status != "running":
                 return
+            active.signal_count += 1
             run_id = active.record.run_id
             instrument = signal.instrument_id
 
@@ -1074,6 +1081,8 @@ class SimulationService:
             # Stale/missing timestamp: no fill (unknown != safe).
             age = self._age_seconds(signal.timestamp)
             if age is None or age > float(active.config_value("max_staleness_seconds")):
+                active.stale_signal_count += 1
+                active.unfillable_signal_count += 1
                 return
 
             # Per-instrument cooldown against trade spam on 5s snapshots.
@@ -1088,6 +1097,7 @@ class SimulationService:
                 self._equity_snapshot, active
             )
             if equity <= 0:
+                active.bankruptcy_block_count += 1
                 return
 
             positions = {
@@ -1102,6 +1112,7 @@ class SimulationService:
             if est_price is None:
                 est_price = signal.mid
             if est_price is None or est_price <= 0:
+                active.unfillable_signal_count += 1
                 return
 
             fraction = float(active.config_value("position_fraction"))
@@ -1229,6 +1240,7 @@ class SimulationService:
 
             fill = self._fill_price(active, signal, qty)
             if fill is None:
+                active.unfillable_signal_count += 1
                 return
             raw_price, slippage = fill
 
