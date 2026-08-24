@@ -33,13 +33,14 @@ from libs.data import run_manifest
 from libs.data.http_client import HttpFetchError
 from libs.data.resilient import FetchPolicy, fetch_cached_bytes, load_checkpoint, save_checkpoint
 from libs.data.data_lake import write_records
+from libs.polymarket.btc_five_minute import map_outcome_tokens
 from libs.quant import clustered_inference
 from libs.quant.pbo import deflated_t_stat_threshold
 
 UA = {"User-Agent": "Mozilla/5.0 (PolyBob research)"}
 CACHE_DIR = Path("data/market_cache/btc5m")
 CHECKPOINT = CACHE_DIR / "collection_checkpoint.json"
-COLLECTOR_SPEC = "btc5m-v3-completed-bar-open-strike-cache-checkpoint"
+COLLECTOR_SPEC = "btc5m-v4-open-price-verified-up-token-cache-checkpoint"
 N_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_N_WINDOWS", "220"))
 MAX_NEW_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_MAX_NEW_WINDOWS", "60"))
 EDGE_THRESHOLD = 0.10     # model must disagree with the market by >= 10 points
@@ -84,7 +85,9 @@ def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]
            f"?instId=BTC-USDT&bar=1m&limit=300&after={end_ms}")
     rows = _get(url).get("data", [])
     out = [
-        (int(r[0]), float(r[5]), float(r[4]))
+        # OKX history-candles schema: ts, open, high, low, close, volume.
+        # Keep the open and close explicit; volume is never a price input.
+        (int(r[0]), float(r[1]), float(r[4]))
         for r in rows
         if start_ms - 3_600_000 <= int(r[0]) < end_ms
     ]
@@ -109,6 +112,20 @@ def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]
 
 def normal_cdf(x: float) -> float:
     return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
+def _closed_market_contract(market: dict) -> tuple[str, int]:
+    """Resolve the UP token and settled UP outcome without trusting array order."""
+    outcomes = json.loads(market.get("outcomes", "[]"))
+    outcome_prices = json.loads(market.get("outcomePrices", "[]"))
+    if len(outcomes) != len(outcome_prices):
+        raise ValueError("outcome prices are not aligned with outcomes")
+    up_index = next(
+        index for index, label in enumerate(outcomes)
+        if str(label).strip().upper() in {"UP", "YES"}
+    )
+    token = map_outcome_tokens(market)["UP"]
+    return token, 1 if float(outcome_prices[up_index]) > 0.5 else 0
 
 
 def main() -> None:
@@ -168,9 +185,7 @@ def main() -> None:
                                          "provider_failures": provider_failures})
             continue
         try:
-            outcome_prices = json.loads(market.get("outcomePrices", "[]"))
-            outcome_up = 1 if float(outcome_prices[0]) > 0.5 else 0
-            token = json.loads(market.get("clobTokenIds", "[]"))[0]
+            token, outcome_up = _closed_market_contract(market)
         except (ValueError, IndexError, TypeError):
             completed[key] = "invalid_market"
             continue
@@ -245,7 +260,6 @@ def main() -> None:
     )
     if len(samples) < 60:
         print("样本不足,不做结论(遵守真实数据规则,不用模拟数据凑)")
-        return
 
     model_ps = np.array([s[0] for s in samples])
     market_ps = np.array([s[1] for s in samples])
