@@ -1,0 +1,2771 @@
+{
+  "generated_at": "2026-08-24T17:22:10.714279+00:00",
+  "real_data_only": true,
+  "strategy": "btc5m_event_kernel_diagnostic",
+  "tradable_evidence": false,
+  "execution_basis": "historical midpoint plus fixed spread stress; not executable CLOB ask/depth",
+  "dataset": "data/datasets/parts/btc5m_settled_windows_v5/symbol=BTC-USDT",
+  "rows": 7547,
+  "edge_threshold": 0.1,
+  "spread_bps": 50.0,
+  "results": [
+    {
+      "cost_multiple": 1.0,
+      "candidate_events": 5609,
+      "fills": 281,
+      "risk_rejections": 5472,
+      "open_positions": 7,
+      "metrics": {
+        "total_return": null,
+        "equity": 8801435.886583393,
+        "win_rate": 0.7299270072992701,
+        "profit_factor": 1.926003048976513,
+        "max_drawdown": null,
+        "equity_curve_degraded": true,
+        "sharpe": null,
+        "trade_count": 281,
+        "closed_trade_count": 137,
+        "realized_pnl": 3784871.4281026367,
+        "total_fees": 0.0,
+        "total_slippage": 87971.32680956551,
+        "total_explicit_cost": 87971.32680956551,
+        "funding_pnl": 0.0,
+        "return_target": {
+          "status": "UNKNOWN",
+          "annualized_return": null,
+          "monthly_returns": {
+            "2026-08": 879.595175928046
+          },
+          "failed_months": [],
+          "min_complete_months": 12,
+          "reason": "need 12 complete calendar months; observed 1"
+        },
+        "avg_win": 78721.92125681286,
+        "avg_loss": -110468.1269615851,
+        "per_instrument": {
+          "BTC5M:1786835400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1050.871794871795,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786835700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1115.7493271485635,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786836300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1228.4007617267991,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786837500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1339.2329417036858,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786837800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1217.21061016853,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786838400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1340.1060653419274,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786838700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1461.0168309892113,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786839000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1314.977123787986,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786840200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1195.1318971281917,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786840800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 992.7469411360178,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786841100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1360.4931672241294,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786841400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1537.9732085585345,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786842000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 629.0294569551057,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786842600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1447.150459842976,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786842900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1302.6770484063527,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786843200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1507.1840885143415,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786843500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1336.1580322424638,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786843800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1727.0689773045713,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1645.4362085028613,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3294.8138733345595,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -2123.3104769499387,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786845600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2558.8253376916955,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786846200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1719.447275518581,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786846800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 521.6419330384559,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786847100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2319.7736356337646,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786847400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2444.9349272910963,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2097.1444486462055,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3107.2763306793167,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3421.0019389004674,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -3729.6758375423074,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786849200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3528.2424774880433,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786851900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3599.1423029354114,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786852200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4277.239241182595,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786852500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4497.00161063174,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786854600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4996.254583102584,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786855800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4071.925281138956,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786856100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5002.830799916171,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786856400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -5454.378054806513,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786856700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4908.881903850446,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786857000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4417.868928531171,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786857600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4528.471062892217,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786858200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5044.087137069228,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786858500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4786.659138777467,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786859700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -5412.02739938052,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786860000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5774.947037382904,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5726.628563368705,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5841.7048281479365,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 7521.92932535718,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786862700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 7138.04317174805,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786863000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 6668.626948656057,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786863300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 8477.358186580552,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786864800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 9299.703691064022,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786866000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -10513.38679827836,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786866600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 9556.793338752514,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786867500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 10109.026482588402,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786868700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 11089.651849559492,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786869000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -12538.494578232187,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786869600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -11284.941855417655,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786872000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -10154.874107683769,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786872300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 9231.399979030179,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786872600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 40892.21270505593,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786873200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 22367.588569412565,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786873500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -16389.009520992164,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786873800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 12188.062840307239,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786874100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 16126.313521125528,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786875000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -17580.303117085234,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786875300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 15352.786149883601,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786875900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 16842.08203591073,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786876200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 19230.06092126099,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786878600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 29246.528305558026,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786878900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 23178.314915249037,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 18777.989971056417,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 28360.602170109723,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -30919.170700454008,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786880400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -27826.156401616707,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786880700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 25292.813761401383,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786881300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 26754.34270367499,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786881600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -30246.865521667078,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786881900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 26415.550785783853,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786882200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -29862.98403973522,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786882800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -26877.048543117744,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786883400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 24432.170331091176,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 85512.12593227738,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 34139.06500484972,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -38597.068502117654,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786884900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 35082.575327354956,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786885500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 40201.71242450841,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 41009.56347549747,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 43222.19743945503,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 49180.45921903069,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786888500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 53951.20603154868,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 42817.51019924766,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 65923.8179552524,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 178102.82049069885,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786892400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 35291.045378393115,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786892700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -93206.8767337393,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786893000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -83884.83088884836,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786894200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 48765.59883225988,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786894500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 77985.17477828119,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786894800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 85550.12089519702,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786895100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 97679.96813743825,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786896000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -106489.01859046669,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786896300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -95846.73941479615,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786896600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 90670.22230941414,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786896900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 96267.91776867652,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786897200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 64990.85714688899,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786897500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 108135.13064862223,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786898100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 123467.22606312709,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 115797.84205713673,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 300151.4139325248,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -176193.5933272689,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786900200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 115984.16989454233,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786900500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -170174.535365105,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786901100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 154668.64042110997,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786901400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 199919.02468667098,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786901700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 182999.19834306414,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 265983.07465888606,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 226552.6905595883,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 258674.79044736107,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786904700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 284791.8451693127,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786905000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -310481.66711156396,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786905600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 230901.32276061288,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 293528.6729738939,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 274225.4665178214,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 348603.6213230115,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 93882.23847315155,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 391526.92945653875,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908600:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786908900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 484719.47777089017,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786909500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -548049.3619620112,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786909800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -493231.3689881706,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786910700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 430730.2945314488,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786911000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 356196.2143735557,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786911600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -522587.05507519963,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786911900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 475002.38842673757,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786912500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -517861.4226273997,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786912800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 369847.96130278695,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786913100:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786913400:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786913700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -667577.7519826998,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786914300:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786914600:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786914900:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786915200:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          }
+        }
+      }
+    },
+    {
+      "cost_multiple": 2.0,
+      "candidate_events": 5609,
+      "fills": 287,
+      "risk_rejections": 5469,
+      "open_positions": 7,
+      "metrics": {
+        "total_return": null,
+        "equity": 8629210.975351095,
+        "win_rate": 0.7285714285714285,
+        "profit_factor": 1.7660258863238627,
+        "max_drawdown": null,
+        "equity_curve_degraded": true,
+        "sharpe": null,
+        "trade_count": 287,
+        "closed_trade_count": 140,
+        "realized_pnl": 3530691.378565688,
+        "total_fees": 0.0,
+        "total_slippage": 185971.77623318482,
+        "total_explicit_cost": 185971.77623318482,
+        "funding_pnl": 0.0,
+        "return_target": {
+          "status": "UNKNOWN",
+          "annualized_return": null,
+          "monthly_returns": {
+            "2026-08": 862.8025286868308
+          },
+          "failed_months": [],
+          "min_complete_months": 12,
+          "reason": "need 12 complete calendar months; observed 1"
+        },
+        "avg_win": 79801.89502178568,
+        "avg_loss": -121292.15562253808,
+        "per_instrument": {
+          "BTC5M:1786835400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1040.4081632653063,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786835700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1103.5992000000003,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786836300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1213.9149760320001,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786837500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1335.525075482945,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786837800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1201.7588304908838,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786838400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1321.8866431867527,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786838700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1454.3133528944502,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786839000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1308.9432589968674,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786840200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1177.8073011150443,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786840800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 977.2742201407754,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786841100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1338.5818771431989,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786841400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1527.0791579731554,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786842000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 617.3268028108728,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786842600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1436.1743135330923,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786842900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1292.7936750733265,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786843200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1480.6365443393893,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786843500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1311.3118378280558,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786843800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1693.2912930831908,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1611.6519667939438,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3221.2066214657157,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -2095.163627825254,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786845600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2499.2572656532448,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786846200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1677.5166592275305,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786846800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 505.1379641213741,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786847100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2261.010505935083,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786847400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2380.8770507629606,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2039.9720133149128,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3021.2345500821166,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3323.237155708325,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -3656.1736606803793,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786849200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3424.2676421544907,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786851900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3489.7770728006763,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786852200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4143.610498416561,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786852500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4396.1594455706245,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786854600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4835.091367221267,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786855800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3936.50919807337,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786856100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4832.649132127568,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786856400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -5316.946548377547,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786856700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4785.195993043957,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786857000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4306.556715978203,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786857600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4370.2615306091,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786858200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4862.892287825419,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786858500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4610.164069219099,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786859700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -5260.2574796035315,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786860000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5556.752825523229,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5504.757222404317,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5610.068357271769,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 7217.050390877088,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786862700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 6841.974781358694,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786863000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 6385.805980419062,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786863300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 8112.360470989821,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786864800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 8891.46520798802,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786866000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -10144.034192269119,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786866600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 9129.25093640856,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786867500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 9647.935564880576,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786868700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 10574.51572952342,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786869000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -12065.660706264809,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786869600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -10859.378543002455,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786872000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -9771.949814574085,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786872300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 8794.856064579,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786872600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 38701.76622379001,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786873200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 21183.572705272265,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786873500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -15663.261635126206,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786873800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 11531.292589124118,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786874100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 15247.096730305017,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786875000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -16773.60565492842,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786875300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 14502.44701554778,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786875900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 15895.25065245274,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786876200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 18133.060757092997,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786878600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 27545.501409405893,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786878900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 21808.751342398333,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 17647.82428678393,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 26643.169131149287,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -29312.039629117804,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786880400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -26379.812007235738,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786880700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 23739.462827929066,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786881300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 25088.236625779522,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786881600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -28623.311260512655,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786881900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 24748.730830467313,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786882200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -28235.163259029825,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786882800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -25411.992210740547,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786883400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 22870.4069447762,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 79673.25946585796,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 31821.56208921201,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -36306.76980246857,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786884900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 32672.330476166066,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786885500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 37405.417739057535,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 38121.018233891125,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 40141.988383752185,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 45637.33600669931,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786888500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 50020.309962793675,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 39650.0564161726,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 61025.830259730574,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 164362.34874922282,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786892400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 32483.640693560294,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786892700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -86820.06484365986,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786893000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -78136.81741103473,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786894200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 44949.52762622145,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786894500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 71872.57671684911,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786894800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 78775.16261408692,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786895100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 89865.51021205205,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786896000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -98864.47705447701,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786896300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -88984.12282708733,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786896600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 83339.98347485308,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786896900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 88401.7853168339,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786897200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 59590.214908131544,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786897500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 99147.3906424053,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786898100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 113105.8388279363,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 105976.81835661284,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 274129.5838414807,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -162439.8289055723,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786900200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 105839.06436788534,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786900500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -156781.49941708226,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786901100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 141077.6433359795,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786901400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 182172.9494222972,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786901700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 166588.81319910285,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 241881.99416356822,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 205818.0291689531,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 234794.084687798,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786904700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 258264.10139319027,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786905000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -284132.0772382688,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786905600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 209182.06677173928,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 265739.4125224659,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 248022.00884201803,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 315080.65648017655,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 84257.85899307116,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 353432.8142995485,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 513173.91776747024,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 436661.04515571037,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786909500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -498237.9160028454,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786909800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -448402.4441399253,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786910700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 387683.0317281296,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786911000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 320234.94543673244,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786911600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -474341.7332938264,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786911900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 426858.40555718035,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786912500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -469622.95680807065,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786912800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 332011.9013927346,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786913100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 455771.5706773591,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786913400:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786913700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -603221.2561342722,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786914300:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786914600:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786914900:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786915200:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786915500:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786915800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -871398.458560022,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786916100:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          }
+        }
+      }
+    },
+    {
+      "cost_multiple": 3.0,
+      "candidate_events": 5609,
+      "fills": 292,
+      "risk_rejections": 5467,
+      "open_positions": 8,
+      "metrics": {
+        "total_return": null,
+        "equity": 8200316.9014432635,
+        "win_rate": 0.7253521126760564,
+        "profit_factor": 1.5746021414679008,
+        "max_drawdown": null,
+        "equity_curve_degraded": true,
+        "sharpe": null,
+        "trade_count": 292,
+        "closed_trade_count": 142,
+        "realized_pnl": 2881996.3313400825,
+        "total_fees": 0.0,
+        "total_slippage": 284558.78847827855,
+        "total_explicit_cost": 284558.78847827855,
+        "funding_pnl": 0.0,
+        "return_target": {
+          "status": "UNKNOWN",
+          "annualized_return": null,
+          "monthly_returns": {
+            "2026-08": 820.2823739625434
+          },
+          "failed_months": [],
+          "min_complete_months": 12,
+          "reason": "need 12 complete calendar months; observed 1"
+        },
+        "avg_win": 76676.06139687433,
+        "avg_loss": -128606.10237276855,
+        "per_instrument": {
+          "BTC5M:1786835400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1030.05076142132,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786835700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1091.5908942596666,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786836300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1199.620377188091,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786837500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1331.8611035449603,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786837800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1186.533150677191,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786838400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1303.9586105442095,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786838700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1447.7011119860833,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786839000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1302.9915213218203,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786840200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1160.782326062541,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786840800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 962.0767637352245,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786841100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1317.0943263122622,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786841400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1516.3586811522564,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786842000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 605.8489299121508,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786842600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1425.3768972117077,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786842900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -1283.0712940950582,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786843200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1454.6720834610785,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786843500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1287.0289879746115,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786843800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1660.3321177041412,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1578.7150930201922,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3149.6853737243982,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786844700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -2067.651363858834,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786845600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2441.4201893385884,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786846200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1636.8156890168423,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786846800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 489.1370442820103,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786847100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2204.055593807709,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786847400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2318.8473006190034,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 1984.6468229916422,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 2938.0682388440396,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3228.8346737051625,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786848900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -3584.7807316236153,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786849200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3323.97613953374,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786851900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3384.3815818775233,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786852200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4014.9710374163665,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786852500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4298.479551180898,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786854600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4680.15543962454,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786855800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 3806.413193074409,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786856100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4669.319473187961,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786856400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -5184.200877422624,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786856700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4665.727220248994,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786857000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -4199.039687038788,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786857600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4218.600002672661,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786858200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4689.386834716955,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786858500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 4441.302499821082,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786859700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -5114.090219013825,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786860000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5348.2541449863365,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5292.941118698183,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 5389.127864978322,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786861800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 6926.58092981957,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786862700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 6560.141503164667,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786863000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 6116.800123821188,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786863300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 7765.502216302267,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786864800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 8503.868895327456,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786866000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -9790.886722133773,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786866600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 8723.712938349936,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786867500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 9210.971632469937,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786868700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 10086.777774226543,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786869000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -11614.766514691597,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786869600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -10453.56160220599,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786872000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -9406.792258271384,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786872300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 8381.921070015622,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786872600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 36647.287924273005,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786873200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 20071.82546904041,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786873500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -14976.688751087942,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786873800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 10914.93032527248,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786874100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 14422.683651797814,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786875000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -16011.681853503831,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786875300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 13705.817977143577,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786875900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 15009.00726499959,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786876200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 17107.195848257394,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786878600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 25957.04251213775,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786878900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 20530.781429537124,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 16594.165217314847,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 25043.132505790527,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786879800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -27803.544805434158,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786880400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -25022.234729864093,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786880700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 22293.618004740936,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786881300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 23538.81706997461,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786881600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -27102.058625747206,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786881900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 23200.013633852075,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786882200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -26711.219121194837,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786882800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -24040.425775457403,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786883400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 21420.620986050675,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 74283.06375991672,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 29680.110348456445,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786884600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -34174.275426566586,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786884900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 30447.186982234838,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786885500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 34826.30014909069,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 35459.18617997486,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 37305.97285594375,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786887900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 42377.91047230719,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786888500:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 46407.32623292286,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 36741.515754869906,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 56530.982551862355,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786890600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 151797.93317446625,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786892400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 29919.61006533133,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786892700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -80930.84052079386,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786893000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -72836.62179594194,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786894200:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 41461.77905974633,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786894500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 66288.3755729807,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786894800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 72591.26833721748,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786895100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 82739.18603624709,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786896000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -91856.51770070159,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786896300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -82676.47712145772,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786896600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 76661.49140674602,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786896900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 81241.61361183728,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786897200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 54679.87675222759,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786897500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 90978.44668965988,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786898100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 103696.80539229844,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 97066.27709539386,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 250578.5066523318,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786899900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -149885.43242937463,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786900200:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 96660.80950597102,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786900500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -144564.5907908248,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786901100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 128789.66037722342,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786901400:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 166145.13857144822,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786901700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 151780.70954713286,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 220159.18717408727,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 187145.84353196225,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786902900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 213307.9517493791,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786904700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 234418.01033743212,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786905000:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -260254.71161226812,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786905600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 189675.8639722901,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907100:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 240800.46956573144,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907400:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 224526.91627845424,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786907700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 285045.1593456089,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 75678.50502380679,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 319343.82113043155,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908600:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 463210.88034781173,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786908900:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 393751.4125509872,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786909500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -453400.3411062191,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786909800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -408049.8474584779,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786910700:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 349281.2440531373,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786911000:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 288185.5404984669,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786911600:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -430980.65435859846,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786911900:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 383977.3749462206,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786912500:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -426306.96030871454,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786912800:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 298343.1340247953,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786913100:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 409313.800369059,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786913400:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786913700:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -545649.6566542379,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786914300:DOWN": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": 486110.30425968504,
+            "win_rate": 1.0
+          },
+          "BTC5M:1786914600:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786914900:UP": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786915200:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786915500:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786915800:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -784668.6834503522,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786916100:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786916400:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          },
+          "BTC5M:1786917300:UP": {
+            "trade_count": 2,
+            "closed_trades": 1,
+            "realized_pnl": -809047.190784153,
+            "win_rate": 0.0
+          },
+          "BTC5M:1786918800:DOWN": {
+            "trade_count": 1,
+            "closed_trades": 0,
+            "realized_pnl": 0.0,
+            "win_rate": null
+          }
+        }
+      }
+    }
+  ],
+  "status": "diagnostic_not_promotion"
+}
