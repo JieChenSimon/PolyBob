@@ -30,6 +30,7 @@ from libs.db import fact_store
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.service import SimulationService
 from scripts.simulation_research_pipeline import ProgressReporter, ReplayClock, _bars, _date
+from scripts.deep_drawdown_research import _first_drawdown_events, _fundamental_quality
 
 
 HORIZONS = (21, 63, 126, 252)
@@ -119,7 +120,8 @@ def _event_stats(events: list[dict[str, Any]], *, oos: bool | None = None,
 
 async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                     cost_multiple: float, db_path: Path, name: str,
-                    confirmation_bars: int = 0, probe_fraction: float = 0.0) -> dict[str, Any]:
+                    confirmation_bars: int = 0, probe_fraction: float = 0.0,
+                    allowed_event_dates: set[str] | None = None) -> dict[str, Any]:
     if len(rows) < MIN_ROWS:
         return {"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
                 "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
@@ -152,6 +154,7 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                 "equity_interval_minutes": 1440.0,
                 "record_equity_on_fill": False,
                 "cooldown_seconds": 0.0,
+                "allowed_event_dates": sorted(allowed_event_dates) if allowed_event_dates is not None else None,
             },
         )
         run_id = str(run["run_id"])
@@ -199,6 +202,7 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             "cost_multiple": cost_multiple,
             "confirmation_bars": confirmation_bars,
             "probe_fraction": probe_fraction,
+            "fundamental_quality_gate": allowed_event_dates is not None,
             "round_trip_cost_bps": round_trip_bps,
             "metrics": metrics,
             "execution_diagnostics": execution_diagnostics,
@@ -237,6 +241,16 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     missing = [symbol for symbol in requested if symbol not in available]
     rows_by_symbol = {symbol: _bars(symbol, as_of=datetime.now(UTC), start=None, end=None)
                       for symbol in symbols}
+    quality_dates_by_symbol: dict[str, set[str]] = {}
+    if args.fundamental_quality_only:
+        quality_as_of = datetime.now(UTC)
+        for symbol in symbols:
+            frame = store.read(store.DAILY_BARS, symbol, as_of=quality_as_of)
+            quality_dates_by_symbol[symbol] = {
+                event["event_date"]
+                for event in _first_drawdown_events(frame)
+                if _fundamental_quality(symbol, event["event_date"], quality_as_of)["status"] == "PASS"
+            }
     cases = [(symbol, hold_days, multiple)
              for symbol in symbols
              for hold_days in HORIZONS
@@ -249,7 +263,9 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                                  cost_multiple=multiple, db_path=db_path,
                                  name=f"deep-drawdown:{symbol}:{hold_days}d:{multiple:g}x",
                                  confirmation_bars=args.confirmation_bars,
-                                 probe_fraction=args.probe_fraction)
+                                 probe_fraction=args.probe_fraction,
+                                 allowed_event_dates=(quality_dates_by_symbol[symbol]
+                                                       if args.fundamental_quality_only else None))
         results.append(result)
         progress.complete_one(f"{symbol}:{hold_days}d:{multiple:g}x")
     report = {
@@ -260,6 +276,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "missing_symbols": missing,
         "universe_count": len(symbols),
         "case_count": len(cases),
+        "fundamental_quality_only": bool(args.fundamental_quality_only),
         "results": results,
         "promotion": {"status": "BLOCKED", "reason": "PIT/fundamental/executable quote gates UNKNOWN"},
         "progress": json.loads(Path(args.progress).read_text(encoding="utf-8")),
@@ -285,6 +302,8 @@ def main() -> int:
     parser.add_argument("--output-dir", default="data/.kernel_replay_deep_drawdown")
     parser.add_argument("--confirmation-bars", type=int, default=0)
     parser.add_argument("--probe-fraction", type=float, default=0.0)
+    parser.add_argument("--fundamental-quality-only", action="store_true",
+                        help="trade only drawdown dates passing the row-level SEC quality audit")
     args = parser.parse_args()
     report = asyncio.run(run(args))
     print(json.dumps({"symbols": report["universe_count"], "cases": report["case_count"],

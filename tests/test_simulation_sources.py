@@ -121,3 +121,16 @@ async def test_deep_drawdown_probe_enters_before_confirmation_and_scales_afterwa
     })
     assert len(scaled) == 1
     assert scaled[0].signal_meta["position_fraction"] == pytest.approx(0.04)
+
+
+@pytest.mark.asyncio
+async def test_deep_drawdown_quality_date_gate_suppresses_unapproved_episode():
+    source = DeepDrawdownSignalSource({"allowed_event_dates": ["2026-01-10"]})
+    signals = []
+    for day, close in enumerate((100.0, 110.0, 50.0), start=1):
+        signals.extend(await source.on_snapshot(
+            "features.snapshots",
+            {"market_id": "m1", "mid_price": close,
+             "timestamp": datetime(2026, 1, day, tzinfo=UTC)},
+        ))
+    assert signals == []

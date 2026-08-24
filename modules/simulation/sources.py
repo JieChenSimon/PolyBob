@@ -425,6 +425,11 @@ class DeepDrawdownSignalSource:
         self.confidence = float(config.get("rebound_confidence", 0.7))
         self.confirmation_bars = max(0, int(config.get("confirmation_bars", 0)))
         self.probe_fraction = max(0.0, min(1.0, float(config.get("probe_fraction", 0.0))))
+        allowed_dates = config.get("allowed_event_dates")
+        self.allowed_event_dates = (
+            {str(value)[:10] for value in allowed_dates}
+            if allowed_dates is not None else None
+        )
         self._index: dict[str, int] = {}
         self._prior_peak: dict[str, float] = {}
         self._prior_mid: dict[str, float] = {}
@@ -481,6 +486,15 @@ class DeepDrawdownSignalSource:
         )
         if triggered and not self._triggered.get(instrument, False) and index >= self._active_until.get(instrument, -1):
             self._triggered[instrument] = True
+            if self.allowed_event_dates is not None and timestamp.date().isoformat() not in self.allowed_event_dates:
+                # Reject this causal episode without fabricating a signal. The
+                # episode remains triggered until recovery, so it cannot emit
+                # repeated entries on every bar while still below the peak.
+                self._pending_event.pop(instrument, None)
+                self._confirmation_count[instrument] = 0
+                self._prior_mid[instrument] = mid
+                self._prior_peak[instrument] = max(prior_peak or mid, mid)
+                return signals
             self._pending_event[instrument] = {
                 "event_id": f"{instrument}:{index}",
                 "trigger_index": index,

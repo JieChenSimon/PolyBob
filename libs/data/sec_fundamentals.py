@@ -103,14 +103,46 @@ def _submission_acceptance(symbol: str) -> dict[str, str]:
         pending.write_bytes(raw)
         pending.replace(cache)
     record_raw("sec_submissions_raw", raw, source="data.sec.gov", request=url)
-    recent = json.loads(raw).get("filings", {}).get("recent", {})
-    accession = recent.get("accessionNumber", [])
-    accepted = recent.get("acceptanceDateTime", [])
-    return {
+    document = json.loads(raw)
+    sources = [document.get("filings", {}).get("recent", {})]
+    # SEC moves older submissions into separately named JSON files.  Company
+    # facts often reaches much further back than the recent index, so omitting
+    # these files would systematically turn older otherwise auditable filings
+    # into UNKNOWN.  Each file is cached independently and fetched serially.
+    for item in document.get("filings", {}).get("files", []):
+        name = str(item.get("name", ""))
+        if not name.endswith(".json"):
+            continue
+        historical_url = f"https://data.sec.gov/submissions/{name}"
+        historical_cache = CACHE_DIR / name
+        try:
+            if historical_cache.exists():
+                historical_raw = historical_cache.read_bytes()
+            else:
+                historical_raw = http_get_bytes(
+                    historical_url, timeout=60.0, headers={"User-Agent": USER_AGENT}
+                )
+                CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                pending = historical_cache.with_suffix(".pending")
+                pending.write_bytes(historical_raw)
+                pending.replace(historical_cache)
+            record_raw("sec_submissions_raw", historical_raw,
+                       source="data.sec.gov", request=historical_url)
+            sources.append(json.loads(historical_raw))
+        except (HttpFetchError, json.JSONDecodeError):
+            # Partial historical coverage is explicitly reflected by missing
+            # accession timestamps; never synthesize a timestamp on failure.
+            continue
+    accepted: dict[str, str] = {}
+    for source in sources:
+        accession = source.get("accessionNumber", [])
+        timestamps = source.get("acceptanceDateTime", [])
+        accepted.update({
         str(acc): str(stamp)
-        for acc, stamp in zip(accession, accepted)
+        for acc, stamp in zip(accession, timestamps)
         if acc and stamp
-    }
+        })
+    return accepted
 
 
 def _facts(facts: dict[str, Any], names: tuple[str, ...]) -> list[dict[str, Any]]:
