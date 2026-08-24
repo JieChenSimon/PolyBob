@@ -1,5 +1,8 @@
+import os
+
 import pytest
 
+from scripts.btc5m_direction_kernel_replay import worker_budget
 from scripts.btc5m_simulation_kernel_replay import replay
 from scripts.btc5m_mispricing import _period_audit, _should_skip_checkpoint_window, _time_split_audit
 
@@ -64,3 +67,13 @@ def test_time_split_is_fixed_and_fail_closed_until_oos_has_independent_days():
     assert split["oos_start"] == "2026-08-20"
     assert split["status"] == "UNKNOWN"
     assert split["oos"]["independent_days"] == 1
+
+
+def test_direction_replay_worker_budget_is_bounded(monkeypatch):
+    monkeypatch.setattr(os, "cpu_count", lambda: 15)
+    monkeypatch.delenv("POLYBOB_REPLAY_WORKERS", raising=False)
+    assert worker_budget() == 4
+    monkeypatch.setenv("POLYBOB_REPLAY_WORKERS", "99")
+    assert worker_budget() == 6
+    monkeypatch.setenv("POLYBOB_REPLAY_WORKERS", "2")
+    assert worker_budget() == 2

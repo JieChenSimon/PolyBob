@@ -116,3 +116,12 @@
 - operation: create
 - status: approved-by-explicit-request
 - notes: 用户明确要求由主 Agent 判断是否需要团队；默认单 Agent，必要时最多 3 个，避免机械并行和重复审查。
+
+## 2026-08-25T03:15:00+08:00
+
+- proposal_ref: user-local-resource-budget-and-judgment
+- approved_item_ids: bounded-multicore-research-with-60-percent-cpu-budget
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: create
+- status: approved-by-explicit-request
+- notes: 用户要求研究任务合理使用多核，但总 CPU 不超过 60%；正常运行不自动停止，需根据实际资源和系统影响判断是否调整并发。

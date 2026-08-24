@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
+import functools
 import json
 import math
+import os
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
@@ -12,16 +15,40 @@ from pathlib import Path
 import numpy as np
 import pyarrow.dataset as ds
 
+# Keep numerical libraries from creating their own thread pools inside each
+# replay worker.  The replay is deliberately bounded below 60% of a typical
+# development machine's logical CPU capacity; it is a background research job,
+# not an excuse to starve the rest of the workstation.
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+
 from libs.quant.promotion import PromotionGate
 from libs.quant.return_target import evaluate_return_target
 from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import SimSignal
 
-DATASET = Path("data/datasets/parts/btc_1m_bars_clean/symbol=BTC-USDT")
+DATASET = Path("data/datasets/parts/btc_1m_bars_clean_v2/symbol=BTC-USDT")
 THRESHOLDS = (0.55, 0.60, 0.65)
 SPLITS = (0.50, 0.60, 0.70, 0.80)
 COSTS = (1.0, 2.0, 3.0)
+
+
+def replay_worker(args: tuple[list[dict], float, str, float, Path]) -> dict:
+    """Run one isolated cost scenario in a bounded worker process."""
+    return asyncio.run(replay(*args))
+
+
+def worker_budget() -> int:
+    """Return a conservative worker count with a hard project-side ceiling."""
+    logical = os.cpu_count() or 1
+    configured = int(os.environ.get("POLYBOB_REPLAY_WORKERS", "0") or 0)
+    # Default to four workers for useful multicore throughput.  The hard
+    # project-side ceiling is six workers and 50% of logical CPUs, leaving the
+    # other half for the API, browser, editor and the OS. A caller can lower
+    # this, never raise it.
+    safe_capacity = max(1, int(logical * 0.50))
+    return max(1, min(6, safe_capacity, configured or 4))
 
 
 class Clock:
@@ -150,11 +177,22 @@ async def main_async() -> int:
     out_dir = Path("data/.kernel_replay_btc5m_direction")
     out_dir.mkdir(parents=True, exist_ok=True)
     results = {}
-    for threshold in THRESHOLDS:
-        folds = []
-        for split in splits:
-            costs = [await replay(rows, threshold, split, multiple, out_dir) for multiple in COSTS]
-            folds.append({"split_date": split, "costs": costs})
+    workers = worker_budget()
+    print(f"replay resource policy: workers={workers}, logical_cpus={os.cpu_count() or 1}, cpu_budget<=60%")
+    loop = asyncio.get_running_loop()
+    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as pool:
+        for threshold in THRESHOLDS:
+            folds = []
+            for split in splits:
+                jobs = [
+                    loop.run_in_executor(
+                        pool,
+                        functools.partial(replay_worker, (rows, threshold, split, multiple, out_dir)),
+                    )
+                    for multiple in COSTS
+                ]
+                costs = await asyncio.gather(*jobs)
+                folds.append({"split_date": split, "costs": costs})
         base = [f["costs"][0]["oos_return"] for f in folds]
         base = [float(value) for value in base if value is not None]
         stability = float(np.mean(np.asarray(base) > 0)) if base else 0.0
@@ -171,6 +209,7 @@ async def main_async() -> int:
               "product_scope": "BTC-USDT spot proxy; not a Polymarket UP/DOWN event contract",
               "tradable_evidence": False,
               "dataset": str(DATASET), "windows": len(rows),
+              "resource_policy": {"workers": workers, "cpu_budget": "<=60%"},
               "thresholds": list(THRESHOLDS), "cost_multiples": list(COSTS),
               "results": results, "status": "replay_only_not_promoted"}
     out = Path("data/btc5m_direction_kernel_replay.json")
