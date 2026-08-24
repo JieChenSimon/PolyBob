@@ -89,3 +89,12 @@
 - operation: create
 - status: approved-by-explicit-request
 - notes: 汇总用户对真实数据、量化证据、模拟盘、前端工作台、任务持续推进和安全边界的硬要求；收益目标被转译为必须验证正期望、未证明则 UNKNOWN，不构成盈利保证。
+
+## 2026-08-24T15:24:00Z
+
+- proposal_ref: user-explicit-per-instrument-return-floor
+- approved_item_ids: per-instrument-annual-50-monthly-15-return-gate
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: update
+- status: approved-by-explicit-request
+- notes: 用户明确要求每个标的年化收益至少 50% 且每月收益至少 15%；作为同时满足的实盘候选验收门槛，不作为盈利保证，未达标必须拒绝晋级并保留证据。
