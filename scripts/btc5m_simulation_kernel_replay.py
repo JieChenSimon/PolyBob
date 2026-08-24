@@ -204,6 +204,8 @@ async def main_async() -> int:
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "strategy": "btc5m_event_kernel_diagnostic",
         "tradable_evidence": False,
+        "historical_execution_evidence": "missing",
+        "historical_quote_depth": "unavailable",
         "execution_basis": "historical midpoint plus fixed spread stress; not executable CLOB ask/depth",
         "dataset": str(DATASET), "rows": len(rows),
         "edge_threshold": EDGE_THRESHOLD, "spread_bps": SPREAD_BPS,

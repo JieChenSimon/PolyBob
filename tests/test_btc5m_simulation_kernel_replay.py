@@ -31,6 +31,8 @@ async def test_known_answer_event_is_filled_and_settled(tmp_path):
     assert result["unresolved_positions"] == []
     assert result["metrics"]["closed_trade_count"] == 1
     assert result["metrics"]["equity_curve_degraded"] is False
+    assert result["metrics"]["execution_evidence"]["missing_depth_trade_count"] == 1
+    assert result["metrics"]["execution_evidence"]["synthetic_quote_trade_count"] == 1
 
 
 def test_checkpoint_open_state_is_retryable():

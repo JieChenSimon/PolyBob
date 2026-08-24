@@ -90,6 +90,13 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
     trades = store.list_trades(run_id)
     settlements = store.list_settlements(run_id)
     points = store.list_equity_points(run_id)
+    quote_quality_counts: dict[str, int] = {}
+    synthetic_quote_count = 0
+    for trade in trades:
+        quality = trade.quote_quality or "unknown"
+        quote_quality_counts[quality] = quote_quality_counts.get(quality, 0) + 1
+        if trade.quote_source.startswith("synthetic"):
+            synthetic_quote_count += 1
     closed = [t for t in trades if t.realized_pnl is not None]
     settlement_pnls = [float(item.realized_pnl) for item in settlements]
     closed_pnls = [float(t.realized_pnl) for t in closed] + settlement_pnls
@@ -179,6 +186,13 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         # convert it to cash before aggregating with fees.
         "total_slippage": sum(t.slippage * t.size for t in trades),
         "total_explicit_cost": sum(t.fee + t.slippage * t.size for t in trades),
+        "execution_evidence": {
+            "trade_count": len(trades),
+            "quote_quality_counts": quote_quality_counts,
+            "full_depth_trade_count": quote_quality_counts.get("full_depth", 0),
+            "missing_depth_trade_count": quote_quality_counts.get("missing_depth", 0),
+            "synthetic_quote_trade_count": synthetic_quote_count,
+        },
         "funding_pnl": store.total_funding(run_id),
         # The user's annual/monthly target is a separate, fail-closed gate:
         # short paper runs remain UNKNOWN rather than being treated as a pass.
