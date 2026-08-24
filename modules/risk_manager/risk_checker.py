@@ -187,6 +187,9 @@ class PortfolioRiskChecker:
         proposed_total = 0.0
         for leg in legs:
             market, quantity, price = _leg_fields(leg)
+            reduces_exposure = bool(
+                isinstance(leg, Mapping) and leg.get("reduces_exposure", False)
+            )
             if isinstance(leg, Mapping) and leg.get("sizing_decision") is not None:
                 decision = leg["sizing_decision"]
                 if not isinstance(decision, Mapping) or decision.get("approved") is not True:
@@ -197,8 +200,13 @@ class PortfolioRiskChecker:
                 reasons.append(f"leg notional unavailable for {market} (no price)")
                 continue
             notional = abs(quantity) * abs(price)
-            proposed_by_market[market] = proposed_by_market.get(market, 0.0) + notional
-            proposed_total += notional
+            # A close/reduce order replaces existing exposure; it must not be
+            # rejected merely because the pre-trade book is already near a
+            # gross or per-market limit. The caller is responsible for marking
+            # this only when the order is bounded by the current position.
+            signed_delta = -notional if reduces_exposure else notional
+            proposed_by_market[market] = proposed_by_market.get(market, 0.0) + signed_delta
+            proposed_total += signed_delta
             if notional > limits.max_order_notional:
                 reasons.append(
                     f"order notional {notional:.2f} for {market} exceeds limit "
@@ -216,7 +224,7 @@ class PortfolioRiskChecker:
             )
 
         for market, proposed in proposed_by_market.items():
-            market_total = abs(float(positions.get(market, 0.0))) + proposed
+            market_total = max(0.0, abs(float(positions.get(market, 0.0))) + proposed)
             measurements[f"market_notional:{market}"] = market_total
             if market_total > limits.max_market_notional:
                 reasons.append(

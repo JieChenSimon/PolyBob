@@ -66,6 +66,17 @@ def test_max_per_market_notional_triggers(promoted_strategy):
     assert any("market notional 1300.00" in r and "mkt_a" in r for r in decision.reasons)
 
 
+def test_reduce_order_does_not_add_existing_exposure(promoted_strategy):
+    checker = PortfolioRiskChecker(RiskLimits(max_gross_notional=5000.0, max_market_notional=5000.0))
+    decision = checker.evaluate_intent(
+        [{**_leg(market="mkt_a", quantity=-10.0, price=100.0), "reduces_exposure": True}],
+        positions={"mkt_a": 5000.0, "mkt_b": 1000.0},
+    )
+    assert decision.allowed is True
+    assert decision.measurements["gross_notional"] == 5000.0
+    assert decision.measurements["market_notional:mkt_a"] == 4000.0
+
+
 def test_max_basket_leg_count_triggers(promoted_strategy):
     checker = PortfolioRiskChecker(RiskLimits(max_basket_legs=2))
     legs = [_leg(market=f"mkt_{i}", quantity=1.0, price=1.0) for i in range(3)]

@@ -9,6 +9,7 @@ import pytest
 from libs.db import fact_store
 from libs.db.simulation_store import SimRunRecord, SimulationStore
 from libs.events import Topics, get_event_bus
+from modules.risk_manager.risk_checker import RiskDecision
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.service import (
     InvalidRunTransitionError,
@@ -266,6 +267,69 @@ async def test_conservative_fill_buys_at_ask_plus_fee(tmp_path):
     record = service.store.get_run(run_id)
     assert record.cash == pytest.approx(10_000.0 - trade.size * 0.92 - trade.fee)
     assert len(service.store.list_equity_points(run_id)) >= 1
+
+
+@pytest.mark.asyncio
+async def test_initial_capital_position_sizing_does_not_compound(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="fixed-sizing", strategy_id="spread_reversion_v1",
+        universe=["m1", "m2"], initial_capital=10_000.0,
+        config={**RUN_CONFIG, "position_fraction": 0.50,
+                "fee_bps": 1_000.0, "position_fraction_basis": "initial_capital"},
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    await service._on_feature_snapshot(feature_snapshot(market_id="m1"))
+    await service._on_feature_snapshot(feature_snapshot(market_id="m2"))
+    positions = {p.instrument_id: p for p in service.store.list_positions(run_id)}
+    assert positions["m1"].size == pytest.approx(5_000.0 / 0.97, rel=1e-6)
+    assert positions["m2"].size == pytest.approx(5_000.0 / 0.97, rel=1e-6)
+
+
+@pytest.mark.asyncio
+async def test_risk_rejection_records_stage_and_measurements_without_relaxing_gate(tmp_path):
+    class RejectingRiskChecker:
+        def evaluate_intent(self, *args, **kwargs):
+            return RiskDecision(
+                allowed=False,
+                reasons=["test max order notional"],
+                measurements={"proposed_notional": 123.0},
+            )
+
+    service = SimulationService(
+        tmp_path / "risk-evidence.sqlite3",
+        risk_checker=RejectingRiskChecker(),
+        equity_poll_seconds=3600,
+    )
+    run = await service.create_run(
+        name="risk-evidence", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0, config={**RUN_CONFIG, "cooldown_seconds": 0.0},
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    now = datetime.now(UTC)
+    await service._process_signal(
+        service._active[run_id],
+        SimSignal(
+            "m1", "buy", 1.0, bid=0.99, ask=1.01, mid=1.0, timestamp=now,
+            signal_meta={"execution_stage": "entry"},
+        ),
+    )
+
+    active = service._active[run_id]
+    assert active.risk_rejections == 1
+    assert active.risk_rejection_events == [{
+        "stage": "entry",
+        "instrument": "m1",
+        "side": "buy",
+        "quantity": pytest.approx(0.05 * 10_000.0 / 1.01),
+        "price": 1.01,
+        "reasons": ["test max order notional"],
+        "measurements": {"proposed_notional": 123.0},
+        "timestamp": active.risk_rejection_events[0]["timestamp"],
+    }]
+    assert service.store.list_trades(run_id) == []
 
 
 @pytest.mark.asyncio

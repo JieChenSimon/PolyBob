@@ -22,5 +22,9 @@ async def test_known_answer_event_is_filled_and_settled(tmp_path):
     assert result["candidate_events"] == 1
     assert result["fills"] == 2
     assert result["open_positions"] == 0
+    assert result["risk_rejections"] == 0
+    assert result["risk_rejection_reasons"] == {}
+    assert result["risk_rejections_by_stage"] == {}
+    assert result["unresolved_positions"] == []
     assert result["metrics"]["closed_trade_count"] == 1
     assert result["metrics"]["equity_curve_degraded"] is False

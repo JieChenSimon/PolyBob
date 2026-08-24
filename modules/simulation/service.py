@@ -158,7 +158,8 @@ class _ActiveRun:
     """In-memory companion of a persisted run (source binding, marks, locks)."""
 
     __slots__ = ("record", "source", "marks", "mark_times", "last_trade_at", "lock",
-                 "last_equity_at", "last_feedback_at", "risk_rejections")
+                 "last_equity_at", "last_feedback_at", "risk_rejections",
+                 "risk_rejection_events")
 
     def __init__(self, record: SimRunRecord, source: SignalSource):
         self.record = record
@@ -172,6 +173,9 @@ class _ActiveRun:
         self.last_equity_at: datetime | None = None
         self.last_feedback_at: datetime | None = None
         self.risk_rejections = 0
+        # Diagnostic-only evidence.  These events do not alter the risk
+        # decision; they make a rejected entry/settlement explainable.
+        self.risk_rejection_events: list[dict[str, Any]] = []
 
     def config_value(self, key: str) -> Any:
         return self.record.config.get(key, DEFAULT_RUN_CONFIG.get(key))
@@ -695,8 +699,13 @@ class SimulationService:
                 return
             direction = 1.0 if signal.side == "buy" else -1.0
             allow_short = bool(active.config_value("allow_short"))
+            sizing_basis = str(active.config_value("position_fraction_basis") or "equity").lower()
+            sizing_equity = (
+                float(active.record.initial_capital)
+                if sizing_basis == "initial_capital" else equity
+            )
             target_size = (
-                direction * (fraction * equity) / est_price
+                direction * (fraction * sizing_equity) / est_price
                 if direction > 0 or allow_short
                 else 0.0
             )
@@ -720,13 +729,31 @@ class SimulationService:
                 return
 
             decision = self.risk_checker.evaluate_intent(
-                [{"market_id": instrument, "quantity": qty, "price": est_price}],
+                [{
+                    "market_id": instrument,
+                    "quantity": qty,
+                    "price": est_price,
+                    "reduces_exposure": (
+                        direction < 0 and current_size > 0
+                        and abs(qty) <= abs(current_size) + _EPS
+                    ),
+                }],
                 notionals,
                 cash=active.record.cash,
                 subject_id=run_id,
             )
             if not decision.allowed:
                 active.risk_rejections += 1
+                active.risk_rejection_events.append({
+                    "stage": str(signal.signal_meta.get("execution_stage", "unknown")),
+                    "instrument": instrument,
+                    "side": signal.side,
+                    "quantity": float(qty),
+                    "price": float(est_price),
+                    "reasons": list(decision.reasons),
+                    "measurements": dict(decision.measurements),
+                    "timestamp": now.isoformat(),
+                })
                 logger.info(
                     "sim_trade_risk_rejected",
                     run_id=run_id,

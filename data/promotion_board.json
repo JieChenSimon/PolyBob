@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-24T17:29:55.105775+00:00",
+  "generated_at": "2026-08-24T17:36:08.743626+00:00",
   "real_data_only": true,
   "n_trials": 255,
   "t_hurdle": 4.2,
   "sources": {
     "data/billboard_results.json": "2026-08-10T05:45:48.301411+00:00",
-    "data/btc5m_mispricing.json": "2026-08-24T17:29:55.105775+00:00",
+    "data/btc5m_mispricing.json": "2026-08-24T17:36:08.743626+00:00",
     "data/insider_results.json": "2026-08-24T06:00:13.582718+00:00",
     "data/us_crypto_results.json": "2026-08-10T05:45:40.483335+00:00"
   },
@@ -146,53 +146,53 @@
         "no_pit_contract_cannot_trade"
       ],
       "notes": "旗舰标的:必须和别的边用同一条门槛,不因投入大而放宽。",
-      "n": 1882,
-      "win_rate": 0.7503,
-      "mean_excess_pct": 24.776,
+      "n": 1996,
+      "win_rate": 0.7535,
+      "mean_excess_pct": 25.077,
       "median_excess_pct": 47.5,
-      "t_stat": 39.29,
-      "t_stat_iid": 25.61,
-      "n_clusters": 10,
+      "t_stat": 41.31,
+      "t_stat_iid": 26.84,
+      "n_clusters": 11,
       "cluster_by": "day",
       "inference": "cluster_robust",
       "bootstrap_ci_pct": [
-        23.655,
-        25.924
+        23.965,
+        26.245
       ],
       "sign_test_p": 0.0,
-      "wild_p": 0.004,
-      "p_floor": 0.00195,
+      "wild_p": 0.001,
+      "p_floor": 0.000977,
       "resolvable": false,
       "inference_warnings": [
-        "only 10 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "10 个独立单元最细只能表达 p=2.0e-03,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+        "only 11 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+        "11 个独立单元最细只能表达 p=9.8e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
       "evidence_end": "2026-08-24",
       "max_evidence_age_days": 30,
-      "run_as_of": "2026-08-24T17:29:54.641048+00:00",
+      "run_as_of": "2026-08-24T17:36:08.266059+00:00",
       "run_reproducible": true,
       "pit_status": "unknown",
       "out_of_sample": {
         "available": true,
         "split_date": "2026-08-20",
         "in_sample": {
-          "n": 941,
-          "n_clusters": 6,
-          "mean_pct": 26.055,
-          "t_stat": 35.08
+          "n": 998,
+          "n_clusters": 7,
+          "mean_pct": 26.81,
+          "t_stat": 40.3
         },
         "out_of_sample": {
-          "n": 941,
+          "n": 998,
           "n_clusters": 5,
-          "mean_pct": 23.497,
-          "t_stat": 50.95
+          "mean_pct": 23.345,
+          "t_stat": 51.49
         },
         "sign_held": true,
-        "t_ratio": 1.45
+        "t_ratio": 1.28
       },
       "cluster_floor": 20,
       "pipeline_searched": false,
-      "evidence": "来源 data/btc5m_mispricing.json; n=1882; 独立day=10; t(聚类)=39.29 vs t(iid)=25.61; 证据截至 2026-08-24; 持有 1 日"
+      "evidence": "来源 data/btc5m_mispricing.json; n=1996; 独立day=11; t(聚类)=41.31 vs t(iid)=26.84; 证据截至 2026-08-24; 持有 1 日"
     },
     {
       "strategy": "us_insider_cluster_buy",

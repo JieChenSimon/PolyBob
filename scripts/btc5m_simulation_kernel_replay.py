@@ -12,6 +12,7 @@ from __future__ import annotations
 import asyncio
 import json
 import uuid
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -21,7 +22,7 @@ from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import SimSignal
 
-DATASET = Path("data/datasets/parts/btc5m_settled_windows_v5/symbol=BTC-USDT")
+DATASET = Path("data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT")
 COST_MULTIPLES = (1.0, 2.0, 3.0)
 EDGE_THRESHOLD = 0.10
 SPREAD_BPS = 50.0
@@ -53,7 +54,7 @@ class EventReplaySource:
 
 def load_rows() -> list[dict]:
     if not DATASET.exists():
-        raise RuntimeError(f"missing v5 dataset: {DATASET}")
+        raise RuntimeError(f"missing v6 dataset: {DATASET}")
     table = ds.dataset(DATASET, format="parquet").to_table().to_pylist()
     return sorted(table, key=lambda row: int(row["window_start"]))
 
@@ -84,7 +85,10 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
         strategy_id="btc5m_event_replay", universe=universe,
         initial_capital=10_000.0,
         config={
-            "position_fraction": 0.10, "fee_bps": 0.0,
+            # Keep the diagnostic's notional bounded by starting capital so a
+            # short event sample cannot compound into impossible capacity.
+            "position_fraction": 0.10, "position_fraction_basis": "initial_capital",
+            "fee_bps": 0.0,
             "mid_penalty_bps": 0.0, "allow_short": False,
             "cooldown_seconds": 0.0, "max_staleness_seconds": 600.0,
             "min_trade_notional": 0.0,
@@ -120,6 +124,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                 "signal_side": signal_side,
                 "signal_meta": {
                     "source": "btc5m_event_kernel_diagnostic",
+                    "execution_stage": "entry" if signal_side == "buy" else "settlement",
                     "window_start": row["window_start"],
                     "raw_sha256": {
                         "gamma": row.get("gamma_raw_sha256"),
@@ -133,22 +138,43 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
         traded += 1
     active = service._active.get(run_id)
     risk_rejections = active.risk_rejections if active is not None else None
+    rejection_events = active.risk_rejection_events if active is not None else []
+    rejection_reasons = Counter(
+        reason
+        for event in rejection_events
+        for reason in event.get("reasons", [])
+    )
+    rejection_by_stage = Counter(
+        event.get("stage", "unknown") for event in rejection_events
+    )
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
     trades = len(service.store.list_trades(run_id))
     open_positions = len(service.store.list_positions(run_id))
+    unresolved_positions = [
+        {
+            "instrument": position.instrument_id,
+            "size": position.size,
+            "avg_price": position.avg_price,
+        }
+        for position in service.store.list_positions(run_id)
+    ]
     await service.stop()
     for suffix in ("", "-wal", "-shm"):
         db.with_name(db.name + suffix).unlink(missing_ok=True)
     return {"cost_multiple": multiple, "candidate_events": traded,
             "fills": trades, "risk_rejections": risk_rejections,
-            "open_positions": open_positions, "metrics": metrics}
+            "risk_rejection_reasons": dict(rejection_reasons),
+            "risk_rejections_by_stage": dict(rejection_by_stage),
+            "open_positions": open_positions,
+            "unresolved_positions": unresolved_positions,
+            "metrics": metrics}
 
 
 async def main_async() -> int:
     rows = load_rows()
     if len(rows) < 60:
-        raise RuntimeError(f"insufficient v5 rows: {len(rows)}")
+        raise RuntimeError(f"insufficient v6 rows: {len(rows)}")
     out_dir = Path("data/.kernel_replay_btc5m_event")
     out_dir.mkdir(parents=True, exist_ok=True)
     report = {
