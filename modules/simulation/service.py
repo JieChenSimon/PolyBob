@@ -106,6 +106,9 @@ DEFAULT_RUN_CONFIG: dict[str, Any] = {
     # this explicitly instead of silently applying the same rate per snapshot.
     "funding_interval_seconds": 8 * 60 * 60,
     "equity_interval_minutes": 5.0,
+    # High-throughput replays can sample equity on a bounded cadence while
+    # retaining the full fill/ledger path. Live paper runs keep this enabled.
+    "record_equity_on_fill": True,
     # ``depth_limited`` routes signals through PaperBroker; the legacy
     # full-fill path remains available for diagnostic runs that only have BBO.
     "execution_mode": "full_fill",
@@ -916,7 +919,8 @@ class SimulationService:
         refreshed = await asyncio.to_thread(self.store.get_run, run_id)
         if refreshed is not None:
             active.record = refreshed
-        await self._record_equity(active)
+        if bool(active.config_value("record_equity_on_fill")):
+            await self._record_equity(active)
 
     def _age_seconds(self, timestamp: datetime | None) -> float | None:
         if timestamp is None:
@@ -1330,7 +1334,8 @@ class SimulationService:
             if refreshed is not None:
                 active.record = refreshed
             active.last_trade_at[instrument] = now
-            await self._record_equity(active)
+            if bool(active.config_value("record_equity_on_fill")):
+                await self._record_equity(active)
             logger.info(
                 "sim_trade_executed",
                 run_id=run_id,
