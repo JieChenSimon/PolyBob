@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 from datetime import UTC, datetime
@@ -19,6 +20,11 @@ LOOKBACK = 120
 VOL_LOOKBACK = 20
 THRESHOLD = 0.25
 POSITION_FRACTION = 0.50
+MAJOR_CRYPTO = frozenset({
+    "BTC-USDT", "ETH-USDT", "BNB-USDT", "SOL-USDT", "XRP-USDT", "ADA-USDT",
+    "DOGE-USDT", "TRX-USDT", "AVAX-USDT", "LINK-USDT", "DOT-USDT", "LTC-USDT",
+    "BCH-USDT", "UNI-USDT", "ATOM-USDT", "NEAR-USDT", "ETC-USDT", "FIL-USDT",
+})
 
 
 def signed_positions(prices: np.ndarray, *, lookback: int = LOOKBACK,
@@ -31,11 +37,12 @@ def signed_positions(prices: np.ndarray, *, lookback: int = LOOKBACK,
                     np.where(signal <= -threshold, -1.0, 0.0))
 
 
-async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
+async def run_fold(split_date: str, frames: dict, out_dir: Path,
+                   threshold: float = THRESHOLD) -> dict:
     results = []
     for symbol, series in frames.items():
         prices = series.to_numpy(dtype=float)
-        positions = signed_positions(prices)
+        positions = signed_positions(prices, threshold=threshold)
         timestamps = [datetime.fromisoformat(date) for date in series.index]
         replay = await replay_symbol(
             symbol, timestamps, prices.tolist(), positions.tolist(), split_date, out_dir,
@@ -73,10 +80,12 @@ async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
     }
 
 
-async def main_async() -> int:
+async def main_async(major_only: bool = False, threshold: float = THRESHOLD,
+                     output: str = "data/crypto_tsmom_multifold_replay.json") -> int:
     as_of = datetime.now(UTC)
     symbols = [symbol for symbol in store.symbols(store.DAILY_BARS)
-               if symbol_domain(symbol) == "crypto"]
+               if symbol_domain(symbol) == "crypto"
+               and (not major_only or symbol in MAJOR_CRYPTO)]
     frames, rejected = read_frames(symbols, as_of)
     matrix = align_frames(frames)
     if len(frames) < 4 or matrix.shape[0] < 300:
@@ -84,17 +93,18 @@ async def main_async() -> int:
     splits = fold_dates(list(matrix.index))
     out_dir = Path("data/.kernel_replay_crypto_tsmom")
     out_dir.mkdir(parents=True, exist_ok=True)
-    folds = [await run_fold(split, frames, out_dir) for split in splits]
+    folds = [await run_fold(split, frames, out_dir, threshold=threshold) for split in splits]
     report = {
         "generated_at": datetime.now(UTC).isoformat(),
         "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
         "strategy": {"family": "signed_time_series_momentum", "lookback": LOOKBACK,
-                      "vol_lookback": VOL_LOOKBACK, "threshold": THRESHOLD,
+                      "vol_lookback": VOL_LOOKBACK, "threshold": threshold,
                       "long_short": True},
         "execution_config": {"fee_bps": 20.0, "mid_penalty_bps": 10.0,
                               "allow_short": True, "position_fraction": POSITION_FRACTION},
         "universe": "crypto_clean_local_daily",
+        "universe_filter": "major_crypto_predeclared" if major_only else "all_local_crypto",
         "symbols": len(frames),
         "quality_rejected": rejected,
         "candidate_family_size": 6,
@@ -102,7 +112,7 @@ async def main_async() -> int:
         "folds": folds,
         "status": "replay_only_not_promoted",
     }
-    out = Path("data/crypto_tsmom_multifold_replay.json")
+    out = Path(output)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
     print(json.dumps([{key: fold[key] for key in fold if key != "results"}
                       for fold in folds], ensure_ascii=False, indent=2))
@@ -111,4 +121,10 @@ async def main_async() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(asyncio.run(main_async()))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--major-only", action="store_true",
+                        help="use the predeclared major-crypto universe")
+    parser.add_argument("--threshold", type=float, default=THRESHOLD)
+    parser.add_argument("--output", default="data/crypto_tsmom_multifold_replay.json")
+    args = parser.parse_args()
+    raise SystemExit(asyncio.run(main_async(args.major_only, args.threshold, args.output)))

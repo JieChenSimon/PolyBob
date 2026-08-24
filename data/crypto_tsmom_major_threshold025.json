@@ -1,0 +1,2603 @@
+{
+  "generated_at": "2026-08-24T14:35:30.617483+00:00",
+  "real_data_only": true,
+  "execution_kernel": "modules.simulation.SimulationService",
+  "strategy": {
+    "family": "signed_time_series_momentum",
+    "lookback": 120,
+    "vol_lookback": 20,
+    "threshold": 0.25,
+    "long_short": true
+  },
+  "execution_config": {
+    "fee_bps": 20.0,
+    "mid_penalty_bps": 10.0,
+    "allow_short": true,
+    "position_fraction": 0.5
+  },
+  "universe": "crypto_clean_local_daily",
+  "universe_filter": "major_crypto_predeclared",
+  "symbols": 18,
+  "quality_rejected": 0,
+  "candidate_family_size": 6,
+  "selection_note": "exploratory local screen; kernel replay is not promotion evidence",
+  "folds": [
+    {
+      "split_date": "2025-07-06",
+      "symbols": 18,
+      "mean_oos_return": -0.012868973829259191,
+      "median_oos_return": 0.03990322369144117,
+      "positive_oos_fraction": 0.5555555555555556,
+      "mean_excess_oos_return": 0.4520317034625541,
+      "median_excess_oos_return": 0.47591505679580437,
+      "positive_excess_fraction": 0.8333333333333334,
+      "median_full_max_drawdown": 0.41944696792768976,
+      "median_oos_closed_trades": 25.0,
+      "results": [
+        {
+          "symbol": "ADA-USDT",
+          "run_id": "sim_36f505d394",
+          "metrics": {
+            "total_return": -0.03797338844241127,
+            "equity": 9620.266115575887,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9066171014836016,
+            "max_drawdown": 0.4186305659603649,
+            "equity_curve_degraded": false,
+            "sharpe": 0.13501434115704852,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1084.7640761235552,
+            "total_fees": 887.021356947758,
+            "total_slippage": 0.0243638999999988,
+            "total_explicit_cost": 887.0457208477583,
+            "funding_pnl": 0.0,
+            "avg_win": 752.2528047068914,
+            "avg_loss": -414.86797650071554,
+            "per_instrument": {
+              "ADA-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1084.7640761235552,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": 0.07430328252024299,
+          "oos_closed_trades": 26,
+          "oos_points": 414,
+          "benchmark_oos_return": -0.6228864218616568,
+          "excess_oos_return": 0.6971897043818998
+        },
+        {
+          "symbol": "ATOM-USDT",
+          "run_id": "sim_fcefb89af3",
+          "metrics": {
+            "total_return": -0.365312606735398,
+            "equity": 6346.87393264602,
+            "win_rate": 0.275,
+            "profit_factor": 0.6396595615588632,
+            "max_drawdown": 0.6551604603624446,
+            "equity_curve_degraded": false,
+            "sharpe": -0.37859221754727507,
+            "trade_count": 42,
+            "closed_trade_count": 40,
+            "realized_pnl": -4249.176970508886,
+            "total_fees": 702.7472745103332,
+            "total_slippage": 0.159090999999993,
+            "total_explicit_cost": 702.9063655103333,
+            "funding_pnl": 0.0,
+            "avg_win": 685.721911832283,
+            "avg_loss": -406.6247586435863,
+            "per_instrument": {
+              "ATOM-USDT": {
+                "trade_count": 42,
+                "closed_trades": 40,
+                "realized_pnl": -4249.176970508886,
+                "win_rate": 0.275
+              }
+            }
+          },
+          "oos_return": -0.3113617242277573,
+          "oos_closed_trades": 21,
+          "oos_points": 390,
+          "benchmark_oos_return": -0.6970443349753694,
+          "excess_oos_return": 0.3856826107476121
+        },
+        {
+          "symbol": "AVAX-USDT",
+          "run_id": "sim_443022a9a9",
+          "metrics": {
+            "total_return": -0.4599565255449297,
+            "equity": 5400.434744550703,
+            "win_rate": 0.26865671641791045,
+            "profit_factor": 0.6256435935006278,
+            "max_drawdown": 0.503075297309578,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6470339282440316,
+            "trade_count": 70,
+            "closed_trade_count": 67,
+            "realized_pnl": -4730.160554758434,
+            "total_fees": 985.6662350278642,
+            "total_slippage": 1.4560499999999266,
+            "total_explicit_cost": 987.1222850278639,
+            "funding_pnl": 0.0,
+            "avg_win": 439.18258345591283,
+            "avg_loss": -257.86626646867074,
+            "per_instrument": {
+              "AVAX-USDT": {
+                "trade_count": 70,
+                "closed_trades": 67,
+                "realized_pnl": -4730.160554758434,
+                "win_rate": 0.26865671641791045
+              }
+            }
+          },
+          "oos_return": -0.15500209012119326,
+          "oos_closed_trades": 43,
+          "oos_points": 402,
+          "benchmark_oos_return": -0.6570484581497797,
+          "excess_oos_return": 0.5020463680285865
+        },
+        {
+          "symbol": "BCH-USDT",
+          "run_id": "sim_624193ce54",
+          "metrics": {
+            "total_return": 0.5691662230217258,
+            "equity": 15691.662230217258,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 1.6299587688661785,
+            "max_drawdown": 0.2937058564229749,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8110186307075931,
+            "trade_count": 25,
+            "closed_trade_count": 22,
+            "realized_pnl": 2414.3730635259517,
+            "total_fees": 497.02534681652753,
+            "total_slippage": 10.815499999999531,
+            "total_explicit_cost": 507.8408468165271,
+            "funding_pnl": 0.0,
+            "avg_win": 780.8702610194957,
+            "avg_loss": -273.75635890214386,
+            "per_instrument": {
+              "BCH-USDT": {
+                "trade_count": 25,
+                "closed_trades": 22,
+                "realized_pnl": 2414.3730635259517,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": 0.3553895914148293,
+          "oos_closed_trades": 5,
+          "oos_points": 400,
+          "benchmark_oos_return": -0.5629420084865628,
+          "excess_oos_return": 0.9183315999013921
+        },
+        {
+          "symbol": "BNB-USDT",
+          "run_id": "sim_fabe72a58a",
+          "metrics": {
+            "total_return": 0.08853997251794099,
+            "equity": 10885.39972517941,
+            "win_rate": 0.4,
+            "profit_factor": 1.262042360955662,
+            "max_drawdown": 0.21733893151903544,
+            "equity_curve_degraded": false,
+            "sharpe": 0.28380580359170243,
+            "trade_count": 28,
+            "closed_trade_count": 25,
+            "realized_pnl": 976.3986339564581,
+            "total_fees": 521.7291707099876,
+            "total_slippage": 18.127399999999056,
+            "total_explicit_cost": 539.8565707099866,
+            "funding_pnl": 0.0,
+            "avg_win": 470.2508528538221,
+            "avg_loss": -248.40732630545088,
+            "per_instrument": {
+              "BNB-USDT": {
+                "trade_count": 28,
+                "closed_trades": 25,
+                "realized_pnl": 976.3986339564581,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": 0.1438774330928676,
+          "oos_closed_trades": 7,
+          "oos_points": 386,
+          "benchmark_oos_return": -0.13259918539749582,
+          "excess_oos_return": 0.2764766184903634
+        },
+        {
+          "symbol": "BTC-USDT",
+          "run_id": "sim_11d1d1a4f3",
+          "metrics": {
+            "total_return": 0.3412141842156835,
+            "equity": 13412.141842156834,
+            "win_rate": 0.4838709677419355,
+            "profit_factor": 1.8309290735356376,
+            "max_drawdown": 0.20125810170701885,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7972723812917294,
+            "trade_count": 34,
+            "closed_trade_count": 31,
+            "realized_pnl": 3317.240802278103,
+            "total_fees": 789.5347813865955,
+            "total_slippage": 2968.0266999999003,
+            "total_explicit_cost": 3757.5614813864963,
+            "funding_pnl": 0.0,
+            "avg_win": 487.29651521006497,
+            "avg_loss": -249.51293286705453,
+            "per_instrument": {
+              "BTC-USDT": {
+                "trade_count": 34,
+                "closed_trades": 31,
+                "realized_pnl": 3317.240802278103,
+                "win_rate": 0.4838709677419355
+              }
+            }
+          },
+          "oos_return": 0.053613819831915155,
+          "oos_closed_trades": 25,
+          "oos_points": 402,
+          "benchmark_oos_return": -0.41428097904781835,
+          "excess_oos_return": 0.4678947988797335
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "run_id": "sim_11783023d9",
+          "metrics": {
+            "total_return": -0.13374752255505662,
+            "equity": 8662.524774449434,
+            "win_rate": 0.23809523809523808,
+            "profit_factor": 0.8735673379807312,
+            "max_drawdown": 0.572864017233439,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0729619893672841,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1449.9698299012566,
+            "total_fees": 890.881772125183,
+            "total_slippage": 0.0066754799999996645,
+            "total_explicit_cost": 890.8884476051829,
+            "funding_pnl": 0.0,
+            "avg_win": 1001.8347033349424,
+            "avg_loss": -358.3849019765837,
+            "per_instrument": {
+              "DOGE-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1449.9698299012566,
+                "win_rate": 0.23809523809523808
+              }
+            }
+          },
+          "oos_return": 0.026192627550967185,
+          "oos_closed_trades": 29,
+          "oos_points": 400,
+          "benchmark_oos_return": -0.5887504408134477,
+          "excess_oos_return": 0.6149430683644149
+        },
+        {
+          "symbol": "DOT-USDT",
+          "run_id": "sim_7b93161e1c",
+          "metrics": {
+            "total_return": -0.5279185155737028,
+            "equity": 4720.814844262972,
+            "win_rate": 0.25,
+            "profit_factor": 0.4514932097833266,
+            "max_drawdown": 0.6764905952782676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6888601924390064,
+            "trade_count": 50,
+            "closed_trade_count": 48,
+            "realized_pnl": -5501.066617228235,
+            "total_fees": 628.7250467107933,
+            "total_slippage": 0.18117679999999325,
+            "total_explicit_cost": 628.9062235107934,
+            "funding_pnl": 0.0,
+            "avg_win": 377.3417619958056,
+            "avg_loss": -278.5879933660526,
+            "per_instrument": {
+              "DOT-USDT": {
+                "trade_count": 50,
+                "closed_trades": 48,
+                "realized_pnl": -5501.066617228235,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": -0.1727311871993159,
+          "oos_closed_trades": 21,
+          "oos_points": 390,
+          "benchmark_oos_return": -0.7741964022412268,
+          "excess_oos_return": 0.6014652150419109
+        },
+        {
+          "symbol": "ETC-USDT",
+          "run_id": "sim_8fa7a8fca8",
+          "metrics": {
+            "total_return": 0.3702429576087731,
+            "equity": 13702.42957608773,
+            "win_rate": 0.3157894736842105,
+            "profit_factor": 1.4429689745188217,
+            "max_drawdown": 0.42026336989501467,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6035344356901908,
+            "trade_count": 41,
+            "closed_trade_count": 38,
+            "realized_pnl": 3595.2447107893377,
+            "total_fees": 885.590946138035,
+            "total_slippage": 0.7502979999999662,
+            "total_explicit_cost": 886.3412441380348,
+            "funding_pnl": 0.0,
+            "avg_win": 975.9574733022064,
+            "avg_loss": -312.1632680321978,
+            "per_instrument": {
+              "ETC-USDT": {
+                "trade_count": 41,
+                "closed_trades": 38,
+                "realized_pnl": 3595.2447107893377,
+                "win_rate": 0.3157894736842105
+              }
+            }
+          },
+          "oos_return": 0.49961139084236983,
+          "oos_closed_trades": 15,
+          "oos_points": 390,
+          "benchmark_oos_return": -0.5999398315282791,
+          "excess_oos_return": 1.099551222370649
+        },
+        {
+          "symbol": "ETH-USDT",
+          "run_id": "sim_c43463268a",
+          "metrics": {
+            "total_return": 0.5371905321220767,
+            "equity": 15371.905321220767,
+            "win_rate": 0.40540540540540543,
+            "profit_factor": 1.7500942902399945,
+            "max_drawdown": 0.24311606144721956,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8206252248416118,
+            "trade_count": 40,
+            "closed_trade_count": 37,
+            "realized_pnl": 4026.910964498911,
+            "total_fees": 838.2365080375305,
+            "total_slippage": 110.68398999999522,
+            "total_explicit_cost": 948.9204980375258,
+            "funding_pnl": 0.0,
+            "avg_win": 626.3633766202487,
+            "avg_loss": -244.02453112749166,
+            "per_instrument": {
+              "ETH-USDT": {
+                "trade_count": 40,
+                "closed_trades": 37,
+                "realized_pnl": 4026.910964498911,
+                "win_rate": 0.40540540540540543
+              }
+            }
+          },
+          "oos_return": 0.5476985430986929,
+          "oos_closed_trades": 18,
+          "oos_points": 390,
+          "benchmark_oos_return": -0.2608692253270637,
+          "excess_oos_return": 0.8085677684257566
+        },
+        {
+          "symbol": "FIL-USDT",
+          "run_id": "sim_3645570354",
+          "metrics": {
+            "total_return": -0.8366827102264547,
+            "equity": 1633.1728977354533,
+            "win_rate": 0.20408163265306123,
+            "profit_factor": 0.4052752810487533,
+            "max_drawdown": 0.8885626088377698,
+            "equity_curve_degraded": false,
+            "sharpe": -1.447856350625297,
+            "trade_count": 51,
+            "closed_trade_count": 49,
+            "realized_pnl": -8347.512592977728,
+            "total_fees": 699.9734037922149,
+            "total_slippage": 0.1370368999999948,
+            "total_explicit_cost": 700.1104406922149,
+            "funding_pnl": 0.0,
+            "avg_win": 568.8414159315254,
+            "avg_loss": -359.8955577511021,
+            "per_instrument": {
+              "FIL-USDT": {
+                "trade_count": 51,
+                "closed_trades": 49,
+                "realized_pnl": -8347.512592977728,
+                "win_rate": 0.20408163265306123
+              }
+            }
+          },
+          "oos_return": -0.8285625805107988,
+          "oos_closed_trades": 24,
+          "oos_points": 390,
+          "benchmark_oos_return": -0.6865938864628821,
+          "excess_oos_return": -0.14196869404791668
+        },
+        {
+          "symbol": "LINK-USDT",
+          "run_id": "sim_849f433f3d",
+          "metrics": {
+            "total_return": 0.061083381740050235,
+            "equity": 10610.833817400502,
+            "win_rate": 0.3829787234042553,
+            "profit_factor": 1.1306393417123617,
+            "max_drawdown": 0.5409093594190736,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2756321141540234,
+            "trade_count": 49,
+            "closed_trade_count": 47,
+            "realized_pnl": 1137.9100041706415,
+            "total_fees": 1051.8783140766805,
+            "total_slippage": 0.7008839999999683,
+            "total_explicit_cost": 1052.5791980766803,
+            "funding_pnl": 0.0,
+            "avg_win": 547.123690638022,
+            "avg_loss": -300.3557388728882,
+            "per_instrument": {
+              "LINK-USDT": {
+                "trade_count": 49,
+                "closed_trades": 47,
+                "realized_pnl": 1137.9100041706415,
+                "win_rate": 0.3829787234042553
+              }
+            }
+          },
+          "oos_return": 0.13511887880298734,
+          "oos_closed_trades": 32,
+          "oos_points": 402,
+          "benchmark_oos_return": -0.3488164359088879,
+          "excess_oos_return": 0.48393531471187523
+        },
+        {
+          "symbol": "LTC-USDT",
+          "run_id": "sim_f836201c7f",
+          "metrics": {
+            "total_return": -0.10237846620688629,
+            "equity": 8976.215337931137,
+            "win_rate": 0.32608695652173914,
+            "profit_factor": 0.9140532524905249,
+            "max_drawdown": 0.3863068168790693,
+            "equity_curve_degraded": false,
+            "sharpe": 0.026904293467096406,
+            "trade_count": 49,
+            "closed_trade_count": 46,
+            "realized_pnl": -887.4527512361553,
+            "total_fees": 989.4348034620856,
+            "total_slippage": 4.031149999999791,
+            "total_explicit_cost": 993.4659534620852,
+            "funding_pnl": 0.0,
+            "avg_win": 629.2106040116266,
+            "avg_loss": -333.08425198098564,
+            "per_instrument": {
+              "LTC-USDT": {
+                "trade_count": 49,
+                "closed_trades": 46,
+                "realized_pnl": -887.4527512361553,
+                "win_rate": 0.32608695652173914
+              }
+            }
+          },
+          "oos_return": -0.1854857431369683,
+          "oos_closed_trades": 25,
+          "oos_points": 400,
+          "benchmark_oos_return": -0.48329165719481704,
+          "excess_oos_return": 0.29780591405784873
+        },
+        {
+          "symbol": "NEAR-USDT",
+          "run_id": "sim_e29a339b96",
+          "metrics": {
+            "total_return": -0.48075931654025805,
+            "equity": 5192.406834597419,
+            "win_rate": 0.1951219512195122,
+            "profit_factor": 0.6231394400359838,
+            "max_drawdown": 0.5619287534213145,
+            "equity_curve_degraded": false,
+            "sharpe": -0.46548223676209194,
+            "trade_count": 44,
+            "closed_trade_count": 41,
+            "realized_pnl": -4257.288891884468,
+            "total_fees": 708.8540740656329,
+            "total_slippage": 0.11154399999999365,
+            "total_explicit_cost": 708.9656180656327,
+            "funding_pnl": 0.0,
+            "avg_win": 879.9291097261564,
+            "avg_loss": -342.3249021119309,
+            "per_instrument": {
+              "NEAR-USDT": {
+                "trade_count": 44,
+                "closed_trades": 41,
+                "realized_pnl": -4257.288891884468,
+                "win_rate": 0.1951219512195122
+              }
+            }
+          },
+          "oos_return": -0.3039986359027068,
+          "oos_closed_trades": 26,
+          "oos_points": 390,
+          "benchmark_oos_return": -0.24126838235294124,
+          "excess_oos_return": -0.06273025354976558
+        },
+        {
+          "symbol": "SOL-USDT",
+          "run_id": "sim_6f798ee671",
+          "metrics": {
+            "total_return": -0.047803952544622,
+            "equity": 9521.96047455378,
+            "win_rate": 0.2878787878787879,
+            "profit_factor": 0.88793339101323,
+            "max_drawdown": 0.39946279866815376,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0897160676663958,
+            "trade_count": 69,
+            "closed_trade_count": 66,
+            "realized_pnl": -1059.3366455534797,
+            "total_fees": 1118.6021930052036,
+            "total_slippage": 12.032089999999315,
+            "total_explicit_cost": 1130.6342830052026,
+            "funding_pnl": 0.0,
+            "avg_win": 441.7581314575856,
+            "avg_loss": -201.1221519839917,
+            "per_instrument": {
+              "SOL-USDT": {
+                "trade_count": 69,
+                "closed_trades": 66,
+                "realized_pnl": -1059.3366455534797,
+                "win_rate": 0.2878787878787879
+              }
+            }
+          },
+          "oos_return": 0.15565282889934706,
+          "oos_closed_trades": 28,
+          "oos_points": 402,
+          "benchmark_oos_return": -0.49765722959150005,
+          "excess_oos_return": 0.6533100584908471
+        },
+        {
+          "symbol": "TRX-USDT",
+          "run_id": "sim_04a581f688",
+          "metrics": {
+            "total_return": 0.14928378536772757,
+            "equity": 11492.837853677276,
+            "win_rate": 0.41025641025641024,
+            "profit_factor": 1.30121014359666,
+            "max_drawdown": 0.30990550109940024,
+            "equity_curve_degraded": false,
+            "sharpe": 0.36850681293708387,
+            "trade_count": 41,
+            "closed_trade_count": 39,
+            "realized_pnl": 1513.4577413109564,
+            "total_fees": 997.5852856536942,
+            "total_slippage": 0.011597779999999447,
+            "total_explicit_cost": 997.5968834336941,
+            "funding_pnl": 0.0,
+            "avg_win": 408.62803900450757,
+            "avg_loss": -218.46047316352877,
+            "per_instrument": {
+              "TRX-USDT": {
+                "trade_count": 41,
+                "closed_trades": 39,
+                "realized_pnl": 1513.4577413109564,
+                "win_rate": 0.41025641025641024
+              }
+            }
+          },
+          "oos_return": -0.13045040098412397,
+          "oos_closed_trades": 23,
+          "oos_points": 390,
+          "benchmark_oos_return": 0.15042358048029114,
+          "excess_oos_return": -0.2808739814644151
+        },
+        {
+          "symbol": "UNI-USDT",
+          "run_id": "sim_a9f1d638e9",
+          "metrics": {
+            "total_return": 0.35637450318505826,
+            "equity": 13563.745031850583,
+            "win_rate": 0.34285714285714286,
+            "profit_factor": 0.9864527964591563,
+            "max_drawdown": 0.3892380488629918,
+            "equity_curve_degraded": false,
+            "sharpe": 0.5262567524682145,
+            "trade_count": 38,
+            "closed_trade_count": 35,
+            "realized_pnl": -130.42170068954084,
+            "total_fees": 799.3082889946472,
+            "total_slippage": 0.22430499999998776,
+            "total_explicit_cost": 799.5325939946472,
+            "funding_pnl": 0.0,
+            "avg_win": 791.3985776736878,
+            "avg_loss": -418.5741144684258,
+            "per_instrument": {
+              "UNI-USDT": {
+                "trade_count": 38,
+                "closed_trades": 35,
+                "realized_pnl": -130.42170068954084,
+                "win_rate": 0.34285714285714286
+              }
+            }
+          },
+          "oos_return": 0.0568505715632861,
+          "oos_closed_trades": 26,
+          "oos_points": 390,
+          "benchmark_oos_return": -0.40481666892166146,
+          "excess_oos_return": 0.46166724048494756
+        },
+        {
+          "symbol": "XRP-USDT",
+          "run_id": "sim_931f36bb5c",
+          "metrics": {
+            "total_return": 0.089025190934793,
+            "equity": 10890.25190934793,
+            "win_rate": 0.27906976744186046,
+            "profit_factor": 1.0539593125770992,
+            "max_drawdown": 0.5003167121133181,
+            "equity_curve_degraded": false,
+            "sharpe": 0.3152426503473574,
+            "trade_count": 45,
+            "closed_trade_count": 43,
+            "realized_pnl": 750.7465708754274,
+            "total_fees": 1134.9540492056528,
+            "total_slippage": 0.07921459999999492,
+            "total_explicit_cost": 1135.0332638056534,
+            "funding_pnl": 0.0,
+            "avg_win": 1221.9953361910457,
+            "avg_loss": -448.81282140055225,
+            "per_instrument": {
+              "XRP-USDT": {
+                "trade_count": 45,
+                "closed_trades": 43,
+                "realized_pnl": 750.7465708754274,
+                "win_rate": 0.27906976744186046
+              }
+            }
+          },
+          "oos_return": -0.19235813446130656,
+          "oos_closed_trades": 35,
+          "oos_points": 400,
+          "benchmark_oos_return": -0.545634223471539,
+          "excess_oos_return": 0.35327608901023244
+        }
+      ]
+    },
+    {
+      "split_date": "2025-09-26",
+      "symbols": 18,
+      "mean_oos_return": -0.08473166198347028,
+      "median_oos_return": -0.15965965079177158,
+      "positive_oos_fraction": 0.3333333333333333,
+      "mean_excess_oos_return": 0.47692836928605725,
+      "median_excess_oos_return": 0.5018668020154392,
+      "positive_excess_fraction": 0.8888888888888888,
+      "median_full_max_drawdown": 0.41944696792768976,
+      "median_oos_closed_trades": 21.0,
+      "results": [
+        {
+          "symbol": "ADA-USDT",
+          "run_id": "sim_ea6498da42",
+          "metrics": {
+            "total_return": -0.03797338844241127,
+            "equity": 9620.266115575887,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9066171014836016,
+            "max_drawdown": 0.4186305659603649,
+            "equity_curve_degraded": false,
+            "sharpe": 0.13501434115704852,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1084.7640761235552,
+            "total_fees": 887.021356947758,
+            "total_slippage": 0.0243638999999988,
+            "total_explicit_cost": 887.0457208477583,
+            "funding_pnl": 0.0,
+            "avg_win": 752.2528047068914,
+            "avg_loss": -414.86797650071554,
+            "per_instrument": {
+              "ADA-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1084.7640761235552,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.10663405934045544,
+          "oos_closed_trades": 21,
+          "oos_points": 332,
+          "benchmark_oos_return": -0.7150600077429345,
+          "excess_oos_return": 0.6084259484024791
+        },
+        {
+          "symbol": "ATOM-USDT",
+          "run_id": "sim_c6096fe042",
+          "metrics": {
+            "total_return": -0.365312606735398,
+            "equity": 6346.87393264602,
+            "win_rate": 0.275,
+            "profit_factor": 0.6396595615588632,
+            "max_drawdown": 0.6551604603624446,
+            "equity_curve_degraded": false,
+            "sharpe": -0.37859221754727507,
+            "trade_count": 42,
+            "closed_trade_count": 40,
+            "realized_pnl": -4249.176970508886,
+            "total_fees": 702.7472745103332,
+            "total_slippage": 0.159090999999993,
+            "total_explicit_cost": 702.9063655103333,
+            "funding_pnl": 0.0,
+            "avg_win": 685.721911832283,
+            "avg_loss": -406.6247586435863,
+            "per_instrument": {
+              "ATOM-USDT": {
+                "trade_count": 42,
+                "closed_trades": 40,
+                "realized_pnl": -4249.176970508886,
+                "win_rate": 0.275
+              }
+            }
+          },
+          "oos_return": -0.3112742342233623,
+          "oos_closed_trades": 21,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.696969696969697,
+          "excess_oos_return": 0.3856954627463347
+        },
+        {
+          "symbol": "AVAX-USDT",
+          "run_id": "sim_559a9aaeb8",
+          "metrics": {
+            "total_return": -0.4599565255449297,
+            "equity": 5400.434744550703,
+            "win_rate": 0.26865671641791045,
+            "profit_factor": 0.6256435935006278,
+            "max_drawdown": 0.503075297309578,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6470339282440316,
+            "trade_count": 70,
+            "closed_trade_count": 67,
+            "realized_pnl": -4730.160554758434,
+            "total_fees": 985.6662350278642,
+            "total_slippage": 1.4560499999999266,
+            "total_explicit_cost": 987.1222850278639,
+            "funding_pnl": 0.0,
+            "avg_win": 439.18258345591283,
+            "avg_loss": -257.86626646867074,
+            "per_instrument": {
+              "AVAX-USDT": {
+                "trade_count": 70,
+                "closed_trades": 67,
+                "realized_pnl": -4730.160554758434,
+                "win_rate": 0.26865671641791045
+              }
+            }
+          },
+          "oos_return": -0.1650871845673746,
+          "oos_closed_trades": 32,
+          "oos_points": 320,
+          "benchmark_oos_return": -0.7766861486607624,
+          "excess_oos_return": 0.6115989640933878
+        },
+        {
+          "symbol": "BCH-USDT",
+          "run_id": "sim_9df22a91e9",
+          "metrics": {
+            "total_return": 0.5691662230217258,
+            "equity": 15691.662230217258,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 1.6299587688661785,
+            "max_drawdown": 0.2937058564229749,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8110186307075931,
+            "trade_count": 25,
+            "closed_trade_count": 22,
+            "realized_pnl": 2414.3730635259517,
+            "total_fees": 497.02534681652753,
+            "total_slippage": 10.815499999999531,
+            "total_explicit_cost": 507.8408468165271,
+            "funding_pnl": 0.0,
+            "avg_win": 780.8702610194957,
+            "avg_loss": -273.75635890214386,
+            "per_instrument": {
+              "BCH-USDT": {
+                "trade_count": 25,
+                "closed_trades": 22,
+                "realized_pnl": 2414.3730635259517,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": 0.2921414471188959,
+          "oos_closed_trades": 5,
+          "oos_points": 318,
+          "benchmark_oos_return": -0.6018041237113403,
+          "excess_oos_return": 0.8939455708302362
+        },
+        {
+          "symbol": "BNB-USDT",
+          "run_id": "sim_99e15c7c29",
+          "metrics": {
+            "total_return": 0.08853997251794099,
+            "equity": 10885.39972517941,
+            "win_rate": 0.4,
+            "profit_factor": 1.262042360955662,
+            "max_drawdown": 0.21733893151903544,
+            "equity_curve_degraded": false,
+            "sharpe": 0.28380580359170243,
+            "trade_count": 28,
+            "closed_trade_count": 25,
+            "realized_pnl": 976.3986339564581,
+            "total_fees": 521.7291707099876,
+            "total_slippage": 18.127399999999056,
+            "total_explicit_cost": 539.8565707099866,
+            "funding_pnl": 0.0,
+            "avg_win": 470.2508528538221,
+            "avg_loss": -248.40732630545088,
+            "per_instrument": {
+              "BNB-USDT": {
+                "trade_count": 28,
+                "closed_trades": 25,
+                "realized_pnl": 976.3986339564581,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": -0.024314384491012975,
+          "oos_closed_trades": 4,
+          "oos_points": 304,
+          "benchmark_oos_return": -0.38998514746446,
+          "excess_oos_return": 0.365670762973447
+        },
+        {
+          "symbol": "BTC-USDT",
+          "run_id": "sim_438af7d048",
+          "metrics": {
+            "total_return": 0.3412141842156835,
+            "equity": 13412.141842156834,
+            "win_rate": 0.4838709677419355,
+            "profit_factor": 1.8309290735356376,
+            "max_drawdown": 0.20125810170701885,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7972723812917294,
+            "trade_count": 34,
+            "closed_trade_count": 31,
+            "realized_pnl": 3317.240802278103,
+            "total_fees": 789.5347813865955,
+            "total_slippage": 2968.0266999999003,
+            "total_explicit_cost": 3757.5614813864963,
+            "funding_pnl": 0.0,
+            "avg_win": 487.29651521006497,
+            "avg_loss": -249.51293286705453,
+            "per_instrument": {
+              "BTC-USDT": {
+                "trade_count": 34,
+                "closed_trades": 31,
+                "realized_pnl": 3317.240802278103,
+                "win_rate": 0.4838709677419355
+              }
+            }
+          },
+          "oos_return": 0.06197822429187805,
+          "oos_closed_trades": 22,
+          "oos_points": 320,
+          "benchmark_oos_return": -0.4149256304921861,
+          "excess_oos_return": 0.47690385478406416
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "run_id": "sim_653cbecda4",
+          "metrics": {
+            "total_return": -0.13374752255505662,
+            "equity": 8662.524774449434,
+            "win_rate": 0.23809523809523808,
+            "profit_factor": 0.8735673379807312,
+            "max_drawdown": 0.572864017233439,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0729619893672841,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1449.9698299012566,
+            "total_fees": 890.881772125183,
+            "total_slippage": 0.0066754799999996645,
+            "total_explicit_cost": 890.8884476051829,
+            "funding_pnl": 0.0,
+            "avg_win": 1001.8347033349424,
+            "avg_loss": -358.3849019765837,
+            "per_instrument": {
+              "DOGE-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1449.9698299012566,
+                "win_rate": 0.23809523809523808
+              }
+            }
+          },
+          "oos_return": -0.16529855629285228,
+          "oos_closed_trades": 24,
+          "oos_points": 318,
+          "benchmark_oos_return": -0.6921283055396665,
+          "excess_oos_return": 0.5268297492468142
+        },
+        {
+          "symbol": "DOT-USDT",
+          "run_id": "sim_5c8ab74341",
+          "metrics": {
+            "total_return": -0.5279185155737028,
+            "equity": 4720.814844262972,
+            "win_rate": 0.25,
+            "profit_factor": 0.4514932097833266,
+            "max_drawdown": 0.6764905952782676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6888601924390064,
+            "trade_count": 50,
+            "closed_trade_count": 48,
+            "realized_pnl": -5501.066617228235,
+            "total_fees": 628.7250467107933,
+            "total_slippage": 0.18117679999999325,
+            "total_explicit_cost": 628.9062235107934,
+            "funding_pnl": 0.0,
+            "avg_win": 377.3417619958056,
+            "avg_loss": -278.5879933660526,
+            "per_instrument": {
+              "DOT-USDT": {
+                "trade_count": 50,
+                "closed_trades": 48,
+                "realized_pnl": -5501.066617228235,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": -0.2304326149937913,
+          "oos_closed_trades": 21,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.803716995642143,
+          "excess_oos_return": 0.5732843806483517
+        },
+        {
+          "symbol": "ETC-USDT",
+          "run_id": "sim_8852eeef64",
+          "metrics": {
+            "total_return": 0.3702429576087731,
+            "equity": 13702.42957608773,
+            "win_rate": 0.3157894736842105,
+            "profit_factor": 1.4429689745188217,
+            "max_drawdown": 0.42026336989501467,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6035344356901908,
+            "trade_count": 41,
+            "closed_trade_count": 38,
+            "realized_pnl": 3595.2447107893377,
+            "total_fees": 885.590946138035,
+            "total_slippage": 0.7502979999999662,
+            "total_explicit_cost": 886.3412441380348,
+            "funding_pnl": 0.0,
+            "avg_win": 975.9574733022064,
+            "avg_loss": -312.1632680321978,
+            "per_instrument": {
+              "ETC-USDT": {
+                "trade_count": 41,
+                "closed_trades": 38,
+                "realized_pnl": 3595.2447107893377,
+                "win_rate": 0.3157894736842105
+              }
+            }
+          },
+          "oos_return": 0.21226264659688843,
+          "oos_closed_trades": 8,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.6346703296703297,
+          "excess_oos_return": 0.8469329762672181
+        },
+        {
+          "symbol": "ETH-USDT",
+          "run_id": "sim_a89d4815b4",
+          "metrics": {
+            "total_return": 0.5371905321220767,
+            "equity": 15371.905321220767,
+            "win_rate": 0.40540540540540543,
+            "profit_factor": 1.7500942902399945,
+            "max_drawdown": 0.24311606144721956,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8206252248416118,
+            "trade_count": 40,
+            "closed_trade_count": 37,
+            "realized_pnl": 4026.910964498911,
+            "total_fees": 838.2365080375305,
+            "total_slippage": 110.68398999999522,
+            "total_explicit_cost": 948.9204980375258,
+            "funding_pnl": 0.0,
+            "avg_win": 626.3633766202487,
+            "avg_loss": -244.02453112749166,
+            "per_instrument": {
+              "ETH-USDT": {
+                "trade_count": 40,
+                "closed_trades": 37,
+                "realized_pnl": 4026.910964498911,
+                "win_rate": 0.40540540540540543
+              }
+            }
+          },
+          "oos_return": 0.21495553867505346,
+          "oos_closed_trades": 18,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.5207784242964886,
+          "excess_oos_return": 0.735733962971542
+        },
+        {
+          "symbol": "FIL-USDT",
+          "run_id": "sim_b5913ee873",
+          "metrics": {
+            "total_return": -0.8366827102264547,
+            "equity": 1633.1728977354533,
+            "win_rate": 0.20408163265306123,
+            "profit_factor": 0.4052752810487533,
+            "max_drawdown": 0.8885626088377698,
+            "equity_curve_degraded": false,
+            "sharpe": -1.447856350625297,
+            "trade_count": 51,
+            "closed_trade_count": 49,
+            "realized_pnl": -8347.512592977728,
+            "total_fees": 699.9734037922149,
+            "total_slippage": 0.1370368999999948,
+            "total_explicit_cost": 700.1104406922149,
+            "funding_pnl": 0.0,
+            "avg_win": 568.8414159315254,
+            "avg_loss": -359.8955577511021,
+            "per_instrument": {
+              "FIL-USDT": {
+                "trade_count": 51,
+                "closed_trades": 49,
+                "realized_pnl": -8347.512592977728,
+                "win_rate": 0.20408163265306123
+              }
+            }
+          },
+          "oos_return": -0.8231050942497566,
+          "oos_closed_trades": 24,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.6660307119590507,
+          "excess_oos_return": -0.15707438229070592
+        },
+        {
+          "symbol": "LINK-USDT",
+          "run_id": "sim_577a8461df",
+          "metrics": {
+            "total_return": 0.061083381740050235,
+            "equity": 10610.833817400502,
+            "win_rate": 0.3829787234042553,
+            "profit_factor": 1.1306393417123617,
+            "max_drawdown": 0.5409093594190736,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2756321141540234,
+            "trade_count": 49,
+            "closed_trade_count": 47,
+            "realized_pnl": 1137.9100041706415,
+            "total_fees": 1051.8783140766805,
+            "total_slippage": 0.7008839999999683,
+            "total_explicit_cost": 1052.5791980766803,
+            "funding_pnl": 0.0,
+            "avg_win": 547.123690638022,
+            "avg_loss": -300.3557388728882,
+            "per_instrument": {
+              "LINK-USDT": {
+                "trade_count": 49,
+                "closed_trades": 47,
+                "realized_pnl": 1137.9100041706415,
+                "win_rate": 0.3829787234042553
+              }
+            }
+          },
+          "oos_return": -0.15423211701616857,
+          "oos_closed_trades": 26,
+          "oos_points": 320,
+          "benchmark_oos_return": -0.5752779530999661,
+          "excess_oos_return": 0.42104583608379753
+        },
+        {
+          "symbol": "LTC-USDT",
+          "run_id": "sim_2de510f74f",
+          "metrics": {
+            "total_return": -0.10237846620688629,
+            "equity": 8976.215337931137,
+            "win_rate": 0.32608695652173914,
+            "profit_factor": 0.9140532524905249,
+            "max_drawdown": 0.3863068168790693,
+            "equity_curve_degraded": false,
+            "sharpe": 0.026904293467096406,
+            "trade_count": 49,
+            "closed_trade_count": 46,
+            "realized_pnl": -887.4527512361553,
+            "total_fees": 989.4348034620856,
+            "total_slippage": 4.031149999999791,
+            "total_explicit_cost": 993.4659534620852,
+            "funding_pnl": 0.0,
+            "avg_win": 629.2106040116266,
+            "avg_loss": -333.08425198098564,
+            "per_instrument": {
+              "LTC-USDT": {
+                "trade_count": 49,
+                "closed_trades": 46,
+                "realized_pnl": -887.4527512361553,
+                "win_rate": 0.32608695652173914
+              }
+            }
+          },
+          "oos_return": -0.22429032249083103,
+          "oos_closed_trades": 18,
+          "oos_points": 318,
+          "benchmark_oos_return": -0.560305638843215,
+          "excess_oos_return": 0.336015316352384
+        },
+        {
+          "symbol": "NEAR-USDT",
+          "run_id": "sim_ae553b0bf6",
+          "metrics": {
+            "total_return": -0.48075931654025805,
+            "equity": 5192.406834597419,
+            "win_rate": 0.1951219512195122,
+            "profit_factor": 0.6231394400359838,
+            "max_drawdown": 0.5619287534213145,
+            "equity_curve_degraded": false,
+            "sharpe": -0.46548223676209194,
+            "trade_count": 44,
+            "closed_trade_count": 41,
+            "realized_pnl": -4257.288891884468,
+            "total_fees": 708.8540740656329,
+            "total_slippage": 0.11154399999999365,
+            "total_explicit_cost": 708.9656180656327,
+            "funding_pnl": 0.0,
+            "avg_win": 879.9291097261564,
+            "avg_loss": -342.3249021119309,
+            "per_instrument": {
+              "NEAR-USDT": {
+                "trade_count": 44,
+                "closed_trades": 41,
+                "realized_pnl": -4257.288891884468,
+                "win_rate": 0.1951219512195122
+              }
+            }
+          },
+          "oos_return": -0.34161806548790896,
+          "oos_closed_trades": 23,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.3972252646951442,
+          "excess_oos_return": 0.055607199207235225
+        },
+        {
+          "symbol": "SOL-USDT",
+          "run_id": "sim_57426c0b82",
+          "metrics": {
+            "total_return": -0.047803952544622,
+            "equity": 9521.96047455378,
+            "win_rate": 0.2878787878787879,
+            "profit_factor": 0.88793339101323,
+            "max_drawdown": 0.39946279866815376,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0897160676663958,
+            "trade_count": 69,
+            "closed_trade_count": 66,
+            "realized_pnl": -1059.3366455534797,
+            "total_fees": 1118.6021930052036,
+            "total_slippage": 12.032089999999315,
+            "total_explicit_cost": 1130.6342830052026,
+            "funding_pnl": 0.0,
+            "avg_win": 441.7581314575856,
+            "avg_loss": -201.1221519839917,
+            "per_instrument": {
+              "SOL-USDT": {
+                "trade_count": 69,
+                "closed_trades": 66,
+                "realized_pnl": -1059.3366455534797,
+                "win_rate": 0.2878787878787879
+              }
+            }
+          },
+          "oos_return": 0.34599599588295527,
+          "oos_closed_trades": 17,
+          "oos_points": 320,
+          "benchmark_oos_return": -0.6116920879457226,
+          "excess_oos_return": 0.9576880838286779
+        },
+        {
+          "symbol": "TRX-USDT",
+          "run_id": "sim_3d6b5ab082",
+          "metrics": {
+            "total_return": 0.14928378536772757,
+            "equity": 11492.837853677276,
+            "win_rate": 0.41025641025641024,
+            "profit_factor": 1.30121014359666,
+            "max_drawdown": 0.30990550109940024,
+            "equity_curve_degraded": false,
+            "sharpe": 0.36850681293708387,
+            "trade_count": 41,
+            "closed_trade_count": 39,
+            "realized_pnl": 1513.4577413109564,
+            "total_fees": 997.5852856536942,
+            "total_slippage": 0.011597779999999447,
+            "total_explicit_cost": 997.5968834336941,
+            "funding_pnl": 0.0,
+            "avg_win": 408.62803900450757,
+            "avg_loss": -218.46047316352877,
+            "per_instrument": {
+              "TRX-USDT": {
+                "trade_count": 41,
+                "closed_trades": 39,
+                "realized_pnl": 1513.4577413109564,
+                "win_rate": 0.41025641025641024
+              }
+            }
+          },
+          "oos_return": -0.20211277078833745,
+          "oos_closed_trades": 23,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.02038930455778465,
+          "excess_oos_return": -0.1817234662305528
+        },
+        {
+          "symbol": "UNI-USDT",
+          "run_id": "sim_a78d964c4b",
+          "metrics": {
+            "total_return": 0.35637450318505826,
+            "equity": 13563.745031850583,
+            "win_rate": 0.34285714285714286,
+            "profit_factor": 0.9864527964591563,
+            "max_drawdown": 0.3892380488629918,
+            "equity_curve_degraded": false,
+            "sharpe": 0.5262567524682145,
+            "trade_count": 38,
+            "closed_trade_count": 35,
+            "realized_pnl": -130.42170068954084,
+            "total_fees": 799.3082889946472,
+            "total_slippage": 0.22430499999998776,
+            "total_explicit_cost": 799.5325939946472,
+            "funding_pnl": 0.0,
+            "avg_win": 791.3985776736878,
+            "avg_loss": -418.5741144684258,
+            "per_instrument": {
+              "UNI-USDT": {
+                "trade_count": 38,
+                "closed_trades": 35,
+                "realized_pnl": -130.42170068954084,
+                "win_rate": 0.34285714285714286
+              }
+            }
+          },
+          "oos_return": 0.3157633946613101,
+          "oos_closed_trades": 19,
+          "oos_points": 308,
+          "benchmark_oos_return": -0.4104797641383007,
+          "excess_oos_return": 0.7262431587996108
+        },
+        {
+          "symbol": "XRP-USDT",
+          "run_id": "sim_8d8e659c63",
+          "metrics": {
+            "total_return": 0.089025190934793,
+            "equity": 10890.25190934793,
+            "win_rate": 0.27906976744186046,
+            "profit_factor": 1.0539593125770992,
+            "max_drawdown": 0.5003167121133181,
+            "equity_curve_degraded": false,
+            "sharpe": 0.3152426503473574,
+            "trade_count": 45,
+            "closed_trade_count": 43,
+            "realized_pnl": 750.7465708754274,
+            "total_fees": 1134.9540492056528,
+            "total_slippage": 0.07921459999999492,
+            "total_explicit_cost": 1135.0332638056534,
+            "funding_pnl": 0.0,
+            "avg_win": 1221.9953361910457,
+            "avg_loss": -448.81282140055225,
+            "per_instrument": {
+              "XRP-USDT": {
+                "trade_count": 45,
+                "closed_trades": 43,
+                "realized_pnl": 750.7465708754274,
+                "win_rate": 0.27906976744186046
+              }
+            }
+          },
+          "oos_return": -0.21986775898759447,
+          "oos_closed_trades": 28,
+          "oos_points": 318,
+          "benchmark_oos_return": -0.6217550274223035,
+          "excess_oos_return": 0.401887268434709
+        }
+      ]
+    },
+    {
+      "split_date": "2025-12-18",
+      "symbols": 18,
+      "mean_oos_return": -0.05409921309276469,
+      "median_oos_return": -0.07942296635395363,
+      "positive_oos_fraction": 0.3333333333333333,
+      "mean_excess_oos_return": 0.29707154104884625,
+      "median_excess_oos_return": 0.28450276113429374,
+      "positive_excess_fraction": 0.8333333333333334,
+      "median_full_max_drawdown": 0.41944696792768976,
+      "median_oos_closed_trades": 13.5,
+      "results": [
+        {
+          "symbol": "ADA-USDT",
+          "run_id": "sim_599f2d7d75",
+          "metrics": {
+            "total_return": -0.03797338844241127,
+            "equity": 9620.266115575887,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9066171014836016,
+            "max_drawdown": 0.4186305659603649,
+            "equity_curve_degraded": false,
+            "sharpe": 0.13501434115704852,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1084.7640761235552,
+            "total_fees": 887.021356947758,
+            "total_slippage": 0.0243638999999988,
+            "total_explicit_cost": 887.0457208477583,
+            "funding_pnl": 0.0,
+            "avg_win": 752.2528047068914,
+            "avg_loss": -414.86797650071554,
+            "per_instrument": {
+              "ADA-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1084.7640761235552,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.18458541069308076,
+          "oos_closed_trades": 13,
+          "oos_points": 249,
+          "benchmark_oos_return": -0.4085186177337262,
+          "excess_oos_return": 0.22393320704064545
+        },
+        {
+          "symbol": "ATOM-USDT",
+          "run_id": "sim_9dec164fb4",
+          "metrics": {
+            "total_return": -0.365312606735398,
+            "equity": 6346.87393264602,
+            "win_rate": 0.275,
+            "profit_factor": 0.6396595615588632,
+            "max_drawdown": 0.6551604603624446,
+            "equity_curve_degraded": false,
+            "sharpe": -0.37859221754727507,
+            "trade_count": 42,
+            "closed_trade_count": 40,
+            "realized_pnl": -4249.176970508886,
+            "total_fees": 702.7472745103332,
+            "total_slippage": 0.159090999999993,
+            "total_explicit_cost": 702.9063655103333,
+            "funding_pnl": 0.0,
+            "avg_win": 685.721911832283,
+            "avg_loss": -406.6247586435863,
+            "per_instrument": {
+              "ATOM-USDT": {
+                "trade_count": 42,
+                "closed_trades": 40,
+                "realized_pnl": -4249.176970508886,
+                "win_rate": 0.275
+              }
+            }
+          },
+          "oos_return": -0.09473471268450373,
+          "oos_closed_trades": 12,
+          "oos_points": 225,
+          "benchmark_oos_return": -0.37180796731358534,
+          "excess_oos_return": 0.2770732546290816
+        },
+        {
+          "symbol": "AVAX-USDT",
+          "run_id": "sim_cb59360c0c",
+          "metrics": {
+            "total_return": -0.4599565255449297,
+            "equity": 5400.434744550703,
+            "win_rate": 0.26865671641791045,
+            "profit_factor": 0.6256435935006278,
+            "max_drawdown": 0.503075297309578,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6470339282440316,
+            "trade_count": 70,
+            "closed_trade_count": 67,
+            "realized_pnl": -4730.160554758434,
+            "total_fees": 985.6662350278642,
+            "total_slippage": 1.4560499999999266,
+            "total_explicit_cost": 987.1222850278639,
+            "funding_pnl": 0.0,
+            "avg_win": 439.18258345591283,
+            "avg_loss": -257.86626646867074,
+            "per_instrument": {
+              "AVAX-USDT": {
+                "trade_count": 70,
+                "closed_trades": 67,
+                "realized_pnl": -4730.160554758434,
+                "win_rate": 0.26865671641791045
+              }
+            }
+          },
+          "oos_return": -0.2854441808322553,
+          "oos_closed_trades": 26,
+          "oos_points": 237,
+          "benchmark_oos_return": -0.4889636497907607,
+          "excess_oos_return": 0.20351946895850537
+        },
+        {
+          "symbol": "BCH-USDT",
+          "run_id": "sim_8bbfcc1830",
+          "metrics": {
+            "total_return": 0.5691662230217258,
+            "equity": 15691.662230217258,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 1.6299587688661785,
+            "max_drawdown": 0.2937058564229749,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8110186307075931,
+            "trade_count": 25,
+            "closed_trade_count": 22,
+            "realized_pnl": 2414.3730635259517,
+            "total_fees": 497.02534681652753,
+            "total_slippage": 10.815499999999531,
+            "total_explicit_cost": 507.8408468165271,
+            "funding_pnl": 0.0,
+            "avg_win": 780.8702610194957,
+            "avg_loss": -273.75635890214386,
+            "per_instrument": {
+              "BCH-USDT": {
+                "trade_count": 25,
+                "closed_trades": 22,
+                "realized_pnl": 2414.3730635259517,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": 0.3832541684823523,
+          "oos_closed_trades": 4,
+          "oos_points": 235,
+          "benchmark_oos_return": -0.6226448011165387,
+          "excess_oos_return": 1.0058989695988911
+        },
+        {
+          "symbol": "BNB-USDT",
+          "run_id": "sim_04452184ad",
+          "metrics": {
+            "total_return": 0.08853997251794099,
+            "equity": 10885.39972517941,
+            "win_rate": 0.4,
+            "profit_factor": 1.262042360955662,
+            "max_drawdown": 0.21733893151903544,
+            "equity_curve_degraded": false,
+            "sharpe": 0.28380580359170243,
+            "trade_count": 28,
+            "closed_trade_count": 25,
+            "realized_pnl": 976.3986339564581,
+            "total_fees": 521.7291707099876,
+            "total_slippage": 18.127399999999056,
+            "total_explicit_cost": 539.8565707099866,
+            "funding_pnl": 0.0,
+            "avg_win": 470.2508528538221,
+            "avg_loss": -248.40732630545088,
+            "per_instrument": {
+              "BNB-USDT": {
+                "trade_count": 28,
+                "closed_trades": 25,
+                "realized_pnl": 976.3986339564581,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": -0.036207680656082486,
+          "oos_closed_trades": 3,
+          "oos_points": 221,
+          "benchmark_oos_return": -0.3220139134536022,
+          "excess_oos_return": 0.2858062327975197
+        },
+        {
+          "symbol": "BTC-USDT",
+          "run_id": "sim_08adc7b901",
+          "metrics": {
+            "total_return": 0.3412141842156835,
+            "equity": 13412.141842156834,
+            "win_rate": 0.4838709677419355,
+            "profit_factor": 1.8309290735356376,
+            "max_drawdown": 0.20125810170701885,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7972723812917294,
+            "trade_count": 34,
+            "closed_trade_count": 31,
+            "realized_pnl": 3317.240802278103,
+            "total_fees": 789.5347813865955,
+            "total_slippage": 2968.0266999999003,
+            "total_explicit_cost": 3757.5614813864963,
+            "funding_pnl": 0.0,
+            "avg_win": 487.29651521006497,
+            "avg_loss": -249.51293286705453,
+            "per_instrument": {
+              "BTC-USDT": {
+                "trade_count": 34,
+                "closed_trades": 31,
+                "realized_pnl": 3317.240802278103,
+                "win_rate": 0.4838709677419355
+              }
+            }
+          },
+          "oos_return": 0.1187390698891726,
+          "oos_closed_trades": 11,
+          "oos_points": 237,
+          "benchmark_oos_return": -0.27931382373576064,
+          "excess_oos_return": 0.39805289362493324
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "run_id": "sim_769099fa74",
+          "metrics": {
+            "total_return": -0.13374752255505662,
+            "equity": 8662.524774449434,
+            "win_rate": 0.23809523809523808,
+            "profit_factor": 0.8735673379807312,
+            "max_drawdown": 0.572864017233439,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0729619893672841,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1449.9698299012566,
+            "total_fees": 890.881772125183,
+            "total_slippage": 0.0066754799999996645,
+            "total_explicit_cost": 890.8884476051829,
+            "funding_pnl": 0.0,
+            "avg_win": 1001.8347033349424,
+            "avg_loss": -358.3849019765837,
+            "per_instrument": {
+              "DOGE-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1449.9698299012566,
+                "win_rate": 0.23809523809523808
+              }
+            }
+          },
+          "oos_return": -0.21075350548359773,
+          "oos_closed_trades": 18,
+          "oos_points": 235,
+          "benchmark_oos_return": -0.45969111969111964,
+          "excess_oos_return": 0.24893761420752192
+        },
+        {
+          "symbol": "DOT-USDT",
+          "run_id": "sim_52f55d3adf",
+          "metrics": {
+            "total_return": -0.5279185155737028,
+            "equity": 4720.814844262972,
+            "win_rate": 0.25,
+            "profit_factor": 0.4514932097833266,
+            "max_drawdown": 0.6764905952782676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6888601924390064,
+            "trade_count": 50,
+            "closed_trade_count": 48,
+            "realized_pnl": -5501.066617228235,
+            "total_fees": 628.7250467107933,
+            "total_slippage": 0.18117679999999325,
+            "total_explicit_cost": 628.9062235107934,
+            "funding_pnl": 0.0,
+            "avg_win": 377.3417619958056,
+            "avg_loss": -278.5879933660526,
+            "per_instrument": {
+              "DOT-USDT": {
+                "trade_count": 50,
+                "closed_trades": 48,
+                "realized_pnl": -5501.066617228235,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": -0.07178058972118606,
+          "oos_closed_trades": 14,
+          "oos_points": 225,
+          "benchmark_oos_return": -0.5885545405695862,
+          "excess_oos_return": 0.5167739508484002
+        },
+        {
+          "symbol": "ETC-USDT",
+          "run_id": "sim_094387cc6d",
+          "metrics": {
+            "total_return": 0.3702429576087731,
+            "equity": 13702.42957608773,
+            "win_rate": 0.3157894736842105,
+            "profit_factor": 1.4429689745188217,
+            "max_drawdown": 0.42026336989501467,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6035344356901908,
+            "trade_count": 41,
+            "closed_trade_count": 38,
+            "realized_pnl": 3595.2447107893377,
+            "total_fees": 885.590946138035,
+            "total_slippage": 0.7502979999999662,
+            "total_explicit_cost": 886.3412441380348,
+            "funding_pnl": 0.0,
+            "avg_win": 975.9574733022064,
+            "avg_loss": -312.1632680321978,
+            "per_instrument": {
+              "ETC-USDT": {
+                "trade_count": 41,
+                "closed_trades": 38,
+                "realized_pnl": 3595.2447107893377,
+                "win_rate": 0.3157894736842105
+              }
+            }
+          },
+          "oos_return": 0.03761730359933857,
+          "oos_closed_trades": 8,
+          "oos_points": 225,
+          "benchmark_oos_return": -0.45678104575163403,
+          "excess_oos_return": 0.4943983493509726
+        },
+        {
+          "symbol": "ETH-USDT",
+          "run_id": "sim_bd6d0aad8e",
+          "metrics": {
+            "total_return": 0.5371905321220767,
+            "equity": 15371.905321220767,
+            "win_rate": 0.40540540540540543,
+            "profit_factor": 1.7500942902399945,
+            "max_drawdown": 0.24311606144721956,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8206252248416118,
+            "trade_count": 40,
+            "closed_trade_count": 37,
+            "realized_pnl": 4026.910964498911,
+            "total_fees": 838.2365080375305,
+            "total_slippage": 110.68398999999522,
+            "total_explicit_cost": 948.9204980375258,
+            "funding_pnl": 0.0,
+            "avg_win": 626.3633766202487,
+            "avg_loss": -244.02453112749166,
+            "per_instrument": {
+              "ETH-USDT": {
+                "trade_count": 40,
+                "closed_trades": 37,
+                "realized_pnl": 4026.910964498911,
+                "win_rate": 0.40540540540540543
+              }
+            }
+          },
+          "oos_return": 0.24314709884463825,
+          "oos_closed_trades": 10,
+          "oos_points": 225,
+          "benchmark_oos_return": -0.36231566381261016,
+          "excess_oos_return": 0.6054627626572484
+        },
+        {
+          "symbol": "FIL-USDT",
+          "run_id": "sim_63f2ccb511",
+          "metrics": {
+            "total_return": -0.8366827102264547,
+            "equity": 1633.1728977354533,
+            "win_rate": 0.20408163265306123,
+            "profit_factor": 0.4052752810487533,
+            "max_drawdown": 0.8885626088377698,
+            "equity_curve_degraded": false,
+            "sharpe": -1.447856350625297,
+            "trade_count": 51,
+            "closed_trade_count": 49,
+            "realized_pnl": -8347.512592977728,
+            "total_fees": 699.9734037922149,
+            "total_slippage": 0.1370368999999948,
+            "total_explicit_cost": 700.1104406922149,
+            "funding_pnl": 0.0,
+            "avg_win": 568.8414159315254,
+            "avg_loss": -359.8955577511021,
+            "per_instrument": {
+              "FIL-USDT": {
+                "trade_count": 51,
+                "closed_trades": 49,
+                "realized_pnl": -8347.512592977728,
+                "win_rate": 0.20408163265306123
+              }
+            }
+          },
+          "oos_return": -0.48926807450225607,
+          "oos_closed_trades": 17,
+          "oos_points": 225,
+          "benchmark_oos_return": -0.43039682539682544,
+          "excess_oos_return": -0.05887124910543062
+        },
+        {
+          "symbol": "LINK-USDT",
+          "run_id": "sim_386c9e77b3",
+          "metrics": {
+            "total_return": 0.061083381740050235,
+            "equity": 10610.833817400502,
+            "win_rate": 0.3829787234042553,
+            "profit_factor": 1.1306393417123617,
+            "max_drawdown": 0.5409093594190736,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2756321141540234,
+            "trade_count": 49,
+            "closed_trade_count": 47,
+            "realized_pnl": 1137.9100041706415,
+            "total_fees": 1051.8783140766805,
+            "total_slippage": 0.7008839999999683,
+            "total_explicit_cost": 1052.5791980766803,
+            "funding_pnl": 0.0,
+            "avg_win": 547.123690638022,
+            "avg_loss": -300.3557388728882,
+            "per_instrument": {
+              "LINK-USDT": {
+                "trade_count": 49,
+                "closed_trades": 47,
+                "realized_pnl": 1137.9100041706415,
+                "win_rate": 0.3829787234042553
+              }
+            }
+          },
+          "oos_return": -0.024383423842213925,
+          "oos_closed_trades": 11,
+          "oos_points": 237,
+          "benchmark_oos_return": -0.3075827133132817,
+          "excess_oos_return": 0.28319928947106776
+        },
+        {
+          "symbol": "LTC-USDT",
+          "run_id": "sim_6fbc6c295c",
+          "metrics": {
+            "total_return": -0.10237846620688629,
+            "equity": 8976.215337931137,
+            "win_rate": 0.32608695652173914,
+            "profit_factor": 0.9140532524905249,
+            "max_drawdown": 0.3863068168790693,
+            "equity_curve_degraded": false,
+            "sharpe": 0.026904293467096406,
+            "trade_count": 49,
+            "closed_trade_count": 46,
+            "realized_pnl": -887.4527512361553,
+            "total_fees": 989.4348034620856,
+            "total_slippage": 4.031149999999791,
+            "total_explicit_cost": 993.4659534620852,
+            "funding_pnl": 0.0,
+            "avg_win": 629.2106040116266,
+            "avg_loss": -333.08425198098564,
+            "per_instrument": {
+              "LTC-USDT": {
+                "trade_count": 49,
+                "closed_trades": 46,
+                "realized_pnl": -887.4527512361553,
+                "win_rate": 0.32608695652173914
+              }
+            }
+          },
+          "oos_return": -0.0870653429867212,
+          "oos_closed_trades": 14,
+          "oos_points": 235,
+          "benchmark_oos_return": -0.41470323162096046,
+          "excess_oos_return": 0.32763788863423926
+        },
+        {
+          "symbol": "NEAR-USDT",
+          "run_id": "sim_f202d502e3",
+          "metrics": {
+            "total_return": -0.48075931654025805,
+            "equity": 5192.406834597419,
+            "win_rate": 0.1951219512195122,
+            "profit_factor": 0.6231394400359838,
+            "max_drawdown": 0.5619287534213145,
+            "equity_curve_degraded": false,
+            "sharpe": -0.46548223676209194,
+            "trade_count": 44,
+            "closed_trade_count": 41,
+            "realized_pnl": -4257.288891884468,
+            "total_fees": 708.8540740656329,
+            "total_slippage": 0.11154399999999365,
+            "total_explicit_cost": 708.9656180656327,
+            "funding_pnl": 0.0,
+            "avg_win": 879.9291097261564,
+            "avg_loss": -342.3249021119309,
+            "per_instrument": {
+              "NEAR-USDT": {
+                "trade_count": 44,
+                "closed_trades": 41,
+                "realized_pnl": -4257.288891884468,
+                "win_rate": 0.1951219512195122
+              }
+            }
+          },
+          "oos_return": -0.4264065173367352,
+          "oos_closed_trades": 20,
+          "oos_points": 225,
+          "benchmark_oos_return": 0.05427841634738173,
+          "excess_oos_return": -0.4806849336841169
+        },
+        {
+          "symbol": "SOL-USDT",
+          "run_id": "sim_74ec35a110",
+          "metrics": {
+            "total_return": -0.047803952544622,
+            "equity": 9521.96047455378,
+            "win_rate": 0.2878787878787879,
+            "profit_factor": 0.88793339101323,
+            "max_drawdown": 0.39946279866815376,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0897160676663958,
+            "trade_count": 69,
+            "closed_trade_count": 66,
+            "realized_pnl": -1059.3366455534797,
+            "total_fees": 1118.6021930052036,
+            "total_slippage": 12.032089999999315,
+            "total_explicit_cost": 1130.6342830052026,
+            "funding_pnl": 0.0,
+            "avg_win": 441.7581314575856,
+            "avg_loss": -201.1221519839917,
+            "per_instrument": {
+              "SOL-USDT": {
+                "trade_count": 69,
+                "closed_trades": 66,
+                "realized_pnl": -1059.3366455534797,
+                "win_rate": 0.2878787878787879
+              }
+            }
+          },
+          "oos_return": 0.38205218221794546,
+          "oos_closed_trades": 6,
+          "oos_points": 237,
+          "benchmark_oos_return": -0.4025117739403453,
+          "excess_oos_return": 0.7845639561582908
+        },
+        {
+          "symbol": "TRX-USDT",
+          "run_id": "sim_eff86a0463",
+          "metrics": {
+            "total_return": 0.14928378536772757,
+            "equity": 11492.837853677276,
+            "win_rate": 0.41025641025641024,
+            "profit_factor": 1.30121014359666,
+            "max_drawdown": 0.30990550109940024,
+            "equity_curve_degraded": false,
+            "sharpe": 0.36850681293708387,
+            "trade_count": 41,
+            "closed_trade_count": 39,
+            "realized_pnl": 1513.4577413109564,
+            "total_fees": 997.5852856536942,
+            "total_slippage": 0.011597779999999447,
+            "total_explicit_cost": 997.5968834336941,
+            "funding_pnl": 0.0,
+            "avg_win": 408.62803900450757,
+            "avg_loss": -218.46047316352877,
+            "per_instrument": {
+              "TRX-USDT": {
+                "trade_count": 41,
+                "closed_trades": 39,
+                "realized_pnl": 1513.4577413109564,
+                "win_rate": 0.41025641025641024
+              }
+            }
+          },
+          "oos_return": -0.1699866726990753,
+          "oos_closed_trades": 22,
+          "oos_points": 225,
+          "benchmark_oos_return": 0.17033475783475782,
+          "excess_oos_return": -0.3403214305338331
+        },
+        {
+          "symbol": "UNI-USDT",
+          "run_id": "sim_aebe266bdd",
+          "metrics": {
+            "total_return": 0.35637450318505826,
+            "equity": 13563.745031850583,
+            "win_rate": 0.34285714285714286,
+            "profit_factor": 0.9864527964591563,
+            "max_drawdown": 0.3892380488629918,
+            "equity_curve_degraded": false,
+            "sharpe": 0.5262567524682145,
+            "trade_count": 38,
+            "closed_trade_count": 35,
+            "realized_pnl": -130.42170068954084,
+            "total_fees": 799.3082889946472,
+            "total_slippage": 0.22430499999998776,
+            "total_explicit_cost": 799.5325939946472,
+            "funding_pnl": 0.0,
+            "avg_win": 791.3985776736878,
+            "avg_loss": -418.5741144684258,
+            "per_instrument": {
+              "UNI-USDT": {
+                "trade_count": 38,
+                "closed_trades": 35,
+                "realized_pnl": -130.42170068954084,
+                "win_rate": 0.34285714285714286
+              }
+            }
+          },
+          "oos_return": 0.15097072961732327,
+          "oos_closed_trades": 17,
+          "oos_points": 225,
+          "benchmark_oos_return": -0.16874527588813304,
+          "excess_oos_return": 0.3197160055054563
+        },
+        {
+          "symbol": "XRP-USDT",
+          "run_id": "sim_b57b2cc668",
+          "metrics": {
+            "total_return": 0.089025190934793,
+            "equity": 10890.25190934793,
+            "win_rate": 0.27906976744186046,
+            "profit_factor": 1.0539593125770992,
+            "max_drawdown": 0.5003167121133181,
+            "equity_curve_degraded": false,
+            "sharpe": 0.3152426503473574,
+            "trade_count": 45,
+            "closed_trade_count": 43,
+            "realized_pnl": 750.7465708754274,
+            "total_fees": 1134.9540492056528,
+            "total_slippage": 0.07921459999999492,
+            "total_explicit_cost": 1135.0332638056534,
+            "funding_pnl": 0.0,
+            "avg_win": 1221.9953361910457,
+            "avg_loss": -448.81282140055225,
+            "per_instrument": {
+              "XRP-USDT": {
+                "trade_count": 45,
+                "closed_trades": 43,
+                "realized_pnl": 750.7465708754274,
+                "win_rate": 0.27906976744186046
+              }
+            }
+          },
+          "oos_return": -0.2089502768828272,
+          "oos_closed_trades": 22,
+          "oos_points": 235,
+          "benchmark_oos_return": -0.46114178560266694,
+          "excess_oos_return": 0.25219150871983975
+        }
+      ]
+    },
+    {
+      "split_date": "2026-03-11",
+      "symbols": 18,
+      "mean_oos_return": -0.10389123409868939,
+      "median_oos_return": -0.10352542551682914,
+      "positive_oos_fraction": 0.2777777777777778,
+      "mean_excess_oos_return": 0.0507606626302253,
+      "median_excess_oos_return": 0.020520248487531312,
+      "positive_excess_fraction": 0.5555555555555556,
+      "median_full_max_drawdown": 0.41944696792768976,
+      "median_oos_closed_trades": 9.5,
+      "results": [
+        {
+          "symbol": "ADA-USDT",
+          "run_id": "sim_c9875146db",
+          "metrics": {
+            "total_return": -0.03797338844241127,
+            "equity": 9620.266115575887,
+            "win_rate": 0.3333333333333333,
+            "profit_factor": 0.9066171014836016,
+            "max_drawdown": 0.4186305659603649,
+            "equity_curve_degraded": false,
+            "sharpe": 0.13501434115704852,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1084.7640761235552,
+            "total_fees": 887.021356947758,
+            "total_slippage": 0.0243638999999988,
+            "total_explicit_cost": 887.0457208477583,
+            "funding_pnl": 0.0,
+            "avg_win": 752.2528047068914,
+            "avg_loss": -414.86797650071554,
+            "per_instrument": {
+              "ADA-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1084.7640761235552,
+                "win_rate": 0.3333333333333333
+              }
+            }
+          },
+          "oos_return": -0.2760752428758503,
+          "oos_closed_trades": 13,
+          "oos_points": 166,
+          "benchmark_oos_return": -0.15885714285714292,
+          "excess_oos_return": -0.11721810001870736
+        },
+        {
+          "symbol": "ATOM-USDT",
+          "run_id": "sim_5ba43fd76e",
+          "metrics": {
+            "total_return": -0.365312606735398,
+            "equity": 6346.87393264602,
+            "win_rate": 0.275,
+            "profit_factor": 0.6396595615588632,
+            "max_drawdown": 0.6551604603624446,
+            "equity_curve_degraded": false,
+            "sharpe": -0.37859221754727507,
+            "trade_count": 42,
+            "closed_trade_count": 40,
+            "realized_pnl": -4249.176970508886,
+            "total_fees": 702.7472745103332,
+            "total_slippage": 0.159090999999993,
+            "total_explicit_cost": 702.9063655103333,
+            "funding_pnl": 0.0,
+            "avg_win": 685.721911832283,
+            "avg_loss": -406.6247586435863,
+            "per_instrument": {
+              "ATOM-USDT": {
+                "trade_count": 42,
+                "closed_trades": 40,
+                "realized_pnl": -4249.176970508886,
+                "win_rate": 0.275
+              }
+            }
+          },
+          "oos_return": -0.04013310667308867,
+          "oos_closed_trades": 8,
+          "oos_points": 142,
+          "benchmark_oos_return": -0.32639649507119395,
+          "excess_oos_return": 0.2862633883981053
+        },
+        {
+          "symbol": "AVAX-USDT",
+          "run_id": "sim_78d752f873",
+          "metrics": {
+            "total_return": -0.4599565255449297,
+            "equity": 5400.434744550703,
+            "win_rate": 0.26865671641791045,
+            "profit_factor": 0.6256435935006278,
+            "max_drawdown": 0.503075297309578,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6470339282440316,
+            "trade_count": 70,
+            "closed_trade_count": 67,
+            "realized_pnl": -4730.160554758434,
+            "total_fees": 985.6662350278642,
+            "total_slippage": 1.4560499999999266,
+            "total_explicit_cost": 987.1222850278639,
+            "funding_pnl": 0.0,
+            "avg_win": 439.18258345591283,
+            "avg_loss": -257.86626646867074,
+            "per_instrument": {
+              "AVAX-USDT": {
+                "trade_count": 70,
+                "closed_trades": 67,
+                "realized_pnl": -4730.160554758434,
+                "win_rate": 0.26865671641791045
+              }
+            }
+          },
+          "oos_return": -0.346470222122371,
+          "oos_closed_trades": 26,
+          "oos_points": 154,
+          "benchmark_oos_return": -0.3513175710863452,
+          "excess_oos_return": 0.004847348963974207
+        },
+        {
+          "symbol": "BCH-USDT",
+          "run_id": "sim_c4e1a6158b",
+          "metrics": {
+            "total_return": 0.5691662230217258,
+            "equity": 15691.662230217258,
+            "win_rate": 0.36363636363636365,
+            "profit_factor": 1.6299587688661785,
+            "max_drawdown": 0.2937058564229749,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8110186307075931,
+            "trade_count": 25,
+            "closed_trade_count": 22,
+            "realized_pnl": 2414.3730635259517,
+            "total_fees": 497.02534681652753,
+            "total_slippage": 10.815499999999531,
+            "total_explicit_cost": 507.8408468165271,
+            "funding_pnl": 0.0,
+            "avg_win": 780.8702610194957,
+            "avg_loss": -273.75635890214386,
+            "per_instrument": {
+              "BCH-USDT": {
+                "trade_count": 25,
+                "closed_trades": 22,
+                "realized_pnl": 2414.3730635259517,
+                "win_rate": 0.36363636363636365
+              }
+            }
+          },
+          "oos_return": 0.23736815709651893,
+          "oos_closed_trades": 4,
+          "oos_points": 152,
+          "benchmark_oos_return": -0.5251372118551043,
+          "excess_oos_return": 0.7625053689516232
+        },
+        {
+          "symbol": "BNB-USDT",
+          "run_id": "sim_b008e1e26f",
+          "metrics": {
+            "total_return": 0.08853997251794099,
+            "equity": 10885.39972517941,
+            "win_rate": 0.4,
+            "profit_factor": 1.262042360955662,
+            "max_drawdown": 0.21733893151903544,
+            "equity_curve_degraded": false,
+            "sharpe": 0.28380580359170243,
+            "trade_count": 28,
+            "closed_trade_count": 25,
+            "realized_pnl": 976.3986339564581,
+            "total_fees": 521.7291707099876,
+            "total_slippage": 18.127399999999056,
+            "total_explicit_cost": 539.8565707099866,
+            "funding_pnl": 0.0,
+            "avg_win": 470.2508528538221,
+            "avg_loss": -248.40732630545088,
+            "per_instrument": {
+              "BNB-USDT": {
+                "trade_count": 28,
+                "closed_trades": 25,
+                "realized_pnl": 976.3986339564581,
+                "win_rate": 0.4
+              }
+            }
+          },
+          "oos_return": -0.1385701137927664,
+          "oos_closed_trades": 3,
+          "oos_points": 138,
+          "benchmark_oos_return": -0.10976931413531499,
+          "excess_oos_return": -0.028800799657451415
+        },
+        {
+          "symbol": "BTC-USDT",
+          "run_id": "sim_469038302a",
+          "metrics": {
+            "total_return": 0.3412141842156835,
+            "equity": 13412.141842156834,
+            "win_rate": 0.4838709677419355,
+            "profit_factor": 1.8309290735356376,
+            "max_drawdown": 0.20125810170701885,
+            "equity_curve_degraded": false,
+            "sharpe": 0.7972723812917294,
+            "trade_count": 34,
+            "closed_trade_count": 31,
+            "realized_pnl": 3317.240802278103,
+            "total_fees": 789.5347813865955,
+            "total_slippage": 2968.0266999999003,
+            "total_explicit_cost": 3757.5614813864963,
+            "funding_pnl": 0.0,
+            "avg_win": 487.29651521006497,
+            "avg_loss": -249.51293286705453,
+            "per_instrument": {
+              "BTC-USDT": {
+                "trade_count": 34,
+                "closed_trades": 31,
+                "realized_pnl": 3317.240802278103,
+                "win_rate": 0.4838709677419355
+              }
+            }
+          },
+          "oos_return": 0.02017327352058751,
+          "oos_closed_trades": 10,
+          "oos_points": 154,
+          "benchmark_oos_return": -0.09176516819058089,
+          "excess_oos_return": 0.1119384417111684
+        },
+        {
+          "symbol": "DOGE-USDT",
+          "run_id": "sim_91d45aa3da",
+          "metrics": {
+            "total_return": -0.13374752255505662,
+            "equity": 8662.524774449434,
+            "win_rate": 0.23809523809523808,
+            "profit_factor": 0.8735673379807312,
+            "max_drawdown": 0.572864017233439,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0729619893672841,
+            "trade_count": 45,
+            "closed_trade_count": 42,
+            "realized_pnl": -1449.9698299012566,
+            "total_fees": 890.881772125183,
+            "total_slippage": 0.0066754799999996645,
+            "total_explicit_cost": 890.8884476051829,
+            "funding_pnl": 0.0,
+            "avg_win": 1001.8347033349424,
+            "avg_loss": -358.3849019765837,
+            "per_instrument": {
+              "DOGE-USDT": {
+                "trade_count": 45,
+                "closed_trades": 42,
+                "realized_pnl": -1449.9698299012566,
+                "win_rate": 0.23809523809523808
+              }
+            }
+          },
+          "oos_return": -0.2739081520706298,
+          "oos_closed_trades": 16,
+          "oos_points": 152,
+          "benchmark_oos_return": -0.24250297715708558,
+          "excess_oos_return": -0.03140517491354422
+        },
+        {
+          "symbol": "DOT-USDT",
+          "run_id": "sim_f086ad5b4b",
+          "metrics": {
+            "total_return": -0.5279185155737028,
+            "equity": 4720.814844262972,
+            "win_rate": 0.25,
+            "profit_factor": 0.4514932097833266,
+            "max_drawdown": 0.6764905952782676,
+            "equity_curve_degraded": false,
+            "sharpe": -0.6888601924390064,
+            "trade_count": 50,
+            "closed_trade_count": 48,
+            "realized_pnl": -5501.066617228235,
+            "total_fees": 628.7250467107933,
+            "total_slippage": 0.18117679999999325,
+            "total_explicit_cost": 628.9062235107934,
+            "funding_pnl": 0.0,
+            "avg_win": 377.3417619958056,
+            "avg_loss": -278.5879933660526,
+            "per_instrument": {
+              "DOT-USDT": {
+                "trade_count": 50,
+                "closed_trades": 48,
+                "realized_pnl": -5501.066617228235,
+                "win_rate": 0.25
+              }
+            }
+          },
+          "oos_return": -0.04204589091352018,
+          "oos_closed_trades": 12,
+          "oos_points": 142,
+          "benchmark_oos_return": -0.4955862977602108,
+          "excess_oos_return": 0.4535404068466906
+        },
+        {
+          "symbol": "ETC-USDT",
+          "run_id": "sim_0d0dd41b06",
+          "metrics": {
+            "total_return": 0.3702429576087731,
+            "equity": 13702.42957608773,
+            "win_rate": 0.3157894736842105,
+            "profit_factor": 1.4429689745188217,
+            "max_drawdown": 0.42026336989501467,
+            "equity_curve_degraded": false,
+            "sharpe": 0.6035344356901908,
+            "trade_count": 41,
+            "closed_trade_count": 38,
+            "realized_pnl": 3595.2447107893377,
+            "total_fees": 885.590946138035,
+            "total_slippage": 0.7502979999999662,
+            "total_explicit_cost": 886.3412441380348,
+            "funding_pnl": 0.0,
+            "avg_win": 975.9574733022064,
+            "avg_loss": -312.1632680321978,
+            "per_instrument": {
+              "ETC-USDT": {
+                "trade_count": 41,
+                "closed_trades": 38,
+                "realized_pnl": 3595.2447107893377,
+                "win_rate": 0.3157894736842105
+              }
+            }
+          },
+          "oos_return": -0.08394469137165106,
+          "oos_closed_trades": 8,
+          "oos_points": 142,
+          "benchmark_oos_return": -0.19823947907874107,
+          "excess_oos_return": 0.11429478770709
+        },
+        {
+          "symbol": "ETH-USDT",
+          "run_id": "sim_4dba2ac139",
+          "metrics": {
+            "total_return": 0.5371905321220767,
+            "equity": 15371.905321220767,
+            "win_rate": 0.40540540540540543,
+            "profit_factor": 1.7500942902399945,
+            "max_drawdown": 0.24311606144721956,
+            "equity_curve_degraded": false,
+            "sharpe": 0.8206252248416118,
+            "trade_count": 40,
+            "closed_trade_count": 37,
+            "realized_pnl": 4026.910964498911,
+            "total_fees": 838.2365080375305,
+            "total_slippage": 110.68398999999522,
+            "total_explicit_cost": 948.9204980375258,
+            "funding_pnl": 0.0,
+            "avg_win": 626.3633766202487,
+            "avg_loss": -244.02453112749166,
+            "per_instrument": {
+              "ETH-USDT": {
+                "trade_count": 40,
+                "closed_trades": 37,
+                "realized_pnl": 4026.910964498911,
+                "win_rate": 0.40540540540540543
+              }
+            }
+          },
+          "oos_return": 0.07630332468192846,
+          "oos_closed_trades": 9,
+          "oos_points": 142,
+          "benchmark_oos_return": -0.07759810736323514,
+          "excess_oos_return": 0.1539014320451636
+        },
+        {
+          "symbol": "FIL-USDT",
+          "run_id": "sim_21c1f5f0e5",
+          "metrics": {
+            "total_return": -0.8366827102264547,
+            "equity": 1633.1728977354533,
+            "win_rate": 0.20408163265306123,
+            "profit_factor": 0.4052752810487533,
+            "max_drawdown": 0.8885626088377698,
+            "equity_curve_degraded": false,
+            "sharpe": -1.447856350625297,
+            "trade_count": 51,
+            "closed_trade_count": 49,
+            "realized_pnl": -8347.512592977728,
+            "total_fees": 699.9734037922149,
+            "total_slippage": 0.1370368999999948,
+            "total_explicit_cost": 700.1104406922149,
+            "funding_pnl": 0.0,
+            "avg_win": 568.8414159315254,
+            "avg_loss": -359.8955577511021,
+            "per_instrument": {
+              "FIL-USDT": {
+                "trade_count": 51,
+                "closed_trades": 49,
+                "realized_pnl": -8347.512592977728,
+                "win_rate": 0.20408163265306123
+              }
+            }
+          },
+          "oos_return": -0.3966663596740805,
+          "oos_closed_trades": 7,
+          "oos_points": 142,
+          "benchmark_oos_return": -0.18563485759673204,
+          "excess_oos_return": -0.21103150207734844
+        },
+        {
+          "symbol": "LINK-USDT",
+          "run_id": "sim_7efc270551",
+          "metrics": {
+            "total_return": 0.061083381740050235,
+            "equity": 10610.833817400502,
+            "win_rate": 0.3829787234042553,
+            "profit_factor": 1.1306393417123617,
+            "max_drawdown": 0.5409093594190736,
+            "equity_curve_degraded": false,
+            "sharpe": 0.2756321141540234,
+            "trade_count": 49,
+            "closed_trade_count": 47,
+            "realized_pnl": 1137.9100041706415,
+            "total_fees": 1051.8783140766805,
+            "total_slippage": 0.7008839999999683,
+            "total_explicit_cost": 1052.5791980766803,
+            "funding_pnl": 0.0,
+            "avg_win": 547.123690638022,
+            "avg_loss": -300.3557388728882,
+            "per_instrument": {
+              "LINK-USDT": {
+                "trade_count": 49,
+                "closed_trades": 47,
+                "realized_pnl": 1137.9100041706415,
+                "win_rate": 0.3829787234042553
+              }
+            }
+          },
+          "oos_return": -0.11692213292484666,
+          "oos_closed_trades": 9,
+          "oos_points": 154,
+          "benchmark_oos_return": -0.027459699833240703,
+          "excess_oos_return": -0.08946243309160595
+        },
+        {
+          "symbol": "LTC-USDT",
+          "run_id": "sim_d90eead7c7",
+          "metrics": {
+            "total_return": -0.10237846620688629,
+            "equity": 8976.215337931137,
+            "win_rate": 0.32608695652173914,
+            "profit_factor": 0.9140532524905249,
+            "max_drawdown": 0.3863068168790693,
+            "equity_curve_degraded": false,
+            "sharpe": 0.026904293467096406,
+            "trade_count": 49,
+            "closed_trade_count": 46,
+            "realized_pnl": -887.4527512361553,
+            "total_fees": 989.4348034620856,
+            "total_slippage": 4.031149999999791,
+            "total_explicit_cost": 993.4659534620852,
+            "funding_pnl": 0.0,
+            "avg_win": 629.2106040116266,
+            "avg_loss": -333.08425198098564,
+            "per_instrument": {
+              "LTC-USDT": {
+                "trade_count": 49,
+                "closed_trades": 46,
+                "realized_pnl": -887.4527512361553,
+                "win_rate": 0.32608695652173914
+              }
+            }
+          },
+          "oos_return": -0.18653745467361782,
+          "oos_closed_trades": 12,
+          "oos_points": 152,
+          "benchmark_oos_return": -0.1667888563049854,
+          "excess_oos_return": -0.01974859836863241
+        },
+        {
+          "symbol": "NEAR-USDT",
+          "run_id": "sim_27ff035293",
+          "metrics": {
+            "total_return": -0.48075931654025805,
+            "equity": 5192.406834597419,
+            "win_rate": 0.1951219512195122,
+            "profit_factor": 0.6231394400359838,
+            "max_drawdown": 0.5619287534213145,
+            "equity_curve_degraded": false,
+            "sharpe": -0.46548223676209194,
+            "trade_count": 44,
+            "closed_trade_count": 41,
+            "realized_pnl": -4257.288891884468,
+            "total_fees": 708.8540740656329,
+            "total_slippage": 0.11154399999999365,
+            "total_explicit_cost": 708.9656180656327,
+            "funding_pnl": 0.0,
+            "avg_win": 879.9291097261564,
+            "avg_loss": -342.3249021119309,
+            "per_instrument": {
+              "NEAR-USDT": {
+                "trade_count": 44,
+                "closed_trades": 41,
+                "realized_pnl": -4257.288891884468,
+                "win_rate": 0.1951219512195122
+              }
+            }
+          },
+          "oos_return": -0.3943935630962221,
+          "oos_closed_trades": 17,
+          "oos_points": 142,
+          "benchmark_oos_return": 0.2739197530864197,
+          "excess_oos_return": -0.6683133161826418
+        },
+        {
+          "symbol": "SOL-USDT",
+          "run_id": "sim_6cf894da7e",
+          "metrics": {
+            "total_return": -0.047803952544622,
+            "equity": 9521.96047455378,
+            "win_rate": 0.2878787878787879,
+            "profit_factor": 0.88793339101323,
+            "max_drawdown": 0.39946279866815376,
+            "equity_curve_degraded": false,
+            "sharpe": 0.0897160676663958,
+            "trade_count": 69,
+            "closed_trade_count": 66,
+            "realized_pnl": -1059.3366455534797,
+            "total_fees": 1118.6021930052036,
+            "total_slippage": 12.032089999999315,
+            "total_explicit_cost": 1130.6342830052026,
+            "funding_pnl": 0.0,
+            "avg_win": 441.7581314575856,
+            "avg_loss": -201.1221519839917,
+            "per_instrument": {
+              "SOL-USDT": {
+                "trade_count": 69,
+                "closed_trades": 66,
+                "realized_pnl": -1059.3366455534797,
+                "win_rate": 0.2878787878787879
+              }
+            }
+          },
+          "oos_return": 0.19565165437755172,
+          "oos_closed_trades": 5,
+          "oos_points": 154,
+          "benchmark_oos_return": -0.10866510538641683,
+          "excess_oos_return": 0.30431675976396855
+        },
+        {
+          "symbol": "TRX-USDT",
+          "run_id": "sim_33f6b4a0d7",
+          "metrics": {
+            "total_return": 0.14928378536772757,
+            "equity": 11492.837853677276,
+            "win_rate": 0.41025641025641024,
+            "profit_factor": 1.30121014359666,
+            "max_drawdown": 0.30990550109940024,
+            "equity_curve_degraded": false,
+            "sharpe": 0.36850681293708387,
+            "trade_count": 41,
+            "closed_trade_count": 39,
+            "realized_pnl": 1513.4577413109564,
+            "total_fees": 997.5852856536942,
+            "total_slippage": 0.011597779999999447,
+            "total_explicit_cost": 997.5968834336941,
+            "funding_pnl": 0.0,
+            "avg_win": 408.62803900450757,
+            "avg_loss": -218.46047316352877,
+            "per_instrument": {
+              "TRX-USDT": {
+                "trade_count": 41,
+                "closed_trades": 39,
+                "realized_pnl": 1513.4577413109564,
+                "win_rate": 0.41025641025641024
+              }
+            }
+          },
+          "oos_return": -0.09012871810881162,
+          "oos_closed_trades": 17,
+          "oos_points": 142,
+          "benchmark_oos_return": 0.13149015287150534,
+          "excess_oos_return": -0.22161887098031696
+        },
+        {
+          "symbol": "UNI-USDT",
+          "run_id": "sim_1eece411ff",
+          "metrics": {
+            "total_return": 0.35637450318505826,
+            "equity": 13563.745031850583,
+            "win_rate": 0.34285714285714286,
+            "profit_factor": 0.9864527964591563,
+            "max_drawdown": 0.3892380488629918,
+            "equity_curve_degraded": false,
+            "sharpe": 0.5262567524682145,
+            "trade_count": 38,
+            "closed_trade_count": 35,
+            "realized_pnl": -130.42170068954084,
+            "total_fees": 799.3082889946472,
+            "total_slippage": 0.22430499999998776,
+            "total_explicit_cost": 799.5325939946472,
+            "funding_pnl": 0.0,
+            "avg_win": 791.3985776736878,
+            "avg_loss": -418.5741144684258,
+            "per_instrument": {
+              "UNI-USDT": {
+                "trade_count": 38,
+                "closed_trades": 35,
+                "realized_pnl": -130.42170068954084,
+                "win_rate": 0.34285714285714286
+              }
+            }
+          },
+          "oos_return": 0.1644311577571771,
+          "oos_closed_trades": 9,
+          "oos_points": 142,
+          "benchmark_oos_return": 0.12823800974608868,
+          "excess_oos_return": 0.036193148011088416
+        },
+        {
+          "symbol": "XRP-USDT",
+          "run_id": "sim_3185ff6dee",
+          "metrics": {
+            "total_return": 0.089025190934793,
+            "equity": 10890.25190934793,
+            "win_rate": 0.27906976744186046,
+            "profit_factor": 1.0539593125770992,
+            "max_drawdown": 0.5003167121133181,
+            "equity_curve_degraded": false,
+            "sharpe": 0.3152426503473574,
+            "trade_count": 45,
+            "closed_trade_count": 43,
+            "realized_pnl": 750.7465708754274,
+            "total_fees": 1134.9540492056528,
+            "total_slippage": 0.07921459999999492,
+            "total_explicit_cost": 1135.0332638056534,
+            "funding_pnl": 0.0,
+            "avg_win": 1221.9953361910457,
+            "avg_loss": -448.81282140055225,
+            "per_instrument": {
+              "XRP-USDT": {
+                "trade_count": 45,
+                "closed_trades": 43,
+                "realized_pnl": 750.7465708754274,
+                "win_rate": 0.27906976744186046
+              }
+            }
+          },
+          "oos_return": -0.17817413291271667,
+          "oos_closed_trades": 18,
+          "oos_points": 152,
+          "benchmark_oos_return": -0.25166377314814825,
+          "excess_oos_return": 0.07348964023543159
+        }
+      ]
+    }
+  ],
+  "status": "replay_only_not_promoted"
+}

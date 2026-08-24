@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T14:34:24.927085+00:00",
+  "generated_at": "2026-08-24T14:35:27.361965+00:00",
   "real_data_only": true,
   "execution_kernel": "modules.simulation.SimulationService",
   "strategy": {
@@ -36,7 +36,7 @@
       "results": [
         {
           "symbol": "ADA-USDT",
-          "run_id": "sim_0c2c9be72e",
+          "run_id": "sim_78e2ffb320",
           "metrics": {
             "total_return": -0.4324963831333095,
             "equity": 5675.036168666905,
@@ -71,7 +71,7 @@
         },
         {
           "symbol": "ATOM-USDT",
-          "run_id": "sim_94ce46b12b",
+          "run_id": "sim_e524372960",
           "metrics": {
             "total_return": -0.04487982140590463,
             "equity": 9551.201785940953,
@@ -106,7 +106,7 @@
         },
         {
           "symbol": "AVAX-USDT",
-          "run_id": "sim_fade9ea231",
+          "run_id": "sim_7e413249e4",
           "metrics": {
             "total_return": -0.43909435622762105,
             "equity": 5609.05643772379,
@@ -141,7 +141,7 @@
         },
         {
           "symbol": "BCH-USDT",
-          "run_id": "sim_f8e016d1be",
+          "run_id": "sim_a40e4916b7",
           "metrics": {
             "total_return": 0.7910723402236304,
             "equity": 17910.723402236305,
@@ -176,7 +176,7 @@
         },
         {
           "symbol": "BNB-USDT",
-          "run_id": "sim_f31ccf69b7",
+          "run_id": "sim_f2cc7b30df",
           "metrics": {
             "total_return": -0.0833327890611334,
             "equity": 9166.672109388666,
@@ -211,7 +211,7 @@
         },
         {
           "symbol": "BTC-USDT",
-          "run_id": "sim_8d9b9040c1",
+          "run_id": "sim_19d4012093",
           "metrics": {
             "total_return": -0.18560929812835525,
             "equity": 8143.907018716447,
@@ -246,7 +246,7 @@
         },
         {
           "symbol": "DOGE-USDT",
-          "run_id": "sim_6f5a3ee53a",
+          "run_id": "sim_b8684549a2",
           "metrics": {
             "total_return": -0.24055065009774623,
             "equity": 7594.493499022537,
@@ -281,7 +281,7 @@
         },
         {
           "symbol": "DOT-USDT",
-          "run_id": "sim_22aeede5ff",
+          "run_id": "sim_e96ed6917f",
           "metrics": {
             "total_return": -0.5204263758503824,
             "equity": 4795.736241496175,
@@ -316,7 +316,7 @@
         },
         {
           "symbol": "ETC-USDT",
-          "run_id": "sim_493bbb2015",
+          "run_id": "sim_b45f7d8440",
           "metrics": {
             "total_return": -0.23998464595656765,
             "equity": 7600.153540434323,
@@ -351,7 +351,7 @@
         },
         {
           "symbol": "ETH-USDT",
-          "run_id": "sim_cf6fed9fe1",
+          "run_id": "sim_853f7ca7f5",
           "metrics": {
             "total_return": 0.0936318498737212,
             "equity": 10936.318498737211,
@@ -386,7 +386,7 @@
         },
         {
           "symbol": "FIL-USDT",
-          "run_id": "sim_c3ad00453f",
+          "run_id": "sim_ea2f2ca7f3",
           "metrics": {
             "total_return": -0.15356363129036366,
             "equity": 8464.363687096364,
@@ -421,7 +421,7 @@
         },
         {
           "symbol": "LINK-USDT",
-          "run_id": "sim_722773b0e2",
+          "run_id": "sim_59c530de22",
           "metrics": {
             "total_return": -0.4112985977324807,
             "equity": 5887.014022675193,
@@ -456,7 +456,7 @@
         },
         {
           "symbol": "LTC-USDT",
-          "run_id": "sim_e3f5055d7a",
+          "run_id": "sim_fbe03edc4a",
           "metrics": {
             "total_return": 0.010380849692781746,
             "equity": 10103.808496927817,
@@ -491,7 +491,7 @@
         },
         {
           "symbol": "NEAR-USDT",
-          "run_id": "sim_092e0f2cef",
+          "run_id": "sim_e878c0fd48",
           "metrics": {
             "total_return": 0.5324095987470161,
             "equity": 15324.09598747016,
@@ -526,7 +526,7 @@
         },
         {
           "symbol": "SOL-USDT",
-          "run_id": "sim_8f3cf0779b",
+          "run_id": "sim_9f1270b16b",
           "metrics": {
             "total_return": 0.14597664622441187,
             "equity": 11459.766462244119,
@@ -561,7 +561,7 @@
         },
         {
           "symbol": "TRX-USDT",
-          "run_id": "sim_6e8cc7a809",
+          "run_id": "sim_9ee22dc670",
           "metrics": {
             "total_return": -0.010310527654159851,
             "equity": 9896.894723458401,
@@ -596,7 +596,7 @@
         },
         {
           "symbol": "UNI-USDT",
-          "run_id": "sim_6a5b0356a1",
+          "run_id": "sim_292072358f",
           "metrics": {
             "total_return": 0.25722132283119836,
             "equity": 12572.213228311984,
@@ -631,7 +631,7 @@
         },
         {
           "symbol": "XRP-USDT",
-          "run_id": "sim_6c4ebcfdc8",
+          "run_id": "sim_e18f09f150",
           "metrics": {
             "total_return": -0.09487534717980084,
             "equity": 9051.246528201991,
@@ -680,7 +680,7 @@
       "results": [
         {
           "symbol": "ADA-USDT",
-          "run_id": "sim_ab1df83db4",
+          "run_id": "sim_7971ca7c0f",
           "metrics": {
             "total_return": -0.4324963831333095,
             "equity": 5675.036168666905,
@@ -715,7 +715,7 @@
         },
         {
           "symbol": "ATOM-USDT",
-          "run_id": "sim_098d2cd556",
+          "run_id": "sim_5f28a3b14a",
           "metrics": {
             "total_return": -0.04487982140590463,
             "equity": 9551.201785940953,
@@ -750,7 +750,7 @@
         },
         {
           "symbol": "AVAX-USDT",
-          "run_id": "sim_6dd4f08766",
+          "run_id": "sim_c0e98dd5ff",
           "metrics": {
             "total_return": -0.43909435622762105,
             "equity": 5609.05643772379,
@@ -785,7 +785,7 @@
         },
         {
           "symbol": "BCH-USDT",
-          "run_id": "sim_dd5d4aad96",
+          "run_id": "sim_9ecf1c43e9",
           "metrics": {
             "total_return": 0.7910723402236304,
             "equity": 17910.723402236305,
@@ -820,7 +820,7 @@
         },
         {
           "symbol": "BNB-USDT",
-          "run_id": "sim_670ac30275",
+          "run_id": "sim_edf81f3587",
           "metrics": {
             "total_return": -0.0833327890611334,
             "equity": 9166.672109388666,
@@ -855,7 +855,7 @@
         },
         {
           "symbol": "BTC-USDT",
-          "run_id": "sim_5aeb3b5c54",
+          "run_id": "sim_617dccd8a8",
           "metrics": {
             "total_return": -0.18560929812835525,
             "equity": 8143.907018716447,
@@ -890,7 +890,7 @@
         },
         {
           "symbol": "DOGE-USDT",
-          "run_id": "sim_815e2d008a",
+          "run_id": "sim_b176c53247",
           "metrics": {
             "total_return": -0.24055065009774623,
             "equity": 7594.493499022537,
@@ -925,7 +925,7 @@
         },
         {
           "symbol": "DOT-USDT",
-          "run_id": "sim_166541cfb6",
+          "run_id": "sim_01717dc377",
           "metrics": {
             "total_return": -0.5204263758503824,
             "equity": 4795.736241496175,
@@ -960,7 +960,7 @@
         },
         {
           "symbol": "ETC-USDT",
-          "run_id": "sim_190283ef11",
+          "run_id": "sim_9f8642ed13",
           "metrics": {
             "total_return": -0.23998464595656765,
             "equity": 7600.153540434323,
@@ -995,7 +995,7 @@
         },
         {
           "symbol": "ETH-USDT",
-          "run_id": "sim_0bb09defde",
+          "run_id": "sim_dcfbdcd1bd",
           "metrics": {
             "total_return": 0.0936318498737212,
             "equity": 10936.318498737211,
@@ -1030,7 +1030,7 @@
         },
         {
           "symbol": "FIL-USDT",
-          "run_id": "sim_f771540e44",
+          "run_id": "sim_eb8f27db24",
           "metrics": {
             "total_return": -0.15356363129036366,
             "equity": 8464.363687096364,
@@ -1065,7 +1065,7 @@
         },
         {
           "symbol": "LINK-USDT",
-          "run_id": "sim_47b84f98fa",
+          "run_id": "sim_13587766c0",
           "metrics": {
             "total_return": -0.4112985977324807,
             "equity": 5887.014022675193,
@@ -1100,7 +1100,7 @@
         },
         {
           "symbol": "LTC-USDT",
-          "run_id": "sim_c320c9ec1d",
+          "run_id": "sim_0bcf973190",
           "metrics": {
             "total_return": 0.010380849692781746,
             "equity": 10103.808496927817,
@@ -1135,7 +1135,7 @@
         },
         {
           "symbol": "NEAR-USDT",
-          "run_id": "sim_be39758a84",
+          "run_id": "sim_8d855e6bf3",
           "metrics": {
             "total_return": 0.5324095987470161,
             "equity": 15324.09598747016,
@@ -1170,7 +1170,7 @@
         },
         {
           "symbol": "SOL-USDT",
-          "run_id": "sim_ac24a34f28",
+          "run_id": "sim_375c88acd2",
           "metrics": {
             "total_return": 0.14597664622441187,
             "equity": 11459.766462244119,
@@ -1205,7 +1205,7 @@
         },
         {
           "symbol": "TRX-USDT",
-          "run_id": "sim_9dcc6508c7",
+          "run_id": "sim_0b4223fbd8",
           "metrics": {
             "total_return": -0.010310527654159851,
             "equity": 9896.894723458401,
@@ -1240,7 +1240,7 @@
         },
         {
           "symbol": "UNI-USDT",
-          "run_id": "sim_f1d6acc007",
+          "run_id": "sim_2a63ff38e5",
           "metrics": {
             "total_return": 0.25722132283119836,
             "equity": 12572.213228311984,
@@ -1275,7 +1275,7 @@
         },
         {
           "symbol": "XRP-USDT",
-          "run_id": "sim_fe190e6fa1",
+          "run_id": "sim_6146f1a1c8",
           "metrics": {
             "total_return": -0.09487534717980084,
             "equity": 9051.246528201991,
@@ -1324,7 +1324,7 @@
       "results": [
         {
           "symbol": "ADA-USDT",
-          "run_id": "sim_0699930aad",
+          "run_id": "sim_f9c5fb9bce",
           "metrics": {
             "total_return": -0.4324963831333095,
             "equity": 5675.036168666905,
@@ -1359,7 +1359,7 @@
         },
         {
           "symbol": "ATOM-USDT",
-          "run_id": "sim_f3b2f0f55a",
+          "run_id": "sim_2a45f81180",
           "metrics": {
             "total_return": -0.04487982140590463,
             "equity": 9551.201785940953,
@@ -1394,7 +1394,7 @@
         },
         {
           "symbol": "AVAX-USDT",
-          "run_id": "sim_bd743a6f14",
+          "run_id": "sim_9cc53b5cfc",
           "metrics": {
             "total_return": -0.43909435622762105,
             "equity": 5609.05643772379,
@@ -1429,7 +1429,7 @@
         },
         {
           "symbol": "BCH-USDT",
-          "run_id": "sim_377d239223",
+          "run_id": "sim_ebcefa835e",
           "metrics": {
             "total_return": 0.7910723402236304,
             "equity": 17910.723402236305,
@@ -1464,7 +1464,7 @@
         },
         {
           "symbol": "BNB-USDT",
-          "run_id": "sim_7ff3dd9017",
+          "run_id": "sim_57aa4f40a2",
           "metrics": {
             "total_return": -0.0833327890611334,
             "equity": 9166.672109388666,
@@ -1499,7 +1499,7 @@
         },
         {
           "symbol": "BTC-USDT",
-          "run_id": "sim_5cf3d6c648",
+          "run_id": "sim_56a7628cf2",
           "metrics": {
             "total_return": -0.18560929812835525,
             "equity": 8143.907018716447,
@@ -1534,7 +1534,7 @@
         },
         {
           "symbol": "DOGE-USDT",
-          "run_id": "sim_b37422c4ff",
+          "run_id": "sim_b1941cf928",
           "metrics": {
             "total_return": -0.24055065009774623,
             "equity": 7594.493499022537,
@@ -1569,7 +1569,7 @@
         },
         {
           "symbol": "DOT-USDT",
-          "run_id": "sim_d7399ab854",
+          "run_id": "sim_a0539f9d7f",
           "metrics": {
             "total_return": -0.5204263758503824,
             "equity": 4795.736241496175,
@@ -1604,7 +1604,7 @@
         },
         {
           "symbol": "ETC-USDT",
-          "run_id": "sim_103a228d29",
+          "run_id": "sim_719044b0db",
           "metrics": {
             "total_return": -0.23998464595656765,
             "equity": 7600.153540434323,
@@ -1639,7 +1639,7 @@
         },
         {
           "symbol": "ETH-USDT",
-          "run_id": "sim_adfc8a4f79",
+          "run_id": "sim_5aa9daf098",
           "metrics": {
             "total_return": 0.0936318498737212,
             "equity": 10936.318498737211,
@@ -1674,7 +1674,7 @@
         },
         {
           "symbol": "FIL-USDT",
-          "run_id": "sim_72f88a3119",
+          "run_id": "sim_65fbf32a85",
           "metrics": {
             "total_return": -0.15356363129036366,
             "equity": 8464.363687096364,
@@ -1709,7 +1709,7 @@
         },
         {
           "symbol": "LINK-USDT",
-          "run_id": "sim_97bc38c0d9",
+          "run_id": "sim_cbde1789f6",
           "metrics": {
             "total_return": -0.4112985977324807,
             "equity": 5887.014022675193,
@@ -1744,7 +1744,7 @@
         },
         {
           "symbol": "LTC-USDT",
-          "run_id": "sim_9b3e53ccf1",
+          "run_id": "sim_32e9b93b97",
           "metrics": {
             "total_return": 0.010380849692781746,
             "equity": 10103.808496927817,
@@ -1779,7 +1779,7 @@
         },
         {
           "symbol": "NEAR-USDT",
-          "run_id": "sim_cd98420553",
+          "run_id": "sim_910a2e9450",
           "metrics": {
             "total_return": 0.5324095987470161,
             "equity": 15324.09598747016,
@@ -1814,7 +1814,7 @@
         },
         {
           "symbol": "SOL-USDT",
-          "run_id": "sim_a9c1916f97",
+          "run_id": "sim_5cbd5fec59",
           "metrics": {
             "total_return": 0.14597664622441187,
             "equity": 11459.766462244119,
@@ -1849,7 +1849,7 @@
         },
         {
           "symbol": "TRX-USDT",
-          "run_id": "sim_fd01b9d4ba",
+          "run_id": "sim_79e26b347f",
           "metrics": {
             "total_return": -0.010310527654159851,
             "equity": 9896.894723458401,
@@ -1884,7 +1884,7 @@
         },
         {
           "symbol": "UNI-USDT",
-          "run_id": "sim_612bc88eba",
+          "run_id": "sim_3a27f53291",
           "metrics": {
             "total_return": 0.25722132283119836,
             "equity": 12572.213228311984,
@@ -1919,7 +1919,7 @@
         },
         {
           "symbol": "XRP-USDT",
-          "run_id": "sim_900f3d3a4c",
+          "run_id": "sim_e708f86f6d",
           "metrics": {
             "total_return": -0.09487534717980084,
             "equity": 9051.246528201991,
@@ -1968,7 +1968,7 @@
       "results": [
         {
           "symbol": "ADA-USDT",
-          "run_id": "sim_8a3c502bfd",
+          "run_id": "sim_3dc3fb8999",
           "metrics": {
             "total_return": -0.4324963831333095,
             "equity": 5675.036168666905,
@@ -2003,7 +2003,7 @@
         },
         {
           "symbol": "ATOM-USDT",
-          "run_id": "sim_daf24cd0dd",
+          "run_id": "sim_09ab84c8d4",
           "metrics": {
             "total_return": -0.04487982140590463,
             "equity": 9551.201785940953,
@@ -2038,7 +2038,7 @@
         },
         {
           "symbol": "AVAX-USDT",
-          "run_id": "sim_512df43b11",
+          "run_id": "sim_7badc6d6be",
           "metrics": {
             "total_return": -0.43909435622762105,
             "equity": 5609.05643772379,
@@ -2073,7 +2073,7 @@
         },
         {
           "symbol": "BCH-USDT",
-          "run_id": "sim_bb6e33aee5",
+          "run_id": "sim_07fac68479",
           "metrics": {
             "total_return": 0.7910723402236304,
             "equity": 17910.723402236305,
@@ -2108,7 +2108,7 @@
         },
         {
           "symbol": "BNB-USDT",
-          "run_id": "sim_1d00332049",
+          "run_id": "sim_8846309f87",
           "metrics": {
             "total_return": -0.0833327890611334,
             "equity": 9166.672109388666,
@@ -2143,7 +2143,7 @@
         },
         {
           "symbol": "BTC-USDT",
-          "run_id": "sim_cc76e027a7",
+          "run_id": "sim_689e0a9056",
           "metrics": {
             "total_return": -0.18560929812835525,
             "equity": 8143.907018716447,
@@ -2178,7 +2178,7 @@
         },
         {
           "symbol": "DOGE-USDT",
-          "run_id": "sim_77a25f8c7f",
+          "run_id": "sim_63c37143ac",
           "metrics": {
             "total_return": -0.24055065009774623,
             "equity": 7594.493499022537,
@@ -2213,7 +2213,7 @@
         },
         {
           "symbol": "DOT-USDT",
-          "run_id": "sim_807089dced",
+          "run_id": "sim_8776b4dc28",
           "metrics": {
             "total_return": -0.5204263758503824,
             "equity": 4795.736241496175,
@@ -2248,7 +2248,7 @@
         },
         {
           "symbol": "ETC-USDT",
-          "run_id": "sim_ce7ae1388b",
+          "run_id": "sim_c93916a10f",
           "metrics": {
             "total_return": -0.23998464595656765,
             "equity": 7600.153540434323,
@@ -2283,7 +2283,7 @@
         },
         {
           "symbol": "ETH-USDT",
-          "run_id": "sim_a95169d943",
+          "run_id": "sim_d1a127fd58",
           "metrics": {
             "total_return": 0.0936318498737212,
             "equity": 10936.318498737211,
@@ -2318,7 +2318,7 @@
         },
         {
           "symbol": "FIL-USDT",
-          "run_id": "sim_07ca86c884",
+          "run_id": "sim_73df3eaae7",
           "metrics": {
             "total_return": -0.15356363129036366,
             "equity": 8464.363687096364,
@@ -2353,7 +2353,7 @@
         },
         {
           "symbol": "LINK-USDT",
-          "run_id": "sim_76d4a88f3f",
+          "run_id": "sim_0c473ea016",
           "metrics": {
             "total_return": -0.4112985977324807,
             "equity": 5887.014022675193,
@@ -2388,7 +2388,7 @@
         },
         {
           "symbol": "LTC-USDT",
-          "run_id": "sim_f62b3144b6",
+          "run_id": "sim_e92c6e5de4",
           "metrics": {
             "total_return": 0.010380849692781746,
             "equity": 10103.808496927817,
@@ -2423,7 +2423,7 @@
         },
         {
           "symbol": "NEAR-USDT",
-          "run_id": "sim_e19a4a4104",
+          "run_id": "sim_b691143b34",
           "metrics": {
             "total_return": 0.5324095987470161,
             "equity": 15324.09598747016,
@@ -2458,7 +2458,7 @@
         },
         {
           "symbol": "SOL-USDT",
-          "run_id": "sim_1d1e26fb04",
+          "run_id": "sim_7822ee14d7",
           "metrics": {
             "total_return": 0.14597664622441187,
             "equity": 11459.766462244119,
@@ -2493,7 +2493,7 @@
         },
         {
           "symbol": "TRX-USDT",
-          "run_id": "sim_5fceb11645",
+          "run_id": "sim_d9d0117981",
           "metrics": {
             "total_return": -0.010310527654159851,
             "equity": 9896.894723458401,
@@ -2528,7 +2528,7 @@
         },
         {
           "symbol": "UNI-USDT",
-          "run_id": "sim_7fa2bc40eb",
+          "run_id": "sim_72391066bd",
           "metrics": {
             "total_return": 0.25722132283119836,
             "equity": 12572.213228311984,
@@ -2563,7 +2563,7 @@
         },
         {
           "symbol": "XRP-USDT",
-          "run_id": "sim_4e41ab1b8f",
+          "run_id": "sim_d67cc91c11",
           "metrics": {
             "total_return": -0.09487534717980084,
             "equity": 9051.246528201991,
