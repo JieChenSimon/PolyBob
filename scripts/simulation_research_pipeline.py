@@ -22,6 +22,7 @@ import json
 import logging
 import math
 import sys
+import time
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -42,6 +43,48 @@ from modules.simulation import metrics as sim_metrics
 
 MIN_ROWS = 120
 MIN_CLOSED_TRADES = 20
+
+
+class ProgressReporter:
+    """Persist replay progress and emit a bounded, human-readable progress bar."""
+
+    def __init__(self, path: Path, total: int) -> None:
+        self.path = path
+        self.total = max(0, total)
+        self.completed = 0
+        self.started = time.monotonic()
+        self.update(status="running", current="initializing")
+
+    def update(self, *, status: str = "running", current: str | None = None) -> None:
+        elapsed = max(0.0, time.monotonic() - self.started)
+        rate = self.completed / elapsed if elapsed > 0 else 0.0
+        remaining = (self.total - self.completed) / rate if rate > 0 else None
+        fraction = self.completed / self.total if self.total else 1.0
+        payload = {
+            "status": status,
+            "completed_runs": self.completed,
+            "total_runs": self.total,
+            "fraction": fraction,
+            "elapsed_seconds": round(elapsed, 3),
+            "eta_seconds": round(remaining, 3) if remaining is not None else None,
+            "current": current,
+            "updated_at": datetime.now(UTC).isoformat(),
+        }
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        width = 28
+        filled = int(width * fraction)
+        eta = f" ETA {remaining / 60:.1f}m" if remaining is not None else " ETA --"
+        print(
+            f"matrix progress [{'#' * filled}{'-' * (width - filled)}] "
+            f"{self.completed}/{self.total} ({fraction:.1%}) elapsed {elapsed / 60:.1f}m{eta}"
+            + (f" current={current}" if current else ""),
+            flush=True,
+        )
+
+    def complete_one(self, current: str) -> None:
+        self.completed = min(self.total, self.completed + 1)
+        self.update(status="running" if self.completed < self.total else "completed", current=current)
 
 
 @dataclass
@@ -326,7 +369,8 @@ def _diagnostic_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any] | 
 
 async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_of: datetime,
                               split: datetime, output_dir: Path, label: str,
-                              retain_runs: bool = False) -> dict[str, Any]:
+                              retain_runs: bool = False,
+                              progress: ProgressReporter | None = None) -> dict[str, Any]:
     results: list[dict[str, Any]] = []
     for symbol in symbols:
         rows = _bars(symbol, as_of=as_of, start=None, end=None)
@@ -334,10 +378,13 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
         test = [row for row in rows if row["event_at"] >= split]
         for name, period in (("train", train), ("oos", test)):
             db_path = output_dir / f"{label}-{symbol}-{name}-{uuid.uuid4().hex[:8]}.sqlite3"
-            results.append({"period": name, "result": await _run_symbol(
+            result = await _run_symbol(
                 symbol, period, config, db_path=db_path, name=f"{label}:{symbol}:{name}",
                 retain_db=retain_runs,
-            )})
+            )
+            results.append({"period": name, "result": result})
+            if progress:
+                progress.complete_one(f"calibration:{label}:{symbol}:{name}")
     def period_stats(period_name: str) -> tuple[float | None, float | None]:
         period_results = [item["result"] for item in results if item["period"] == period_name]
         analyzed_period = [item for item in period_results if item.get("status") == "ANALYZED"]
@@ -373,9 +420,17 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
 
 async def run(args: argparse.Namespace) -> dict[str, Any]:
     as_of = _parse_date(args.as_of) or datetime.now(UTC)
-    all_symbols = store.symbols(store.DAILY_BARS)
-    if args.max_symbols:
-        all_symbols = all_symbols[:args.max_symbols]
+    available_symbols = set(store.symbols(store.DAILY_BARS))
+    if args.symbols:
+        requested = [item.strip() for item in args.symbols.split(",") if item.strip()]
+        all_symbols = [symbol for symbol in requested if symbol in available_symbols]
+        missing = [symbol for symbol in requested if symbol not in available_symbols]
+        if missing:
+            print(f"  ! requested symbols missing from local daily_bars: {','.join(missing)}")
+    else:
+        all_symbols = sorted(available_symbols)
+        if args.max_symbols:
+            all_symbols = all_symbols[:args.max_symbols]
     if not all_symbols:
         raise RuntimeError("daily_bars has no locally persisted real symbols")
     first_frame = store.read(store.DAILY_BARS, all_symbols[0], as_of=as_of)
@@ -393,6 +448,11 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         domain: symbols[:min(args.optimization_symbols, len(symbols))]
         for domain, symbols in by_domain.items()
     }
+    total_runs = sum(
+        len(symbols) * len(_candidates_for_domain(domain)) * 2
+        for domain, symbols in calibration_by_domain.items()
+    ) + len(all_symbols)
+    progress = ProgressReporter(Path(args.progress), total_runs)
     candidates: dict[str, list[dict[str, Any]]] = {}
     selected_by_domain: dict[str, dict[str, Any] | None] = {}
     selection_status_by_domain: dict[str, str] = {}
@@ -403,7 +463,8 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         for config in domain_candidates:
             candidates[domain].append(await _evaluate_candidate(
                 calibration, config, as_of=as_of, split=split, output_dir=output_dir,
-                label=f"{domain}-{config['id']}", retain_runs=args.retain_runs))
+                label=f"{domain}-{config['id']}", retain_runs=args.retain_runs,
+                progress=progress))
         # Selection must be made on the pre-declared training period. The OOS
         # score is recorded for validation only; using it here is look-ahead
         # bias and makes the supposedly out-of-sample comparison invalid.
@@ -443,6 +504,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         full_results.append(await _run_symbol(symbol, rows, selected["candidate"],
                                                db_path=db_path, name=f"full:{symbol}",
                                                retain_db=args.retain_runs))
+        progress.complete_one(f"full:{symbol}")
     for item in full_results:
         item["verdict"], item["reasons"] = _verdict(item)
         item["optimization_action"] = _optimization_action(item["reasons"])
@@ -530,6 +592,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                 "coverage": coverage,
             },
         },
+        "progress": json.loads(Path(args.progress).read_text(encoding="utf-8")),
     }
     Path(args.report).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n", encoding="utf-8")
@@ -547,11 +610,15 @@ def main() -> int:
         pass
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--max-symbols", type=int, default=0, help="0 = every locally covered daily-bar symbol")
+    parser.add_argument("--symbols", default=None,
+                        help="comma-separated exact symbols; missing symbols remain explicitly reported")
     parser.add_argument("--optimization-symbols", type=int, default=8)
     parser.add_argument("--as-of", default=None)
     parser.add_argument("--split", default=None, help="UTC ISO split; default 70%% of first symbol history")
     parser.add_argument("--output-dir", default="data/simulation_research_runs")
     parser.add_argument("--report", default="data/simulation_research_report.json")
+    parser.add_argument("--progress", default="data/simulation_research_progress.json",
+                        help="persist replay progress/ETA JSON for the UI and operators")
     parser.add_argument("--retain-runs", action="store_true",
                         help="retain per-symbol SQLite audit ledgers; default is compact report-only mode")
     args = parser.parse_args()

@@ -3,6 +3,7 @@ from scripts.simulation_research_pipeline import (
     _oos_evidence,
     _select_candidate,
     _verdict,
+    ProgressReporter,
 )
 from datetime import UTC, datetime
 from pytest import approx
@@ -90,3 +91,15 @@ def test_verdict_blocks_negative_oos_and_overfit_pbo():
     assert "non_positive_oos_return" in reasons
     assert "oos_stability<50%" in reasons
     assert "pbo>25%" in reasons
+
+
+def test_progress_reporter_persists_fraction_and_eta(tmp_path):
+    path = tmp_path / "progress.json"
+    reporter = ProgressReporter(path, total=2)
+    reporter.complete_one("AAPL")
+    payload = __import__("json").loads(path.read_text())
+    assert payload["status"] == "running"
+    assert payload["completed_runs"] == 1
+    assert payload["total_runs"] == 2
+    assert payload["fraction"] == approx(0.5)
+    assert payload["current"] == "AAPL"
