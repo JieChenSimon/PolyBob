@@ -14,8 +14,8 @@ checks:
 - text: 失败结果生成可解释归因和受约束候选参数，候选必须在独立样本外复测后才可进入下一轮
   done: true
 - text: 流水线可被单条命令运行，自动持久化报告、版本、数据快照、参数和任务状态；测试覆盖通过
-  done: false
+  done: true
 deps: []
 branch: pb-0027-real-data-pipeline
 blocked: null
-updated: '2026-08-24T13:51:19+00:00'
+updated: '2026-08-24T13:52:24+00:00'
