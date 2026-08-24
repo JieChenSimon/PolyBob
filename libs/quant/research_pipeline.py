@@ -113,7 +113,10 @@ def walk_forward_symbol(
             break
         _, best = max(scored, key=lambda item: item[0])
         selected.append(dict(best))
-        test_prices = np.concatenate((train[-max(best["slow"], 2):], test))
+        # Strategy builders may use different warm-up keys (e.g. ``lookback``
+        # for mean reversion rather than ``slow`` for moving averages).
+        warmup = max(int(best.get("slow", best.get("lookback", 2))), 2)
+        test_prices = np.concatenate((train[-warmup:], test))
         test_positions = position_builder(test_prices, **best)[-len(test):]
         test_returns = _returns(test, test_positions, cost_bps)
         train_positions = position_builder(train, **best)

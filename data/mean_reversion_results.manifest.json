@@ -1,0 +1,103 @@
+{
+  "experiment": "mean_reversion_walk_forward",
+  "as_of": "2026-08-24T10:14:24.370337+00:00",
+  "params": {
+    "candidates": [
+      {
+        "lookback": 10,
+        "entry_bps": 50
+      },
+      {
+        "lookback": 10,
+        "entry_bps": 100
+      },
+      {
+        "lookback": 20,
+        "entry_bps": 50
+      },
+      {
+        "lookback": 20,
+        "entry_bps": 100
+      },
+      {
+        "lookback": 20,
+        "entry_bps": 200
+      },
+      {
+        "lookback": 40,
+        "entry_bps": 50
+      },
+      {
+        "lookback": 40,
+        "entry_bps": 100
+      },
+      {
+        "lookback": 40,
+        "entry_bps": 200
+      },
+      {
+        "lookback": 60,
+        "entry_bps": 100
+      },
+      {
+        "lookback": 60,
+        "entry_bps": 200
+      }
+    ],
+    "cost_bps": {
+      "a_share": 8.0,
+      "us_equity": 5.0,
+      "crypto": 10.0
+    },
+    "train_size": 252,
+    "test_size": 63,
+    "step": 63
+  },
+  "code": {
+    "commit": "973de11e4d0881ca806cc7d01057630225c91868",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_sample": [
+      "scripts/mean_reversion_research.py"
+    ]
+  },
+  "started_at": "2026-08-24T10:14:24.402805+00:00",
+  "inputs": {
+    "daily_bars": {
+      "symbols": 2843,
+      "coverage": {
+        "dataset": "daily_bars",
+        "symbols": 2843,
+        "rows": 9036974,
+        "start": "2021-07-26",
+        "end": "2026-08-21",
+        "first_fetch": "2026-07-27 15:26:23.165584+08:00",
+        "last_fetch": "2026-08-24 13:44:38.800373+08:00"
+      },
+      "data_contract": {
+        "dataset": "daily_bars",
+        "instrument": "symbol",
+        "effective_at": "event_date",
+        "observed_at": "fetched_at",
+        "pit_level": "collected_observation_time",
+        "strict_historical_pit": false,
+        "price_basis": "row_declared",
+        "value_columns": [
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "source",
+          "price_basis"
+        ]
+      }
+    }
+  },
+  "lineage": {
+    "input_hash": "465a88516443564a31939b033b8e66d50c18c0957663eeab2778e001039ac6c1",
+    "model_hash": null,
+    "has_lineage": false
+  },
+  "reproducible": false
+}
