@@ -1,6 +1,6 @@
 id: PB-0027
 title: 真实数据模拟盘研究与自适应优化流水线
-state: doing
+state: done
 p: P1
 area: quant
 why: 把全部已覆盖标的接入统一的真实历史回放、模拟成交、统计门禁和失败归因闭环，避免只凭单次结果优化策略
@@ -18,4 +18,4 @@ checks:
 deps: []
 branch: pb-0027-real-data-pipeline
 blocked: null
-updated: '2026-08-24T13:52:24+00:00'
+updated: '2026-08-24T13:52:37+00:00'
