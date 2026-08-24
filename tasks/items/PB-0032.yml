@@ -10,8 +10,8 @@ checks:
 - text: 完成绝对 OOS、相对基准、回撤、交易样本和成本归因
   done: true
 - text: 完成测试、报告、Git 提交推送和任务状态记录
-  done: false
+  done: true
 deps: []
 branch: pb-0032-crypto-tsmom-major
 blocked: null
-updated: '2026-08-24T14:36:02+00:00'
+updated: '2026-08-24T14:37:11+00:00'
