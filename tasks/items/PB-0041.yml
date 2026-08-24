@@ -1,0 +1,17 @@
+id: PB-0041
+title: 用户需求、UX skill 与任务证据追踪
+state: doing
+p: P1
+area: governance
+why: 用户要求将全部系统需求持续追踪并更新过时的 PolyBob frontend UX skill，使需求、看板、实现证据和未完成状态可核对
+checks:
+- text: 建立仓库内需求追踪文档，逐条映射来源、任务ID、验收条件、证据、状态和未完成原因
+  done: true
+- text: 更新本地 polybob-frontend-ux-review skill，覆盖真实交易目标、模拟盘逐标的可视化、可解释归因、数据可信状态与截图/功能验证
+  done: true
+- text: 运行开发控制 validate，并完成文档与 skill 的可读性/结构验证
+  done: true
+deps: []
+branch: pb-0037-funding-strategy-replay
+blocked: null
+updated: '2026-08-24T18:38:26+00:00'

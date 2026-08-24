@@ -98,3 +98,12 @@
 - operation: update
 - status: approved-by-explicit-request
 - notes: 用户明确要求每个标的年化收益至少 50% 且每月收益至少 15%；作为同时满足的实盘候选验收门槛，不作为盈利保证，未达标必须拒绝晋级并保留证据。
+
+## 2026-08-25T00:00:00+08:00
+
+- proposal_ref: user-requirements-traceability-and-ux-skill-refresh
+- approved_item_ids: requirement-evidence-traceability-link
+- destinations: `docs/USER_REQUIREMENTS_TRACEABILITY_2026-08-25.md`, `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: create-and-link
+- status: approved-by-explicit-request
+- notes: 用户要求记录全部系统需求、连接任务看板并核对完成状态；需求文档不替代 Development Control 或 Git 事实源。

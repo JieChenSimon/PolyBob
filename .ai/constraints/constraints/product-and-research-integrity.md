@@ -12,6 +12,10 @@ Trading、策略验证、任务推进和交付验收。Kronos 独立参考仓库
 系统必须持续寻找具有成本后正期望收益的策略，但不得把未经验证的“AI 预测”或装饰性
 交易页面冒充盈利能力。
 
+用户需求的规范化追踪见
+[`docs/USER_REQUIREMENTS_TRACEABILITY_2026-08-25.md`](../../../docs/USER_REQUIREMENTS_TRACEABILITY_2026-08-25.md)。
+该文档只做需求到任务、验收和证据的索引；任务状态和 Git 事实仍以 Development Control 为准。
+
 ## Hard acceptance criteria
 
 ### 1. 产品目标、交易边界与真实性
