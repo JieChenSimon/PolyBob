@@ -544,7 +544,7 @@
         "search_id": "focused_directional_board",
         "n_configs": 18,
         "description": "定向板:3 个域 x 3 条边 x 双向(follow/fade),方向由数据挑选。",
-        "outcome": "0 promoted — 双向都测,方向不是先验而是搜索结果"
+        "outcome": "见 data/focused_board.json"
       },
       "result": null
     },

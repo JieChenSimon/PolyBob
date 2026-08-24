@@ -84,6 +84,14 @@
 
 因此横截面组合暂不进入模拟盘自动运行。下一轮应先把美股 60/30 候选放入多折滚动 OOS，并做幸存者偏差、入选稳定性、组合最大回撤和成本敏感性复核；若不能在多折中保持中位数绝对收益和相对收益均为正，就淘汰该候选。
 
+## 外部真实 OHLCV focused scoreboard
+
+在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：
+
+- 最好的是加密 `range_fade`，收益 +9.8%、Sharpe 0.82，但 DSR 只有 0.024，且成本压力失败；不能视为可交易优势。
+- 美股 `gap_fade` 收益 +4.7%、Sharpe 0.16，DSR 0.005；A 股所有方向均未达到正收益/成本门槛。
+- 该结果已写入 [focused_board.json](../data/focused_board.json)，并同步更新试验注册表；未向 promotion board 或模拟盘放行任何 OHLCV 策略。
+
 ## 尚不能下结论的数据线
 
 - BTC 5 分钟：本地 `btc_1m_bars` 只有 314 行，不能代表大规模历史窗口；不能用 Binance 451 限制或缺失数据替换成模拟数据。
