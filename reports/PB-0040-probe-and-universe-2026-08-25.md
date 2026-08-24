@@ -70,6 +70,10 @@ NVDA 68、TSLA 61、ADBE 69、INTC 69、DIS 30、F 68、UPS 69；重复运行会
 优先标的；已用真实接口验证 AAPL=`0000320193`、AARD=`0001774857`，并成功将 AAPL
 69 条 Companyfacts/submissions 基本面行落盘。动态发现出的非优先美股现在可以自动进入
 同一材料化流程，但仍必须逐行通过 acceptance、质量规则、历史报价和 OOS 门禁。
+材料化器现在支持直接读取 `drawdown_universe_discovery.json`、按资产域过滤并设置限额；
+本轮用冻结发现清单自动处理 F、PFE、TSLA、DIS、META 五个美股候选，PFE 69 条、META
+57 条真实 SEC 行新增落盘，其余命中缓存。这条链路已从“手工 ticker 列表”变为可重放的
+发现清单 → CIK 映射 → Companyfacts/submissions → 本地数据集流程。
 
 这一步只证明“原始事实可获取”，不改变研究门禁：数据集全局仍为
 `strict_historical_pit=false`。本轮补读 SEC 历史 submissions 分片后，acceptance 匹配覆盖

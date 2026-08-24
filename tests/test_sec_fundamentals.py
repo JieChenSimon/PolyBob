@@ -1,4 +1,5 @@
 from libs.data import sec_fundamentals
+from scripts.materialize_sec_fundamentals import _symbols_from_args
 
 
 def test_sec_mapping_covers_autodiscovered_priority_symbols():
@@ -12,6 +13,12 @@ def test_sec_mapping_falls_back_to_official_dynamic_directory(monkeypatch):
     monkeypatch.setattr(sec_fundamentals, "_dynamic_cik_by_symbol",
                         lambda: {"EXAMPLE": "0000000042"})
     assert sec_fundamentals.cik_for_symbol("example") == "0000000042"
+
+
+def test_materializer_can_consume_frozen_discovery_manifest(tmp_path):
+    manifest = tmp_path / "universe.json"
+    manifest.write_text('{"candidate_symbols": ["600519", "AAPL", "BTC-USDT", "MRVL"]}')
+    assert _symbols_from_args(["--symbols-file", str(manifest), "--us-only", "--limit", "2"]) == ["AAPL", "MRVL"]
 
 
 def test_materialize_prefers_sec_acceptance_timestamp(monkeypatch):
