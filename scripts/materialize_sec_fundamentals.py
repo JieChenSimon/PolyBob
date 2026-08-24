@@ -9,7 +9,9 @@ from libs.data.sec_fundamentals import SecFundamentalsUnavailable, materialize
 
 
 def main(argv: list[str]) -> int:
-    symbols = [s.upper() for s in (argv or ["SNDK", "MU", "WDC"])]
+    symbols = [s.upper() for s in (argv or [
+        "SNDK", "MU", "WDC", "MRVL", "AMD", "NVDA", "TSLA", "ADBE", "INTC", "DIS", "F", "UPS",
+    ])]
     results = []
     for symbol in symbols:
         try:

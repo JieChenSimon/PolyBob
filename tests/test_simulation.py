@@ -738,7 +738,11 @@ async def test_funding_snapshot_is_booked_once_and_replayed(tmp_path):
 
 @pytest.mark.asyncio
 async def test_funding_snapshots_same_settlement_interval_are_idempotent(tmp_path):
-    base = datetime.now(UTC)
+    # Keep the three snapshots inside one UTC settlement bucket even when the
+    # suite runs around midnight.  Funding intervals are exchange/epoch
+    # aligned, so using the wall clock here made this test fail only at a
+    # particular time of day.
+    base = datetime.now(UTC).replace(hour=12, minute=0, second=0, microsecond=0)
     first = base
     service = SimulationService(tmp_path / "funding-bucket.sqlite3", clock=lambda: base + timedelta(hours=2))
     await service.start()

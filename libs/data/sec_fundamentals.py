@@ -23,8 +23,17 @@ from libs.data.http_client import HttpFetchError, http_get_bytes
 CACHE_DIR = Path("data/market_cache/sec_fundamentals")
 USER_AGENT = "PolyBob research research@example.com"
 CIK_BY_SYMBOL = {
+    "ADBE": "0000796343",
+    "AMD": "0000002488",
+    "DIS": "0001744489",
+    "F": "0000037996",
+    "INTC": "0000050863",
+    "MRVL": "0001835632",
     "SNDK": "0002023554",
     "MU": "0000723125",
+    "NVDA": "0001045810",
+    "TSLA": "0001318605",
+    "UPS": "0001090727",
     "WDC": "0000106040",
 }
 

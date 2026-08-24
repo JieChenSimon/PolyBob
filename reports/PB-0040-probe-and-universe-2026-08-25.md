@@ -56,3 +56,18 @@
 最新质量过滤报告重新扫描 202 个事件：`PASS=0`、`UNKNOWN=197`、`FAIL=5`。5 个明确失败事件均为 WDC，原因是预注册质量规则未通过；其余事件没有被当作合格，而是因为严格历史 PIT、必要字段或周期行业字段不足保持 `UNKNOWN_NO_TRADE`。因此当前没有任何事件可以合法触发“深跌后重仓”许可。
 
 这不是把 WDC、MU、MRVL 等公司判定为坏公司，而是区分了三个层次：公司可能具有长期质量、当前价格可能出现反弹、系统是否拥有当时可用且无前视的质量证据。只有第三层满足时，策略才允许进入可交易回放；目前真实数据尚未满足。
+
+## SEC 基本面镜像扩展（本轮）
+
+为减少自动发现宇宙中“没有基本面覆盖”造成的假缺口，本轮依据 SEC 官方
+`company_tickers.json` 校验并补齐了 MRVL、AMD、NVDA、TSLA、ADBE、INTC、DIS、F、UPS
+九个美股 CIK 映射；12 个优先候选（含 SNDK、MU、WDC）均已串行从 SEC Companyfacts
+真实接口获取并写入本地 fundamentals 数据集。新增镜像行数为：MRVL 21、AMD 65、
+NVDA 68、TSLA 61、ADBE 69、INTC 69、DIS 30、F 68、UPS 69；重复运行会复用缓存，
+不会重复写入相同 payload。
+
+这一步只证明“原始事实可获取”，不改变研究门禁：当前镜像仍使用 filing date 的日级
+保守可用时间，`accepted_at` 缺失，`strict_historical_pit=false`。所以这些公司现在从
+“无数据 UNKNOWN”推进到“有原始数据但 PIT UNKNOWN”，仍不能据此允许 OOS 交易或宣称
+策略有效；下一步必须补齐 submission/accepted 时间连接、退市/生存偏差审计和历史可成交
+报价后，才能重新运行质量门禁与逐标的回放。
