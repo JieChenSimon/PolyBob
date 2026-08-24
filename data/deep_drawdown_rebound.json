@@ -1,7 +1,7 @@
 {
   "schema_version": "deep-drawdown-rebound-v1",
-  "generated_at": "2026-08-24T18:31:17.632522+00:00",
-  "as_of": "2026-08-24T18:31:17.002182+00:00",
+  "generated_at": "2026-08-24T19:57:53.391967+00:00",
+  "as_of": "2026-08-24T19:57:52.670958+00:00",
   "real_data_only": true,
   "strategy_status": "UNKNOWN",
   "promotion_status": "UNKNOWN",

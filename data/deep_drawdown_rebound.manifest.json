@@ -1,6 +1,6 @@
 {
   "experiment": "deep_drawdown_rebound_v1",
-  "as_of": "2026-08-24T18:31:17.002182+00:00",
+  "as_of": "2026-08-24T19:57:52.670958+00:00",
   "params": {
     "model_revision": "deep-drawdown-quality-rebound-v1",
     "config": "config/research/deep_drawdown_rebound.yaml",
@@ -23,21 +23,12 @@
     ]
   },
   "code": {
-    "commit": "f67e77ba4c8ade0691761b350c5c97f76529db26",
-    "dirty": true,
-    "dirty_files": 14,
-    "dirty_sample": [
-      "apps/dashboard/components/StrategyCatalog.tsx",
-      "apps/dashboard/domain/contract.test.ts",
-      "apps/dashboard/lib/types.ts",
-      "libs/backtest/execution.py",
-      "libs/data/sec_fundamentals.py",
-      "libs/data/store.py",
-      "libs/quant/event_study_board.py",
-      "libs/quant/hypothesis.py"
-    ]
+    "commit": "28ff4879651ac57138c24e4703817adfd52127ca",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
   },
-  "started_at": "2026-08-24T18:31:17.026190+00:00",
+  "started_at": "2026-08-24T19:57:52.696018+00:00",
   "inputs": {
     "daily_bars:A_SHARE": {
       "symbols": 8,
@@ -855,7 +846,7 @@
   "lineage": {
     "input_hash": "968bad796cbd79125fd8c5e441530b9ff0fa47f92eafb11d8b1d35233eb9e3ee",
     "model_hash": "ae16d46aa14bbedf41cb7ca617daf912e59d186b6579859f228a36e70fa89e48",
-    "has_lineage": false
+    "has_lineage": true
   },
-  "reproducible": false
+  "reproducible": true
 }
