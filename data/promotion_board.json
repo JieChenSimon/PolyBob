@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-23T19:21:12.061569+00:00",
+  "generated_at": "2026-08-24T06:00:13.582718+00:00",
   "real_data_only": true,
   "n_trials": 255,
   "t_hurdle": 4.2,
   "sources": {
     "data/billboard_results.json": "2026-08-10T05:45:48.301411+00:00",
     "data/btc5m_mispricing.json": "2026-08-23T19:21:12.061569+00:00",
-    "data/insider_results.json": "2026-08-10T05:44:31.775342+00:00",
+    "data/insider_results.json": "2026-08-24T06:00:13.582718+00:00",
     "data/us_crypto_results.json": "2026-08-10T05:45:40.483335+00:00"
   },
   "note": "由 scripts/event_study_board.py 从原始实验输出生成;每行的 t 值都是本模块用 source 文件里的逐事件收益重算的聚类标准误 t,不是抄来的。role=trade 才可开仓,role=avoid 只是回避过滤器。",
@@ -191,59 +191,56 @@
       "approved": false,
       "failed": [
         "independent_clusters<30",
-        "no_pit_contract_cannot_trade"
+        "wrong_sign_vs_preregistration",
+        "|t_clustered|<4.20",
+        "non_strict_pit_data_cannot_trade",
+        "effect_reverses_out_of_sample"
       ],
       "notes": "唯一的正收益边:集群买入后按 filing date 建多头。",
-      "n": 1019,
-      "win_rate": 0.526,
-      "mean_excess_pct": 3.25,
-      "median_excess_pct": 0.795,
-      "t_stat": 4.21,
-      "t_stat_iid": 4.8,
-      "n_clusters": 9,
+      "n": 2305,
+      "win_rate": 0.2625,
+      "mean_excess_pct": -38.089,
+      "median_excess_pct": -22.016,
+      "t_stat": -3.88,
+      "t_stat_iid": -17.91,
+      "n_clusters": 23,
       "cluster_by": "month",
       "inference": "cluster_robust",
       "bootstrap_ci_pct": [
-        2.05,
-        4.908
+        -58.309,
+        -20.41
       ],
-      "sign_test_p": 0.1033,
-      "wild_p": 0.005,
-      "p_floor": 0.00391,
-      "resolvable": false,
-      "inference_warnings": [
-        "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-        "mean is 4.1x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
-        "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.10,胜率 52.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
-        "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。",
-        "样本外的 t 值只有样本内的 42%(+6.37 → +2.66) —— 方向没反,但强度衰减明显,可能有一部分是当期特有的"
-      ],
-      "evidence_end": "2026-03-31",
+      "sign_test_p": 0.0,
+      "wild_p": 0.001,
+      "p_floor": 2.38e-07,
+      "resolvable": true,
+      "inference_warnings": [],
+      "evidence_end": "2026-06-30",
       "max_evidence_age_days": 180,
-      "run_as_of": "2026-08-10T05:44:05.068146+00:00",
+      "run_as_of": "2026-08-24T05:59:42.836532+00:00",
       "run_reproducible": true,
-      "pit_status": "unknown",
+      "pit_status": "non_strict",
       "out_of_sample": {
         "available": true,
-        "split_date": "2025-11-25",
+        "split_date": "2025-10-03",
         "in_sample": {
-          "n": 509,
-          "n_clusters": 5,
-          "mean_pct": 2.481,
-          "t_stat": 6.37
+          "n": 1152,
+          "n_clusters": 15,
+          "mean_pct": -77.637,
+          "t_stat": -19.55
         },
         "out_of_sample": {
-          "n": 510,
-          "n_clusters": 5,
-          "mean_pct": 4.018,
-          "t_stat": 2.66
+          "n": 1153,
+          "n_clusters": 9,
+          "mean_pct": 1.425,
+          "t_stat": 1.24
         },
-        "sign_held": true,
-        "t_ratio": 0.42
+        "sign_held": false,
+        "t_ratio": 0.06
       },
       "cluster_floor": 30,
       "pipeline_searched": true,
-      "evidence": "来源 data/insider_results.json; n=1019; 独立month=9; t(聚类)=4.21 vs t(iid)=4.80; 证据截至 2026-03-31; 2025Q3..2026Q1; 持有 20 日"
+      "evidence": "来源 data/insider_results.json; n=2305; 独立month=23; t(聚类)=-3.88 vs t(iid)=-17.91; 证据截至 2026-06-30; 2024Q1..2026Q2; 持有 20 日"
     }
   ]
 }

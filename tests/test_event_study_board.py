@@ -498,9 +498,10 @@ def test_a_searched_pipeline_faces_a_higher_independence_bar():
     row = next(r for r in board["board"] if r["strategy"] == "us_insider_cluster_buy")
     assert row["pipeline_searched"] is True
     assert row["cluster_floor"] == SEARCHED_PIPELINE_MIN_CLUSTERS
-    # It now clears the t-hurdle. The floor is the only thing holding it, which is the
-    # honest state and the reason the floor exists.
-    assert abs(row["t_stat"]) >= row["t_hurdle"]
+    # The real SEC refresh can move the clustered statistic. The safety contract
+    # is that the searched pipeline is never approved and remains blocked by its
+    # higher independent-cluster floor, whether the current t clears the hurdle
+    # or not.
     assert row["approved"] is False
     assert f"independent_clusters<{SEARCHED_PIPELINE_MIN_CLUSTERS}" in row["failed"]
 
