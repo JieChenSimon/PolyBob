@@ -37,6 +37,15 @@ class _Handler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def do_POST(self):  # noqa: N802 - stdlib naming
+        size = int(self.headers.get("Content-Length", "0"))
+        body = self.rfile.read(size)
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def log_message(self, *args):  # keep the test output clean
         return
 
@@ -114,3 +123,8 @@ def test_json_parse_failure_is_explicit(local_server):
     """A body that is not JSON is a provider failure, not an empty dict."""
     with pytest.raises(http_client.HttpFetchError):
         http_client.http_get_json(local_server + "notjson", timeout=5)
+
+
+def test_post_json_uses_shared_session(local_server):
+    payload = http_client.http_post_json(local_server + "echo", {"ok": True}, timeout=5)
+    assert payload["ok"] is True

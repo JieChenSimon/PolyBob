@@ -186,6 +186,17 @@ def http_request_json(
         raise HttpFetchError(f"{url} -> {type(exc).__name__}: {exc}") from exc
 
 
+def http_post_json(
+    url: str,
+    payload: Mapping[str, Any],
+    *,
+    timeout: float = 20.0,
+    headers: Mapping[str, str] | None = None,
+) -> Any:
+    """POST JSON through the same bounded session used by other providers."""
+    return http_request_json("POST", url, timeout=timeout, headers=headers, json=payload)
+
+
 def pool_stats() -> dict[str, int]:
     """How many connection pools and idle sockets the session is holding.
 
@@ -231,6 +242,7 @@ __all__ = [
     "get_session",
     "http_get_bytes",
     "http_get_json",
+    "http_post_json",
     "http_request_json",
     "pool_stats",
 ]

@@ -1,0 +1,18 @@
+id: PB-0035
+title: 接入 Deribit 长历史资金费率数据源
+state: doing
+p: P1
+area: data
+why: OKX 仅覆盖近三个月且 Binance 当前 HTTP 451，Deribit 官方公共接口可按时间区间查询 BTC/ETH 永续资金费率，需要接入真实缓存与本地数据集以解除可测性缺口
+checks:
+- text: 通过复用有界 HTTP 会话实现 Deribit 分段分页、缓存、日均资金费率和来源标记
+  done: true
+- text: 测试分页、去重、异常 payload、缺失数据和本地 store 落盘，不填充零
+  done: true
+- text: 用官方端点做真实 BTC/ETH 长历史探针，生成覆盖报告，相关测试和开发控制验证通过并推送
+  done: true
+deps:
+- PB-0034
+branch: pb-0035-deribit-funding-history
+blocked: null
+updated: '2026-08-24T15:00:15+00:00'
