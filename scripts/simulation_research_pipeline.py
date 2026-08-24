@@ -92,7 +92,7 @@ def _bars(symbol: str, *, as_of: datetime, start: str | None, end: str | None) -
 
 
 async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str, Any],
-                      *, db_path: Path, name: str) -> dict[str, Any]:
+                      *, db_path: Path, name: str, retain_db: bool = False) -> dict[str, Any]:
     if len(rows) < MIN_ROWS:
         return {"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
                 "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
@@ -141,6 +141,9 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
         if previous.equity > 0:
             period_returns.append({"ts": current.ts, "return": current.equity / previous.equity - 1.0})
     await service.stop()
+    if not retain_db:
+        for suffix in ("", "-wal", "-shm"):
+            db_path.with_name(db_path.name + suffix).unlink(missing_ok=True)
     return {
         "symbol": symbol,
         "domain": _domain(symbol),
@@ -151,6 +154,7 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
         "metrics": metrics,
         "period_returns": period_returns,
         "run_id": run_id,
+        "audit_db_retained": retain_db,
     }
 
 
@@ -187,7 +191,8 @@ def _optimization_action(reasons: list[str]) -> str:
 
 
 async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_of: datetime,
-                              split: datetime, output_dir: Path, label: str) -> dict[str, Any]:
+                              split: datetime, output_dir: Path, label: str,
+                              retain_runs: bool = False) -> dict[str, Any]:
     results: list[dict[str, Any]] = []
     for symbol in symbols:
         rows = _bars(symbol, as_of=as_of, start=None, end=None)
@@ -196,7 +201,8 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
         for name, period in (("train", train), ("oos", test)):
             db_path = output_dir / f"{label}-{symbol}-{name}-{uuid.uuid4().hex[:8]}.sqlite3"
             results.append({"period": name, "result": await _run_symbol(
-                symbol, period, config, db_path=db_path, name=f"{label}:{symbol}:{name}"
+                symbol, period, config, db_path=db_path, name=f"{label}:{symbol}:{name}",
+                retain_db=retain_runs,
             )})
     oos = [item["result"] for item in results if item["period"] == "oos"]
     analyzed = [item for item in oos if item.get("status") == "ANALYZED"]
@@ -248,7 +254,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         for config in MOMENTUM_CANDIDATES:
             candidates[domain].append(await _evaluate_candidate(
                 calibration, config, as_of=as_of, split=split, output_dir=output_dir,
-                label=f"{domain}-{config['id']}"))
+                label=f"{domain}-{config['id']}", retain_runs=args.retain_runs))
         eligible = [item for item in candidates[domain] if item["score_oos_mean_return"] is not None]
         selected_by_domain[domain] = max(
             eligible, key=lambda item: item["score_oos_mean_return"]
@@ -278,7 +284,8 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         rows = _bars(symbol, as_of=as_of, start=None, end=None)
         db_path = output_dir / f"full-{symbol}-{uuid.uuid4().hex[:8]}.sqlite3"
         full_results.append(await _run_symbol(symbol, rows, selected["candidate"],
-                                               db_path=db_path, name=f"full:{symbol}"))
+                                               db_path=db_path, name=f"full:{symbol}",
+                                               retain_db=args.retain_runs))
     for item in full_results:
         item["verdict"], item["reasons"] = _verdict(item)
         item["optimization_action"] = _optimization_action(item["reasons"])
@@ -346,6 +353,8 @@ def main() -> int:
     parser.add_argument("--split", default=None, help="UTC ISO split; default 70%% of first symbol history")
     parser.add_argument("--output-dir", default="data/simulation_research_runs")
     parser.add_argument("--report", default="data/simulation_research_report.json")
+    parser.add_argument("--retain-runs", action="store_true",
+                        help="retain per-symbol SQLite audit ledgers; default is compact report-only mode")
     args = parser.parse_args()
     report = asyncio.run(run(args))
     print(json.dumps({"symbols": report["universe"]["count"],
