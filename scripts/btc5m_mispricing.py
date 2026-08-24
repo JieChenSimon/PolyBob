@@ -41,10 +41,10 @@ from libs.quant.pbo import deflated_t_stat_threshold
 UA = {"User-Agent": "Mozilla/5.0 (PolyBob research)"}
 CACHE_DIR = Path("data/market_cache/btc5m")
 CHECKPOINT = CACHE_DIR / "collection_checkpoint.json"
-COLLECTOR_SPEC = "btc5m-v5-window-provenance-open-price-up-token-cache-checkpoint"
+COLLECTOR_SPEC = "btc5m-v6-atomic-window-provenance-open-price-up-token-cache-checkpoint"
 N_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_N_WINDOWS", "220"))
 MAX_NEW_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_MAX_NEW_WINDOWS", "60"))
-NORMALIZED_DATASET = "btc5m_settled_windows_v5"
+NORMALIZED_DATASET = "btc5m_settled_windows_v6"
 EDGE_THRESHOLD = 0.10     # model must disagree with the market by >= 10 points
 FEE = 0.02                # round-trip spread/fee assumption, in probability terms
 
@@ -139,6 +139,25 @@ def _closed_market_contract(market: dict) -> tuple[str, int]:
     )
     token = map_outcome_tokens(market)["UP"]
     return token, 1 if float(outcome_prices[up_index]) > 0.5 else 0
+
+
+def _normalized_record(sample: dict[str, object]) -> dict[str, object]:
+    """Map one checkpoint sample to its unique normalized lake row."""
+    return {
+        "symbol": "BTC-USDT",
+        "event_at": datetime.fromtimestamp(int(sample["decision_ts"]), tz=UTC).isoformat(),
+        "window_start": sample["window_start"],
+        "window_end": sample["window_end"],
+        "decision_ts": sample["decision_ts"],
+        "model_probability": sample["model_probability"],
+        "market_probability": sample["market_probability"],
+        "outcome_up": sample["outcome_up"],
+        "market_token_up": sample["market_token_up"],
+        "gamma_raw_sha256": sample["gamma_raw_sha256"],
+        "clob_raw_sha256": sample["clob_raw_sha256"],
+        "okx_raw_sha256": sample["okx_raw_sha256"],
+        "source": "polymarket_gamma_clob_okx",
+    }
 
 
 def main() -> None:
@@ -252,7 +271,7 @@ def main() -> None:
         # day. This is the field whose absence left the board unable to verify this
         # row at all ("no_per_event_data_cannot_verify_t").
         window_date = datetime.fromtimestamp(window_start, tz=UTC).date().isoformat()
-        samples.append({
+        sample = {
             "window_start": window_start,
             "window_end": window_start + 300,
             "decision_ts": decision_ts,
@@ -264,7 +283,13 @@ def main() -> None:
             "gamma_raw_sha256": gamma_sha,
             "clob_raw_sha256": clob_sha,
             "okx_raw_sha256": okx_sha,
-        })
+        }
+        # The normalized row is the commit point. A crash before this write
+        # leaves the window eligible for retry; a checkpoint never claims a row
+        # that the lake did not persist.
+        write_records(NORMALIZED_DATASET, [_normalized_record(sample)],
+                      source="polymarket_gamma_clob_okx", partition_by=("symbol",))
+        samples.append(sample)
         completed[key] = "sample"
         save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
                                      "samples": samples,
@@ -274,29 +299,6 @@ def main() -> None:
         time.sleep(0.15)
 
     print(f"\n可用已结算窗口: {len(samples)}，提供方失败: {provider_failures}")
-    write_records(
-        NORMALIZED_DATASET,
-        [
-            {
-                "symbol": "BTC-USDT",
-                "event_at": datetime.fromtimestamp(int(sample["decision_ts"]), tz=UTC).isoformat(),
-                "window_start": sample["window_start"],
-                "window_end": sample["window_end"],
-                "decision_ts": sample["decision_ts"],
-                "model_probability": sample["model_probability"],
-                "market_probability": sample["market_probability"],
-                "outcome_up": sample["outcome_up"],
-                "market_token_up": sample["market_token_up"],
-                "gamma_raw_sha256": sample["gamma_raw_sha256"],
-                "clob_raw_sha256": sample["clob_raw_sha256"],
-                "okx_raw_sha256": sample["okx_raw_sha256"],
-                "source": "polymarket_gamma_clob_okx",
-            }
-            for sample in samples
-        ],
-        source="polymarket_gamma_clob_okx",
-        partition_by=("symbol",),
-    )
     if len(samples) < 60:
         print("样本不足,不做结论(遵守真实数据规则,不用模拟数据凑)")
 
