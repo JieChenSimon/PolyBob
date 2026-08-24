@@ -10,11 +10,18 @@ Paper Lab 内核，按 4 个持有期（21/63/126/252 日）和 3 档成本压�
 
 ## 两个批次
 
-### 严格基本面质量门禁
+### 严格基本面质量门禁（补齐 SEC 后复跑）
 
-命令使用 `--fundamental-quality-only`。492 个 case 全部没有可执行的严格
-PIT 基本面事件，因此 OOS 完成事件数和交易数均为 0。该结果只能说明当前
-本地数据无法证明“回撤时基本面未破坏”，不能说明策略收益为 0 或可交易。
+先用修复后的物化器从自主发现 manifest 中读取 33 个 READY 美股候选；33/33
+标的均成功写入 SEC XBRL 基本面，且全部物化行都有真实 `accepted_at`。随后
+使用 `--fundamental-quality-only` 完成 492/492 个 case 的 Paper Lab 回放。
+严格质量字段（收入、毛利、经营现金流、债务/现金）完整并通过的回撤日期只
+出现在极少数标的的训练期（例如 `ABX` 两个日期、`ADMA` 一个日期），没有
+任何 OOS 完成事件或 OOS 交易。因此结果仍为 `UNKNOWN_NO_TRADE`，但原因已
+从“基本面数据未物化”收敛为“可验证质量日期稀疏且没有 OOS 事件”。
+
+这只能说明当前本地数据无法证明“回撤时基本面未破坏”，不能说明策略收益为
+0 或可交易；没有 OOS 样本就不能把训练期通过日期晋级。
 
 ### 无基本面门禁的诊断批次
 
@@ -40,7 +47,11 @@ PIT 基本面事件，因此 OOS 完成事件数和交易数均为 0。该结果
 ## 可复现产物
 
 - 运行器：`scripts/deep_drawdown_kernel_replay.py`
+- SEC 物化器：`scripts/materialize_sec_fundamentals.py`
 - 自主发现输入：`data/discovered_equity_universe.json`
+- SEC 物化摘要：`/tmp/polybob_sec_materialize_ready.json`（33/33 available，
+  33/33 strict PIT candidate）
 - 严格批次：`/tmp/polybob_liquid_drawdown_quality.json`
+- 补齐 SEC 后复跑：`/tmp/polybob_liquid_drawdown_quality_refreshed.json`
 - 诊断批次：`/tmp/polybob_liquid_drawdown_diagnostic.json`
-- 进度文件分别为对应的 `*_progress.json`，两批均完成 `492/492`。
+- 进度文件分别为对应的 `*_progress.json`，三批均完成 `492/492`。

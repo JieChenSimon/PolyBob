@@ -23,7 +23,13 @@ def _symbols_from_args(argv: list[str]) -> list[str]:
     if args.symbols_file:
         payload = json.loads(args.symbols_file.read_text(encoding="utf-8"))
         if isinstance(payload, dict):
-            payload = payload.get("candidate_symbols", [])
+            if "candidates" in payload:
+                payload = [
+                    row.get("symbol") for row in payload.get("candidates", [])
+                    if row.get("status") == "READY_FOR_RESEARCH"
+                ]
+            else:
+                payload = payload.get("candidate_symbols", [])
         symbols = [str(item).upper() for item in payload]
     else:
         symbols = [s.upper() for s in (args.symbols or [

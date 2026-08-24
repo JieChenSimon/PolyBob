@@ -21,6 +21,15 @@ def test_materializer_can_consume_frozen_discovery_manifest(tmp_path):
     assert _symbols_from_args(["--symbols-file", str(manifest), "--us-only", "--limit", "2"]) == ["AAPL", "MRVL"]
 
 
+def test_materializer_uses_only_ready_candidates_from_discovery_manifest(tmp_path):
+    manifest = tmp_path / "discovery.json"
+    manifest.write_text(
+        '{"candidates": [{"symbol": "AAPL", "status": "READY_FOR_RESEARCH"}, '
+        '{"symbol": "BAD", "status": "UNKNOWN"}]}'
+    )
+    assert _symbols_from_args(["--symbols-file", str(manifest), "--us-only"]) == ["AAPL"]
+
+
 def test_materialize_prefers_sec_acceptance_timestamp(monkeypatch):
     payload = {
         "facts": {"us-gaap": {
