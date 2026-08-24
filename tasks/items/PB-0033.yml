@@ -1,6 +1,6 @@
 id: PB-0033
 title: 资金费率历史数据可用性与研究门禁
-state: doing
+state: done
 p: P1
 area: quant
 why: 当前资金费率本地覆盖不足，必须建立真实数据就绪性检查并防止短样本被误判为有效策略
