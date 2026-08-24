@@ -1,6 +1,6 @@
 id: PB-0036
 title: 将资金费率现金流纳入模拟盘账本
-state: doing
+state: done
 p: P1
 area: execution
 why: 长期 Deribit 资金费率已可用，但 SimulationService 当前只记成交成本，若不记录 funding payment 会高估永续策略收益
