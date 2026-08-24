@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-24T17:21:51.461795+00:00",
+  "generated_at": "2026-08-24T17:29:55.105775+00:00",
   "real_data_only": true,
   "n_trials": 255,
   "t_hurdle": 4.2,
   "sources": {
     "data/billboard_results.json": "2026-08-10T05:45:48.301411+00:00",
-    "data/btc5m_mispricing.json": "2026-08-24T17:21:51.461795+00:00",
+    "data/btc5m_mispricing.json": "2026-08-24T17:29:55.105775+00:00",
     "data/insider_results.json": "2026-08-24T06:00:13.582718+00:00",
     "data/us_crypto_results.json": "2026-08-10T05:45:40.483335+00:00"
   },
@@ -146,18 +146,18 @@
         "no_pit_contract_cannot_trade"
       ],
       "notes": "旗舰标的:必须和别的边用同一条门槛,不因投入大而放宽。",
-      "n": 1803,
-      "win_rate": 0.751,
-      "mean_excess_pct": 24.862,
+      "n": 1882,
+      "win_rate": 0.7503,
+      "mean_excess_pct": 24.776,
       "median_excess_pct": 47.5,
-      "t_stat": 38.1,
-      "t_stat_iid": 25.16,
+      "t_stat": 39.29,
+      "t_stat_iid": 25.61,
       "n_clusters": 10,
       "cluster_by": "day",
       "inference": "cluster_robust",
       "bootstrap_ci_pct": [
-        23.714,
-        26.108
+        23.655,
+        25.924
       ],
       "sign_test_p": 0.0,
       "wild_p": 0.004,
@@ -169,30 +169,30 @@
       ],
       "evidence_end": "2026-08-24",
       "max_evidence_age_days": 30,
-      "run_as_of": "2026-08-24T17:10:12.868705+00:00",
+      "run_as_of": "2026-08-24T17:29:54.641048+00:00",
       "run_reproducible": true,
       "pit_status": "unknown",
       "out_of_sample": {
         "available": true,
         "split_date": "2026-08-20",
         "in_sample": {
-          "n": 901,
+          "n": 941,
           "n_clusters": 6,
-          "mean_pct": 26.161,
-          "t_stat": 35.28
+          "mean_pct": 26.055,
+          "t_stat": 35.08
         },
         "out_of_sample": {
-          "n": 902,
+          "n": 941,
           "n_clusters": 5,
-          "mean_pct": 23.563,
-          "t_stat": 47.95
+          "mean_pct": 23.497,
+          "t_stat": 50.95
         },
         "sign_held": true,
-        "t_ratio": 1.36
+        "t_ratio": 1.45
       },
       "cluster_floor": 20,
       "pipeline_searched": false,
-      "evidence": "来源 data/btc5m_mispricing.json; n=1803; 独立day=10; t(聚类)=38.10 vs t(iid)=25.16; 证据截至 2026-08-24; 持有 1 日"
+      "evidence": "来源 data/btc5m_mispricing.json; n=1882; 独立day=10; t(聚类)=39.29 vs t(iid)=25.61; 证据截至 2026-08-24; 持有 1 日"
     },
     {
       "strategy": "us_insider_cluster_buy",
