@@ -66,6 +66,7 @@ from libs.schemas import Side
 from modules.risk_manager.risk_checker import PortfolioRiskChecker
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import (
+    DeepDrawdownSignalSource,
     FusionSignalSource,
     MomentumSignalSource,
     PairSpreadSignalSource,
@@ -136,6 +137,7 @@ def _default_source_factories() -> dict[str, SourceFactory]:
         "spread_reversion_v1": lambda config, db_path: SpreadReversionSignalSource(config),
         "spread_arbitrage_v1": lambda config, db_path: PairSpreadSignalSource(config),
         "momentum_dualma_v1": lambda config, db_path: MomentumSignalSource(config),
+        "deep_drawdown_rebound_v1": lambda config, db_path: DeepDrawdownSignalSource(config),
     }
 
 
@@ -1106,6 +1108,9 @@ class SimulationService:
             fraction_by_instrument = active.config_value("position_fraction_by_instrument")
             if isinstance(fraction_by_instrument, dict) and instrument in fraction_by_instrument:
                 fraction = float(fraction_by_instrument[instrument])
+            signal_fraction = signal.signal_meta.get("position_fraction")
+            if signal_fraction is not None:
+                fraction = float(signal_fraction)
             if not math.isfinite(fraction) or fraction < 0:
                 return
             direction = 1.0 if signal.side == "buy" else -1.0

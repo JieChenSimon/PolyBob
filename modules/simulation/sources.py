@@ -401,6 +401,109 @@ class MomentumSignalSource:
         ]
 
 
+class DeepDrawdownSignalSource:
+    """Causal staged rebound candidate for paper-kernel research only.
+
+    The source observes only closes seen so far.  A new episode is created when
+    the close first falls at least ``drawdown_fraction`` below the expanding
+    prior peak.  It then emits target-fraction signals on the next bar and the
+    configured tranche offsets, followed by a target-zero exit after the
+    configured holding period.  It deliberately does not infer fundamentals,
+    liquidity or historical executable quotes; callers must keep those gates
+    explicit and fail closed.
+    """
+
+    topics = (Topics.FEATURE_SNAPSHOT,)
+
+    def __init__(self, config: dict[str, Any] | None = None):
+        config = config or {}
+        self.drawdown_fraction = max(0.0, min(1.0, float(config.get("drawdown_fraction", 0.50))))
+        offsets = config.get("tranche_delays_days", (0, 5, 20))
+        self.tranche_delays_days = tuple(max(0, int(value)) for value in offsets)
+        self.hold_days = max(1, int(config.get("hold_days", 63)))
+        self.max_nav_fraction = max(0.0, min(1.0, float(config.get("max_nav_fraction", 0.05))))
+        self.confidence = float(config.get("rebound_confidence", 0.7))
+        self._index: dict[str, int] = {}
+        self._prior_peak: dict[str, float] = {}
+        self._triggered: dict[str, bool] = {}
+        self._active_until: dict[str, int] = {}
+        self._pending: dict[str, list[dict[str, Any]]] = {}
+
+    async def on_snapshot(self, topic: str, snapshot: dict) -> list[SimSignal]:
+        instrument = str(snapshot.get("market_id", "unknown"))
+        mid = MomentumSignalSource._reference_mid(snapshot)
+        timestamp = _parse_ts(snapshot.get("timestamp"))
+        if mid is None or timestamp is None:
+            return []
+        index = self._index.get(instrument, -1) + 1
+        self._index[instrument] = index
+        pending = self._pending.setdefault(instrument, [])
+        due = [item for item in pending if int(item["due_index"]) <= index]
+        self._pending[instrument] = [item for item in pending if int(item["due_index"]) > index]
+        signals: list[SimSignal] = []
+        for item in sorted(due, key=lambda value: int(value["due_index"])):
+            target = float(item["target_fraction"])
+            side = "buy" if target > 0 else "sell"
+            signals.append(SimSignal(
+                instrument_id=instrument,
+                side=side,
+                confidence=self.confidence,
+                bid=_positive(snapshot.get("bid_price")),
+                ask=_positive(snapshot.get("ask_price")),
+                mid=mid,
+                bid_depth=_positive(snapshot.get("bid_size")),
+                ask_depth=_positive(snapshot.get("ask_size")),
+                timestamp=timestamp,
+                signal_meta={
+                    "source": "deep_drawdown_rebound_v1",
+                    "event_id": item["event_id"],
+                    "tranche": item.get("tranche"),
+                    "target_fraction": target,
+                    "position_fraction": target,
+                    "event_index": item.get("event_index"),
+                    "event_date": item.get("event_date"),
+                    "hold_days": self.hold_days,
+                    "causal_claim": False,
+                    "evidence_status": "UNKNOWN_NO_TRADE",
+                },
+            ))
+        prior_peak = self._prior_peak.get(instrument)
+        triggered = (
+            prior_peak is not None
+            and mid <= prior_peak * (1.0 - self.drawdown_fraction)
+        )
+        if triggered and not self._triggered.get(instrument, False) and index >= self._active_until.get(instrument, -1):
+            event_id = f"{instrument}:{index}"
+            self._triggered[instrument] = True
+            last_exit = index
+            denominator = max(1, len(self.tranche_delays_days))
+            for tranche, offset in enumerate(self.tranche_delays_days, start=1):
+                entry_index = index + 1 + offset
+                exit_index = entry_index + self.hold_days
+                last_exit = max(last_exit, exit_index)
+                self._pending[instrument].append({
+                    "due_index": entry_index,
+                    "target_fraction": self.max_nav_fraction * tranche / denominator,
+                    "event_id": event_id,
+                    "tranche": tranche,
+                    "event_index": index,
+                    "event_date": timestamp.isoformat(),
+                })
+                self._pending[instrument].append({
+                    "due_index": exit_index,
+                    "target_fraction": 0.0,
+                    "event_id": event_id,
+                    "tranche": f"exit_{tranche}",
+                    "event_index": index,
+                    "event_date": timestamp.isoformat(),
+                })
+            self._active_until[instrument] = last_exit
+        elif not triggered:
+            self._triggered[instrument] = False
+        self._prior_peak[instrument] = max(prior_peak or mid, mid)
+        return signals
+
+
 def _positive(value: Any) -> float | None:
     try:
         number = float(value)
@@ -410,6 +513,7 @@ def _positive(value: Any) -> float | None:
 
 
 __all__ = [
+    "DeepDrawdownSignalSource",
     "FusionSignalSource",
     "MomentumSignalSource",
     "PairSpreadSignalSource",
