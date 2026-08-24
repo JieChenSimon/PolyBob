@@ -21,6 +21,7 @@ CANDIDATES = tuple(
     for rebalance_days in (1, 5, 10)
 )
 RISK_POLICIES = ("raw", "vol_target_10", "vol_target_10_dd")
+MIN_BENCHMARK_ASSETS = 20
 
 
 def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
@@ -126,6 +127,15 @@ def equal_weight_benchmark(prices: np.ndarray, start: int, end: int) -> float | 
     return float(np.mean(prices[eligible, end] / prices[eligible, start] - 1.0))
 
 
+def benchmark_eligible_assets(prices: np.ndarray, start: int, end: int) -> int:
+    """Count assets with both endpoint prices for a valid cross-sectional benchmark."""
+    if end <= start or end >= prices.shape[1]:
+        return 0
+    eligible = (prices[:, start] > 0) & (prices[:, end] > 0)
+    eligible &= np.isfinite(prices[:, start]) & np.isfinite(prices[:, end])
+    return int(np.sum(eligible))
+
+
 def rolling_folds(prices: np.ndarray, positions: np.ndarray, cost_bps: float,
                   train_days: int = 252, test_days: int = 126) -> list[dict]:
     folds = []
@@ -205,6 +215,8 @@ def main() -> int:
     parser.add_argument("--discovery-manifest", default=None,
                         help="only use READY_FOR_RESEARCH symbols from a discovery manifest")
     parser.add_argument("--output", default="data/cross_sectional_local_screen.json")
+    parser.add_argument("--min-benchmark-assets", type=int, default=MIN_BENCHMARK_ASSETS,
+                        help="minimum contemporaneous assets required for benchmark/OOS comparison")
     args = parser.parse_args()
     as_of = datetime.now(UTC)
     manifest = run_manifest.pin("cross_sectional_local_screen", as_of=as_of,
@@ -214,7 +226,8 @@ def main() -> int:
               "real_data_only": True, "research_only": True,
               "parameters": {"candidates": CANDIDATES, "risk_policies": RISK_POLICIES, "cost_bps": COST_BPS,
                               "oos_fraction": 0.3, "long_only": True,
-                              "max_single_bar_multiple": MAX_MULTIPLE}, "domains": {}}
+                              "max_single_bar_multiple": MAX_MULTIPLE,
+                              "min_benchmark_assets": args.min_benchmark_assets}, "domains": {}}
     all_symbols = (symbols_from_discovery_manifest(args.discovery_manifest)
                    if args.discovery_manifest else store.symbols(store.DAILY_BARS))
     domains = {domain: [] for domain in COST_BPS}
@@ -230,11 +243,14 @@ def main() -> int:
             continue
         cut = int(matrix.shape[1] * 0.7)
         test_days = np.sum(np.sum((matrix[:, cut:] > 0) & np.isfinite(matrix[:, cut:]), axis=0) >= 4)
-        if test_days < 20:
+        benchmark_assets = benchmark_eligible_assets(matrix, cut, matrix.shape[1] - 1)
+        if test_days < 20 or benchmark_assets < args.min_benchmark_assets:
             report["domains"][domain] = {
                 "status": "blocked_insufficient_contemporaneous_universe",
                 "symbols": len(used), "rejected_quality": rejected_quality,
                 "test_days_with_four_assets": int(test_days),
+                "benchmark_eligible_assets": benchmark_assets,
+                "min_benchmark_assets": args.min_benchmark_assets,
             }
             continue
         rows = []

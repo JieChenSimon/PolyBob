@@ -9,6 +9,7 @@ from scripts.cross_sectional_local_screen import (
     select_long_only,
     symbols_from_discovery_manifest,
     equal_weight_benchmark,
+    benchmark_eligible_assets,
 )
 
 
@@ -71,3 +72,4 @@ def test_discovery_screen_excludes_unknown_symbols(tmp_path):
 def test_equal_weight_benchmark_uses_window_endpoints():
     prices = np.array([[100.0, 110.0, 120.0], [100.0, 90.0, 80.0]])
     assert equal_weight_benchmark(prices, 0, 2) == 0.0
+    assert benchmark_eligible_assets(prices, 0, 2) == 2
