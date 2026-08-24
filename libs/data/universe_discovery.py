@@ -9,7 +9,7 @@ never claims that a discovered symbol is safe or profitable.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, Iterable
 
 from libs.data import store
@@ -63,13 +63,22 @@ def discover_a_share_roster() -> list[RosterMember]:
     return sorted({item.symbol: item for item in result}.values(), key=lambda x: x.symbol)
 
 
-def _coverage(member: RosterMember, min_bars: int, min_dollar_volume: float) -> dict[str, Any]:
+def _coverage(member: RosterMember, min_bars: int, min_dollar_volume: float,
+              max_staleness_days: int) -> dict[str, Any]:
     frame = store.read(store.DAILY_BARS, member.symbol)
     rows = len(frame)
     reasons: list[str] = []
     if rows < min_bars:
         reasons.append(f"bars<{min_bars}")
     latest = str(frame[store.EVENT_DATE].max())[:10] if rows else None
+    if latest:
+        try:
+            latest_date = datetime.strptime(latest, "%Y-%m-%d").date()
+            age_days = (datetime.now(UTC).date() - latest_date).days
+            if age_days > max_staleness_days:
+                reasons.append(f"latest_bar_stale>{max_staleness_days}d")
+        except ValueError:
+            reasons.append("latest_bar_date_invalid")
     basis_column = frame.get("price_basis", [])
     basis_values = basis_column.tolist() if hasattr(basis_column, "tolist") else list(basis_column)
     bases = {
@@ -125,6 +134,7 @@ def discover_equity_candidates(
     limit: int | None = None,
     min_bars: int = 200,
     min_dollar_volume: float = 5_000_000.0,
+    max_staleness_days: int = 14,
 ) -> dict[str, Any]:
     """Build a deterministic, auditable candidate manifest from real rosters."""
     members: list[RosterMember] = []
@@ -161,12 +171,13 @@ def discover_equity_candidates(
         # a detailed local quality read.
         local_symbols = set(store.symbols(store.DAILY_BARS))
         rows = [
-            (_coverage(member, min_bars, min_dollar_volume)
+            (_coverage(member, min_bars, min_dollar_volume, max_staleness_days)
              if member.symbol in local_symbols else _missing_local_coverage(member))
             for member in ordered_members
         ]
     else:
-        rows = [_coverage(member, min_bars, min_dollar_volume) for member in ordered_members]
+        rows = [_coverage(member, min_bars, min_dollar_volume, max_staleness_days)
+                for member in ordered_members]
     rows.sort(key=lambda row: (row["status"] != "READY_FOR_RESEARCH", -row["bars"], row["domain"], row["symbol"]))
     return {
         "generated_at": datetime.now(UTC).isoformat(),
@@ -174,6 +185,7 @@ def discover_equity_candidates(
         "selection_is_not_promotion": True,
         "min_bars": min_bars,
         "min_dollar_volume": min_dollar_volume,
+        "max_staleness_days": max_staleness_days,
         "limit_per_domain": limit,
         "provider_errors": errors,
         "counts": {

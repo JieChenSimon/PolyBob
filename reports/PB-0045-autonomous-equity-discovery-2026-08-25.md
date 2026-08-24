@@ -8,6 +8,8 @@
 - 美股名录：SEC 官方 `company_tickers.json`，保留 SEC ticker 来源。
 - A 股名录：AkShare `stock_info_a_code_name()` 真实代码/名称名录。
 - 可研究性门禁：本地 `daily_bars` 行数、日期覆盖和 `price_basis`；不足或价格基准未知均为 `UNKNOWN`。
+- 新鲜度门禁：最新本地日线超过 14 天未更新则为 `UNKNOWN`，避免把长期停更
+  的数据误当成当前可研究标的。
 - 可执行性门禁：最近 60 根日线中位成交额默认不少于 500 万；缺失成交量或低于门槛仍为 `UNKNOWN`。
 - `scripts/discover_equity_universe.py`：支持按域限额扫描，也支持显式全量扫描并输出 JSON manifest。
 - `simulation_research_pipeline.py --discovered-manifest ...`：只接收 manifest 中 `READY_FOR_RESEARCH` 的标的进入研究管线，未知标的不会被偷偷加入。
@@ -32,15 +34,15 @@ uv run --locked python scripts/discover_equity_universe.py \
 `data/discovered_equity_universe_full.json`：
 
 - SEC + A 股名录共 15,410 个成员；美股 9,860 个，A 股 5,550 个。
-- 通过本地历史、价格基准和最近 60 日中位成交额门禁：1,419 个（美股
-  1,364、A 股 55）。
-- 其余 13,991 个保持 `UNKNOWN`；最主要原因是 `no_local_daily_bars`
-  （本地尚未落盘历史），其次是成交额不足、历史不足或价格基准不明。
+- 通过本地历史、价格基准、最近 60 日中位成交额和 14 天 freshness 门禁：
+  1,372 个（美股 1,364、A 股 8）。
+- 其余 14,038 个保持 `UNKNOWN`；除 `no_local_daily_bars` 外，明确记录了
+  130 个 `latest_bar_stale>14d`，不会把停更数据混入研究。
 - 全量发现耗时约 14 秒，没有对 12,751 个缺少本地分区的名录成员执行逐个
   Parquet 读取。
 
 完整 manifest 与研究用限额 manifest 分离：完整清单用于自主发现和分批预热；
-`data/discovered_equity_universe.json` 仍作为当前 41 个标的的可控研究输入，
+`data/discovered_equity_universe.json` 仍作为当前 35 个标的的可控研究输入，
 避免未经筛选地启动数万 case 回放。
 
 ## 约束与下一步

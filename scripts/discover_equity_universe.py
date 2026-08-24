@@ -20,6 +20,8 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None, help="maximum symbols per domain")
     parser.add_argument("--min-bars", type=int, default=200)
     parser.add_argument("--min-dollar-volume", type=float, default=5_000_000.0)
+    parser.add_argument("--max-staleness-days", type=int, default=14,
+                        help="maximum age of the latest local daily bar for READY")
     parser.add_argument("--output", type=Path, default=Path("data/discovered_equity_universe.json"))
     args = parser.parse_args()
     result = discover_equity_candidates(
@@ -27,6 +29,7 @@ def main() -> None:
         limit=args.limit,
         min_bars=args.min_bars,
         min_dollar_volume=args.min_dollar_volume,
+        max_staleness_days=args.max_staleness_days,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")

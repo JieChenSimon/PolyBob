@@ -1,15 +1,16 @@
 {
-  "generated_at": "2026-08-24T23:43:27.381678+00:00",
+  "generated_at": "2026-08-24T23:54:34.659304+00:00",
   "real_data_only": true,
   "selection_is_not_promotion": true,
   "min_bars": 200,
   "min_dollar_volume": 5000000.0,
+  "max_staleness_days": 14,
   "limit_per_domain": null,
   "provider_errors": {},
   "counts": {
     "total": 15410,
-    "ready_for_research": 1419,
-    "unknown": 13991
+    "ready_for_research": 1372,
+    "unknown": 14038
   },
   "candidates": [
     {
@@ -309,617 +310,6 @@
       "latest": "2026-08-24",
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 50756449.955,
-      "reasons": []
-    },
-    {
-      "symbol": "000063",
-      "domain": "a_share",
-      "name": "中兴通讯",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 63794560.54099999,
-      "reasons": []
-    },
-    {
-      "symbol": "000100",
-      "domain": "a_share",
-      "name": "TCL科技",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 53369917.83,
-      "reasons": []
-    },
-    {
-      "symbol": "000157",
-      "domain": "a_share",
-      "name": "中联重科",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 5088751.455,
-      "reasons": []
-    },
-    {
-      "symbol": "000333",
-      "domain": "a_share",
-      "name": "美的集团",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 28402851.647,
-      "reasons": []
-    },
-    {
-      "symbol": "000338",
-      "domain": "a_share",
-      "name": "潍柴动力",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 33689853.910000004,
-      "reasons": []
-    },
-    {
-      "symbol": "000568",
-      "domain": "a_share",
-      "name": "泸州老窖",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 10733521.57,
-      "reasons": []
-    },
-    {
-      "symbol": "000725",
-      "domain": "a_share",
-      "name": "京东方Ａ",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 191321447.643,
-      "reasons": []
-    },
-    {
-      "symbol": "000776",
-      "domain": "a_share",
-      "name": "广发证券",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 16450111.51,
-      "reasons": []
-    },
-    {
-      "symbol": "002001",
-      "domain": "a_share",
-      "name": "新 和 成",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 10379442.5,
-      "reasons": []
-    },
-    {
-      "symbol": "002027",
-      "domain": "a_share",
-      "name": "分众传媒",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 8620498.440000001,
-      "reasons": []
-    },
-    {
-      "symbol": "002049",
-      "domain": "a_share",
-      "name": "紫光国微",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-11-23",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 30906088.591000002,
-      "reasons": []
-    },
-    {
-      "symbol": "002050",
-      "domain": "a_share",
-      "name": "三花智控",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 55088192.251,
-      "reasons": []
-    },
-    {
-      "symbol": "002230",
-      "domain": "a_share",
-      "name": "科大讯飞",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 22018695.875,
-      "reasons": []
-    },
-    {
-      "symbol": "002236",
-      "domain": "a_share",
-      "name": "大华股份",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 6737363.25,
-      "reasons": []
-    },
-    {
-      "symbol": "002352",
-      "domain": "a_share",
-      "name": "顺丰控股",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 7297946.55,
-      "reasons": []
-    },
-    {
-      "symbol": "002415",
-      "domain": "a_share",
-      "name": "海康威视",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 26394790.07,
-      "reasons": []
-    },
-    {
-      "symbol": "002460",
-      "domain": "a_share",
-      "name": "赣锋锂业",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 35870330.625,
-      "reasons": []
-    },
-    {
-      "symbol": "002466",
-      "domain": "a_share",
-      "name": "天齐锂业",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 35703081.18,
-      "reasons": []
-    },
-    {
-      "symbol": "002475",
-      "domain": "a_share",
-      "name": "立讯精密",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 118245345.86249998,
-      "reasons": []
-    },
-    {
-      "symbol": "002493",
-      "domain": "a_share",
-      "name": "荣盛石化",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 7066702.0879999995,
-      "reasons": []
-    },
-    {
-      "symbol": "600000",
-      "domain": "a_share",
-      "name": "浦发银行",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 7088338.34,
-      "reasons": []
-    },
-    {
-      "symbol": "600011",
-      "domain": "a_share",
-      "name": "华能国际",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 13157195.995,
-      "reasons": []
-    },
-    {
-      "symbol": "600016",
-      "domain": "a_share",
-      "name": "民生银行",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 8070188.3795,
-      "reasons": []
-    },
-    {
-      "symbol": "600028",
-      "domain": "a_share",
-      "name": "中国石化",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 12979663.353,
-      "reasons": []
-    },
-    {
-      "symbol": "600030",
-      "domain": "a_share",
-      "name": "中信证券",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 46549588.895,
-      "reasons": []
-    },
-    {
-      "symbol": "600050",
-      "domain": "a_share",
-      "name": "中国联通",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 7139162.615,
-      "reasons": []
-    },
-    {
-      "symbol": "600104",
-      "domain": "a_share",
-      "name": "上汽集团",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 5792504.07,
-      "reasons": []
-    },
-    {
-      "symbol": "600276",
-      "domain": "a_share",
-      "name": "恒瑞医药",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 47300833.61,
-      "reasons": []
-    },
-    {
-      "symbol": "600309",
-      "domain": "a_share",
-      "name": "万华化学",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 26833274.595,
-      "reasons": []
-    },
-    {
-      "symbol": "600438",
-      "domain": "a_share",
-      "name": "通威股份",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-11-23",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 7194821.545,
-      "reasons": []
-    },
-    {
-      "symbol": "600585",
-      "domain": "a_share",
-      "name": "海螺水泥",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 5601685.71,
-      "reasons": []
-    },
-    {
-      "symbol": "600690",
-      "domain": "a_share",
-      "name": "海尔智家",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 9704738.219999999,
-      "reasons": []
-    },
-    {
-      "symbol": "600703",
-      "domain": "a_share",
-      "name": "三安光电",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 50294433.75,
-      "reasons": []
-    },
-    {
-      "symbol": "600745",
-      "domain": "a_share",
-      "name": "*ST闻泰",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-04",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 8300922.45,
-      "reasons": []
-    },
-    {
-      "symbol": "600887",
-      "domain": "a_share",
-      "name": "伊利股份",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 15474845.5,
-      "reasons": []
-    },
-    {
-      "symbol": "600900",
-      "domain": "a_share",
-      "name": "长江电力",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 32639031.835,
-      "reasons": []
-    },
-    {
-      "symbol": "601012",
-      "domain": "a_share",
-      "name": "隆基绿能",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 18459592.365000002,
-      "reasons": []
-    },
-    {
-      "symbol": "601088",
-      "domain": "a_share",
-      "name": "中国神华",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-11-23",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 16721569.86,
-      "reasons": []
-    },
-    {
-      "symbol": "601166",
-      "domain": "a_share",
-      "name": "兴业银行",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 17115471.549999997,
-      "reasons": []
-    },
-    {
-      "symbol": "601288",
-      "domain": "a_share",
-      "name": "农业银行",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 22863481.375,
-      "reasons": []
-    },
-    {
-      "symbol": "601390",
-      "domain": "a_share",
-      "name": "中国中铁",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 5438983.923,
-      "reasons": []
-    },
-    {
-      "symbol": "601398",
-      "domain": "a_share",
-      "name": "工商银行",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 26662786.79,
-      "reasons": []
-    },
-    {
-      "symbol": "601628",
-      "domain": "a_share",
-      "name": "中国人寿",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 13906094.583999999,
-      "reasons": []
-    },
-    {
-      "symbol": "601668",
-      "domain": "a_share",
-      "name": "中国建筑",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 9289036.868999999,
-      "reasons": []
-    },
-    {
-      "symbol": "601857",
-      "domain": "a_share",
-      "name": "中国石油",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 18180251.419999998,
-      "reasons": []
-    },
-    {
-      "symbol": "601899",
-      "domain": "a_share",
-      "name": "紫金矿业",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 87750428.845,
-      "reasons": []
-    },
-    {
-      "symbol": "601988",
-      "domain": "a_share",
-      "name": "中国银行",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 17019193.563,
       "reasons": []
     },
     {
@@ -18816,6 +18206,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1303503544.9264526,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18831,6 +18222,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 484723399.4293213,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18846,6 +18238,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1012107176.6242981,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18861,6 +18254,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1266797390.6074524,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18876,6 +18270,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 953385578.3325195,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18891,6 +18286,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 739394586.9262695,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18906,6 +18302,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 829302341.8945312,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18921,6 +18318,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 2153427491.8945312,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18936,6 +18334,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 2735162569.54422,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18951,6 +18350,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 712708165.5334473,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18966,6 +18366,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 805334690.7341003,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18981,6 +18382,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 5946152.850151062,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -18996,6 +18398,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 2200205096.069336,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19011,6 +18414,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1493263161.8041992,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19026,6 +18430,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 975159563.259079,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19041,6 +18446,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1407923701.7120361,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19056,6 +18462,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1810261774.4369507,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19071,6 +18478,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1176882261.8301392,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19086,6 +18494,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 545780953.327179,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19101,6 +18510,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1168472690.2252197,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19116,6 +18526,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 951968324.6940613,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19131,6 +18542,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1173492519.5251465,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19146,6 +18558,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1229644482.938385,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19161,6 +18574,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 851051629.1137695,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19176,6 +18590,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 4057540459.906769,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19191,6 +18606,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 29093512851.42517,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19206,6 +18622,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 995260673.9593506,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19221,6 +18638,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1066071464.0716553,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19233,10 +18651,10 @@
       "bars": 1254,
       "start": "2021-08-02",
       "latest": "2026-07-30",
-      "price_basis": "unknown",
+      "price_basis": "provider_quote_adjustment_unknown",
       "median_dollar_volume_60": 2346640445.915222,
       "reasons": [
-        "price_basis_unknown_or_mixed"
+        "latest_bar_stale>14d"
       ]
     },
     {
@@ -19251,6 +18669,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 2450841419.8654175,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19266,6 +18685,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 2564549597.04895,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19281,6 +18701,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 2536230899.751663,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -19296,7 +18717,143 @@
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 4561846.955,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "000063",
+      "domain": "a_share",
+      "name": "中兴通讯",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 63794560.54099999,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000100",
+      "domain": "a_share",
+      "name": "TCL科技",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 53369917.83,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000157",
+      "domain": "a_share",
+      "name": "中联重科",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 5088751.455,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000333",
+      "domain": "a_share",
+      "name": "美的集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 28402851.647,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000338",
+      "domain": "a_share",
+      "name": "潍柴动力",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 33689853.910000004,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000568",
+      "domain": "a_share",
+      "name": "泸州老窖",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 10733521.57,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000725",
+      "domain": "a_share",
+      "name": "京东方Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 191321447.643,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000776",
+      "domain": "a_share",
+      "name": "广发证券",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 16450111.51,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002001",
+      "domain": "a_share",
+      "name": "新 和 成",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 10379442.5,
+      "reasons": [
+        "latest_bar_stale>14d"
       ]
     },
     {
@@ -19311,7 +18868,23 @@
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 1548035.455,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "002027",
+      "domain": "a_share",
+      "name": "分众传媒",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 8620498.440000001,
+      "reasons": [
+        "latest_bar_stale>14d"
       ]
     },
     {
@@ -19326,7 +18899,68 @@
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 838393.675,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "002049",
+      "domain": "a_share",
+      "name": "紫光国微",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-11-23",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 30906088.591000002,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002050",
+      "domain": "a_share",
+      "name": "三花智控",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 55088192.251,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002230",
+      "domain": "a_share",
+      "name": "科大讯飞",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 22018695.875,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002236",
+      "domain": "a_share",
+      "name": "大华股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 6737363.25,
+      "reasons": [
+        "latest_bar_stale>14d"
       ]
     },
     {
@@ -19341,7 +18975,113 @@
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 2758685.66,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "002352",
+      "domain": "a_share",
+      "name": "顺丰控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 7297946.55,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002415",
+      "domain": "a_share",
+      "name": "海康威视",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 26394790.07,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002460",
+      "domain": "a_share",
+      "name": "赣锋锂业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 35870330.625,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002466",
+      "domain": "a_share",
+      "name": "天齐锂业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 35703081.18,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002475",
+      "domain": "a_share",
+      "name": "立讯精密",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 118245345.86249998,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "002493",
+      "domain": "a_share",
+      "name": "荣盛石化",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 7066702.0879999995,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600000",
+      "domain": "a_share",
+      "name": "浦发银行",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 7088338.34,
+      "reasons": [
+        "latest_bar_stale>14d"
       ]
     },
     {
@@ -19356,7 +19096,278 @@
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 3141651.42,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "600011",
+      "domain": "a_share",
+      "name": "华能国际",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 13157195.995,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600016",
+      "domain": "a_share",
+      "name": "民生银行",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 8070188.3795,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600028",
+      "domain": "a_share",
+      "name": "中国石化",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 12979663.353,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600030",
+      "domain": "a_share",
+      "name": "中信证券",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 46549588.895,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600050",
+      "domain": "a_share",
+      "name": "中国联通",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 7139162.615,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600104",
+      "domain": "a_share",
+      "name": "上汽集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 5792504.07,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600276",
+      "domain": "a_share",
+      "name": "恒瑞医药",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 47300833.61,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600309",
+      "domain": "a_share",
+      "name": "万华化学",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 26833274.595,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600438",
+      "domain": "a_share",
+      "name": "通威股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-11-23",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 7194821.545,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600585",
+      "domain": "a_share",
+      "name": "海螺水泥",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 5601685.71,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600690",
+      "domain": "a_share",
+      "name": "海尔智家",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 9704738.219999999,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600703",
+      "domain": "a_share",
+      "name": "三安光电",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 50294433.75,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600745",
+      "domain": "a_share",
+      "name": "*ST闻泰",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-04",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 8300922.45,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600887",
+      "domain": "a_share",
+      "name": "伊利股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 15474845.5,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "600900",
+      "domain": "a_share",
+      "name": "长江电力",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 32639031.835,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601012",
+      "domain": "a_share",
+      "name": "隆基绿能",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 18459592.365000002,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601088",
+      "domain": "a_share",
+      "name": "中国神华",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-11-23",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 16721569.86,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601166",
+      "domain": "a_share",
+      "name": "兴业银行",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 17115471.549999997,
+      "reasons": [
+        "latest_bar_stale>14d"
       ]
     },
     {
@@ -19371,7 +19382,128 @@
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 3118782.1799999997,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "601288",
+      "domain": "a_share",
+      "name": "农业银行",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 22863481.375,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601390",
+      "domain": "a_share",
+      "name": "中国中铁",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 5438983.923,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601398",
+      "domain": "a_share",
+      "name": "工商银行",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 26662786.79,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601628",
+      "domain": "a_share",
+      "name": "中国人寿",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 13906094.583999999,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601668",
+      "domain": "a_share",
+      "name": "中国建筑",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 9289036.868999999,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601857",
+      "domain": "a_share",
+      "name": "中国石油",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 18180251.419999998,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601899",
+      "domain": "a_share",
+      "name": "紫金矿业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 87750428.845,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "601988",
+      "domain": "a_share",
+      "name": "中国银行",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 17019193.563,
+      "reasons": [
+        "latest_bar_stale>14d"
       ]
     },
     {
@@ -25941,6 +26073,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 34963241.64276123,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -25956,6 +26089,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 56338102.434539795,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -25971,6 +26105,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 134338652.02713013,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -25986,6 +26121,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 155718.99495124817,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -26002,6 +26138,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 433.99999141693115,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -33683,6 +33820,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 18725924.56884384,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33698,6 +33836,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 57484398.617362976,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33713,6 +33852,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 432251.00445747375,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -33744,6 +33884,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 94811729.90970612,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33759,6 +33900,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 16101842.083740234,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33789,6 +33931,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 590104.9948692322,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -33805,6 +33948,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 468761694.1314697,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33820,6 +33964,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 67241276.53961182,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33850,6 +33995,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 11235937.806129456,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33865,6 +34011,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 8812427.695846558,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33880,6 +34027,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 51510269.24085617,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33895,6 +34043,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 78018230.88912964,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33910,6 +34059,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 16391357.957470417,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33925,6 +34075,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 169102294.73571777,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33940,6 +34091,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 62039396.62628174,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33955,6 +34107,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 662326982.6987267,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33970,6 +34123,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 17383185.83946228,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -33985,6 +34139,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 16410310.229110718,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -34000,6 +34155,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 125880658.46538544,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -34045,6 +34201,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 24008.0500125885,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -34076,6 +34233,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 58753.49981188774,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -34092,6 +34250,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1345857.996749878,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -34108,6 +34267,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1865085.0082874298,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -34184,6 +34344,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 3536844.8947429657,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -34215,6 +34376,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 10929114.13872242,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -34245,6 +34407,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 236265771.7414856,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -34290,6 +34453,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 104126512.77236938,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -34305,6 +34469,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 15664411.847019196,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -34320,6 +34485,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 3886476.0344982147,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -34366,6 +34532,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 3386441.4576768875,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -34397,6 +34564,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 18142582.32831955,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -34427,6 +34595,7 @@
       "price_basis": "provider_quote_adjustment_unknown",
       "median_dollar_volume_60": 680060.8141822815,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -34502,6 +34671,7 @@
       "price_basis": "provider_quote_adjustment_unknown",
       "median_dollar_volume_60": 533149.5173944533,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -34517,6 +34687,7 @@
       "price_basis": "provider_quote_adjustment_unknown",
       "median_dollar_volume_60": 110904.85082957149,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -34532,6 +34703,7 @@
       "price_basis": "provider_quote_adjustment_unknown",
       "median_dollar_volume_60": 201871.71402990818,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -34547,6 +34719,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 13918247.924804688,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -35297,6 +35470,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 2754312.0609283447,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -35568,6 +35742,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 236682668.94168854,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -37092,6 +37267,7 @@
       "median_dollar_volume_60": 4638918.059158325,
       "reasons": [
         "bars<200",
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
@@ -37125,6 +37301,7 @@
       "median_dollar_volume_60": 1593780.9409561157,
       "reasons": [
         "bars<200",
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
       ]
     },

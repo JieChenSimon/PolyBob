@@ -4,7 +4,8 @@
 
 本轮使用完整自主发现 manifest，而不是此前限额的 41 个标的：
 
-- A 股：55 个 READY 标的全部进入 screen。
+- A 股：freshness 门禁后的 8 个 READY 标的进入 screen；其余历史数据已 stale
+  或缺少本地覆盖，不再视为当前可研究成员。
 - 美股：1,364 个 READY 标的中 202 个因本地价格序列存在未解析跳变被拒绝，
   1,162 个进入 screen。
 - 加密资产：完整 manifest 不包含加密标的，保持独立 crypto 数据管线，未混入
@@ -31,7 +32,7 @@ OOS 没有参与选参。
 
 ### A 股
 
-55 个 READY 标的中只有 8 个满足 OOS 起止日都有价格，低于 20 个门槛；
+8 个 READY 标的仍少于 20 个同期基准门槛；
 本轮结果为 UNKNOWN/BLOCKED，不再引用此前基于 8 个标的的收益数值。
 
 ### 美股
@@ -53,5 +54,6 @@ OOS 没有参与选参。
 - 未加门禁的诊断输出：`/tmp/polybob_full_cross_sectional_screen.json`
 - 加同期基准门禁的权威输出：`/tmp/polybob_full_cross_sectional_screen_gated.json`
 - 处理交易日历差异后的权威输出：`/tmp/polybob_full_cross_sectional_screen_stale5.json`
+- freshness 门禁后重跑的权威输出：`/tmp/polybob_full_cross_sectional_screen_fresh.json`
 - 运行器：`scripts/cross_sectional_local_screen.py`
 - 真实数据、成本后、训练选择与滚动折叠结果均保存在运行输出中。

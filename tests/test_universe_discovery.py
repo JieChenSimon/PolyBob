@@ -65,3 +65,22 @@ def test_full_roster_marks_absent_local_symbol_without_reading_parquet(monkeypat
     assert missing["status"] == "UNKNOWN"
     assert missing["reasons"] == ["no_local_daily_bars"]
     assert reads == ["LOCAL"]
+
+
+def test_discovery_rejects_stale_latest_bar(monkeypatch):
+    monkeypatch.setattr(discovery, "discover_us_roster", lambda: [
+        discovery.RosterMember("STALE", "us_equity", None, "test"),
+    ])
+    monkeypatch.setattr(discovery.store, "symbols", lambda *_args: ["STALE"])
+    frame = pd.DataFrame({
+        "event_date": ["2026-01-01"] * 250,
+        "price_basis": ["unadjusted"] * 250,
+        "close": [100.0] * 250,
+        "volume": [100_000.0] * 250,
+    })
+    monkeypatch.setattr(discovery.store, "read", lambda *args, **kwargs: frame)
+    result = discovery.discover_equity_candidates(
+        domains=("us_equity",), max_staleness_days=14,
+    )
+    assert result["candidates"][0]["status"] == "UNKNOWN"
+    assert "latest_bar_stale>14d" in result["candidates"][0]["reasons"]

@@ -1,15 +1,16 @@
 {
-  "generated_at": "2026-08-24T23:04:19.737261+00:00",
+  "generated_at": "2026-08-24T23:54:43.520829+00:00",
   "real_data_only": true,
   "selection_is_not_promotion": true,
   "min_bars": 200,
   "min_dollar_volume": 5000000.0,
+  "max_staleness_days": 14,
   "limit_per_domain": 200,
   "provider_errors": {},
   "counts": {
     "total": 400,
-    "ready_for_research": 41,
-    "unknown": 359
+    "ready_for_research": 35,
+    "unknown": 365
   },
   "candidates": [
     {
@@ -75,84 +76,6 @@
       "latest": "2026-08-24",
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 17494319.615000002,
-      "reasons": []
-    },
-    {
-      "symbol": "000063",
-      "domain": "a_share",
-      "name": "中兴通讯",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 63794560.54099999,
-      "reasons": []
-    },
-    {
-      "symbol": "000100",
-      "domain": "a_share",
-      "name": "TCL科技",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 53369917.83,
-      "reasons": []
-    },
-    {
-      "symbol": "000157",
-      "domain": "a_share",
-      "name": "中联重科",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 5088751.455,
-      "reasons": []
-    },
-    {
-      "symbol": "000333",
-      "domain": "a_share",
-      "name": "美的集团",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 28402851.647,
-      "reasons": []
-    },
-    {
-      "symbol": "000338",
-      "domain": "a_share",
-      "name": "潍柴动力",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 33689853.910000004,
-      "reasons": []
-    },
-    {
-      "symbol": "000568",
-      "domain": "a_share",
-      "name": "泸州老窖",
-      "roster_source": "akshare_stock_info_a_code_name",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 641,
-      "start": "2023-12-07",
-      "latest": "2026-07-31",
-      "price_basis": "forward_adjusted",
-      "median_dollar_volume_60": 10733521.57,
       "reasons": []
     },
     {
@@ -557,6 +480,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1303503544.9264526,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -572,6 +496,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 484723399.4293213,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -587,6 +512,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1012107176.6242981,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -602,6 +528,7 @@
       "price_basis": "unknown",
       "median_dollar_volume_60": 1266797390.6074524,
       "reasons": [
+        "latest_bar_stale>14d",
         "price_basis_unknown_or_mixed"
       ]
     },
@@ -617,7 +544,98 @@
       "price_basis": "forward_adjusted",
       "median_dollar_volume_60": 4561846.955,
       "reasons": [
+        "latest_bar_stale>14d",
         "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "000063",
+      "domain": "a_share",
+      "name": "中兴通讯",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 63794560.54099999,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000100",
+      "domain": "a_share",
+      "name": "TCL科技",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 53369917.83,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000157",
+      "domain": "a_share",
+      "name": "中联重科",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 5088751.455,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000333",
+      "domain": "a_share",
+      "name": "美的集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 28402851.647,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000338",
+      "domain": "a_share",
+      "name": "潍柴动力",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 33689853.910000004,
+      "reasons": [
+        "latest_bar_stale>14d"
+      ]
+    },
+    {
+      "symbol": "000568",
+      "domain": "a_share",
+      "name": "泸州老窖",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "median_dollar_volume_60": 10733521.57,
+      "reasons": [
+        "latest_bar_stale>14d"
       ]
     },
     {
