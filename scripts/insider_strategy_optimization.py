@@ -35,7 +35,9 @@ MIN_VALUE_USD = (25_000.0, 50_000.0, 100_000.0)
 
 
 def _score(result: dict) -> dict:
-    inference = result.get("inference") or {}
+    # BacktestResult.to_dict() flattens inference fields at the top level and
+    # keeps ``inference`` as the method label.
+    inference = result
     return {
         "n": inference.get("n", 0),
         "mean_excess_pct": inference.get("mean_excess_pct"),
