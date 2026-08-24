@@ -1,0 +1,17 @@
+id: PB-0030
+title: SEC insider 披露延迟过滤复核
+state: doing
+p: P1
+area: quant
+why: 验证交易日期到公开 filing 日期的因果披露延迟是否影响 30 日 insider 信号质量和组合显著性
+checks:
+- text: 完成 7 日和 30 日披露延迟候选的真实回放与成本压力
+  done: true
+- text: 完成 OOS、集中度、PBO/DSR 和组合层聚类审计并保留淘汰归因
+  done: true
+- text: 完成测试、报告、Git 提交推送和任务状态记录
+  done: false
+deps: []
+branch: pb-0030-insider-filing-delay
+blocked: null
+updated: '2026-08-24T14:22:36+00:00'

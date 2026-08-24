@@ -207,10 +207,36 @@ def concentration(metrics: dict) -> dict:
     }
 
 
+def filter_by_filing_delay(trades: list, max_days: int | None) -> list:
+    """Keep trades whose transaction date was disclosed within ``max_days``.
+
+    Both dates are known in the public filing, so this filter is causal at the
+    filing timestamp. Missing transaction dates remain UNKNOWN and are removed
+    when the filter is enabled rather than treated as zero delay.
+    """
+    if max_days is None:
+        return trades
+    kept = []
+    for trade in trades:
+        if not trade.trans_date:
+            continue
+        try:
+            filing = datetime.fromisoformat(trade.filing_date)
+            transaction = datetime.fromisoformat(trade.trans_date)
+        except ValueError:
+            continue
+        delay = (filing - transaction).days
+        if 0 <= delay <= max_days:
+            kept.append(trade)
+    return kept
+
+
 async def main_async(args: argparse.Namespace) -> int:
     as_of = datetime.now(UTC)
     trades = [trade for year, quarter in QUARTERS
               for trade in fetch_insider_trades(year, quarter)]
+    trades_before_delay_filter = len(trades)
+    trades = filter_by_filing_delay(trades, args.max_filing_delay_days)
     clusters = cluster_buys(trades, min_insiders=args.min_insiders,
                             min_value_usd=args.min_value_usd)
     events = sorted(clusters)
@@ -327,6 +353,7 @@ async def main_async(args: argparse.Namespace) -> int:
         "sec_quarters": QUARTERS,
         "strategy": {"family": "sec_insider_cluster_buy", "hold_sessions": args.hold_sessions,
                       "min_insiders": args.min_insiders, "min_value_usd": args.min_value_usd,
+                      "max_filing_delay_days": args.max_filing_delay_days,
                       "max_pre_event_volatility": args.max_pre_event_volatility,
                       "volatility_window": args.volatility_window,
                       "market_symbol": args.market_symbol,
@@ -336,6 +363,8 @@ async def main_async(args: argparse.Namespace) -> int:
                               "allow_short": False, "position_fraction": args.position_fraction,
                               "risk_weighted": args.risk_weighted},
         "events": len(events), "events_before_filter": original_event_count,
+        "trade_quality": {"trades_before_delay_filter": trades_before_delay_filter,
+                           "trades_after_delay_filter": len(trades)},
         "symbols_requested": len(symbols),
         "symbols_replayed": len(frames), "coverage": len(frames) / len(symbols),
         "candidate_family_size": (108 if args.market_symbol is not None
@@ -379,5 +408,7 @@ if __name__ == "__main__":
     parser.add_argument("--hold-sessions", type=int, default=HOLD_SESSIONS)
     parser.add_argument("--min-insiders", type=int, default=MIN_INSIDERS)
     parser.add_argument("--min-value-usd", type=float, default=MIN_VALUE_USD)
+    parser.add_argument("--max-filing-delay-days", type=int, default=None,
+                        help="causal filing_date - transaction_date ceiling")
     parser.add_argument("--output", default="data/insider_kernel_replay.json")
     raise SystemExit(asyncio.run(main_async(parser.parse_args())))

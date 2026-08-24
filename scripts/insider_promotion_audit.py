@@ -50,6 +50,16 @@ def main() -> int:
             2.0: Path("data/insider_kernel_replay_extended_market20_hold30_min100k_cap1x_2x.json"),
             3.0: Path("data/insider_kernel_replay_extended_market20_hold30_min100k_cap1x_3x.json"),
         },
+        "market20_extended_hold30_delay7_cap1x": {
+            1.0: Path("data/insider_kernel_replay_extended_market20_hold30_delay7_cap1x.json"),
+            2.0: Path("data/insider_kernel_replay_extended_market20_hold30_delay7_cap1x_2x.json"),
+            3.0: Path("data/insider_kernel_replay_extended_market20_hold30_delay7_cap1x_3x.json"),
+        },
+        "market20_extended_hold30_delay30_cap1x": {
+            1.0: Path("data/insider_kernel_replay_extended_market20_hold30_delay30_cap1x.json"),
+            2.0: Path("data/insider_kernel_replay_extended_market20_hold30_delay30_cap1x_2x.json"),
+            3.0: Path("data/insider_kernel_replay_extended_market20_hold30_delay30_cap1x_3x.json"),
+        },
     }
     audits = {}
     for name, cost_paths in candidates.items():
@@ -58,9 +68,9 @@ def main() -> int:
         base = returns[1.0]
         fold_returns = [float(fold["oos_return"]) for fold in reports[1.0]["folds"]]
         stability = sum(value > 0 for value in fold_returns) / len(fold_returns)
-        n_trials = 324 if name in {"market20_extended_hold30_cap1x", "market20_extended_hold10_cap1x", "market20_extended_hold30_min100k_cap1x"} else int(
+        n_trials = 648 if name in {"market20_extended_hold30_delay7_cap1x", "market20_extended_hold30_delay30_cap1x"} else (324 if name in {"market20_extended_hold30_cap1x", "market20_extended_hold10_cap1x", "market20_extended_hold30_min100k_cap1x"} else int(
             reports[1.0].get("candidate_family_size", 18)
-        )
+        ))
         gate = PromotionGate(
             n_trials=n_trials,
             min_dsr=0.95,

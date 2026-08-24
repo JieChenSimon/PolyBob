@@ -10,7 +10,9 @@ from scripts.insider_kernel_replay import (
     concentration,
     filter_events_by_pre_event_vol,
     filter_events_by_market_return,
+    filter_by_filing_delay,
 )
+from libs.data.sec_insider import InsiderTrade
 
 
 def test_insider_event_enters_next_bar_and_holds_fixed_sessions():
@@ -83,3 +85,16 @@ def test_market_filter_uses_only_bars_before_filing():
     events = [("A", "2024-03-01"), ("B", "2024-03-02")]
     selected = filter_events_by_market_return(market, events, lookback=20, min_return=0.1)
     assert selected == events
+
+
+def test_filing_delay_filter_is_causal_and_fail_closed():
+    def trade(filing, transaction):
+        return InsiderTrade("ABC", "Issuer", filing, transaction, "P", 100, 10)
+
+    selected = filter_by_filing_delay([
+        trade("2024-01-10", "2024-01-05"),
+        trade("2024-01-10", "2023-12-01"),
+        trade("2024-01-10", ""),
+    ], max_days=7)
+    assert len(selected) == 1
+    assert selected[0].trans_date == "2024-01-05"
