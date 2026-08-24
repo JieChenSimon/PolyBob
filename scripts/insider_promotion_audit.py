@@ -19,45 +19,54 @@ def daily_returns(report: dict) -> np.ndarray:
 
 
 def main() -> int:
-    base_path = Path("data/insider_kernel_replay_original_unlevered.json")
-    cost_paths = {
-        1.0: base_path,
-        2.0: Path("data/insider_kernel_replay_original_unlevered_2x.json"),
-        3.0: Path("data/insider_kernel_replay_original_unlevered_3x.json"),
-    }
-    reports = {multiple: json.loads(path.read_text()) for multiple, path in cost_paths.items()}
-    returns = {multiple: daily_returns(report) for multiple, report in reports.items()}
-    base = returns[1.0]
-    fold_returns = [float(fold["oos_return"]) for fold in reports[1.0]["folds"]]
-    stability = sum(value > 0 for value in fold_returns) / len(fold_returns)
-    gate = PromotionGate(
-        n_trials=int(reports[1.0].get("candidate_family_size", 18)),
-        min_dsr=0.95,
-        min_observations=60,
-        min_oos_stability_rate=0.75,
-        cost_min_sharpe=0.5,
-        periods_per_year=252,
-    )
-    decision = gate.evaluate(
-        base,
-        cost_returns_fn=lambda multiple: returns[float(multiple)],
-        cost_multiples=(1.0, 2.0, 3.0),
-        oos_stability_rate=stability,
-    )
-    report = {
-        "real_data_only": True,
-        "source_reports": {str(multiple): str(path) for multiple, path in cost_paths.items()},
-        "candidate_family_size": reports[1.0].get("candidate_family_size"),
-        "daily_observations": len(base),
-        "base_annualized_sharpe": annualized_sharpe(base),
-        "cost_annualized_sharpe": {
-            str(multiple): annualized_sharpe(values) for multiple, values in returns.items()
+    candidates = {
+        "original_equal_exposure": {
+            1.0: Path("data/insider_kernel_replay_original_unlevered.json"),
+            2.0: Path("data/insider_kernel_replay_original_unlevered_2x.json"),
+            3.0: Path("data/insider_kernel_replay_original_unlevered_3x.json"),
         },
-        "oos_fold_returns": fold_returns,
-        "oos_stability_rate": stability,
-        "promotion": decision.to_dict(),
-        "status": "replay_only_not_promoted",
+        "market20_equal_exposure": {
+            1.0: Path("data/insider_kernel_replay_original_market20_equal_exposure.json"),
+            2.0: Path("data/insider_kernel_replay_original_market20_equal_exposure_2x.json"),
+            3.0: Path("data/insider_kernel_replay_original_market20_equal_exposure_3x.json"),
+        },
     }
+    audits = {}
+    for name, cost_paths in candidates.items():
+        reports = {multiple: json.loads(path.read_text()) for multiple, path in cost_paths.items()}
+        returns = {multiple: daily_returns(report) for multiple, report in reports.items()}
+        base = returns[1.0]
+        fold_returns = [float(fold["oos_return"]) for fold in reports[1.0]["folds"]]
+        stability = sum(value > 0 for value in fold_returns) / len(fold_returns)
+        gate = PromotionGate(
+            n_trials=int(reports[1.0].get("candidate_family_size", 18)),
+            min_dsr=0.95,
+            min_observations=60,
+            min_oos_stability_rate=0.75,
+            cost_min_sharpe=0.5,
+            periods_per_year=252,
+        )
+        decision = gate.evaluate(
+            base,
+            cost_returns_fn=lambda multiple: returns[float(multiple)],
+            cost_multiples=(1.0, 2.0, 3.0),
+            oos_stability_rate=stability,
+        )
+        audits[name] = {
+            "source_reports": {str(multiple): str(path) for multiple, path in cost_paths.items()},
+            "candidate_family_size": reports[1.0].get("candidate_family_size"),
+            "daily_observations": len(base),
+            "base_annualized_sharpe": annualized_sharpe(base),
+            "cost_annualized_sharpe": {
+                str(multiple): annualized_sharpe(values) for multiple, values in returns.items()
+            },
+            "oos_fold_returns": fold_returns,
+            "oos_stability_rate": stability,
+            "promotion": decision.to_dict(),
+            "status": "replay_only_not_promoted",
+        }
+    report = {"real_data_only": True, "candidates": audits,
+              "status": "replay_only_not_promoted"}
     out = Path("data/insider_promotion_audit.json")
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
     print(json.dumps(report, ensure_ascii=False, indent=2))

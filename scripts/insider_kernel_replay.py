@@ -127,6 +127,53 @@ def build_risk_fractions(frames: dict, events: list[tuple[str, str]],
     return fractions
 
 
+def pre_event_volatility(frames: dict, symbol: str, filing_date: str,
+                         window: int = 60) -> float | None:
+    """Return causal annualized volatility immediately before a filing."""
+    series = frames.get(symbol)
+    if series is None:
+        return None
+    dates = list(series.index)
+    entry = bisect.bisect_right(dates, filing_date)
+    prices = series.to_numpy(dtype=float)[:entry]
+    if len(prices) < window + 1 or np.any(~np.isfinite(prices[-(window + 1):])):
+        return None
+    returns = np.diff(prices[-(window + 1):]) / prices[-(window + 1):-1]
+    if len(returns) < window or np.any(~np.isfinite(returns)):
+        return None
+    return float(np.std(returns, ddof=1) * np.sqrt(252.0))
+
+
+def filter_events_by_pre_event_vol(frames: dict, events: list[tuple[str, str]],
+                                   max_volatility: float,
+                                   window: int = 60) -> list[tuple[str, str]]:
+    """Keep only events whose pre-filing volatility is known and bounded."""
+    selected = []
+    for event in events:
+        volatility = pre_event_volatility(frames, event[0], event[1], window)
+        if volatility is not None and volatility <= max_volatility:
+            selected.append(event)
+    return selected
+
+
+def filter_events_by_market_return(market_frame: pd.Series,
+                                   events: list[tuple[str, str]],
+                                   lookback: int,
+                                   min_return: float) -> list[tuple[str, str]]:
+    """Keep events only when a causal market lookback return clears a floor."""
+    dates = list(market_frame.index)
+    prices = market_frame.to_numpy(dtype=float)
+    selected = []
+    for event in events:
+        entry = bisect.bisect_right(dates, event[1])
+        if entry < lookback or not np.all(np.isfinite(prices[entry-lookback:entry+1])):
+            continue
+        market_return = prices[entry] / prices[entry - lookback] - 1.0
+        if market_return >= min_return:
+            selected.append(event)
+    return selected
+
+
 def split_dates(index: list[str]) -> list[str]:
     if len(index) < 300:
         raise ValueError("insider replay requires at least 300 market dates")
@@ -176,6 +223,23 @@ async def main_async(args: argparse.Namespace) -> int:
             frames[str(symbol)] = pd.Series(closes, index=dates, dtype=float)
     if len(frames) < 4:
         raise RuntimeError("insufficient insider event price coverage")
+
+    original_event_count = len(events)
+    if args.max_pre_event_volatility is not None:
+        events = filter_events_by_pre_event_vol(
+            frames, events, args.max_pre_event_volatility, args.volatility_window
+        )
+    if args.market_symbol is not None:
+        market_raw = store.read(store.DAILY_BARS, args.market_symbol, as_of=as_of)
+        market_group = market_raw.sort_values(store.EVENT_DATE)
+        market_frame = pd.Series(
+            market_group["close"].astype(float).to_numpy(),
+            index=[str(value) for value in market_group[store.EVENT_DATE].tolist()],
+            dtype=float,
+        )
+        events = filter_events_by_market_return(
+            market_frame, events, args.market_lookback, args.min_market_return
+        )
 
     positions = build_event_positions(frames, events, args.hold_sessions)
     fraction_by_instrument = (
@@ -260,13 +324,21 @@ async def main_async(args: argparse.Namespace) -> int:
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
         "strategy": {"family": "sec_insider_cluster_buy", "hold_sessions": args.hold_sessions,
-                      "min_insiders": args.min_insiders, "min_value_usd": args.min_value_usd},
+                      "min_insiders": args.min_insiders, "min_value_usd": args.min_value_usd,
+                      "max_pre_event_volatility": args.max_pre_event_volatility,
+                      "volatility_window": args.volatility_window,
+                      "market_symbol": args.market_symbol,
+                      "market_lookback": args.market_lookback,
+                      "min_market_return": args.min_market_return},
         "execution_config": {"fee_bps": args.fee_bps, "mid_penalty_bps": args.mid_penalty_bps,
                               "allow_short": False, "position_fraction": args.position_fraction,
                               "risk_weighted": args.risk_weighted},
-        "events": len(events), "symbols_requested": len(symbols),
+        "events": len(events), "events_before_filter": original_event_count,
+        "symbols_requested": len(symbols),
         "symbols_replayed": len(frames), "coverage": len(frames) / len(symbols),
-        "candidate_family_size": 36 if args.risk_weighted else 18,
+        "candidate_family_size": (108 if args.market_symbol is not None
+                                   else (54 if args.max_pre_event_volatility is not None
+                                         else (36 if args.risk_weighted else 18))),
         "selection_note": "candidate was observed in the existing train/OOS optimizer; kernel replay remains independent evidence",
         "full_metrics": metrics, "folds": folds,
         "concentration": concentration(metrics),
@@ -295,6 +367,13 @@ if __name__ == "__main__":
     parser.add_argument("--mid-penalty-bps", type=float, default=10.0)
     parser.add_argument("--position-fraction", type=float, default=POSITION_FRACTION)
     parser.add_argument("--risk-weighted", action="store_true")
+    parser.add_argument("--max-pre-event-volatility", type=float, default=None,
+                        help="causal annualized volatility ceiling for event entry")
+    parser.add_argument("--volatility-window", type=int, default=60)
+    parser.add_argument("--market-symbol", default=None,
+                        help="causal market regime symbol used to filter events")
+    parser.add_argument("--market-lookback", type=int, default=20)
+    parser.add_argument("--min-market-return", type=float, default=0.0)
     parser.add_argument("--hold-sessions", type=int, default=HOLD_SESSIONS)
     parser.add_argument("--min-insiders", type=int, default=MIN_INSIDERS)
     parser.add_argument("--min-value-usd", type=float, default=MIN_VALUE_USD)

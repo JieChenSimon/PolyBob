@@ -8,6 +8,8 @@ from scripts.insider_kernel_replay import (
     build_event_positions,
     build_risk_fractions,
     concentration,
+    filter_events_by_pre_event_vol,
+    filter_events_by_market_return,
 )
 
 
@@ -61,3 +63,23 @@ def test_risk_fractions_use_only_pre_event_bars_and_keep_base_median():
     )
     assert fractions["CALM"] > fractions["VOL"]
     assert all(0.0025 * 0.25 <= value <= 0.0025 * 2 for value in fractions.values())
+
+
+def test_pre_event_volatility_filter_is_causal_and_fail_closed():
+    dates = pd.date_range("2024-01-01", periods=80).strftime("%Y-%m-%d").tolist()
+    calm = pd.Series([100.0 + i * 0.1 for i in range(80)], index=dates)
+    volatile = pd.Series([100.0 + (i % 2) * 10.0 for i in range(80)], index=dates)
+    events = [("CALM", "2024-03-01"), ("VOL", "2024-03-01"),
+              ("MISSING", "2024-03-01")]
+    selected = filter_events_by_pre_event_vol(
+        {"CALM": calm, "VOL": volatile}, events, max_volatility=0.5
+    )
+    assert selected == [("CALM", "2024-03-01")]
+
+
+def test_market_filter_uses_only_bars_before_filing():
+    dates = pd.date_range("2024-01-01", periods=80).strftime("%Y-%m-%d").tolist()
+    market = pd.Series([100.0 + i for i in range(80)], index=dates)
+    events = [("A", "2024-03-01"), ("B", "2024-03-02")]
+    selected = filter_events_by_market_return(market, events, lookback=20, min_return=0.1)
+    assert selected == events
