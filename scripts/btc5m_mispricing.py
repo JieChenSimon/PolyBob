@@ -40,7 +40,7 @@ UA = {"User-Agent": "Mozilla/5.0 (PolyBob research)"}
 CACHE_DIR = Path("data/market_cache/btc5m")
 CHECKPOINT = CACHE_DIR / "collection_checkpoint.json"
 COLLECTOR_SPEC = "btc5m-v3-completed-bar-open-strike-cache-checkpoint"
-N_WINDOWS = 220           # settled 5-minute windows to reconstruct
+N_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_N_WINDOWS", "220"))
 MAX_NEW_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_MAX_NEW_WINDOWS", "60"))
 EDGE_THRESHOLD = 0.10     # model must disagree with the market by >= 10 points
 FEE = 0.02                # round-trip spread/fee assumption, in probability terms

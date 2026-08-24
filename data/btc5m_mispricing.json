@@ -1,36 +1,36 @@
 {
-  "generated_at": "2026-08-24T16:14:16.888064+00:00",
+  "generated_at": "2026-08-24T16:15:55.533248+00:00",
   "real_data_only": true,
-  "n_windows": 358,
+  "n_windows": 416,
   "edge_threshold": 0.1,
   "fee": 0.02,
   "collection_status": "partial",
-  "new_attempts": 1,
+  "new_attempts": 60,
   "budget_exhausted": true,
   "provider_failures": 0,
   "hold_days": 1,
   "inference": "cluster_robust",
   "result": {
     "strategy": "btc5m_mispricing",
-    "n": 358,
+    "n": 416,
     "n_clusters": 2,
-    "mean_excess_pct": -0.758,
-    "median_excess_pct": 24.5,
-    "win_rate": 0.514,
-    "t_stat": -0.12,
-    "t_stat_iid": -0.29,
+    "mean_excess_pct": -2.861,
+    "median_excess_pct": -31.5,
+    "win_rate": 0.4952,
+    "t_stat": -0.99,
+    "t_stat_iid": -1.18,
     "t_hurdle": 4.2,
     "significant": false,
     "bootstrap_ci_pct": [
-      -5.936,
-      7.399
+      -5.52,
+      0.272
     ],
-    "sign_test_p": 0.6344,
+    "sign_test_p": 0.8831,
     "wild_p": 1.0,
     "p_floor": 0.5,
     "resolvable": false,
     "status": "unknown",
-    "skew_ratio": -0.03,
+    "skew_ratio": 0.09,
     "cluster_by": "day",
     "inference": "cluster_robust",
     "warnings": [
@@ -38,9 +38,9 @@
       "the 95% bootstrap interval on the mean contains zero",
       "2 个独立单元最细只能表达 p=5.0e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
     ],
-    "mean_pnl_per_contract": -0.0076,
-    "brier_model": 0.486,
-    "brier_market": 0.2446,
+    "mean_pnl_per_contract": -0.0286,
+    "brier_model": 0.5048,
+    "brier_market": 0.2449,
     "events": [
       {
         "date": "2026-08-23",
@@ -919,6 +919,30 @@
         "excess": -0.355
       },
       {
+        "date": "2026-08-23",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-23",
+        "excess": 0.485
+      },
+      {
+        "date": "2026-08-23",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-23",
+        "excess": -0.545
+      },
+      {
+        "date": "2026-08-23",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-23",
+        "excess": 0.215
+      },
+      {
         "date": "2026-08-24",
         "excess": 0.475
       },
@@ -1473,6 +1497,214 @@
       {
         "date": "2026-08-24",
         "excess": 0.315
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.535
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.585
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.505
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.405
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.415
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.625
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.595
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.215
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.555
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.365
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.625
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.495
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.555
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.635
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.595
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.415
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.455
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.3
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.405
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.495
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.345
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.405
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.665
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.555
       }
     ]
   }
