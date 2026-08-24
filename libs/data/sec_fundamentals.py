@@ -84,6 +84,11 @@ def _dynamic_cik_by_symbol() -> dict[str, str]:
         raise SecFundamentalsUnavailable("invalid SEC ticker mapping payload") from exc
 
 
+def ticker_directory() -> dict[str, str]:
+    """Return the official SEC ticker -> CIK directory for universe discovery."""
+    return _dynamic_cik_by_symbol()
+
+
 def cik_for_symbol(symbol: str) -> str:
     clean = symbol.upper().strip()
     if clean in CIK_BY_SYMBOL:

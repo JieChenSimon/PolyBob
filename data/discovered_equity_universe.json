@@ -1,0 +1,5823 @@
+{
+  "generated_at": "2026-08-24T22:51:29.820382+00:00",
+  "real_data_only": true,
+  "selection_is_not_promotion": true,
+  "min_bars": 200,
+  "limit_per_domain": 200,
+  "provider_errors": {},
+  "counts": {
+    "total": 400,
+    "ready_for_research": 62,
+    "unknown": 338
+  },
+  "candidates": [
+    {
+      "symbol": "ABT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1270,
+      "start": "2021-08-02",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AAPL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1265,
+      "start": "2021-08-09",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-13",
+      "latest": "2026-08-12",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "000001",
+      "domain": "a_share",
+      "name": "平安银行",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 657,
+      "start": "2023-12-07",
+      "latest": "2026-08-24",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000651",
+      "domain": "a_share",
+      "name": "格力电器",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 657,
+      "start": "2023-12-07",
+      "latest": "2026-08-24",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000002",
+      "domain": "a_share",
+      "name": "万  科Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000063",
+      "domain": "a_share",
+      "name": "中兴通讯",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000100",
+      "domain": "a_share",
+      "name": "TCL科技",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000157",
+      "domain": "a_share",
+      "name": "中联重科",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000333",
+      "domain": "a_share",
+      "name": "美的集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000338",
+      "domain": "a_share",
+      "name": "潍柴动力",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "000568",
+      "domain": "a_share",
+      "name": "泸州老窖",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 641,
+      "start": "2023-12-07",
+      "latest": "2026-07-31",
+      "price_basis": "forward_adjusted",
+      "reasons": []
+    },
+    {
+      "symbol": "AAOI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 513,
+      "start": "2024-08-06",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AAT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 513,
+      "start": "2024-08-06",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACDC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 513,
+      "start": "2024-08-06",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABSI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 512,
+      "start": "2024-08-07",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABTC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 512,
+      "start": "2024-08-07",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACVA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 512,
+      "start": "2024-08-07",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 512,
+      "start": "2024-08-07",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AAON",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABCL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABX",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACEL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACET",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACIW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACNT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACRV",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADGM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADMA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADMQ",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADTN",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADV",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 511,
+      "start": "2024-08-08",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AAP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AASP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABCB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABCP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABEO",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACCS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACGL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACHR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACIC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACLS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACRE",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACRS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACTG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACTU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACXP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADCT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADSK",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ADTX",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AEHR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 501,
+      "start": "2024-08-22",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ACOG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 444,
+      "start": "2024-11-12",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AARD",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 382,
+      "start": "2025-02-13",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "AEBI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 287,
+      "start": "2025-07-02",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": []
+    },
+    {
+      "symbol": "ABBV",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 1254,
+      "start": "2021-08-02",
+      "latest": "2026-07-30",
+      "price_basis": "unknown",
+      "reasons": [
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABNB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 1254,
+      "start": "2021-08-06",
+      "latest": "2026-08-05",
+      "price_basis": "unknown",
+      "reasons": [
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACN",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 1254,
+      "start": "2021-08-02",
+      "latest": "2026-07-30",
+      "price_basis": "unknown",
+      "reasons": [
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADBE",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 1254,
+      "start": "2021-08-02",
+      "latest": "2026-07-30",
+      "price_basis": "unknown",
+      "reasons": [
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACAAU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 128,
+      "start": "2026-02-19",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": [
+        "bars<200"
+      ]
+    },
+    {
+      "symbol": "AADX",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 56,
+      "start": "2026-06-03",
+      "latest": "2026-08-21",
+      "price_basis": "provider_quote_adjustment_unknown",
+      "reasons": [
+        "bars<200"
+      ]
+    },
+    {
+      "symbol": "000006",
+      "domain": "a_share",
+      "name": "深振业Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000007",
+      "domain": "a_share",
+      "name": "全新好",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000008",
+      "domain": "a_share",
+      "name": "神州高铁",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000009",
+      "domain": "a_share",
+      "name": "中国宝安",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000010",
+      "domain": "a_share",
+      "name": "*ST美丽",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000011",
+      "domain": "a_share",
+      "name": "深物业A",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000012",
+      "domain": "a_share",
+      "name": "南  玻Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000014",
+      "domain": "a_share",
+      "name": "沙河股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000016",
+      "domain": "a_share",
+      "name": "*ST康佳A",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000017",
+      "domain": "a_share",
+      "name": "深中华A",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000019",
+      "domain": "a_share",
+      "name": "深粮控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000020",
+      "domain": "a_share",
+      "name": "深华发Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000021",
+      "domain": "a_share",
+      "name": "深科技",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000025",
+      "domain": "a_share",
+      "name": "特  力Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000026",
+      "domain": "a_share",
+      "name": "飞亚达",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000027",
+      "domain": "a_share",
+      "name": "深圳能源",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000028",
+      "domain": "a_share",
+      "name": "国药一致",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000029",
+      "domain": "a_share",
+      "name": "深深房Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000030",
+      "domain": "a_share",
+      "name": "富奥股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000031",
+      "domain": "a_share",
+      "name": "大悦城",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000032",
+      "domain": "a_share",
+      "name": "深桑达Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000034",
+      "domain": "a_share",
+      "name": "神州数码",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000035",
+      "domain": "a_share",
+      "name": "中国天楹",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000036",
+      "domain": "a_share",
+      "name": "华联控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000037",
+      "domain": "a_share",
+      "name": "深南电A",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000039",
+      "domain": "a_share",
+      "name": "中集集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000042",
+      "domain": "a_share",
+      "name": "中洲控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000045",
+      "domain": "a_share",
+      "name": "深纺织Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000048",
+      "domain": "a_share",
+      "name": "京基智农",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000049",
+      "domain": "a_share",
+      "name": "德赛电池",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000050",
+      "domain": "a_share",
+      "name": "深天马Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000055",
+      "domain": "a_share",
+      "name": "方大集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000056",
+      "domain": "a_share",
+      "name": "*ST皇庭",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000058",
+      "domain": "a_share",
+      "name": "深 赛 格",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000059",
+      "domain": "a_share",
+      "name": "华锦股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000060",
+      "domain": "a_share",
+      "name": "中金岭南",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000061",
+      "domain": "a_share",
+      "name": "农 产 品",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000062",
+      "domain": "a_share",
+      "name": "深圳华强",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000065",
+      "domain": "a_share",
+      "name": "北方国际",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000066",
+      "domain": "a_share",
+      "name": "中国长城",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000068",
+      "domain": "a_share",
+      "name": "华控赛格",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000069",
+      "domain": "a_share",
+      "name": "华侨城Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000070",
+      "domain": "a_share",
+      "name": "特发信息",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000078",
+      "domain": "a_share",
+      "name": "ST海王",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000088",
+      "domain": "a_share",
+      "name": "盐 田 港",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000089",
+      "domain": "a_share",
+      "name": "深圳机场",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000090",
+      "domain": "a_share",
+      "name": "天健集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000096",
+      "domain": "a_share",
+      "name": "广聚能源",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000099",
+      "domain": "a_share",
+      "name": "中信海直",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000151",
+      "domain": "a_share",
+      "name": "中成股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000153",
+      "domain": "a_share",
+      "name": "丰原药业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000155",
+      "domain": "a_share",
+      "name": "川能动力",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000156",
+      "domain": "a_share",
+      "name": "华数传媒",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000158",
+      "domain": "a_share",
+      "name": "常山北明",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000159",
+      "domain": "a_share",
+      "name": "国际实业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000166",
+      "domain": "a_share",
+      "name": "申万宏源",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000301",
+      "domain": "a_share",
+      "name": "东方盛虹",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000400",
+      "domain": "a_share",
+      "name": "许继电气",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000401",
+      "domain": "a_share",
+      "name": "金隅冀东",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000402",
+      "domain": "a_share",
+      "name": "金 融 街",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000403",
+      "domain": "a_share",
+      "name": "派林生物",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000404",
+      "domain": "a_share",
+      "name": "长虹华意",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000407",
+      "domain": "a_share",
+      "name": "胜利股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000408",
+      "domain": "a_share",
+      "name": "藏格矿业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000409",
+      "domain": "a_share",
+      "name": "云鼎科技",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000410",
+      "domain": "a_share",
+      "name": "沈阳机床",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000411",
+      "domain": "a_share",
+      "name": "英特集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000415",
+      "domain": "a_share",
+      "name": "渤海租赁",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000417",
+      "domain": "a_share",
+      "name": "合百集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000419",
+      "domain": "a_share",
+      "name": "通程控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000420",
+      "domain": "a_share",
+      "name": "吉林化纤",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000421",
+      "domain": "a_share",
+      "name": "南京公用",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000422",
+      "domain": "a_share",
+      "name": "湖北宜化",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000423",
+      "domain": "a_share",
+      "name": "东阿阿胶",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000425",
+      "domain": "a_share",
+      "name": "徐工机械",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000426",
+      "domain": "a_share",
+      "name": "兴业银锡",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000428",
+      "domain": "a_share",
+      "name": "华天酒店",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000429",
+      "domain": "a_share",
+      "name": "粤高速Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000430",
+      "domain": "a_share",
+      "name": "张家界",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000488",
+      "domain": "a_share",
+      "name": "ST晨鸣",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000498",
+      "domain": "a_share",
+      "name": "山东路桥",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000501",
+      "domain": "a_share",
+      "name": "武商集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000503",
+      "domain": "a_share",
+      "name": "国新健康",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000504",
+      "domain": "a_share",
+      "name": "南华生物",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000505",
+      "domain": "a_share",
+      "name": "京粮控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000506",
+      "domain": "a_share",
+      "name": "招金黄金",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000507",
+      "domain": "a_share",
+      "name": "珠海港",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000509",
+      "domain": "a_share",
+      "name": "华塑控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000510",
+      "domain": "a_share",
+      "name": "新金路",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000513",
+      "domain": "a_share",
+      "name": "丽珠集团",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000514",
+      "domain": "a_share",
+      "name": "渝 开 发",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000516",
+      "domain": "a_share",
+      "name": "国际医学",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000517",
+      "domain": "a_share",
+      "name": "荣安地产",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000518",
+      "domain": "a_share",
+      "name": "四环生物",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000519",
+      "domain": "a_share",
+      "name": "中兵红箭",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000520",
+      "domain": "a_share",
+      "name": "凤凰航运",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000521",
+      "domain": "a_share",
+      "name": "长虹美菱",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000523",
+      "domain": "a_share",
+      "name": "红棉股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000524",
+      "domain": "a_share",
+      "name": "岭南控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000525",
+      "domain": "a_share",
+      "name": "红太阳",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000526",
+      "domain": "a_share",
+      "name": "学大教育",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000528",
+      "domain": "a_share",
+      "name": "柳    工",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000529",
+      "domain": "a_share",
+      "name": "广弘控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000530",
+      "domain": "a_share",
+      "name": "冰山冷热",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000531",
+      "domain": "a_share",
+      "name": "穗恒运Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000532",
+      "domain": "a_share",
+      "name": "华金资本",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000533",
+      "domain": "a_share",
+      "name": "顺钠股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000534",
+      "domain": "a_share",
+      "name": "万泽股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000536",
+      "domain": "a_share",
+      "name": "华映科技",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000537",
+      "domain": "a_share",
+      "name": "绿发电力",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000538",
+      "domain": "a_share",
+      "name": "云南白药",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000539",
+      "domain": "a_share",
+      "name": "粤电力Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000541",
+      "domain": "a_share",
+      "name": "佛山照明",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000543",
+      "domain": "a_share",
+      "name": "皖能电力",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000544",
+      "domain": "a_share",
+      "name": "中原环保",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000545",
+      "domain": "a_share",
+      "name": "金浦钛业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000546",
+      "domain": "a_share",
+      "name": "金圆股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000547",
+      "domain": "a_share",
+      "name": "航天发展",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000548",
+      "domain": "a_share",
+      "name": "湖南投资",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000550",
+      "domain": "a_share",
+      "name": "江铃汽车",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000551",
+      "domain": "a_share",
+      "name": "创元科技",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000552",
+      "domain": "a_share",
+      "name": "甘肃能化",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000553",
+      "domain": "a_share",
+      "name": "安道麦A",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000554",
+      "domain": "a_share",
+      "name": "泰山石油",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000555",
+      "domain": "a_share",
+      "name": "神州信息",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000557",
+      "domain": "a_share",
+      "name": "西部创业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000558",
+      "domain": "a_share",
+      "name": "天府文旅",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000559",
+      "domain": "a_share",
+      "name": "万向钱潮",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000560",
+      "domain": "a_share",
+      "name": "我爱我家",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000561",
+      "domain": "a_share",
+      "name": "烽火电子",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000563",
+      "domain": "a_share",
+      "name": "陕国投Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000564",
+      "domain": "a_share",
+      "name": "供销大集",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000565",
+      "domain": "a_share",
+      "name": "渝三峡Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000566",
+      "domain": "a_share",
+      "name": "海南海药",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000567",
+      "domain": "a_share",
+      "name": "海德股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000570",
+      "domain": "a_share",
+      "name": "苏常柴Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000571",
+      "domain": "a_share",
+      "name": "新大洲A",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000572",
+      "domain": "a_share",
+      "name": "海马汽车",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000573",
+      "domain": "a_share",
+      "name": "粤宏远Ａ",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000576",
+      "domain": "a_share",
+      "name": "甘化科工",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000581",
+      "domain": "a_share",
+      "name": "威孚高科",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000582",
+      "domain": "a_share",
+      "name": "北部湾港",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000586",
+      "domain": "a_share",
+      "name": "汇源通信",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000589",
+      "domain": "a_share",
+      "name": "贵州轮胎",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000590",
+      "domain": "a_share",
+      "name": "古汉医药",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000591",
+      "domain": "a_share",
+      "name": "太阳能",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000592",
+      "domain": "a_share",
+      "name": "平潭发展",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000593",
+      "domain": "a_share",
+      "name": "德龙汇能",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000595",
+      "domain": "a_share",
+      "name": "新能股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000596",
+      "domain": "a_share",
+      "name": "古井贡酒",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000597",
+      "domain": "a_share",
+      "name": "东北制药",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000598",
+      "domain": "a_share",
+      "name": "兴蓉环境",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000599",
+      "domain": "a_share",
+      "name": "青岛双星",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000600",
+      "domain": "a_share",
+      "name": "建投能源",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000601",
+      "domain": "a_share",
+      "name": "韶能股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000603",
+      "domain": "a_share",
+      "name": "盛达资源",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000605",
+      "domain": "a_share",
+      "name": "渤海股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000607",
+      "domain": "a_share",
+      "name": "华媒控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000608",
+      "domain": "a_share",
+      "name": "阳光股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000609",
+      "domain": "a_share",
+      "name": "*ST中迪",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000610",
+      "domain": "a_share",
+      "name": "*ST西旅",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000612",
+      "domain": "a_share",
+      "name": "焦作万方",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000615",
+      "domain": "a_share",
+      "name": "*ST美谷",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000617",
+      "domain": "a_share",
+      "name": "中油资本",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000619",
+      "domain": "a_share",
+      "name": "海螺新材",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000620",
+      "domain": "a_share",
+      "name": "盈新发展",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000623",
+      "domain": "a_share",
+      "name": "吉林敖东",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000625",
+      "domain": "a_share",
+      "name": "长安汽车",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000626",
+      "domain": "a_share",
+      "name": "远大控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000628",
+      "domain": "a_share",
+      "name": "高新发展",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000629",
+      "domain": "a_share",
+      "name": "钒钛股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000630",
+      "domain": "a_share",
+      "name": "铜陵有色",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000631",
+      "domain": "a_share",
+      "name": "顺发恒能",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000632",
+      "domain": "a_share",
+      "name": "ST三木",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000633",
+      "domain": "a_share",
+      "name": "合金投资",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000635",
+      "domain": "a_share",
+      "name": "英 力 特",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000636",
+      "domain": "a_share",
+      "name": "风华高科",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000637",
+      "domain": "a_share",
+      "name": "茂化实华",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000639",
+      "domain": "a_share",
+      "name": "ST西王",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000650",
+      "domain": "a_share",
+      "name": "仁和药业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000652",
+      "domain": "a_share",
+      "name": "泰达股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000655",
+      "domain": "a_share",
+      "name": "金岭矿业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000656",
+      "domain": "a_share",
+      "name": "金科股份",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000657",
+      "domain": "a_share",
+      "name": "中钨高新",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000659",
+      "domain": "a_share",
+      "name": "珠海中富",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000661",
+      "domain": "a_share",
+      "name": "长春高新",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000663",
+      "domain": "a_share",
+      "name": "永安林业",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000665",
+      "domain": "a_share",
+      "name": "湖北广电",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000668",
+      "domain": "a_share",
+      "name": "荣丰控股",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000669",
+      "domain": "a_share",
+      "name": "ST金鸿",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "000670",
+      "domain": "a_share",
+      "name": "盈方微",
+      "roster_source": "akshare_stock_info_a_code_name",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "A",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAAU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACBR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACBU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACIU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACIW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACO",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACOU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACOW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACPR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACPU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AACPW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAGH",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAME",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAMI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAPG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAPI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAQL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AATC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAUAF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAUC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAVXF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AAWH",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABAKF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABAT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABBNY",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABCFF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABEV",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABIT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABLV",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABLVW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABLZF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABOS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABPO",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABPWW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABTS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABUS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABVC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABVEF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABVX",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABXL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ABXXF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACAA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACAAW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACAD",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACAT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACBM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACCL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACCO",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACFN",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACGC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACGCU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACGCW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACGLN",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACGLO",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACGP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACH",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACHC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACHV",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACIU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACLEW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACMIF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACMR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACNB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACON",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACONW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACRG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACRL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACUT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ACV",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AD",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADACU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADACW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMH",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMK",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAML",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMN",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMO",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAMZ",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADAPY",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADBT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADDTF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADEA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADIA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADIG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADIL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADMG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADMT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADNH",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADNT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADOOY",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADPT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADSE",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADSEW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADTI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADTTF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADUR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADUS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADVB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADX",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADXN",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADYYF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "ADZCF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEAE",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEAEU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEAEW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEAQ",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEAQU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEAQW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEBMF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEBMY",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEBZY",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEE",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEFC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEGOF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEGXF",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEHGS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    },
+    {
+      "symbol": "AEHL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 0,
+      "start": null,
+      "latest": null,
+      "price_basis": "unknown",
+      "reasons": [
+        "bars<200",
+        "price_basis_unknown_or_mixed"
+      ]
+    }
+  ]
+}

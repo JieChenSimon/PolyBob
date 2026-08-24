@@ -156,6 +156,16 @@ def _domain(symbol: str) -> str:
     return "us_equity"
 
 
+def _manifest_symbols(path: str) -> list[str]:
+    """Read only READY_FOR_RESEARCH symbols from a discovery manifest."""
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    return [
+        str(row["symbol"])
+        for row in payload.get("candidates", [])
+        if row.get("status") == "READY_FOR_RESEARCH" and row.get("symbol")
+    ]
+
+
 def _date(value: Any) -> datetime:
     parsed = value if isinstance(value, datetime) else datetime.fromisoformat(str(value))
     return (parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)).astimezone(UTC)
@@ -445,7 +455,15 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
 async def run(args: argparse.Namespace) -> dict[str, Any]:
     as_of = _parse_date(args.as_of) or datetime.now(UTC)
     available_symbols = set(store.symbols(store.DAILY_BARS))
-    if args.symbols:
+    discovery_manifest = None
+    if args.discovered_manifest:
+        discovery_manifest = args.discovered_manifest
+        requested = _manifest_symbols(args.discovered_manifest)
+        all_symbols = [symbol for symbol in requested if symbol in available_symbols]
+        missing = [symbol for symbol in requested if symbol not in available_symbols]
+        if missing:
+            print(f"  ! discovered symbols missing from local daily_bars: {','.join(missing)}")
+    elif args.symbols:
         requested = [item.strip() for item in args.symbols.split(",") if item.strip()]
         all_symbols = [symbol for symbol in requested if symbol in available_symbols]
         missing = [symbol for symbol in requested if symbol not in available_symbols]
@@ -453,8 +471,8 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             print(f"  ! requested symbols missing from local daily_bars: {','.join(missing)}")
     else:
         all_symbols = sorted(available_symbols)
-        if args.max_symbols:
-            all_symbols = all_symbols[:args.max_symbols]
+    if args.max_symbols:
+        all_symbols = all_symbols[:args.max_symbols]
     if not all_symbols:
         raise RuntimeError("daily_bars has no locally persisted real symbols")
     first_frame = store.read(store.DAILY_BARS, all_symbols[0], as_of=as_of)
@@ -611,6 +629,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         },
         "promotion": {"status": "BLOCKED", "reason": "This pipeline has no promotion authority; independent statistical gate required"},
         "manifest": manifest.to_dict(),
+        "discovery_manifest": discovery_manifest,
         "pipeline_run": {
             "command": "uv run --locked python scripts/simulation_research_pipeline.py",
             "git_commit": manifest.code.get("commit"),
@@ -641,6 +660,8 @@ def main() -> int:
     parser.add_argument("--max-symbols", type=int, default=0, help="0 = every locally covered daily-bar symbol")
     parser.add_argument("--symbols", default=None,
                         help="comma-separated exact symbols; missing symbols remain explicitly reported")
+    parser.add_argument("--discovered-manifest", default=None,
+                        help="use READY_FOR_RESEARCH symbols from discover_equity_universe.py output")
     parser.add_argument("--optimization-symbols", type=int, default=8)
     parser.add_argument("--as-of", default=None)
     parser.add_argument("--split", default=None, help="UTC ISO split; default 70%% of first symbol history")

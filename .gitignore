@@ -108,6 +108,8 @@ data/deep_drawdown_kernel_progress.json
 data/deep_drawdown_kernel_*progress.json
 data/simulation_research_matrix_report.json
 data/simulation_research_progress.json
+data/simulation_research_a_crypto_report.json
+data/simulation_research_a_crypto_progress.json
 data/drawdown_universe_*replay.json
 data/drawdown_universe_*progress.json
 output/

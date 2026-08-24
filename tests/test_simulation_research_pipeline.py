@@ -1,5 +1,6 @@
 from scripts.simulation_research_pipeline import (
     _diagnostic_candidate,
+    _manifest_symbols,
     _oos_evidence,
     _select_candidate,
     _verdict,
@@ -103,3 +104,10 @@ def test_progress_reporter_persists_fraction_and_eta(tmp_path):
     assert payload["total_runs"] == 2
     assert payload["fraction"] == approx(0.5)
     assert payload["current"] == "AAPL"
+
+
+def test_discovery_manifest_only_feeds_ready_symbols(tmp_path):
+    path = tmp_path / "manifest.json"
+    path.write_text('{"candidates": [{"symbol": "AAPL", "status": "READY_FOR_RESEARCH"}, '
+                    '{"symbol": "BAD", "status": "UNKNOWN"}]}')
+    assert _manifest_symbols(str(path)) == ["AAPL"]
