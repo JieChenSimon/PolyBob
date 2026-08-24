@@ -32,6 +32,8 @@ def test_calibration_missing_oos_and_multiple_testing_is_unknown():
     )
     calibration = manifest["studies"]["calibration"]
     assert calibration["status"] == "UNKNOWN"
+    assert calibration["temporal_split"]["available"] is False
+    assert calibration["oos"]["available"] is False
     assert calibration["multiple_testing"]["status"] == "UNKNOWN"
     assert calibration["cluster_floor"]["status"] == "UNKNOWN"
 
@@ -45,7 +47,8 @@ def test_direction_is_not_polymarket_evidence_and_does_not_pass_cluster_gate():
     )
     direction = manifest["studies"]["direction"]
     assert "spot proxy" in manifest["scope"]
-    assert direction["available"] is True
+    assert direction["temporal_split"]["available"] is True
+    assert direction["oos"]["available"] is True
     assert direction["cluster_floor"]["status"] == "UNKNOWN"
     assert direction["multiple_testing"]["status"] == "FAIL"
 
@@ -60,9 +63,16 @@ def test_event_positive_oos_and_wild_p_do_not_override_cluster_floor_or_target()
     event = manifest["studies"]["event"]
     assert event["oos"]["mean_pnl_per_contract"] > 0
     assert event["status"] == "UNKNOWN"
+    assert event["temporal_split"]["available"] is True
+    assert event["oos"]["status"] == "UNKNOWN"
     assert event["cluster_floor"]["status"] == "UNKNOWN"
     assert event["return_target"]["status"] == "UNKNOWN"
     assert event["drawdown"]["threshold_status"] == "NOT_SPECIFIED"
+    assert event["drawdown"]["negative_events"] > 0
+    assert event["drawdown"]["max_observed"] > event["drawdown"]["source_period_max"]
+    assert event["multiple_testing"]["analysis_status"] == "APPLIED"
+    assert event["multiple_testing"]["status"] == "UNKNOWN"
+    assert manifest["unified_gates"]["multiple_testing"] == "FAIL"
 
 
 def test_validator_rejects_false_pass_for_insufficient_clusters_and_months():

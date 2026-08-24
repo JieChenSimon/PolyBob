@@ -30,28 +30,28 @@
       },
       "train": {
         "bootstrap_ci_pct": [
-          24.621,
-          28.148
+          23.788,
+          27.992
         ],
         "labels": [
+          "2026-08-12",
           "2026-08-13",
           "2026-08-14",
           "2026-08-15",
           "2026-08-16",
           "2026-08-17",
-          "2026-08-18",
-          "2026-08-19"
+          "2026-08-18"
         ],
-        "mean_pct": 26.534,
+        "mean_pct": 25.866,
         "median_pct": 47.5,
-        "n": 1331,
+        "n": 1265,
         "n_clusters": 7,
         "p_floor": 0.015625,
         "resolvable": false,
-        "sign_test_p": 8.005968512333982e-90,
+        "sign_test_p": 1.0004221491216923e-82,
         "status": "UNKNOWN",
-        "t_clustered": 26.638,
-        "t_iid": 23.666,
+        "t_clustered": 21.763,
+        "t_iid": 22.225,
         "warnings": [
           "only 7 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
           "7 个独立单元最细只能表达 p=1.6e-02,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
@@ -61,27 +61,28 @@
       "validation": {
         "bootstrap_ci_pct": [
           22.539,
-          24.428
+          27.267
         ],
         "labels": [
+          "2026-08-19",
           "2026-08-20",
           "2026-08-21"
         ],
-        "mean_pct": 23.451,
+        "mean_pct": 24.686,
         "median_pct": 47.5,
-        "n": 443,
-        "n_clusters": 2,
-        "p_floor": 0.5,
+        "n": 655,
+        "n_clusters": 3,
+        "p_floor": 0.25,
         "resolvable": false,
-        "sign_test_p": 5.272927807637391e-23,
+        "sign_test_p": 6.615716371864609e-37,
         "status": "UNKNOWN",
-        "t_clustered": 24.868,
-        "t_iid": 11.457,
+        "t_clustered": 17.9,
+        "t_iid": 14.871,
         "warnings": [
-          "only 2 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "2 个独立单元最细只能表达 p=5.0e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+          "only 3 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+          "3 个独立单元最细只能表达 p=2.5e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
-        "wild_p": 0.4985
+        "wild_p": 0.249
       }
     },
     "reason": "each partition needs >= 20 independent clusters; positive sign alone is insufficient",
@@ -90,12 +91,12 @@
   },
   "drawdown": {
     "basis": "one additive unit stake per event; no overlap, capital, sizing, or fill model",
-    "max_drawdown": 0.492497,
+    "max_drawdown": 0.156425,
     "reason": "drawdown is reported diagnostically; no pre-registered BTC drawdown limit is wired into PromotionGate",
     "status": "UNKNOWN",
     "threshold": null,
     "threshold_status": "NOT_SPECIFIED",
-    "trough_date": "2026-08-13"
+    "trough_date": "2026-08-12"
   },
   "gates": {
     "cluster_inference": "UNKNOWN",
@@ -107,6 +108,7 @@
     "wild_bootstrap": "UNKNOWN"
   },
   "independent_dates": [
+    "2026-08-12",
     "2026-08-13",
     "2026-08-14",
     "2026-08-15",
@@ -164,7 +166,7 @@
     "status": "APPLIED",
     "t_hurdle": 4.2033
   },
-  "n_events": 2360,
+  "n_events": 2506,
   "oos": {
     "bootstrap_ci_pct": [
       22.784,
@@ -193,22 +195,22 @@
   },
   "overall": {
     "bootstrap_ci_pct": [
-      23.905,
-      26.591
+      23.704,
+      26.598
     ],
-    "mean_pct": 25.277,
+    "mean_pct": 25.075,
     "median_pct": 47.5,
-    "n": 2360,
-    "n_clusters": 12,
-    "p_floor": 0.00048828125,
+    "n": 2506,
+    "n_clusters": 13,
+    "p_floor": 0.000244140625,
     "resolvable": false,
-    "sign_test_p": 7.964903443766303e-143,
+    "sign_test_p": 6.646676484709297e-150,
     "status": "UNKNOWN",
-    "t_clustered": 34.247,
-    "t_iid": 29.508,
+    "t_clustered": 34.655,
+    "t_iid": 30.009,
     "warnings": [
-      "only 12 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-      "12 个独立单元最细只能表达 p=4.9e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+      "only 13 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+      "13 个独立单元最细只能表达 p=2.4e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
     ],
     "wild_p": 0.0005
   },

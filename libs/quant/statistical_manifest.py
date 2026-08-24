@@ -39,8 +39,11 @@ def _direction_summary(payload: dict[str, Any]) -> dict[str, Any]:
                 if metrics.get("max_drawdown") is not None:
                     max_dd.append(float(metrics["max_drawdown"]))
     return {
-        "available": bool(splits), "method": "walk_forward_folds",
-        "split_dates": splits, "fold_count": len(splits),
+        "temporal_split": {"available": bool(splits), "method": "walk_forward_folds",
+                            "split_dates": splits, "fold_count": len(splits),
+                            "status": UNKNOWN if not splits else UNKNOWN},
+        "oos": {"available": bool(splits), "status": UNKNOWN,
+                "reason": "OOS exists, but no independent-calendar cluster inference is recorded for each fold"},
         "status": UNKNOWN if not splits else UNKNOWN,
         "reason": "OOS exists, but no independent-calendar cluster inference is recorded for each fold",
         "cluster_floor": {"status": UNKNOWN, "min_clusters": 20, "observed": None,
@@ -63,7 +66,10 @@ def _direction_summary(payload: dict[str, Any]) -> dict[str, Any]:
 def _calibration_summary(payload: dict[str, Any]) -> dict[str, Any]:
     rows = payload.get("rows") or []
     return {
-        "available": False, "method": None, "split_dates": [], "fold_count": 0,
+        "temporal_split": {"available": False, "method": None, "split_dates": [], "fold_count": 0,
+                            "status": UNKNOWN},
+        "oos": {"available": False, "status": UNKNOWN,
+                "reason": "calibration report is pooled and contains no OOS partition"},
         "status": UNKNOWN,
         "reason": "calibration report is a single pooled comparison; it has no train-validation-test or OOS split",
         "cluster_floor": {"status": UNKNOWN, "min_clusters": 20, "observed": payload.get("independent_days"),
@@ -82,22 +88,40 @@ def _event_summary(payload: dict[str, Any], n_trials: int | None = None) -> dict
     period = result.get("period_audit") or {}
     target = period.get("return_target") or {}
     oos = split.get("oos") or {}
+    event_rows = [r for r in result.get("events", [])
+                  if isinstance(r, dict) and r.get("date") and r.get("excess") is not None]
+    equity, peak, event_dd = 1.0, 1.0, 0.0
+    negative_events = 0
+    for row in sorted(event_rows, key=lambda r: (str(r["date"]), str(r.get("entry_price", "")))):
+        value = float(row["excess"])
+        negative_events += int(value < 0)
+        equity += value
+        peak = max(peak, equity)
+        if peak > 0:
+            event_dd = max(event_dd, (peak - equity) / peak)
     return {
-        "available": bool(split), "method": "fixed_chronological",
-        "split_dates": [split.get("oos_start")] if split.get("oos_start") else [],
-        "fold_count": 1 if split else 0, "status": _status(split.get("status")),
+        "temporal_split": {"available": bool(split), "method": "fixed_chronological",
+                            "split_dates": [split.get("oos_start")] if split.get("oos_start") else [],
+                            "fold_count": 1 if split else 0, "status": _status(split.get("status"))},
+        "oos": {"available": bool(split), "status": _status(split.get("status")),
+                "reason": "OOS remains UNKNOWN when train/OOS independent days are below the floor or collection is partial"},
+        "status": _status(split.get("status")),
         "reason": "OOS is present but remains UNKNOWN when train/OOS independent days are below the floor or collection is partial",
         "train": split.get("train"), "oos": oos,
         "cluster_floor": {"status": PASS if int(result.get("n_clusters") or 0) >= 20 else UNKNOWN,
                           "min_clusters": 20, "observed": result.get("n_clusters"),
                           "resolvable": result.get("resolvable"),
                           "reason": "cluster floor and p resolution are required independently"},
-        "drawdown": {"status": UNKNOWN, "max_observed": period.get("max_drawdown"),
-                      "threshold": None, "threshold_status": "NOT_SPECIFIED"},
+        "drawdown": {"status": UNKNOWN, "max_observed": round(event_dd, 6),
+                      "source_period_max": period.get("max_drawdown"),
+                      "negative_events": negative_events,
+                      "threshold": None, "threshold_status": "NOT_SPECIFIED",
+                      "basis": "event-level additive diagnostic ordered by date then entry_price; exact decision timestamps, sizing and fills absent"},
         "return_target": {"status": _status(target.get("status")),
                            "complete_months": target.get("complete_months"),
                            "required_months": target.get("required_months", 12)},
-        "multiple_testing": {"status": "APPLIED" if result.get("t_hurdle") else UNKNOWN,
+        "multiple_testing": {"status": UNKNOWN if not result.get("resolvable") else ("APPLIED" if result.get("t_hurdle") else UNKNOWN),
+                              "analysis_status": "APPLIED" if result.get("t_hurdle") else UNKNOWN,
                               "n_trials": n_trials, "t_hurdle": result.get("t_hurdle"),
                               "wild_p": result.get("wild_p"), "p_floor": result.get("p_floor"),
                               "resolvable": result.get("resolvable")},
@@ -114,6 +138,13 @@ def build_statistical_manifest(
         "direction": _direction_summary(direction),
         "event": _event_summary(event, event_n_trials),
     }
+    temporal_statuses = [s["temporal_split"]["status"] for s in studies.values()]
+    oos_statuses = [s["oos"]["status"] for s in studies.values()]
+    cluster_statuses = [s["cluster_floor"]["status"] for s in studies.values()]
+    drawdown_statuses = [s["drawdown"]["status"] for s in studies.values()]
+    target_statuses = [s["return_target"]["status"] for s in studies.values()]
+    multiple_statuses = [s["multiple_testing"]["status"] for s in studies.values()]
+    gate = lambda statuses: PASS if statuses and all(v == PASS for v in statuses) else (FAIL if FAIL in statuses else UNKNOWN)
     return {
         "schema_version": "btc5m-statistical-manifest-v1",
         "scope": "BTC 5m research evidence; direction is spot proxy, not Polymarket contract evidence",
@@ -126,12 +157,9 @@ def build_statistical_manifest(
         },
         "studies": studies,
         "unified_gates": {
-            "temporal_split": UNKNOWN if any(not s["temporal_split"]["available"] if "temporal_split" in s else not s["available"] for s in studies.values()) else UNKNOWN,
-            "oos": UNKNOWN,
-            "cluster_floor": UNKNOWN,
-            "drawdown": UNKNOWN,
-            "return_target": UNKNOWN,
-            "multiple_testing": UNKNOWN,
+            "temporal_split": gate(temporal_statuses), "oos": gate(oos_statuses),
+            "cluster_floor": gate(cluster_statuses), "drawdown": gate(drawdown_statuses),
+            "return_target": gate(target_statuses), "multiple_testing": gate(multiple_statuses),
         },
         "promotion_status": UNKNOWN,
         "rules": {

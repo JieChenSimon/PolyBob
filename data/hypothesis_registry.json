@@ -471,45 +471,53 @@
       },
       "result": {
         "strategy": "btc5m_mispricing",
-        "n": 2360,
-        "n_clusters": 12,
-        "mean_excess_pct": 25.277,
+        "n": 2506,
+        "n_clusters": 13,
+        "mean_excess_pct": 25.075,
         "median_excess_pct": 47.5,
-        "win_rate": 0.7559,
-        "t_stat": 34.25,
-        "t_stat_iid": 29.51,
+        "win_rate": 0.7546,
+        "t_stat": 34.66,
+        "t_stat_iid": 30.01,
         "t_hurdle": 4.2,
         "significant": false,
         "bootstrap_ci_pct": [
-          23.975,
-          26.722
+          23.809,
+          26.549
         ],
         "sign_test_p": 0.0,
-        "wild_p": 0.0015,
-        "p_floor": 0.000488,
+        "wild_p": 0.001,
+        "p_floor": 0.000244,
         "resolvable": false,
         "status": "unknown",
         "skew_ratio": 0.53,
         "cluster_by": "day",
         "inference": "cluster_robust",
         "warnings": [
-          "only 12 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "12 个独立单元最细只能表达 p=4.9e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+          "only 13 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+          "13 个独立单元最细只能表达 p=2.4e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
-        "mean_pnl_per_contract": 0.2528,
-        "brier_model": 0.1833,
-        "brier_market": 0.2443,
+        "mean_pnl_per_contract": 0.2508,
+        "brier_model": 0.1842,
+        "brier_market": 0.2447,
         "period_audit": {
           "basis": "fixed_initial_capital_per_event",
           "initial_capital": 10000.0,
           "position_fraction": 0.1,
           "daily": [
             {
+              "date": "2026-08-12",
+              "events": 131,
+              "pnl": 61042.948881,
+              "return": 6.10429489,
+              "equity": 71042.948881,
+              "drawdown": 0.0
+            },
+            {
               "date": "2026-08-13",
-              "events": 184,
-              "pnl": 84406.143051,
-              "return": 8.44061431,
-              "equity": 94406.143051,
+              "events": 199,
+              "pnl": 93225.745871,
+              "return": 9.32257459,
+              "equity": 164268.694753,
               "drawdown": 0.0
             },
             {
@@ -517,7 +525,7 @@
               "events": 209,
               "pnl": 130918.004162,
               "return": 13.09180042,
-              "equity": 225324.147213,
+              "equity": 295186.698915,
               "drawdown": 0.0
             },
             {
@@ -525,7 +533,7 @@
               "events": 165,
               "pnl": 86231.106095,
               "return": 8.62311061,
-              "equity": 311555.253308,
+              "equity": 381417.80501,
               "drawdown": 0.0
             },
             {
@@ -533,7 +541,7 @@
               "events": 161,
               "pnl": 78005.214703,
               "return": 7.80052147,
-              "equity": 389560.468011,
+              "equity": 459423.019713,
               "drawdown": 0.0
             },
             {
@@ -541,7 +549,7 @@
               "events": 202,
               "pnl": 117678.120458,
               "return": 11.76781205,
-              "equity": 507238.588469,
+              "equity": 577101.140171,
               "drawdown": 0.0
             },
             {
@@ -549,7 +557,7 @@
               "events": 198,
               "pnl": 116910.953807,
               "return": 11.69109538,
-              "equity": 624149.542275,
+              "equity": 694012.093978,
               "drawdown": 0.0
             },
             {
@@ -557,7 +565,7 @@
               "events": 212,
               "pnl": 123805.211094,
               "return": 12.38052111,
-              "equity": 747954.753369,
+              "equity": 817817.305071,
               "drawdown": 0.0
             },
             {
@@ -565,7 +573,7 @@
               "events": 214,
               "pnl": 106553.810447,
               "return": 10.65538104,
-              "equity": 854508.563816,
+              "equity": 924371.115518,
               "drawdown": 0.0
             },
             {
@@ -573,7 +581,7 @@
               "events": 229,
               "pnl": 112013.576505,
               "return": 11.20135765,
-              "equity": 966522.140321,
+              "equity": 1036384.692023,
               "drawdown": 0.0
             },
             {
@@ -581,7 +589,7 @@
               "events": 215,
               "pnl": 95017.98854,
               "return": 9.50179885,
-              "equity": 1061540.128861,
+              "equity": 1131402.680563,
               "drawdown": 0.0
             },
             {
@@ -589,7 +597,7 @@
               "events": 223,
               "pnl": 112371.758721,
               "return": 11.23717587,
-              "equity": 1173911.887581,
+              "equity": 1243774.439284,
               "drawdown": 0.0
             },
             {
@@ -597,20 +605,20 @@
               "events": 148,
               "pnl": 75025.604181,
               "return": 7.50256042,
-              "equity": 1248937.491762,
+              "equity": 1318800.043464,
               "drawdown": 0.0
             }
           ],
           "monthly": [
             {
               "month": "2026-08",
-              "events": 2360,
-              "pnl": 1238937.491764,
-              "return": 123.89374918
+              "events": 2506,
+              "pnl": 1308800.043465,
+              "return": 130.88000435
             }
           ],
           "max_drawdown": 0.0,
-          "total_return": 123.89374918,
+          "total_return": 130.88000435,
           "return_target": {
             "status": "UNKNOWN",
             "annual_min": 0.5,
@@ -623,12 +631,12 @@
           "oos_start": "2026-08-20",
           "min_independent_days": 20,
           "train": {
-            "n_trades": 1331,
-            "independent_days": 7,
-            "first_date": "2026-08-13",
+            "n_trades": 1477,
+            "independent_days": 8,
+            "first_date": "2026-08-12",
             "last_date": "2026-08-19",
-            "mean_pnl_per_contract": 0.26533809,
-            "win_rate": 0.76859504,
+            "mean_pnl_per_contract": 0.26067366,
+            "win_rate": 0.76506432,
             "status": "UNKNOWN"
           },
           "oos": {

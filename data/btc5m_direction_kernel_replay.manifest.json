@@ -3,15 +3,20 @@
   "report_name": "direction_kernel_replay",
   "report_path": "data/btc5m_direction_kernel_replay.json",
   "report_sha256": "2b0e7a3c2d1a28627ece43b7bf3c4fbdc09ebec44546ccdeb2a78019cd23c5b7",
-  "generated_at": "2026-08-24T18:07:17.950432+00:00",
+  "generated_at": "2026-08-24T18:12:47.261781+00:00",
   "source_generated_at": "2026-08-24T16:11:20.946645+00:00",
   "code": {
-    "commit": "e0bf342ffcff10505d9c50b792f2b998e1b50481",
-    "dirty": false,
-    "dirty_files": 0,
-    "dirty_sample": []
+    "commit": "12556c1f668433a81862e40e8537cf55839a0c43",
+    "dirty": true,
+    "dirty_files": 4,
+    "dirty_sample": [
+      "libs/db/simulation_store.py",
+      "libs/quant/statistical_manifest.py",
+      "modules/simulation/metrics.py",
+      "modules/simulation/service.py"
+    ]
   },
-  "reproducible": true,
+  "reproducible": false,
   "real_data_only": true,
   "pit_status": "UNKNOWN",
   "tradable_evidence": false,

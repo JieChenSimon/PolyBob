@@ -460,6 +460,50 @@ class SimulationService:
 
     # --------------------------------------------------------- binary settlement
 
+    async def record_quote_observation(
+        self,
+        run_id: str,
+        *,
+        observation_id: str,
+        instrument_id: str,
+        observed_at: str,
+        bid: float | None,
+        ask: float | None,
+        bid_depth: float | None,
+        ask_depth: float | None,
+        source: str,
+        raw_payload_sha256: str,
+        sequence_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Ingest an immutable quote/depth observation for later replay.
+
+        This path is intentionally separate from signal processing. A
+        historical/live collector can persist a quote even when no order is
+        generated, and the observation can then be joined to a fill by its
+        stable provenance fields. The store classifies missing/partial depth;
+        this method never upgrades it to executable liquidity.
+        """
+        record = self.get_run_record(run_id)
+        if record is None:
+            raise UnknownRunError(run_id)
+        observation, replayed = await asyncio.to_thread(
+            self.store.record_quote_observation,
+            run_id,
+            observation_id=observation_id,
+            instrument_id=instrument_id,
+            observed_at=observed_at,
+            bid=bid,
+            ask=ask,
+            bid_depth=bid_depth,
+            ask_depth=ask_depth,
+            source=source,
+            raw_payload_sha256=raw_payload_sha256,
+            sequence_id=sequence_id,
+            metadata=metadata,
+        )
+        return {"replayed": replayed, **observation.to_dict()}
+
     async def settle_binary_position(
         self,
         run_id: str,
@@ -950,6 +994,10 @@ class SimulationService:
                     quote_source=quote_source,
                     quote_provenance=quote_provenance,
                     quote_quality=quote_quality,
+                    quote_observation_id=(
+                        str(signal_meta["quote_observation_id"])
+                        if signal_meta.get("quote_observation_id") is not None else None
+                    ),
                 )
                 self.store.upsert_position(run_id, instrument, new_size, new_avg)
                 self.store.update_run(run_id, cash=new_cash)

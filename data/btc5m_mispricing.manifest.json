@@ -1,8 +1,8 @@
 {
   "experiment": "btc5m_model_vs_market",
-  "as_of": "2026-08-24T18:07:16.212385+00:00",
+  "as_of": "2026-08-24T18:14:19.827273+00:00",
   "params": {
-    "n_windows": 5760,
+    "n_windows": 0,
     "edge_threshold": 0.1,
     "fee": 0.02,
     "model_revision": "realized-volatility-normal-cdf-v3",
@@ -10,34 +10,39 @@
     "time_split": "fixed_chronological"
   },
   "code": {
-    "commit": "e0bf342ffcff10505d9c50b792f2b998e1b50481",
-    "dirty": false,
-    "dirty_files": 0,
-    "dirty_sample": []
+    "commit": "12556c1f668433a81862e40e8537cf55839a0c43",
+    "dirty": true,
+    "dirty_files": 4,
+    "dirty_sample": [
+      "libs/db/simulation_store.py",
+      "libs/quant/statistical_manifest.py",
+      "modules/simulation/metrics.py",
+      "modules/simulation/service.py"
+    ]
   },
-  "started_at": "2026-08-24T18:07:16.237833+00:00",
+  "started_at": "2026-08-24T18:14:19.857826+00:00",
   "inputs": {
     "polymarket_windows": {
-      "settled": 3345,
-      "qualifying_trades": 2360,
+      "settled": 3545,
+      "qualifying_trades": 2506,
       "snapshot": {
         "status": "consistent",
-        "sample_rows": 3345,
-        "normalized_rows": 3345,
-        "unique_windows": 3345,
-        "normalized_parts": 3,
-        "checkpoint_sha256": "c9f1e5771035e6cbcdbb5b0097d62ba093081a2c94a892e4de9da29035439f24",
-        "sample_set_sha256": "82ce8946360cda8137b89d06f8395eb0f06d39f629b939a44d898b85476d917f",
-        "normalized_rows_sha256": "af99b5d63baf2d63667fddaba0c2f1bc5c47b0a645f89d38c81a01e532db06cf",
-        "raw_sha_set_sha256": "0e06cd91c57bb945ce562e1b45367866af362cfddccd34b6aac1e5b7882fa6df",
-        "normalized_manifest_sha256": "2eceb4cf72da05b67b6881946b7c73785340c07fc16838d935a273ef5d8e9dba"
+        "sample_rows": 3545,
+        "normalized_rows": 3545,
+        "unique_windows": 3545,
+        "normalized_parts": 1,
+        "checkpoint_sha256": "0b5f07ecfe2ec3a4fcc149b34aaf8069b6502392ff038f90536a591fd774d6ca",
+        "sample_set_sha256": "1b5c5e653aa4d4ac259bd9dbcb03957128a7c16bc5a36fe537d666e5f2341ef1",
+        "normalized_rows_sha256": "4ab64c7a9f608381ba17b2bffe3da40a0ceb06e67fbf03e293030810e8392bc5",
+        "raw_sha_set_sha256": "e13cf99b8903356e3ae9b4fb4cf0472bd2f58964bfccdc6a27a65829d9c14090",
+        "normalized_manifest_sha256": "861cd2b9eb94b8d3d1f5e2a2a2e23f6564c8e2eb080a2c1bfb7954b5e03a121f"
       }
     }
   },
   "lineage": {
-    "input_hash": "de4b22c3382d6deb5c14d7bc36a9409569b114fc0a236cf2ba5733000a4dc746",
+    "input_hash": "063e677763514ae573982d8d502ab3f352f39675d30aaf4ce5e9e39026a495df",
     "model_hash": "0fbe5231d55d51ee0b9e9003d89e4e15c27febc360096e4b09bd26d4f6e1f3fc",
-    "has_lineage": true
+    "has_lineage": false
   },
-  "reproducible": true
+  "reproducible": false
 }

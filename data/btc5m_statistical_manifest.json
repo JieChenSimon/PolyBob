@@ -22,13 +22,12 @@
     },
     "event": {
       "collection_status": "partial",
-      "generated_at": "2026-08-24T18:07:16.964836+00:00",
+      "generated_at": "2026-08-24T18:12:46.258715+00:00",
       "snapshot_status": "consistent"
     }
   },
   "studies": {
     "calibration": {
-      "available": false,
       "cluster_floor": {
         "min_clusters": 20,
         "observed": 22,
@@ -41,12 +40,15 @@
         "threshold": null,
         "threshold_status": "NOT_APPLICABLE"
       },
-      "fold_count": 0,
-      "method": null,
       "multiple_testing": {
         "n_trials": null,
         "reason": "no pre-registered trial count or multiplicity correction in calibration report",
         "rows": 3,
+        "status": "UNKNOWN"
+      },
+      "oos": {
+        "available": false,
+        "reason": "calibration report is pooled and contains no OOS partition",
         "status": "UNKNOWN"
       },
       "reason": "calibration report is a single pooled comparison; it has no train-validation-test or OOS split",
@@ -54,11 +56,16 @@
         "reason": "calibration is not a return-target study",
         "status": "UNKNOWN"
       },
-      "split_dates": [],
-      "status": "UNKNOWN"
+      "status": "UNKNOWN",
+      "temporal_split": {
+        "available": false,
+        "fold_count": 0,
+        "method": null,
+        "split_dates": [],
+        "status": "UNKNOWN"
+      }
     },
     "direction": {
-      "available": true,
       "cluster_floor": {
         "min_clusters": 20,
         "observed": null,
@@ -71,14 +78,17 @@
         "threshold": null,
         "threshold_status": "NOT_SPECIFIED"
       },
-      "fold_count": 4,
-      "method": "walk_forward_folds",
       "multiple_testing": {
         "cost_stress_checks": 3,
         "dsr_checks": 3,
         "n_trials": 9,
         "oos_stability_checks": 3,
         "status": "FAIL"
+      },
+      "oos": {
+        "available": true,
+        "reason": "OOS exists, but no independent-calendar cluster inference is recorded for each fold",
+        "status": "UNKNOWN"
       },
       "reason": "OOS exists, but no independent-calendar cluster inference is recorded for each fold",
       "return_target": {
@@ -88,38 +98,45 @@
         "reason": "inherits per-fold target result; no promotion upgrade from incomplete months",
         "status": "UNKNOWN"
       },
-      "split_dates": [
-        "2026-08-14",
-        "2026-08-16",
-        "2026-08-18",
-        "2026-08-20"
-      ],
-      "status": "UNKNOWN"
+      "status": "UNKNOWN",
+      "temporal_split": {
+        "available": true,
+        "fold_count": 4,
+        "method": "walk_forward_folds",
+        "split_dates": [
+          "2026-08-14",
+          "2026-08-16",
+          "2026-08-18",
+          "2026-08-20"
+        ],
+        "status": "UNKNOWN"
+      }
     },
     "event": {
-      "available": true,
       "cluster_floor": {
         "min_clusters": 20,
-        "observed": 12,
+        "observed": 13,
         "reason": "cluster floor and p resolution are required independently",
         "resolvable": false,
         "status": "UNKNOWN"
       },
       "drawdown": {
-        "max_observed": 0.0,
+        "basis": "event-level additive diagnostic ordered by date then entry_price; exact decision timestamps, sizing and fills absent",
+        "max_observed": 0.156425,
+        "negative_events": 615,
+        "source_period_max": 0.0,
         "status": "UNKNOWN",
         "threshold": null,
         "threshold_status": "NOT_SPECIFIED"
       },
-      "fold_count": 1,
-      "method": "fixed_chronological",
       "multiple_testing": {
+        "analysis_status": "APPLIED",
         "n_trials": 255,
-        "p_floor": 0.000488,
+        "p_floor": 0.000244,
         "resolvable": false,
-        "status": "APPLIED",
+        "status": "UNKNOWN",
         "t_hurdle": 4.2,
-        "wild_p": 0.0015
+        "wild_p": 0.001
       },
       "oos": {
         "first_date": "2026-08-20",
@@ -136,25 +153,31 @@
         "required_months": 12,
         "status": "UNKNOWN"
       },
-      "split_dates": [
-        "2026-08-20"
-      ],
       "status": "UNKNOWN",
+      "temporal_split": {
+        "available": true,
+        "fold_count": 1,
+        "method": "fixed_chronological",
+        "split_dates": [
+          "2026-08-20"
+        ],
+        "status": "UNKNOWN"
+      },
       "train": {
-        "first_date": "2026-08-13",
-        "independent_days": 7,
+        "first_date": "2026-08-12",
+        "independent_days": 8,
         "last_date": "2026-08-19",
-        "mean_pnl_per_contract": 0.26533809,
-        "n_trades": 1331,
+        "mean_pnl_per_contract": 0.26067366,
+        "n_trades": 1477,
         "status": "UNKNOWN",
-        "win_rate": 0.76859504
+        "win_rate": 0.76506432
       }
     }
   },
   "unified_gates": {
     "cluster_floor": "UNKNOWN",
     "drawdown": "UNKNOWN",
-    "multiple_testing": "UNKNOWN",
+    "multiple_testing": "FAIL",
     "oos": "UNKNOWN",
     "return_target": "UNKNOWN",
     "temporal_split": "UNKNOWN"

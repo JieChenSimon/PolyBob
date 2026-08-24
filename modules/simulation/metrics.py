@@ -89,6 +89,7 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
 
     trades = store.list_trades(run_id)
     settlements = store.list_settlements(run_id)
+    quote_observations = store.list_quote_observations(run_id)
     points = store.list_equity_points(run_id)
     quote_quality_counts: dict[str, int] = {}
     synthetic_quote_count = 0
@@ -97,6 +98,10 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         quote_quality_counts[quality] = quote_quality_counts.get(quality, 0) + 1
         if trade.quote_source.startswith("synthetic"):
             synthetic_quote_count += 1
+    observation_quality_counts: dict[str, int] = {}
+    for observation in quote_observations:
+        quality = observation.quality or "unknown"
+        observation_quality_counts[quality] = observation_quality_counts.get(quality, 0) + 1
     closed = [t for t in trades if t.realized_pnl is not None]
     settlement_pnls = [float(item.realized_pnl) for item in settlements]
     closed_pnls = [float(t.realized_pnl) for t in closed] + settlement_pnls
@@ -192,6 +197,11 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
             "full_depth_trade_count": quote_quality_counts.get("full_depth", 0),
             "missing_depth_trade_count": quote_quality_counts.get("missing_depth", 0),
             "synthetic_quote_trade_count": synthetic_quote_count,
+            "quote_observation_count": len(quote_observations),
+            "quote_observation_quality_counts": observation_quality_counts,
+            "trade_quote_observation_link_count": sum(
+                1 for trade in trades if trade.quote_observation_id
+            ),
         },
         "funding_pnl": store.total_funding(run_id),
         # The user's annual/monthly target is a separate, fail-closed gate:

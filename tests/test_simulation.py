@@ -374,6 +374,59 @@ def test_trade_quote_provenance_keeps_synthetic_or_missing_depth_explicit(tmp_pa
     assert trade.quote_provenance == {"clob": "raw-sha-only"}
 
 
+def test_quote_observation_is_immutable_idempotent_and_classifies_depth(tmp_path):
+    store = make_store(tmp_path)
+    raw_sha = "a" * 64
+    first, replayed = store.record_quote_observation(
+        "r1", observation_id="quote-1", instrument_id="BTC5M:1:UP",
+        observed_at="2026-08-25T00:00:00+00:00", bid=0.49, ask=0.51,
+        bid_depth=100.0, ask_depth=80.0, source="polymarket_ws",
+        raw_payload_sha256=raw_sha, sequence_id="42",
+        metadata={"channel": "market"},
+    )
+    replay, was_replayed = store.record_quote_observation(
+        "r1", observation_id="quote-1", instrument_id="BTC5M:1:UP",
+        observed_at="2026-08-25T00:00:00+00:00", bid=0.49, ask=0.51,
+        bid_depth=100.0, ask_depth=80.0, source="polymarket_ws",
+        raw_payload_sha256=raw_sha, sequence_id="42",
+        metadata={"channel": "market"},
+    )
+
+    assert first.quality == "full_depth"
+    assert replayed is False
+    assert was_replayed is True
+    assert replay.observation_id == first.observation_id
+    assert len(store.list_quote_observations("r1")) == 1
+    with pytest.raises(ValueError, match="different quote content"):
+        store.record_quote_observation(
+            "r1", observation_id="quote-1", instrument_id="BTC5M:1:UP",
+            observed_at="2026-08-25T00:00:00+00:00", bid=0.49, ask=0.51,
+            bid_depth=None, ask_depth=None, source="polymarket_ws",
+            raw_payload_sha256=raw_sha, sequence_id="42",
+        )
+
+
+@pytest.mark.asyncio
+async def test_service_quote_observation_intake_is_visible_to_metrics(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="quote-intake", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=1_000.0,
+    )
+    result = await service.record_quote_observation(
+        run["run_id"], observation_id="quote-m1-1", instrument_id="m1",
+        observed_at="2026-08-25T00:00:00+00:00", bid=0.4, ask=0.6,
+        bid_depth=None, ask_depth=None, source="polymarket_ws",
+        raw_payload_sha256="b" * 64,
+    )
+    assert result["replayed"] is False
+    assert result["quality"] == "missing_depth"
+    metrics = sim_metrics.compute_run_metrics(service.store, run["run_id"])
+    evidence = metrics["execution_evidence"]
+    assert evidence["quote_observation_count"] == 1
+    assert evidence["quote_observation_quality_counts"] == {"missing_depth": 1}
+
+
 @pytest.mark.asyncio
 async def test_initial_capital_position_sizing_does_not_compound(tmp_path):
     service = make_service(tmp_path)

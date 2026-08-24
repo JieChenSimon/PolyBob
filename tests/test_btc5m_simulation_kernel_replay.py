@@ -30,6 +30,10 @@ async def test_known_answer_event_is_filled_and_settled(tmp_path):
     assert result["risk_rejections_by_stage"] == {}
     assert result["unresolved_positions"] == []
     assert result["metrics"]["closed_trade_count"] == 1
+    assert result["metrics"]["trade_count"] == 1
+    assert result["metrics"]["settlement_count"] == 1
+    assert result["metrics"]["total_fees"] == 0
+    assert result["metrics"]["execution_evidence"]["quote_observation_count"] == 0
     assert result["metrics"]["equity_curve_degraded"] is False
     assert result["metrics"]["execution_evidence"]["missing_depth_trade_count"] == 1
     assert result["metrics"]["execution_evidence"]["synthetic_quote_trade_count"] == 1

@@ -22,6 +22,7 @@ All methods are synchronous; event-loop callers must wrap them in
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -76,7 +77,8 @@ _SCHEMA_STATEMENTS = (
         quote_timestamp TEXT,
         quote_source TEXT NOT NULL DEFAULT 'unknown',
         quote_provenance_json TEXT NOT NULL DEFAULT '{}',
-        quote_quality TEXT NOT NULL DEFAULT 'unknown'
+        quote_quality TEXT NOT NULL DEFAULT 'unknown',
+        quote_observation_id TEXT
     )
     """,
     """
@@ -91,6 +93,25 @@ _SCHEMA_STATEMENTS = (
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_sim_trades_run ON sim_trades(run_id, id)",
+    """
+    CREATE TABLE IF NOT EXISTS sim_quote_observations (
+        observation_id TEXT PRIMARY KEY,
+        run_id TEXT NOT NULL,
+        instrument_id TEXT NOT NULL,
+        observed_at TEXT NOT NULL,
+        bid REAL,
+        ask REAL,
+        bid_depth REAL,
+        ask_depth REAL,
+        source TEXT NOT NULL,
+        raw_payload_sha256 TEXT NOT NULL,
+        sequence_id TEXT,
+        quality TEXT NOT NULL,
+        metadata_json TEXT NOT NULL DEFAULT '{}',
+        created_at TEXT NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_sim_quotes_run_time ON sim_quote_observations(run_id, observed_at)",
     """
     CREATE TABLE IF NOT EXISTS sim_funding (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -210,6 +231,7 @@ class SimTradeRecord:
     quote_source: str = "unknown"
     quote_provenance: dict[str, Any] = field(default_factory=dict)
     quote_quality: str = "unknown"
+    quote_observation_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -232,6 +254,41 @@ class SimTradeRecord:
             "quote_source": self.quote_source,
             "quote_provenance": dict(self.quote_provenance),
             "quote_quality": self.quote_quality,
+            "quote_observation_id": self.quote_observation_id,
+        }
+
+
+@dataclass(frozen=True)
+class SimQuoteObservationRecord:
+    observation_id: str
+    run_id: str
+    instrument_id: str
+    observed_at: str
+    bid: float | None
+    ask: float | None
+    bid_depth: float | None
+    ask_depth: float | None
+    source: str
+    raw_payload_sha256: str
+    sequence_id: str | None
+    quality: str
+    metadata: dict[str, Any]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "observation_id": self.observation_id,
+            "run_id": self.run_id,
+            "instrument_id": self.instrument_id,
+            "observed_at": self.observed_at,
+            "bid": self.bid,
+            "ask": self.ask,
+            "bid_depth": self.bid_depth,
+            "ask_depth": self.ask_depth,
+            "source": self.source,
+            "raw_payload_sha256": self.raw_payload_sha256,
+            "sequence_id": self.sequence_id,
+            "quality": self.quality,
+            "metadata": dict(self.metadata),
         }
 
 
@@ -312,6 +369,7 @@ class SimulationStore:
             ("quote_source", "TEXT NOT NULL DEFAULT 'unknown'"),
             ("quote_provenance_json", "TEXT NOT NULL DEFAULT '{}'"),
             ("quote_quality", "TEXT NOT NULL DEFAULT 'unknown'"),
+            ("quote_observation_id", "TEXT"),
         )
         for name, definition in migrations:
             if name not in columns:
@@ -480,6 +538,7 @@ class SimulationStore:
         quote_source: str = "unknown",
         quote_provenance: Mapping[str, Any] | None = None,
         quote_quality: str = "unknown",
+        quote_observation_id: str | None = None,
     ) -> int:
         with self._connect() as connection:
             cursor = connection.execute(
@@ -488,9 +547,10 @@ class SimulationStore:
                     run_id, instrument_id, side, size, price, fee, slippage,
                     signal_meta_json, realized_pnl, executed_at, quote_bid,
                     quote_ask, bid_depth, ask_depth, quote_timestamp,
-                    quote_source, quote_provenance_json, quote_quality
+                    quote_source, quote_provenance_json, quote_quality,
+                    quote_observation_id
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run_id,
@@ -511,6 +571,7 @@ class SimulationStore:
                     str(quote_source or "unknown"),
                     _dump_json(dict(quote_provenance or {})),
                     str(quote_quality or "unknown"),
+                    quote_observation_id,
                 ),
             )
             return int(cursor.lastrowid)
@@ -535,6 +596,114 @@ class SimulationStore:
         with self._connect() as connection:
             rows = connection.execute(query, params).fetchall()
         return [self._trade_record(row) for row in rows]
+
+    # ------------------------------------------------------- quote evidence
+
+    def record_quote_observation(
+        self,
+        run_id: str,
+        *,
+        observation_id: str,
+        instrument_id: str,
+        observed_at: str,
+        bid: float | None,
+        ask: float | None,
+        bid_depth: float | None,
+        ask_depth: float | None,
+        source: str,
+        raw_payload_sha256: str,
+        sequence_id: str | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> tuple[SimQuoteObservationRecord, bool]:
+        """Persist one immutable, idempotent quote/depth observation.
+
+        This is deliberately separate from ``sim_trades``: a quote can be
+        observed without producing a fill. Missing depth is recorded as such,
+        never converted into executable liquidity.
+        """
+        observation_id = str(observation_id).strip()
+        instrument_id = str(instrument_id).strip()
+        source = str(source).strip()
+        raw_payload_sha256 = str(raw_payload_sha256).strip().lower()
+        if not all((observation_id, instrument_id, observed_at, source)):
+            raise ValueError("observation_id, instrument_id, observed_at and source are required")
+        if len(raw_payload_sha256) != 64 or any(
+            char not in "0123456789abcdef" for char in raw_payload_sha256
+        ):
+            raise ValueError("raw_payload_sha256 must be a 64-character hexadecimal digest")
+
+        def number(value: float | None, name: str, *, positive: bool = False) -> float | None:
+            if value is None:
+                return None
+            parsed = float(value)
+            if not math.isfinite(parsed) or (parsed <= 0 if positive else parsed < 0):
+                raise ValueError(f"{name} must be finite and {'positive' if positive else 'non-negative'}")
+            return parsed
+
+        bid = number(bid, "bid", positive=True)
+        ask = number(ask, "ask", positive=True)
+        bid_depth = number(bid_depth, "bid_depth")
+        ask_depth = number(ask_depth, "ask_depth")
+        if bid is None or ask is None:
+            quality = "missing_quote"
+        elif ask < bid:
+            quality = "invalid_book"
+        elif bid_depth is not None and bid_depth > 0 and ask_depth is not None and ask_depth > 0:
+            quality = "full_depth"
+        elif (bid_depth is not None and bid_depth > 0) or (ask_depth is not None and ask_depth > 0):
+            quality = "partial_depth"
+        else:
+            quality = "missing_depth"
+
+        metadata_json = _dump_json(dict(metadata or {}))
+        values = (
+            run_id, instrument_id, observed_at, bid, ask, bid_depth, ask_depth,
+            source, raw_payload_sha256, sequence_id, quality, metadata_json,
+        )
+        with self._connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            existing = connection.execute(
+                "SELECT * FROM sim_quote_observations WHERE observation_id = ?",
+                (observation_id,),
+            ).fetchone()
+            if existing is not None:
+                record = self._quote_observation_record(existing)
+                candidate = (
+                    record.run_id, record.instrument_id, record.observed_at,
+                    record.bid, record.ask, record.bid_depth, record.ask_depth,
+                    record.source, record.raw_payload_sha256, record.sequence_id,
+                    record.quality, _dump_json(record.metadata),
+                )
+                if candidate != values:
+                    raise ValueError("observation_id was reused with different quote content")
+                connection.rollback()
+                return record, True
+            now = _utcnow_iso()
+            connection.execute(
+                """
+                INSERT INTO sim_quote_observations (
+                    observation_id, run_id, instrument_id, observed_at, bid, ask,
+                    bid_depth, ask_depth, source, raw_payload_sha256, sequence_id,
+                    quality, metadata_json, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (observation_id, *values, now),
+            )
+            row = connection.execute(
+                "SELECT * FROM sim_quote_observations WHERE observation_id = ?",
+                (observation_id,),
+            ).fetchone()
+            connection.commit()
+        return self._quote_observation_record(row), False
+
+    def list_quote_observations(self, run_id: str) -> list[SimQuoteObservationRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                "SELECT * FROM sim_quote_observations WHERE run_id = "
+                "? ORDER BY observed_at, observation_id",
+                (run_id,),
+            ).fetchall()
+        return [self._quote_observation_record(row) for row in rows]
 
     def append_funding(
         self, run_id: str, *, instrument_id: str, rate: float, notional: float,
@@ -685,6 +854,26 @@ class SimulationStore:
             quote_source=row["quote_source"] or "unknown",
             quote_provenance=_load_json(row["quote_provenance_json"], {}) or {},
             quote_quality=row["quote_quality"] or "unknown",
+            quote_observation_id=row["quote_observation_id"],
+        )
+
+    @staticmethod
+    def _quote_observation_record(row: sqlite3.Row) -> SimQuoteObservationRecord:
+        metadata = _load_json(row["metadata_json"], {})
+        return SimQuoteObservationRecord(
+            observation_id=row["observation_id"],
+            run_id=row["run_id"],
+            instrument_id=row["instrument_id"],
+            observed_at=row["observed_at"],
+            bid=float(row["bid"]) if row["bid"] is not None else None,
+            ask=float(row["ask"]) if row["ask"] is not None else None,
+            bid_depth=float(row["bid_depth"]) if row["bid_depth"] is not None else None,
+            ask_depth=float(row["ask_depth"]) if row["ask_depth"] is not None else None,
+            source=row["source"],
+            raw_payload_sha256=row["raw_payload_sha256"],
+            sequence_id=row["sequence_id"],
+            quality=row["quality"],
+            metadata=metadata if isinstance(metadata, dict) else {},
         )
 
     @staticmethod
@@ -755,6 +944,7 @@ __all__ = [
     "RUN_STATUSES",
     "SimEquityPointRecord",
     "SimPositionRecord",
+    "SimQuoteObservationRecord",
     "SimRunRecord",
     "SimTradeRecord",
     "SimulationStore",
