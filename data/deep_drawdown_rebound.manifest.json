@@ -1,6 +1,6 @@
 {
   "experiment": "deep_drawdown_rebound_v1",
-  "as_of": "2026-08-24T21:57:42.772945+00:00",
+  "as_of": "2026-08-24T22:11:01.095772+00:00",
   "params": {
     "model_revision": "deep-drawdown-quality-rebound-v1",
     "config": "config/research/deep_drawdown_rebound.yaml",
@@ -23,12 +23,12 @@
     ]
   },
   "code": {
-    "commit": "b8bad6e8d1f719e92ab12c0f945d38402ee0729a",
+    "commit": "0f20df0e67cf96a6d18ba260cfff2d5d00df2120",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T21:57:42.796258+00:00",
+  "started_at": "2026-08-24T22:11:01.123585+00:00",
   "inputs": {
     "daily_bars:A_SHARE": {
       "symbols": 8,
@@ -457,7 +457,7 @@
     },
     "fundamentals:US_EQUITY": {
       "symbols": 30,
-      "rows": 139,
+      "rows": 521,
       "coverage": [
         {
           "symbol": "AAPL",
@@ -475,10 +475,12 @@
         },
         {
           "symbol": "NVDA",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 68,
+          "start": "2009-08-20",
+          "end": "2026-05-20",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "AMZN",
@@ -503,17 +505,21 @@
         },
         {
           "symbol": "TSLA",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 61,
+          "start": "2011-08-12",
+          "end": "2026-07-23",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "AMD",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 65,
+          "start": "2010-08-04",
+          "end": "2026-08-05",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "JPM",
@@ -587,10 +593,12 @@
         },
         {
           "symbol": "DIS",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 30,
+          "start": "2019-05-08",
+          "end": "2026-08-05",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "VZ",
@@ -608,10 +616,12 @@
         },
         {
           "symbol": "F",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 68,
+          "start": "2009-08-05",
+          "end": "2026-04-30",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "GM",
@@ -636,10 +646,12 @@
         },
         {
           "symbol": "INTC",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 69,
+          "start": "2009-08-03",
+          "end": "2026-07-24",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "SNDK",
@@ -670,10 +682,12 @@
         },
         {
           "symbol": "MRVL",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 21,
+          "start": "2021-06-09",
+          "end": "2026-05-28",
+          "source": [
+            "sec_companyfacts"
+          ]
         }
       ],
       "strict_historical_pit": false
@@ -861,7 +875,7 @@
     }
   },
   "lineage": {
-    "input_hash": "5cee488eed358eaa8ca8a2f1ebac5f3c758df719fd2072caee5a6253c4a2e114",
+    "input_hash": "2e62376e20104aae3bb7fbf08544cecfb1bed38554dc687ce9d71f79872d21a9",
     "model_hash": "ae16d46aa14bbedf41cb7ca617daf912e59d186b6579859f228a36e70fa89e48",
     "has_lineage": true
   },

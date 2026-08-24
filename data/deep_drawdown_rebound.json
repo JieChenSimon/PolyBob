@@ -1,7 +1,7 @@
 {
   "schema_version": "deep-drawdown-rebound-v1",
-  "generated_at": "2026-08-24T21:57:43.423575+00:00",
-  "as_of": "2026-08-24T21:57:42.772945+00:00",
+  "generated_at": "2026-08-24T22:11:02.004096+00:00",
+  "as_of": "2026-08-24T22:11:01.095772+00:00",
   "real_data_only": true,
   "strategy_status": "UNKNOWN",
   "promotion_status": "UNKNOWN",
@@ -9,7 +9,13 @@
   "pit_status": "UNKNOWN",
   "strict_historical_pit": false,
   "survivorship_control": "UNKNOWN",
-  "fundamental_quality_filter": "UNKNOWN_NO_TRADE",
+  "fundamental_quality_filter": "ROW_LEVEL_CANDIDATE_GLOBAL_BLOCKED",
+  "fundamental_quality_summary": {
+    "pass_events": 5,
+    "unknown_events": 196,
+    "fail_events": 1,
+    "interpretation": "row-level acceptance and quality only; global PIT/survivorship/executable gates remain blocked"
+  },
   "asset_date_cluster_floor": {
     "min_assets": 20,
     "min_dates": 20,
@@ -1045,10 +1051,12 @@
         },
         {
           "symbol": "NVDA",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 68,
+          "start": "2009-08-20",
+          "end": "2026-05-20",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "AMZN",
@@ -1073,17 +1081,21 @@
         },
         {
           "symbol": "TSLA",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 61,
+          "start": "2011-08-12",
+          "end": "2026-07-23",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "AMD",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 65,
+          "start": "2010-08-04",
+          "end": "2026-08-05",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "JPM",
@@ -1157,10 +1169,12 @@
         },
         {
           "symbol": "DIS",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 30,
+          "start": "2019-05-08",
+          "end": "2026-08-05",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "VZ",
@@ -1178,10 +1192,12 @@
         },
         {
           "symbol": "F",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 68,
+          "start": "2009-08-05",
+          "end": "2026-04-30",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "GM",
@@ -1206,10 +1222,12 @@
         },
         {
           "symbol": "INTC",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 69,
+          "start": "2009-08-03",
+          "end": "2026-07-24",
+          "source": [
+            "sec_companyfacts"
+          ]
         },
         {
           "symbol": "SNDK",
@@ -1240,10 +1258,12 @@
         },
         {
           "symbol": "MRVL",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 21,
+          "start": "2021-06-09",
+          "end": "2026-05-28",
+          "source": [
+            "sec_companyfacts"
+          ]
         }
       ],
       "event_count": 146,
@@ -1258,7 +1278,9 @@
           "drawdown": 0.50173779,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 51,
+            "accepted_periods": 7
           },
           "outcomes": [
             {
@@ -1405,7 +1427,9 @@
           "drawdown": 0.51599953,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 51,
+            "accepted_periods": 7
           },
           "outcomes": [
             {
@@ -1552,7 +1576,9 @@
           "drawdown": 0.53119006,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 8
           },
           "outcomes": [
             {
@@ -1699,7 +1725,9 @@
           "drawdown": 0.52115291,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 8
           },
           "outcomes": [
             {
@@ -1846,7 +1874,9 @@
           "drawdown": 0.50464402,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 8
           },
           "outcomes": [
             {
@@ -1993,7 +2023,9 @@
           "drawdown": 0.51282357,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 8
           },
           "outcomes": [
             {
@@ -2140,7 +2172,9 @@
           "drawdown": 0.50233698,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 54,
+            "accepted_periods": 10
           },
           "outcomes": [
             {
@@ -2287,7 +2321,9 @@
           "drawdown": 0.50350553,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 54,
+            "accepted_periods": 10
           },
           "outcomes": [
             {
@@ -4492,7 +4528,9 @@
           "drawdown": 0.5192819,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 46,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -4639,7 +4677,9 @@
           "drawdown": 0.51974535,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 47,
+            "accepted_periods": 20
           },
           "outcomes": [
             {
@@ -4786,7 +4826,9 @@
           "drawdown": 0.50718347,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 47,
+            "accepted_periods": 20
           },
           "outcomes": [
             {
@@ -4933,7 +4975,9 @@
           "drawdown": 0.51857454,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 47,
+            "accepted_periods": 20
           },
           "outcomes": [
             {
@@ -5080,7 +5124,9 @@
           "drawdown": 0.50540283,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 47,
+            "accepted_periods": 20
           },
           "outcomes": [
             {
@@ -5227,7 +5273,9 @@
           "drawdown": 0.52491645,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 47,
+            "accepted_periods": 20
           },
           "outcomes": [
             {
@@ -5374,7 +5422,9 @@
           "drawdown": 0.51859892,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 50,
+            "accepted_periods": 23
           },
           "outcomes": [
             {
@@ -5521,7 +5571,9 @@
           "drawdown": 0.55452837,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 50,
+            "accepted_periods": 23
           },
           "outcomes": [
             {
@@ -5668,7 +5720,9 @@
           "drawdown": 0.51489132,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 53,
+            "accepted_periods": 26
           },
           "outcomes": [
             {
@@ -5815,7 +5869,9 @@
           "drawdown": 0.50879332,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 53,
+            "accepted_periods": 26
           },
           "outcomes": [
             {
@@ -5962,7 +6018,9 @@
           "drawdown": 0.53705247,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 28
           },
           "outcomes": [
             {
@@ -6109,7 +6167,9 @@
           "drawdown": 0.50400116,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 28
           },
           "outcomes": [
             {
@@ -6256,7 +6316,9 @@
           "drawdown": 0.50104197,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 28
           },
           "outcomes": [
             {
@@ -6403,7 +6465,9 @@
           "drawdown": 0.52590337,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 28
           },
           "outcomes": [
             {
@@ -6550,7 +6614,9 @@
           "drawdown": 0.50108087,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 48,
+            "accepted_periods": 18
           },
           "outcomes": [
             {
@@ -6697,7 +6763,9 @@
           "drawdown": 0.50441606,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 49,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -6844,7 +6912,9 @@
           "drawdown": 0.52424188,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 49,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -6991,7 +7061,9 @@
           "drawdown": 0.50540424,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 50,
+            "accepted_periods": 20
           },
           "outcomes": [
             {
@@ -7138,7 +7210,9 @@
           "drawdown": 0.50818433,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 29
           },
           "outcomes": [
             {
@@ -7285,7 +7359,9 @@
           "drawdown": 0.51168512,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 29
           },
           "outcomes": [
             {
@@ -9196,7 +9272,9 @@
           "drawdown": 0.50008068,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 13,
+            "accepted_periods": 10
           },
           "outcomes": [
             {
@@ -9343,7 +9421,9 @@
           "drawdown": 0.53337637,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 14,
+            "accepted_periods": 11
           },
           "outcomes": [
             {
@@ -9490,7 +9570,9 @@
           "drawdown": 0.50809534,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 14,
+            "accepted_periods": 11
           },
           "outcomes": [
             {
@@ -9637,7 +9719,9 @@
           "drawdown": 0.503577,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 15,
+            "accepted_periods": 12
           },
           "outcomes": [
             {
@@ -9784,7 +9868,9 @@
           "drawdown": 0.51325912,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 15,
+            "accepted_periods": 12
           },
           "outcomes": [
             {
@@ -9931,7 +10017,9 @@
           "drawdown": 0.50190954,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 16,
+            "accepted_periods": 13
           },
           "outcomes": [
             {
@@ -10078,7 +10166,9 @@
           "drawdown": 0.50346944,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 17,
+            "accepted_periods": 14
           },
           "outcomes": [
             {
@@ -10225,7 +10315,9 @@
           "drawdown": 0.50863323,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 17,
+            "accepted_periods": 14
           },
           "outcomes": [
             {
@@ -10372,7 +10464,9 @@
           "drawdown": 0.50271639,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 17,
+            "accepted_periods": 14
           },
           "outcomes": [
             {
@@ -10519,7 +10613,9 @@
           "drawdown": 0.50244743,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 19,
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -10666,7 +10762,9 @@
           "drawdown": 0.50051101,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 19,
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -10813,7 +10911,9 @@
           "drawdown": 0.50906355,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 19,
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -10960,7 +11060,9 @@
           "drawdown": 0.51406598,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 19,
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -11107,7 +11209,9 @@
           "drawdown": 0.51083857,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 21,
+            "accepted_periods": 18
           },
           "outcomes": [
             {
@@ -11254,7 +11358,9 @@
           "drawdown": 0.51820775,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 21,
+            "accepted_periods": 18
           },
           "outcomes": [
             {
@@ -11401,7 +11507,9 @@
           "drawdown": 0.50303912,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 22,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -11548,7 +11656,9 @@
           "drawdown": 0.5221344,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 24,
+            "accepted_periods": 21
           },
           "outcomes": [
             {
@@ -11695,7 +11805,9 @@
           "drawdown": 0.50287776,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 28,
+            "accepted_periods": 25
           },
           "outcomes": [
             {
@@ -11824,7 +11936,9 @@
           "drawdown": 0.50067237,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 29,
+            "accepted_periods": 26
           },
           "outcomes": [
             {
@@ -11935,7 +12049,9 @@
           "drawdown": 0.50615326,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 12
           },
           "outcomes": [
             {
@@ -12082,7 +12198,9 @@
           "drawdown": 0.50377135,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 12
           },
           "outcomes": [
             {
@@ -12229,7 +12347,9 @@
           "drawdown": 0.50694721,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 12
           },
           "outcomes": [
             {
@@ -12376,7 +12496,9 @@
           "drawdown": 0.53116315,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 12
           },
           "outcomes": [
             {
@@ -12523,7 +12645,9 @@
           "drawdown": 0.50218342,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 52,
+            "accepted_periods": 12
           },
           "outcomes": [
             {
@@ -12670,7 +12794,9 @@
           "drawdown": 0.51131401,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 53,
+            "accepted_periods": 13
           },
           "outcomes": [
             {
@@ -12817,7 +12943,9 @@
           "drawdown": 0.5188567,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 54,
+            "accepted_periods": 14
           },
           "outcomes": [
             {
@@ -12964,7 +13092,9 @@
           "drawdown": 0.5073442,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 54,
+            "accepted_periods": 14
           },
           "outcomes": [
             {
@@ -13111,7 +13241,9 @@
           "drawdown": 0.51568084,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -13258,7 +13390,9 @@
           "drawdown": 0.50575627,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -13405,7 +13539,9 @@
           "drawdown": 0.50655022,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -13552,7 +13688,9 @@
           "drawdown": 0.50535928,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -13699,7 +13837,9 @@
           "drawdown": 0.51488686,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -13846,7 +13986,9 @@
           "drawdown": 0.51726877,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 57,
+            "accepted_periods": 17
           },
           "outcomes": [
             {
@@ -13993,7 +14135,9 @@
           "drawdown": 0.51012307,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 57,
+            "accepted_periods": 17
           },
           "outcomes": [
             {
@@ -14140,7 +14284,9 @@
           "drawdown": 0.50138943,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -14287,7 +14433,9 @@
           "drawdown": 0.50059549,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -14434,7 +14582,9 @@
           "drawdown": 0.50615326,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -14581,7 +14731,9 @@
           "drawdown": 0.51448991,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 19
           },
           "outcomes": [
             {
@@ -14728,7 +14880,9 @@
           "drawdown": 0.51766577,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 60,
+            "accepted_periods": 20
           },
           "outcomes": [
             {
@@ -14875,7 +15029,9 @@
           "drawdown": 0.55696707,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 61,
+            "accepted_periods": 21
           },
           "outcomes": [
             {
@@ -15022,7 +15178,9 @@
           "drawdown": 0.52679635,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 65,
+            "accepted_periods": 25
           },
           "outcomes": [
             {
@@ -15160,7 +15318,9 @@
           "drawdown": 0.5073442,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 66,
+            "accepted_periods": 26
           },
           "outcomes": [
             {
@@ -15298,7 +15458,9 @@
           "drawdown": 0.51012307,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 67,
+            "accepted_periods": 27
           },
           "outcomes": [
             {
@@ -15427,7 +15589,9 @@
           "drawdown": 0.50615326,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 67,
+            "accepted_periods": 27
           },
           "outcomes": [
             {
@@ -15556,7 +15720,9 @@
           "drawdown": 0.50456533,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 67,
+            "accepted_periods": 27
           },
           "outcomes": [
             {
@@ -18769,7 +18935,9 @@
           "drawdown": 0.50857142,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 53,
+            "accepted_periods": 14
           },
           "outcomes": [
             {
@@ -18916,7 +19084,9 @@
           "drawdown": 0.51035714,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 54,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -19063,7 +19233,9 @@
           "drawdown": 0.50857142,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 54,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -19210,7 +19382,9 @@
           "drawdown": 0.51517858,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 54,
+            "accepted_periods": 15
           },
           "outcomes": [
             {
@@ -19357,7 +19531,9 @@
           "drawdown": 0.50089284,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -19504,7 +19680,9 @@
           "drawdown": 0.50482144,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -19651,7 +19829,9 @@
           "drawdown": 0.50696427,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 55,
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -19798,7 +19978,9 @@
           "drawdown": 0.51071429,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 56,
+            "accepted_periods": 17
           },
           "outcomes": [
             {
@@ -19945,7 +20127,9 @@
           "drawdown": 0.61642858,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 61,
+            "accepted_periods": 22
           },
           "outcomes": [
             {
@@ -20205,8 +20389,9 @@
           "drawdown": 0.51554254,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 59
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 31
           },
           "outcomes": [
             {
@@ -20353,8 +20538,9 @@
           "drawdown": 0.54349948,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 59
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": 59,
+            "accepted_periods": 31
           },
           "outcomes": [
             {
@@ -20501,9 +20687,9 @@
           "drawdown": 0.52085182,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "storage_cycle_fields_missing",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 52,
-            "gross_margin": 0.31256319
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -20650,9 +20836,9 @@
           "drawdown": 0.50133097,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "storage_cycle_fields_missing",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 52,
-            "gross_margin": 0.31256319
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -20799,9 +20985,9 @@
           "drawdown": 0.50295769,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "storage_cycle_fields_missing",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 52,
-            "gross_margin": 0.31256319
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -20947,10 +21133,10 @@
           "event_close": 25.479970932,
           "drawdown": 0.50147883,
           "fundamental_quality": {
-            "status": "FAIL",
-            "reason": "quality_rule_failed",
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 53,
-            "gross_margin": 0.2625803
+            "accepted_periods": 17
           },
           "outcomes": [
             {
@@ -21096,10 +21282,10 @@
           "event_close": 24.3461837769,
           "drawdown": 0.52366162,
           "fundamental_quality": {
-            "status": "FAIL",
-            "reason": "quality_rule_failed",
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 53,
-            "gross_margin": 0.2625803
+            "accepted_periods": 17
           },
           "outcomes": [
             {
@@ -21245,10 +21431,10 @@
           "event_close": 25.1851844788,
           "drawdown": 0.50724639,
           "fundamental_quality": {
-            "status": "FAIL",
-            "reason": "quality_rule_failed",
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 54,
-            "gross_margin": 0.16993885
+            "accepted_periods": 18
           },
           "outcomes": [
             {
@@ -21394,10 +21580,10 @@
           "event_close": 25.2985649109,
           "drawdown": 0.50502807,
           "fundamental_quality": {
-            "status": "FAIL",
-            "reason": "quality_rule_failed",
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 54,
-            "gross_margin": 0.16993885
+            "accepted_periods": 18
           },
           "outcomes": [
             {
@@ -21543,10 +21729,10 @@
           "event_close": 25.3968257904,
           "drawdown": 0.50310558,
           "fundamental_quality": {
-            "status": "FAIL",
-            "reason": "quality_rule_failed",
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_for_historical_period",
             "periods": 54,
-            "gross_margin": 0.16993885
+            "accepted_periods": 18
           },
           "outcomes": [
             {
@@ -21692,8 +21878,11 @@
           "event_close": 62.0400009155,
           "drawdown": 0.50785339,
           "fundamental_quality": {
-            "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "status": "PASS",
+            "reason": "row_level_sec_acceptance_timestamp_and_quality_rule_passed",
+            "pit_scope": "row_level_only_global_dataset_not_promotable",
+            "periods": 16,
+            "gross_margin": 0.4130529
           },
           "outcomes": [
             {
@@ -21839,8 +22028,11 @@
           "event_close": 55.6399993896,
           "drawdown": 0.55862287,
           "fundamental_quality": {
-            "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "status": "PASS",
+            "reason": "row_level_sec_acceptance_timestamp_and_quality_rule_passed",
+            "pit_scope": "row_level_only_global_dataset_not_promotable",
+            "periods": 16,
+            "gross_margin": 0.4130529
           },
           "outcomes": [
             {
@@ -21986,8 +22178,11 @@
           "event_close": 62.5600013733,
           "drawdown": 0.50372836,
           "fundamental_quality": {
-            "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "status": "PASS",
+            "reason": "row_level_sec_acceptance_timestamp_and_quality_rule_passed",
+            "pit_scope": "row_level_only_global_dataset_not_promotable",
+            "periods": 16,
+            "gross_margin": 0.4130529
           },
           "outcomes": [
             {
@@ -22133,8 +22328,10 @@
           "event_close": 60.1899986267,
           "drawdown": 0.52252896,
           "fundamental_quality": {
-            "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "status": "FAIL",
+            "reason": "quality_rule_failed",
+            "periods": 17,
+            "gross_margin": 0.5025062
           },
           "outcomes": [
             {
@@ -22280,8 +22477,11 @@
           "event_close": 62.8699989319,
           "drawdown": 0.50126924,
           "fundamental_quality": {
-            "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "status": "PASS",
+            "reason": "row_level_sec_acceptance_timestamp_and_quality_rule_passed",
+            "pit_scope": "row_level_only_global_dataset_not_promotable",
+            "periods": 18,
+            "gross_margin": 0.50376352
           },
           "outcomes": [
             {
@@ -22418,8 +22618,11 @@
           "event_close": 62.3100013733,
           "drawdown": 0.50571155,
           "fundamental_quality": {
-            "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "status": "PASS",
+            "reason": "row_level_sec_acceptance_timestamp_and_quality_rule_passed",
+            "pit_scope": "row_level_only_global_dataset_not_promotable",
+            "periods": 18,
+            "gross_margin": 0.50376352
           },
           "outcomes": [
             {
@@ -22548,9 +22751,9 @@
           ]
         }
       ],
-      "quality_pass_events": 0,
-      "quality_unknown_events": 141,
-      "quality_fail_events": 5,
+      "quality_pass_events": 5,
+      "quality_unknown_events": 140,
+      "quality_fail_events": 1,
       "independent_asset_clusters": 16,
       "independent_date_clusters": 118,
       "horizons": {
@@ -22565,10 +22768,13 @@
             "cost_multiple": 1.0
           },
           "quality_pass_only": {
-            "n_complete": 0,
-            "mean_net_return": null,
-            "win_rate": null,
-            "max_drawdown": null
+            "n_complete": 5,
+            "n_unresolved": 0,
+            "mean_net_return": 0.18039147,
+            "median_net_return": 0.1585742,
+            "win_rate": 1.0,
+            "max_drawdown": 0.0,
+            "cost_multiple": 1.0
           },
           "cost_stress": [
             {
@@ -22737,10 +22943,13 @@
             "cost_multiple": 1.0
           },
           "quality_pass_only": {
-            "n_complete": 0,
-            "mean_net_return": null,
-            "win_rate": null,
-            "max_drawdown": null
+            "n_complete": 5,
+            "n_unresolved": 0,
+            "mean_net_return": 0.29568205,
+            "median_net_return": 0.32619688,
+            "win_rate": 1.0,
+            "max_drawdown": 0.0,
+            "cost_multiple": 1.0
           },
           "cost_stress": [
             {
@@ -22909,10 +23118,13 @@
             "cost_multiple": 1.0
           },
           "quality_pass_only": {
-            "n_complete": 0,
-            "mean_net_return": null,
-            "win_rate": null,
-            "max_drawdown": null
+            "n_complete": 5,
+            "n_unresolved": 0,
+            "mean_net_return": 0.41473965,
+            "median_net_return": 0.34468625,
+            "win_rate": 1.0,
+            "max_drawdown": 0.0,
+            "cost_multiple": 1.0
           },
           "cost_stress": [
             {
@@ -23081,10 +23293,13 @@
             "cost_multiple": 1.0
           },
           "quality_pass_only": {
-            "n_complete": 0,
-            "mean_net_return": null,
-            "win_rate": null,
-            "max_drawdown": null
+            "n_complete": 3,
+            "n_unresolved": 2,
+            "mean_net_return": 1.7842712,
+            "median_net_return": 1.50537556,
+            "win_rate": 1.0,
+            "max_drawdown": 0.0,
+            "cost_multiple": 1.0
           },
           "cost_stress": [
             {
