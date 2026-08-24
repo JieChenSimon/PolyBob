@@ -471,18 +471,18 @@
       },
       "result": {
         "strategy": "btc5m_mispricing",
-        "n": 1803,
+        "n": 1882,
         "n_clusters": 10,
-        "mean_excess_pct": 24.862,
+        "mean_excess_pct": 24.776,
         "median_excess_pct": 47.5,
-        "win_rate": 0.751,
-        "t_stat": 38.1,
-        "t_stat_iid": 25.16,
+        "win_rate": 0.7503,
+        "t_stat": 39.29,
+        "t_stat_iid": 25.61,
         "t_hurdle": 4.2,
         "significant": false,
         "bootstrap_ci_pct": [
-          23.676,
-          26.062
+          23.655,
+          25.924
         ],
         "sign_test_p": 0.0,
         "wild_p": 0.004,
@@ -496,9 +496,9 @@
           "only 10 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
           "10 个独立单元最细只能表达 p=2.0e-03,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
-        "mean_pnl_per_contract": 0.2486,
-        "brier_model": 0.1821,
-        "brier_market": 0.2443
+        "mean_pnl_per_contract": 0.2478,
+        "brier_model": 0.1826,
+        "brier_market": 0.244
       }
     },
     {
