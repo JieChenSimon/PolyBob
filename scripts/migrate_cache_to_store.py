@@ -68,6 +68,7 @@ def _yahoo(path: Path) -> tuple[str, list[dict]] | None:
             "open": at("open"), "high": at("high"), "low": at("low"),
             "close": close, "volume": at("volume"),
             "source": "yahoo_migrated",
+            "price_basis": "provider_quote_adjustment_unknown",
         })
     return m.group(1), rows
 
@@ -95,6 +96,7 @@ def _okx_bars(path: Path) -> tuple[str, list[dict]] | None:
             "open": float(c[1]), "high": float(c[2]), "low": float(c[3]),
             "close": float(c[4]), "volume": float(c[5]),
             "source": "okx_migrated",
+            "price_basis": "unadjusted",
         })
     return m.group(1), rows
 
@@ -145,6 +147,7 @@ def _tencent(path: Path) -> tuple[str, list[dict]] | None:
                 "high": float(row[3]), "low": float(row[4]),
                 "volume": float(row[5]) if len(row) > 5 else None,
                 "source": "tencent_migrated",
+                "price_basis": "forward_adjusted",
             })
         except (TypeError, ValueError):
             continue

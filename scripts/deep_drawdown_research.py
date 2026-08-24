@@ -243,6 +243,9 @@ def run() -> dict[str, Any]:
                 "start": str(frame["event_date"].min())[:10] if len(frame) else None,
                 "end": str(frame["event_date"].max())[:10] if len(frame) else None,
                 "source": sorted({str(v) for v in frame.get("source", []).dropna().tolist() if v is not None}),
+                "price_basis": sorted({str(v) for v in frame.get("price_basis", []).dropna().tolist() if v is not None}),
+                "missing_price_basis_rows": int(frame["price_basis"].isna().sum())
+                if "price_basis" in frame else int(len(frame)),
             })
             fundamental_coverage.append({
                 "symbol": symbol,

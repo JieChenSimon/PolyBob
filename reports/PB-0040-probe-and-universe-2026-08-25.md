@@ -75,6 +75,15 @@ NVDA 68、TSLA 61、ADBE 69、INTC 69、DIS 30、F 68、UPS 69；重复运行会
 57 条真实 SEC 行新增落盘，其余命中缓存。这条链路已从“手工 ticker 列表”变为可重放的
 发现清单 → CIK 映射 → Companyfacts/submissions → 本地数据集流程。
 
+## A 股与加密数据语义修复（本轮）
+
+审计发现旧 JSON → Parquet 迁移曾遗漏 `price_basis`，这会让复权口径和现货价格口径
+变成未知，不能用于严谨回测。迁移器已修复，且新增可重放回填器对 128 个 A 股/加密
+标的创建新的本地观察版本，修正 61,798 行缺失语义；随后处理同一 mtime 造成的版本
+选择歧义，再修正 41,121 行。当前抽查的 600519、000001、BTC-USDT、ETH-USDT、
+SOL-USDT 均分别明确为 `forward_adjusted` 或 `unadjusted`。这只修复价格语义，不补造
+基本面、退市历史或历史盘口；A 股基本面与加密生存者偏差仍保持 UNKNOWN。
+
 这一步只证明“原始事实可获取”，不改变研究门禁：数据集全局仍为
 `strict_historical_pit=false`。本轮补读 SEC 历史 submissions 分片后，acceptance 匹配覆盖
 已达到：SNDK 7/7、MRVL 21/21、MU 64/64、WDC 68/68、AMD 65/65、NVDA 68/68、TSLA 61/61、
