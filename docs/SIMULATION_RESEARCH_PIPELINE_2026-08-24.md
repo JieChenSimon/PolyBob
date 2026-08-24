@@ -30,14 +30,14 @@
 
 ## 参数优化规则
 
-预先声明的候选族为 4 组双均线参数。A 股、美股、加密货币分别在校准集上比较 OOS 平均收益，再把各资产域的候选用于该域的全量标的。失败归因只生成受约束的下一步候选建议：
+预先声明的候选族为 4 组双均线参数。A 股、美股、加密货币分别只在训练期比较平均收益，再把训练期选出的候选固定到 OOS 验证和该域诊断；OOS 结果不能反过来选参。此前版本曾错误地用 OOS 选择参数，已修复并加入回归测试。失败归因只生成受约束的下一步候选建议：
 
 - 非正收益：测试更慢趋势窗口、更严格分离阈值，并检查换手和成本拖累；
 - 成交样本不足：只在校准集放宽分离阈值，并延长独立 OOS 观察期；
 - 回撤过高：测试更低仓位比例和波动/回撤上限；
 - 权益曲线 degraded 或未知：先修复行情标记覆盖，不允许优化策略掩盖数据问题。
 
-本轮的候选选择只是诊断用途。多重检验门槛记录了 4 次候选试验，对应 deflated t 门槛约 3.30。最终共同 OOS 收益矩阵的 PBO 为：A 股 0.5992（overfit）、美股 0.4881（suspect）、加密货币 0.6389（overfit），整体晋级状态仍为 BLOCKED。
+本轮的候选选择只是诊断用途。多重检验门槛记录了 4 次候选试验，对应 deflated t 门槛约 3.30。最终共同 OOS 收益矩阵的 PBO 为：A 股 0.5992（overfit）、美股 0.7738（overfit）、加密货币 0.6389（overfit），整体晋级状态仍为 BLOCKED。修复后的训练/OOS 选择逻辑需要重新跑全量报告，旧报告的候选选择结果不再作为有效 OOS 证据。
 
 本轮实际跑的是 `momentum_dualma_v1` 的 4 组预注册参数候选，不等同于系统中所有策略都已经验证。`signal_fusion`、价差均值回归/套利以及依赖资金费、盘口的策略仍需各自接入兼容的真实数据回放和独立 OOS 门禁；SEC insider 已有独立报告。报告不把它们伪装成已完成。
 
@@ -59,3 +59,7 @@
 - Bailey 与 López de Prado 的 Deflated Sharpe Ratio 用于修正多重试验选择偏差和非正态收益；见 [SSRN 原始论文](https://doi.org/10.2139/ssrn.2460551)。
 - Purging 与 embargo 用于避免金融时间序列标签重叠和序列相关造成的信息泄漏；见 [Financial ML Core 的方法实现说明](https://ppuertos.github.io/financial-ml-core/reference/model_selection/split/)。
 - 加密历史 K 线的时间主键、区间参数和 UTC 解释遵循 [Binance 官方 Spot API 文档](https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md)；本项目当前运行中因网络区域限制使用已有本地真实数据，不以 451 错误替代数据。
+
+## 本轮清理
+
+仅清理了可再生构建产物：Next `.next`、dashboard `output`、Rust `target`、`dist`、测试/静态分析缓存和项目源码下的 `__pycache__`，约释放 400MB。`data/market_cache`、`data/store`、`data/datasets`、真实数据报告、manifest、promotion board 和 `apps/dashboard/archive` 均保留：前者是可重建但当前研究仍依赖的本地数据基座，后者有明确的归档索引，不能按“看起来旧”删除。

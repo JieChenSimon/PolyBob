@@ -190,6 +190,13 @@ def _optimization_action(reasons: list[str]) -> str:
     return "; ".join(actions) if actions else "no automatic change; independent confirmation required"
 
 
+def _select_candidate(candidates: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Select on training evidence only; OOS is never an optimization input."""
+    eligible = [item for item in candidates
+                if item.get("score_train_mean_return") is not None]
+    return max(eligible, key=lambda item: item["score_train_mean_return"]) if eligible else None
+
+
 async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_of: datetime,
                               split: datetime, output_dir: Path, label: str,
                               retain_runs: bool = False) -> dict[str, Any]:
@@ -204,11 +211,17 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
                 symbol, period, config, db_path=db_path, name=f"{label}:{symbol}:{name}",
                 retain_db=retain_runs,
             )})
+    def mean_return(period_name: str) -> float | None:
+        period_results = [item["result"] for item in results if item["period"] == period_name]
+        analyzed_period = [item for item in period_results if item.get("status") == "ANALYZED"]
+        values = [item["metrics"].get("total_return") for item in analyzed_period]
+        values = [float(value) for value in values if value is not None]
+        return sum(values) / len(values) if values else None
+
+    train_score = mean_return("train")
+    oos_score = mean_return("oos")
     oos = [item["result"] for item in results if item["period"] == "oos"]
     analyzed = [item for item in oos if item.get("status") == "ANALYZED"]
-    returns = [item["metrics"].get("total_return") for item in analyzed]
-    returns = [float(value) for value in returns if value is not None]
-    score = sum(returns) / len(returns) if returns else None
     by_timestamp: dict[str, list[float]] = {}
     for item in results:
         if item["period"] != "oos":
@@ -219,7 +232,9 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
                       if item["period"] == "oos" and item["result"].get("status") == "ANALYZED"]
     common_returns = [sum(values) / len(values) for _, values in sorted(by_timestamp.items())
                       if len(values) == len(analyzable_oos)]
-    return {"candidate": config, "symbols": symbols, "score_oos_mean_return": score,
+    return {"candidate": config, "symbols": symbols,
+            "score_train_mean_return": train_score,
+            "score_oos_mean_return": oos_score,
             "oos_portfolio_returns": common_returns,
             "results": results, "status": "ANALYZED" if analyzed else "BLOCKED"}
 
@@ -255,10 +270,10 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             candidates[domain].append(await _evaluate_candidate(
                 calibration, config, as_of=as_of, split=split, output_dir=output_dir,
                 label=f"{domain}-{config['id']}", retain_runs=args.retain_runs))
-        eligible = [item for item in candidates[domain] if item["score_oos_mean_return"] is not None]
-        selected_by_domain[domain] = max(
-            eligible, key=lambda item: item["score_oos_mean_return"]
-        ) if eligible else None
+        # Selection must be made on the pre-declared training period. The OOS
+        # score is recorded for validation only; using it here is look-ahead
+        # bias and makes the supposedly out-of-sample comparison invalid.
+        selected_by_domain[domain] = _select_candidate(candidates[domain])
         matrices = [item["oos_portfolio_returns"] for item in candidates[domain]
                     if len(item["oos_portfolio_returns"]) >= 20]
         if len(matrices) >= 2:
@@ -314,7 +329,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             for domain, selected in selected_by_domain.items()
         },
         "optimization_trace": {
-            "selection": "calibration OOS mean return only; selected candidate is diagnostic, not promoted",
+            "selection": "training mean return only; OOS is held out for validation and cannot select the candidate",
             "failure_feedback": "each full-result verdict emits bounded next-step actions; no live strategy mutation occurs",
             "multiple_testing": "candidate family count and PBO are recorded; DSR observed statistic and promotion remain outside this runner",
         },

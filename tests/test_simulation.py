@@ -533,6 +533,9 @@ def test_metrics_on_hand_built_trades(tmp_path):
     assert metrics["avg_win"] == pytest.approx(15.0)
     assert metrics["avg_loss"] == pytest.approx(-15.0)
     assert metrics["realized_pnl"] == pytest.approx(15.0)
+    assert metrics["total_fees"] == pytest.approx(0.08)
+    assert metrics["total_slippage"] == pytest.approx(0.0)
+    assert metrics["total_explicit_cost"] == pytest.approx(0.08)
     assert metrics["max_drawdown"] == pytest.approx((10_100.0 - 9_900.0) / 10_100.0)
     assert metrics["total_return"] == pytest.approx(10_150.0 / 10_000.0 - 1.0)
     assert metrics["sharpe"] is not None
