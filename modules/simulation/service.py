@@ -91,6 +91,12 @@ DEFAULT_RUN_CONFIG: dict[str, Any] = {
     "max_staleness_seconds": 30.0,
     "cooldown_seconds": 60.0,
     "min_trade_notional": 10.0,
+    # Avoid paying spread/impact to resize a position for immaterial price
+    # moves. A value of zero preserves the historical per-bar rebalance.
+    "min_rebalance_bps": 0.0,
+    # Paper Lab supports shorting, but a strategy can explicitly be long-only
+    # for venues/instruments where short inventory is not available.
+    "allow_short": True,
     "equity_interval_minutes": 5.0,
     # Feedback guardrails (see modules/simulation/metrics.py docstring).
     "auto_feedback": False,
@@ -664,11 +670,27 @@ class SimulationService:
 
             fraction = float(active.config_value("position_fraction"))
             direction = 1.0 if signal.side == "buy" else -1.0
-            target_size = direction * (fraction * equity) / est_price
+            allow_short = bool(active.config_value("allow_short"))
+            target_size = (
+                direction * (fraction * equity) / est_price
+                if direction > 0 or allow_short
+                else 0.0
+            )
             qty = target_size - current_size
             # Only trade in the signal's direction (a buy signal never sells
             # beyond flattening toward its own target, and vice versa).
             if qty * direction <= 0:
+                return
+            # A same-direction signal may otherwise resize on every daily
+            # mark as price changes. Only pay costs when the target has moved
+            # materially; reversals and long-only exits always pass through.
+            min_rebalance_bps = max(0.0, float(active.config_value("min_rebalance_bps")))
+            same_direction = current_size * target_size > 0
+            if (
+                same_direction
+                and min_rebalance_bps > 0
+                and abs(qty) / max(abs(current_size), _EPS) * 10_000.0 < min_rebalance_bps
+            ):
                 return
             if abs(qty) * est_price < float(active.config_value("min_trade_notional")):
                 return

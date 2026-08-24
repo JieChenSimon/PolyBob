@@ -53,11 +53,45 @@ class ReplayClock:
 
 
 MOMENTUM_CANDIDATES: tuple[dict[str, Any], ...] = (
-    {"id": "mom_3_8_5", "fast_window": 3, "slow_window": 8, "min_separation_bps": 5.0},
-    {"id": "mom_5_20_8", "fast_window": 5, "slow_window": 20, "min_separation_bps": 8.0},
-    {"id": "mom_8_32_10", "fast_window": 8, "slow_window": 32, "min_separation_bps": 10.0},
-    {"id": "mom_10_40_12", "fast_window": 10, "slow_window": 40, "min_separation_bps": 12.0},
+    {"id": "mom_3_8_5", "fast_window": 3, "slow_window": 8, "min_separation_bps": 5.0,
+     "min_rebalance_bps": 0.0, "allow_short": True},
+    {"id": "mom_5_20_8", "fast_window": 5, "slow_window": 20, "min_separation_bps": 8.0,
+     "min_rebalance_bps": 0.0, "allow_short": True},
+    {"id": "mom_8_32_10", "fast_window": 8, "slow_window": 32, "min_separation_bps": 10.0,
+     "min_rebalance_bps": 0.0, "allow_short": True},
+    {"id": "mom_10_40_12", "fast_window": 10, "slow_window": 40, "min_separation_bps": 12.0,
+     "min_rebalance_bps": 0.0, "allow_short": True},
 )
+
+
+def _candidates_for_domain(domain: str) -> tuple[dict[str, Any], ...]:
+    """Return a small pre-registered family for the venue's constraints."""
+    if domain == "a_share":
+        # A-shares are not treated as freely shortable. These are deliberately
+        # narrow alternatives: long-only plus turnover hysteresis, not an
+        # unbounded parameter search.
+        return MOMENTUM_CANDIDATES + tuple(
+        {**candidate,
+         "id": f"{candidate['id']}_longonly_r25",
+         "allow_short": False,
+         "min_rebalance_bps": 25.0}
+        for candidate in MOMENTUM_CANDIDATES
+        )
+    # For shortable venues, isolate turnover and sign hypotheses without
+    # changing the trend windows. Every extra trial is counted in PBO.
+    turnover = tuple(
+        {**candidate,
+         "id": f"{candidate['id']}_r25",
+         "min_rebalance_bps": 25.0}
+        for candidate in MOMENTUM_CANDIDATES
+    )
+    inverse = tuple(
+        {**candidate,
+         "id": f"{candidate['id']}_inverse",
+         "invert_signal": True}
+        for candidate in MOMENTUM_CANDIDATES
+    )
+    return MOMENTUM_CANDIDATES + turnover + inverse
 
 
 def _parse_date(value: str | None) -> datetime | None:
@@ -266,7 +300,8 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     pbo_by_domain: dict[str, dict[str, Any]] = {}
     for domain, calibration in calibration_by_domain.items():
         candidates[domain] = []
-        for config in MOMENTUM_CANDIDATES:
+        domain_candidates = _candidates_for_domain(domain)
+        for config in domain_candidates:
             candidates[domain].append(await _evaluate_candidate(
                 calibration, config, as_of=as_of, split=split, output_dir=output_dir,
                 label=f"{domain}-{config['id']}", retain_runs=args.retain_runs))
@@ -334,7 +369,9 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             "multiple_testing": "candidate family count and PBO are recorded; DSR observed statistic and promotion remain outside this runner",
         },
         "multiple_testing": {
-            "n_trials": len(MOMENTUM_CANDIDATES),
+            "n_trials_by_domain": {domain: len(_candidates_for_domain(domain))
+                                    for domain in calibration_by_domain},
+            "n_trials": max(len(_candidates_for_domain(domain)) for domain in calibration_by_domain),
             "deflated_t_threshold": deflated_t_stat_threshold(len(MOMENTUM_CANDIDATES)),
             "pbo_by_domain": pbo_by_domain,
             "status": "BLOCKED",

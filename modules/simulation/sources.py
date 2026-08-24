@@ -308,6 +308,7 @@ class MomentumSignalSource:
         self.slow_window = max(self.fast_window + 1, int(config.get("slow_window", 8)))
         self.min_separation_bps = float(config.get("min_separation_bps", 5.0))
         self.confidence = float(config.get("momentum_confidence", 0.7))
+        self.invert_signal = bool(config.get("invert_signal", False))
         self._prices: dict[str, list[float]] = {}
 
     @staticmethod
@@ -341,7 +342,10 @@ class MomentumSignalSource:
         if abs(separation_bps) < self.min_separation_bps:
             return []
 
-        side = "buy" if separation_bps > 0 else "sell"
+        bullish = separation_bps > 0
+        if self.invert_signal:
+            bullish = not bullish
+        side = "buy" if bullish else "sell"
         confidence = min(1.0, self.confidence + min(abs(separation_bps) / 1_000.0, 0.29))
         return [
             SimSignal(
@@ -359,6 +363,7 @@ class MomentumSignalSource:
                     "fast_ma": fast,
                     "slow_ma": slow,
                     "separation_bps": separation_bps,
+                    "invert_signal": self.invert_signal,
                 },
             )
         ]

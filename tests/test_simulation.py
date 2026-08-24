@@ -269,6 +269,51 @@ async def test_conservative_fill_buys_at_ask_plus_fee(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_long_only_run_flattens_sell_signal_without_opening_short(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="long-only", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0,
+        config={**RUN_CONFIG, "allow_short": False},
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    active = service._active[run_id]
+    now = datetime.now(UTC)
+
+    buy = SimSignal("m1", "buy", 0.9, bid=0.99, ask=1.01, mid=1.0, timestamp=now)
+    await service._process_signal(active, buy)
+    assert service.store.list_positions(run_id)[0].size > 0
+
+    sell = SimSignal("m1", "sell", 0.9, bid=0.99, ask=1.01, mid=1.0, timestamp=now)
+    await service._process_signal(active, sell)
+    assert service.store.list_positions(run_id) == []
+
+
+@pytest.mark.asyncio
+async def test_rebalance_hysteresis_skips_immaterial_resize(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="hysteresis", strategy_id="spread_reversion_v1", universe=["m1"],
+        initial_capital=10_000.0,
+        config={**RUN_CONFIG, "min_rebalance_bps": 25.0},
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    active = service._active[run_id]
+    now = datetime.now(UTC)
+    await service._process_signal(
+        active, SimSignal("m1", "buy", 0.9, bid=0.99, ask=1.01, mid=1.0, timestamp=now)
+    )
+    first_count = len(service.store.list_trades(run_id))
+    # A roughly 10 bps mark change would require less than the 25 bps target resize.
+    await service._process_signal(
+        active, SimSignal("m1", "buy", 0.9, bid=0.99099, ask=1.01101, mid=1.001, timestamp=now)
+    )
+    assert len(service.store.list_trades(run_id)) == first_count
+
+
+@pytest.mark.asyncio
 async def test_funding_snapshot_is_booked_once_and_replayed(tmp_path):
     service = make_service(tmp_path)
     run = await service.create_run(
