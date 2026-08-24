@@ -35,6 +35,11 @@ def main() -> int:
             2.0: Path("data/insider_kernel_replay_extended_market20_2x.json"),
             3.0: Path("data/insider_kernel_replay_extended_market20_3x.json"),
         },
+        "market20_extended_hold30_cap1x": {
+            1.0: Path("data/insider_kernel_replay_extended_market20_hold30_cap1x.json"),
+            2.0: Path("data/insider_kernel_replay_extended_market20_hold30_cap1x_2x.json"),
+            3.0: Path("data/insider_kernel_replay_extended_market20_hold30_cap1x_3x.json"),
+        },
     }
     audits = {}
     for name, cost_paths in candidates.items():
@@ -43,8 +48,11 @@ def main() -> int:
         base = returns[1.0]
         fold_returns = [float(fold["oos_return"]) for fold in reports[1.0]["folds"]]
         stability = sum(value > 0 for value in fold_returns) / len(fold_returns)
+        n_trials = 324 if name == "market20_extended_hold30_cap1x" else int(
+            reports[1.0].get("candidate_family_size", 18)
+        )
         gate = PromotionGate(
-            n_trials=int(reports[1.0].get("candidate_family_size", 18)),
+            n_trials=n_trials,
             min_dsr=0.95,
             min_observations=60,
             min_oos_stability_rate=0.75,
@@ -59,7 +67,7 @@ def main() -> int:
         )
         audits[name] = {
             "source_reports": {str(multiple): str(path) for multiple, path in cost_paths.items()},
-            "candidate_family_size": reports[1.0].get("candidate_family_size"),
+            "candidate_family_size": n_trials,
             "daily_observations": len(base),
             "base_annualized_sharpe": annualized_sharpe(base),
             "cost_annualized_sharpe": {

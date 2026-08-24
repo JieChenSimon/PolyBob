@@ -1,0 +1,17 @@
+id: PB-0028
+title: SEC insider 持有期候选优化与组合审计
+state: doing
+p: P1
+area: quant
+why: 在真实扩展历史和成交内核中验证持有期、风险归一化、成本压力与组合层显著性，保留可重复改进并拒绝伪 alpha
+checks:
+- text: 完成 10/20/30 日预注册候选的真实内核回放与成本压力
+  done: false
+- text: 完成风险归一化、OOS 稳定性、PBO/DSR 和组合层聚类审计
+  done: false
+- text: 通过测试、报告、Git 提交推送并明确晋级或拒绝结论
+  done: false
+deps: []
+branch: pb-0027-real-data-pipeline
+blocked: null
+updated: '2026-08-24T14:02:12+00:00'

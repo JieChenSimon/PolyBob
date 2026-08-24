@@ -183,6 +183,67 @@
         "status": "fail"
       },
       "status": "replay_only_not_promoted"
+    },
+    "market20_extended_hold30_cap1x": {
+      "source_reports": {
+        "1.0": "data/insider_kernel_replay_extended_market20_hold30_cap1x.json",
+        "2.0": "data/insider_kernel_replay_extended_market20_hold30_cap1x_2x.json",
+        "3.0": "data/insider_kernel_replay_extended_market20_hold30_cap1x_3x.json"
+      },
+      "candidate_family_size": 324,
+      "daily_observations": 1269,
+      "base_annualized_sharpe": 0.6480817284926516,
+      "cost_annualized_sharpe": {
+        "1.0": 0.6480817284926516,
+        "2.0": 0.5556519904290297,
+        "3.0": 0.46234444568492994
+      },
+      "oos_fold_returns": [
+        0.10431644089618675,
+        0.11171181742695824,
+        0.04898565874778593,
+        0.035572882940337
+      ],
+      "oos_stability_rate": 1.0,
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": true,
+            "value": 1269.0,
+            "threshold": 60.0,
+            "detail": "1269 observations",
+            "status": "pass"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0699,
+            "threshold": 0.95,
+            "detail": "DSR=0.070 over 324 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": 0.4623,
+            "threshold": 0.5,
+            "detail": "Sharpe under 3.0x costs is 0.46 < 0.5",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": true,
+            "value": 1.0,
+            "threshold": 0.75,
+            "detail": "100% of walk-forward windows stable",
+            "status": "pass"
+          }
+        ],
+        "status": "fail"
+      },
+      "status": "replay_only_not_promoted"
     }
   },
   "status": "replay_only_not_promoted"
