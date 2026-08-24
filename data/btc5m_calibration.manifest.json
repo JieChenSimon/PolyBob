@@ -2,11 +2,11 @@
   "schema_version": "btc5m-report-lineage-v1",
   "report_name": "calibration",
   "report_path": "data/btc5m_calibration.json",
-  "report_sha256": "9c739e5b3f3c6c59330ced0e3c7fe18ac59320cd713de1579d00d311b22292b3",
-  "generated_at": "2026-08-24T18:18:51.311611+00:00",
-  "source_generated_at": "2026-08-24T15:40:05.718125+00:00",
+  "report_sha256": "b311a85d4e4edf7e4eef0b0bb56832be37fb51bbc8a3eee736ab57cf5621dd44",
+  "generated_at": "2026-08-24T23:44:30.102698+00:00",
+  "source_generated_at": "2026-08-24T19:04:44.547279+00:00",
   "code": {
-    "commit": "ad2e8c9fe587cfcb2c9f5b4918e1dc5c0fef0570",
+    "commit": "da95a3fa2fef595adbc7e9603783d0c253bb71a0",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []

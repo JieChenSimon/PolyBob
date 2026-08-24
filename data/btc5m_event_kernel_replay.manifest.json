@@ -3,10 +3,10 @@
   "report_name": "event_kernel_replay",
   "report_path": "data/btc5m_event_kernel_replay.json",
   "report_sha256": "dbf6100843b625c4aee81d71b7115425b21923346681b0b4b0cfc72f5db0fe3a",
-  "generated_at": "2026-08-24T18:18:51.445455+00:00",
+  "generated_at": "2026-08-24T23:44:30.264464+00:00",
   "source_generated_at": "2026-08-24T17:57:42.921912+00:00",
   "code": {
-    "commit": "ad2e8c9fe587cfcb2c9f5b4918e1dc5c0fef0570",
+    "commit": "da95a3fa2fef595adbc7e9603783d0c253bb71a0",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
