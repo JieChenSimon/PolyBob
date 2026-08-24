@@ -1,6 +1,6 @@
 id: PB-0042
 title: 模拟盘逐标的收益与可解释归因闭环
-state: doing
+state: done
 p: P1
 area: execution
 why: 当前模拟盘已有部分逐标的 PnL 点，但缺少结构化特征快照、模型贡献与成交结果关联，以及前端曲线/归因展示；必须完成并验证后才能支撑策略迭代。
@@ -15,4 +15,4 @@ deps:
 - PB-0041
 branch: pb-0037-funding-strategy-replay
 blocked: null
-updated: '2026-08-24T18:57:25+00:00'
+updated: '2026-08-24T18:57:28+00:00'
