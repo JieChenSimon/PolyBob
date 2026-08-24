@@ -126,6 +126,8 @@
 
 对该 regime 过滤再做的受限阈值敏感性也没有显示可继续放大的空间：SPY 20 日收益门槛 `>= 5%` 时收益 2.21%、Sharpe 0.299，第四折为 -0.33%；门槛 `>= 10%` 时仅剩 77 个事件，收益 -0.26%、Sharpe -0.111。因而保留 `>= 0` 作为当前候选的固定规则，明确拒绝更高阈值，并把这组阈值实验计入候选族而不是继续挑选最优结果。
 
+新增 [insider_market20_portfolio_audit.json](../data/insider_market20_portfolio_audit.json) 做组合层而非事件层的独立审计：1,264 个日收益、61 个日历月份与 SPY 对齐后，组合 beta 约 0.054，近似年化 alpha 约 1.50%，但按月份聚类的 alpha t 仅 1.05（108 候选族门槛 4.02），95% bootstrap 区间为 -0.5% 至 +1.8%，alpha 为正的月份仅 47.5%。因此 market20 是相对原规则的风险调整改善候选，却不能被描述为已验证的赚钱 alpha；下一步必须继续积累独立时间覆盖或寻找跨资产、跨策略组合层证据。
+
 ## 外部真实 OHLCV focused scoreboard
 
 在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：
