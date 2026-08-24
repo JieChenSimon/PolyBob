@@ -1,0 +1,322 @@
+{
+  "generated_at": "2026-08-24T22:36:25.009954+00:00",
+  "requested": 62,
+  "available": 0,
+  "unknown": 62,
+  "materialized_locally": ["000001", "000858", "300750", "600519", "601318"],
+  "provider_failure_does_not_delete_local_rows": true,
+  "results": [
+    {
+      "symbol": "000001",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000002",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000063",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000100",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000157",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000300",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000333",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000338",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000568",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000651",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000725",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000776",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "000858",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002001",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002007",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002027",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002032",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002049",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002050",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002230",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002236",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002304",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002352",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002415",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002460",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002466",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002475",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002493",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "002594",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "300750",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600000",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600009",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600011",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600016",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600028",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600030",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600036",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600050",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600104",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600276",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600309",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600438",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600519",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600585",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600690",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600703",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600745",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600887",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "600900",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601012",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601088",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601166",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601186",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601288",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601318",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601390",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601398",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601628",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601668",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601857",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601899",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "symbol": "601988",
+      "status": "UNKNOWN",
+      "reason": "Expecting value: line 1 column 1 (char 0)"
+    }
+  ],
+  "strict_historical_pit": false,
+  "promotion": "BLOCKED"
+}
