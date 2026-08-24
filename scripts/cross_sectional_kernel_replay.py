@@ -53,7 +53,8 @@ class ReplayClock:
         return self.current
 
 
-async def replay_symbol(symbol: str, timestamps: list, prices: list[float], positions: list[float], out_dir: Path) -> dict:
+async def replay_symbol(symbol: str, timestamps: list, prices: list[float], positions: list[float],
+                        split_date: str, out_dir: Path) -> dict:
     timestamps = [datetime.fromisoformat(value) if isinstance(value, str) else value
                   for value in timestamps]
     timestamps = [value if value.tzinfo else value.replace(tzinfo=UTC) for value in timestamps]
@@ -90,10 +91,23 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
         await service._record_equity(service._active[run_id])
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    points = service.store.list_equity_points(run_id)
+    oos_points = [point for point in points if point.ts >= split_date]
+    prior_points = [point for point in points if point.ts < split_date]
+    oos_start = prior_points[-1] if prior_points else (oos_points[0] if oos_points else None)
+    oos_end = oos_points[-1] if oos_points else None
+    oos_return = (
+        oos_end.equity / oos_start.equity - 1.0
+        if oos_start is not None and oos_end is not None and oos_start.equity > 0 else None
+    )
+    trades = service.store.list_trades(run_id)
+    oos_closed = sum(1 for trade in trades if trade.executed_at >= split_date and trade.realized_pnl is not None)
     await service.stop()
     for suffix in ("", "-wal", "-shm"):
         db_path.with_name(db_path.name + suffix).unlink(missing_ok=True)
-    return {"symbol": symbol, "run_id": run_id, "metrics": metrics}
+    return {"symbol": symbol, "run_id": run_id, "metrics": metrics,
+            "oos_return": oos_return, "oos_closed_trades": oos_closed,
+            "oos_points": len(oos_points)}
 
 
 async def main_async() -> int:
@@ -105,6 +119,7 @@ async def main_async() -> int:
     if len(symbols) < 4 or matrix.shape[1] < 300:
         raise RuntimeError("insufficient clean liquid universe")
     positions = select_long_only(matrix, lookback=60, top_frac=0.3, rebalance_days=10)
+    split_date = str(matrix_frame.index[int(matrix_frame.shape[0] * 0.7)])
     out_dir = Path("data/.kernel_replay")
     out_dir.mkdir(parents=True, exist_ok=True)
     results = []
@@ -114,23 +129,24 @@ async def main_async() -> int:
         aligned_target = target[[matrix_frame.index.get_loc(date) for date in series.index if date in matrix_frame.index]]
         timestamps = [datetime.fromisoformat(date) for date in series.index[valid]]
         results.append(await replay_symbol(symbol, timestamps, series.to_numpy(dtype=float).tolist(),
-                                           aligned_target.tolist(), out_dir))
-    returns = [item["metrics"].get("total_return") for item in results]
+                                           aligned_target.tolist(), split_date, out_dir))
+    returns = [item.get("oos_return") for item in results]
     returns = [float(value) for value in returns if value is not None]
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
         "strategy": {"lookback": 60, "top_frac": 0.3, "rebalance_days": 10},
         "execution_config": {"fee_bps": 20.0, "mid_penalty_bps": 10.0, "allow_short": False},
-        "symbols": len(symbols), "quality_rejected": rejected,
-        "mean_kernel_return": sum(returns) / len(returns) if returns else None,
-        "median_kernel_return": sorted(returns)[len(returns) // 2] if returns else None,
+        "split_date": split_date, "symbols": len(symbols), "quality_rejected": rejected,
+        "mean_kernel_oos_return": sum(returns) / len(returns) if returns else None,
+        "median_kernel_oos_return": sorted(returns)[len(returns) // 2] if returns else None,
+        "positive_oos_fraction": sum(value > 0 for value in returns) / len(returns) if returns else None,
         "results": results,
         "status": "replay_only_not_promoted",
     }
     out = Path("data/cross_sectional_kernel_replay.json")
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
-    print(json.dumps({k: report[k] for k in ("symbols", "quality_rejected", "mean_kernel_return", "median_kernel_return", "status")}, ensure_ascii=False, indent=2))
+    print(json.dumps({k: report[k] for k in ("symbols", "quality_rejected", "split_date", "mean_kernel_oos_return", "median_kernel_oos_return", "positive_oos_fraction", "status")}, ensure_ascii=False, indent=2))
     print(f"写入 {out}")
     return 0
 

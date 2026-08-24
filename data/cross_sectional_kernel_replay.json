@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T10:50:08.349224+00:00",
+  "generated_at": "2026-08-24T10:54:11.953076+00:00",
   "real_data_only": true,
   "execution_kernel": "modules.simulation.SimulationService",
   "strategy": {
@@ -12,14 +12,16 @@
     "mid_penalty_bps": 10.0,
     "allow_short": false
   },
+  "split_date": "2025-02-14",
   "symbols": 26,
   "quality_rejected": 0,
-  "mean_kernel_return": 0.010330243115208176,
-  "median_kernel_return": -0.0005534657925778674,
+  "mean_kernel_oos_return": 0.005150164660416427,
+  "median_kernel_oos_return": 1.1343247310557913e-05,
+  "positive_oos_fraction": 0.5,
   "results": [
     {
       "symbol": "AAPL",
-      "run_id": "sim_86e71f870a",
+      "run_id": "sim_60b862d2f0",
       "metrics": {
         "total_return": -0.0005534657925778674,
         "equity": 9994.465342074222,
@@ -45,11 +47,14 @@
             "win_rate": 0.375
           }
         }
-      }
+      },
+      "oos_return": 0.0031060783751932775,
+      "oos_closed_trades": 3,
+      "oos_points": 381
     },
     {
       "symbol": "MSFT",
-      "run_id": "sim_43406f9a76",
+      "run_id": "sim_0ccaaa2ed8",
       "metrics": {
         "total_return": 0.012204064555031868,
         "equity": 10122.040645550318,
@@ -75,11 +80,14 @@
             "win_rate": 0.4
           }
         }
-      }
+      },
+      "oos_return": 0.001546145987405767,
+      "oos_closed_trades": 3,
+      "oos_points": 381
     },
     {
       "symbol": "NVDA",
-      "run_id": "sim_5c916e0841",
+      "run_id": "sim_ac29f1602e",
       "metrics": {
         "total_return": 0.12341316247432177,
         "equity": 11234.131624743219,
@@ -105,11 +113,14 @@
             "win_rate": 0.5
           }
         }
-      }
+      },
+      "oos_return": 0.010384973445012546,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "AMZN",
-      "run_id": "sim_6e67ee6d6c",
+      "run_id": "sim_fc9383c05d",
       "metrics": {
         "total_return": -0.012067096551519163,
         "equity": 9879.329034484808,
@@ -135,11 +146,14 @@
             "win_rate": 0.5
           }
         }
-      }
+      },
+      "oos_return": -0.011232076666428448,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "META",
-      "run_id": "sim_8c7710daa5",
+      "run_id": "sim_7c5544d8f5",
       "metrics": {
         "total_return": 0.026205972119476728,
         "equity": 10262.059721194768,
@@ -165,11 +179,14 @@
             "win_rate": 0.5
           }
         }
-      }
+      },
+      "oos_return": -0.0057349254854635046,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "GOOGL",
-      "run_id": "sim_b2c2dc8849",
+      "run_id": "sim_d8fe294641",
       "metrics": {
         "total_return": 0.00670906892398504,
         "equity": 10067.09068923985,
@@ -195,11 +212,14 @@
             "win_rate": 0.375
           }
         }
-      }
+      },
+      "oos_return": 0.017325880367863977,
+      "oos_closed_trades": 3,
+      "oos_points": 381
     },
     {
       "symbol": "TSLA",
-      "run_id": "sim_5bf7c4ed38",
+      "run_id": "sim_dee96c02ce",
       "metrics": {
         "total_return": -0.024094502873604817,
         "equity": 9759.054971263951,
@@ -225,11 +245,14 @@
             "win_rate": 0.2727272727272727
           }
         }
-      }
+      },
+      "oos_return": -0.010964512551595251,
+      "oos_closed_trades": 4,
+      "oos_points": 381
     },
     {
       "symbol": "AMD",
-      "run_id": "sim_612d5a016a",
+      "run_id": "sim_96e35ec641",
       "metrics": {
         "total_return": 0.10020777795649094,
         "equity": 11002.07777956491,
@@ -255,11 +278,14 @@
             "win_rate": 0.75
           }
         }
-      }
+      },
+      "oos_return": 0.06191712468652821,
+      "oos_closed_trades": 3,
+      "oos_points": 381
     },
     {
       "symbol": "JPM",
-      "run_id": "sim_3114e96acc",
+      "run_id": "sim_50ba236133",
       "metrics": {
         "total_return": 0.0013837485277004014,
         "equity": 10013.837485277003,
@@ -285,11 +311,14 @@
             "win_rate": 0.5555555555555556
           }
         }
-      }
+      },
+      "oos_return": -0.005667260712909128,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "BAC",
-      "run_id": "sim_f8d774d560",
+      "run_id": "sim_524c0b00fd",
       "metrics": {
         "total_return": -0.02122195580339159,
         "equity": 9787.780441966084,
@@ -315,11 +344,14 @@
             "win_rate": 0.15384615384615385
           }
         }
-      }
+      },
+      "oos_return": 0.0005552400506980693,
+      "oos_closed_trades": 3,
+      "oos_points": 381
     },
     {
       "symbol": "WFC",
-      "run_id": "sim_f5a43ec8f7",
+      "run_id": "sim_84c0f2020f",
       "metrics": {
         "total_return": 0.0010790266962348305,
         "equity": 10010.790266962347,
@@ -345,11 +377,14 @@
             "win_rate": 0.2727272727272727
           }
         }
-      }
+      },
+      "oos_return": -0.004338262670825599,
+      "oos_closed_trades": 5,
+      "oos_points": 381
     },
     {
       "symbol": "C",
-      "run_id": "sim_d2c41e4823",
+      "run_id": "sim_c677e46a5f",
       "metrics": {
         "total_return": -0.0007568820162592305,
         "equity": 9992.431179837407,
@@ -375,11 +410,14 @@
             "win_rate": 0.3333333333333333
           }
         }
-      }
+      },
+      "oos_return": -0.010142553942098065,
+      "oos_closed_trades": 6,
+      "oos_points": 381
     },
     {
       "symbol": "XOM",
-      "run_id": "sim_280486cd45",
+      "run_id": "sim_818ad5ba81",
       "metrics": {
         "total_return": 0.013316013238440894,
         "equity": 10133.160132384408,
@@ -405,11 +443,14 @@
             "win_rate": 0.4
           }
         }
-      }
+      },
+      "oos_return": 0.008861419682675509,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "CVX",
-      "run_id": "sim_fe9feb1520",
+      "run_id": "sim_f4838a57a4",
       "metrics": {
         "total_return": -0.0014044212226824726,
         "equity": 9985.955787773175,
@@ -435,11 +476,14 @@
             "win_rate": 0.5
           }
         }
-      }
+      },
+      "oos_return": -0.005341203530962013,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "PFE",
-      "run_id": "sim_cfb21217a6",
+      "run_id": "sim_f2e7d92899",
       "metrics": {
         "total_return": -0.007697685231583318,
         "equity": 9923.023147684167,
@@ -465,11 +509,14 @@
             "win_rate": 0.3333333333333333
           }
         }
-      }
+      },
+      "oos_return": 1.1343247310557913e-05,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "MRK",
-      "run_id": "sim_e43abadc1e",
+      "run_id": "sim_b72692c718",
       "metrics": {
         "total_return": 0.023060890993649164,
         "equity": 10230.60890993649,
@@ -495,11 +542,14 @@
             "win_rate": 0.625
           }
         }
-      }
+      },
+      "oos_return": 0.015270987820714454,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "KO",
-      "run_id": "sim_2497185bed",
+      "run_id": "sim_454a74d210",
       "metrics": {
         "total_return": -0.0015587739331811568,
         "equity": 9984.412260668189,
@@ -525,11 +575,14 @@
             "win_rate": 0.375
           }
         }
-      }
+      },
+      "oos_return": -0.002880758839593489,
+      "oos_closed_trades": 4,
+      "oos_points": 381
     },
     {
       "symbol": "NKE",
-      "run_id": "sim_2f7bcc8b49",
+      "run_id": "sim_006016da87",
       "metrics": {
         "total_return": -0.01635130899207382,
         "equity": 9836.486910079262,
@@ -555,11 +608,14 @@
             "win_rate": 0.16666666666666666
           }
         }
-      }
+      },
+      "oos_return": -0.0012107559416880687,
+      "oos_closed_trades": 1,
+      "oos_points": 381
     },
     {
       "symbol": "DIS",
-      "run_id": "sim_8533c0c65d",
+      "run_id": "sim_8c0c7033aa",
       "metrics": {
         "total_return": -0.015854685017621883,
         "equity": 9841.453149823781,
@@ -585,11 +641,14 @@
             "win_rate": 0.25
           }
         }
-      }
+      },
+      "oos_return": -0.003736135021354059,
+      "oos_closed_trades": 3,
+      "oos_points": 381
     },
     {
       "symbol": "VZ",
-      "run_id": "sim_5d2cef606b",
+      "run_id": "sim_13bcf3b20f",
       "metrics": {
         "total_return": -0.009843822955391657,
         "equity": 9901.561770446084,
@@ -615,11 +674,14 @@
             "win_rate": 0.3333333333333333
           }
         }
-      }
+      },
+      "oos_return": -0.003974481199667701,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "T",
-      "run_id": "sim_2cd9076e18",
+      "run_id": "sim_c7cb5006ee",
       "metrics": {
         "total_return": 0.00976685108360642,
         "equity": 10097.668510836065,
@@ -645,11 +707,14 @@
             "win_rate": 0.375
           }
         }
-      }
+      },
+      "oos_return": -0.004971853255527292,
+      "oos_closed_trades": 2,
+      "oos_points": 381
     },
     {
       "symbol": "F",
-      "run_id": "sim_bb8bf51151",
+      "run_id": "sim_168c1d94e8",
       "metrics": {
         "total_return": -0.035555195955772834,
         "equity": 9644.448040442272,
@@ -675,11 +740,14 @@
             "win_rate": 0.3333333333333333
           }
         }
-      }
+      },
+      "oos_return": -0.004703653578159495,
+      "oos_closed_trades": 5,
+      "oos_points": 381
     },
     {
       "symbol": "GM",
-      "run_id": "sim_fa72df0ccc",
+      "run_id": "sim_bc27abd120",
       "metrics": {
         "total_return": -0.011252655496672204,
         "equity": 9887.473445033278,
@@ -705,11 +773,14 @@
             "win_rate": 0.2857142857142857
           }
         }
-      }
+      },
+      "oos_return": 0.005349375573156401,
+      "oos_closed_trades": 4,
+      "oos_points": 381
     },
     {
       "symbol": "GE",
-      "run_id": "sim_b62181b461",
+      "run_id": "sim_4830300680",
       "metrics": {
         "total_return": 0.0715951647285391,
         "equity": 10715.951647285392,
@@ -735,11 +806,14 @@
             "win_rate": 0.36363636363636365
           }
         }
-      }
+      },
+      "oos_return": 0.0027452804937666553,
+      "oos_closed_trades": 5,
+      "oos_points": 381
     },
     {
       "symbol": "BA",
-      "run_id": "sim_a2653ac951",
+      "run_id": "sim_d5993f45f6",
       "metrics": {
         "total_return": -0.017398249753186934,
         "equity": 9826.01750246813,
@@ -765,11 +839,14 @@
             "win_rate": 0.2222222222222222
           }
         }
-      }
+      },
+      "oos_return": 0.010988377417489925,
+      "oos_closed_trades": 3,
+      "oos_points": 381
     },
     {
       "symbol": "INTC",
-      "run_id": "sim_eeeef93c9b",
+      "run_id": "sim_35cce72ae1",
       "metrics": {
         "total_return": 0.05525528129345436,
         "equity": 10552.552812934544,
@@ -795,7 +872,10 @@
             "win_rate": 0.3076923076923077
           }
         }
-      }
+      },
+      "oos_return": 0.07074048741928385,
+      "oos_closed_trades": 4,
+      "oos_points": 381
     }
   ],
   "status": "replay_only_not_promoted"

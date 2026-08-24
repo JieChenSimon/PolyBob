@@ -86,7 +86,7 @@
 
 ### Paper Lab kernel replay
 
-新增 [cross_sectional_kernel_replay.json](../data/cross_sectional_kernel_replay.json)，把同一组日期对齐后的 `60/30/10` 因果信号逐标的注入 `SimulationService`，使用真实 Paper Lab 的 20bp fee、10bp mid penalty、权益标记、成交账本和 long-only 约束。26 个流动性美股标的全历史 replay 的平均 kernel return 为 +1.03%，中位数为 -0.055%；均值由少数标的拉动，且不是独立 OOS 证明，状态保持 `replay_only_not_promoted`。
+新增 [cross_sectional_kernel_replay.json](../data/cross_sectional_kernel_replay.json)，把同一组日期对齐后的 `60/30/10` 因果信号逐标的注入 `SimulationService`，使用真实 Paper Lab 的 20bp fee、10bp mid penalty、权益标记、成交账本和 long-only 约束。26 个流动性美股标的的独立 OOS（切分日 2025-02-14）平均 kernel return 为 +0.515%，中位数仅 +0.001%，正收益标的比例 50%，每个标的 OOS 闭合交易中位数 3 笔；均值由少数 AMD/INTC 等标的拉动，状态保持 `replay_only_not_promoted`。
 
 因此横截面组合暂不进入模拟盘自动运行。下一轮应继续做独立日历簇、幸存者偏差、组合最大回撤和成本敏感性复核，并把候选与 kernel replay 的逐笔账本对账；若不能在多折中保持中位数绝对收益和相对收益均为正，就淘汰该候选。
 
