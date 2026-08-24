@@ -471,34 +471,34 @@
       },
       "result": {
         "strategy": "btc5m_mispricing",
-        "n": 774,
-        "n_clusters": 4,
-        "mean_excess_pct": 23.561,
+        "n": 1144,
+        "n_clusters": 6,
+        "mean_excess_pct": 23.617,
         "median_excess_pct": 47.5,
-        "win_rate": 0.7403,
-        "t_stat": 49.35,
-        "t_stat_iid": 15.42,
+        "win_rate": 0.7378,
+        "t_stat": 58.21,
+        "t_stat_iid": 18.81,
         "t_hurdle": 4.2,
         "significant": false,
         "bootstrap_ci_pct": [
-          22.889,
-          24.315
+          22.922,
+          24.347
         ],
         "sign_test_p": 0.0,
-        "wild_p": 0.1355,
-        "p_floor": 0.125,
+        "wild_p": 0.03,
+        "p_floor": 0.0312,
         "resolvable": false,
         "status": "unknown",
         "skew_ratio": 0.5,
         "cluster_by": "day",
         "inference": "cluster_robust",
         "warnings": [
-          "only 4 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "4 个独立单元最细只能表达 p=1.2e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+          "only 6 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+          "6 个独立单元最细只能表达 p=3.1e-02,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
-        "mean_pnl_per_contract": 0.2356,
-        "brier_model": 0.1864,
-        "brier_market": 0.2426
+        "mean_pnl_per_contract": 0.2362,
+        "brier_model": 0.1849,
+        "brier_market": 0.2424
       }
     },
     {
