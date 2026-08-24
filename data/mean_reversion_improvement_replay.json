@@ -1,0 +1,518 @@
+{
+  "generated_at": "2026-08-24T15:28:24.844728+00:00",
+  "real_data_only": true,
+  "execution_kernel": "modules.simulation.SimulationService",
+  "universe": "US_LIQUID",
+  "symbols": 26,
+  "quality_rejected": 0,
+  "candidates": [
+    {
+      "name": "symmetric_100",
+      "lookback": 20,
+      "entry_bps": 100,
+      "exit_bps": 50,
+      "position_fraction": 0.5,
+      "allow_short": true
+    },
+    {
+      "name": "symmetric_200",
+      "lookback": 40,
+      "entry_bps": 200,
+      "exit_bps": 100,
+      "position_fraction": 0.5,
+      "allow_short": true
+    }
+  ],
+  "cost_multiples": [
+    1.0,
+    2.0,
+    3.0
+  ],
+  "results": {
+    "symmetric_100": {
+      "folds": [
+        {
+          "candidate": "symmetric_100",
+          "split_date": "2024-02-09",
+          "costs": [
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 1.0,
+              "split_date": "2024-02-09",
+              "symbols": 26,
+              "mean_oos_return": -0.20199768099612742,
+              "median_oos_return": -0.20064792859048614,
+              "positive_oos_fraction": 0.11538461538461539,
+              "median_max_drawdown": 0.5506418181985782,
+              "median_closed_trades": 75.5
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 2.0,
+              "split_date": "2024-02-09",
+              "symbols": 26,
+              "mean_oos_return": -0.37346279700947693,
+              "median_oos_return": -0.3642781682770883,
+              "positive_oos_fraction": 0.038461538461538464,
+              "median_max_drawdown": 0.6938776956317987,
+              "median_closed_trades": 75.5
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 3.0,
+              "split_date": "2024-02-09",
+              "symbols": 26,
+              "mean_oos_return": -0.5083906884179753,
+              "median_oos_return": -0.49441162063180466,
+              "positive_oos_fraction": 0.0,
+              "median_max_drawdown": 0.7861859304178314,
+              "median_closed_trades": 75.5
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_100",
+            "cost_multiple": 1.0,
+            "split_date": "2024-02-09",
+            "symbols": 26,
+            "mean_oos_return": -0.20199768099612742,
+            "median_oos_return": -0.20064792859048614,
+            "positive_oos_fraction": 0.11538461538461539,
+            "median_max_drawdown": 0.5506418181985782,
+            "median_closed_trades": 75.5
+          }
+        },
+        {
+          "candidate": "symmetric_100",
+          "split_date": "2024-08-13",
+          "costs": [
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 1.0,
+              "split_date": "2024-08-13",
+              "symbols": 26,
+              "mean_oos_return": -0.14670789043263327,
+              "median_oos_return": -0.15700510225361464,
+              "positive_oos_fraction": 0.19230769230769232,
+              "median_max_drawdown": 0.5506418181985782,
+              "median_closed_trades": 59.0
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 2.0,
+              "split_date": "2024-08-13",
+              "symbols": 26,
+              "mean_oos_return": -0.29645345262681666,
+              "median_oos_return": -0.2894362940131018,
+              "positive_oos_fraction": 0.07692307692307693,
+              "median_max_drawdown": 0.6938776956317987,
+              "median_closed_trades": 59.0
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 3.0,
+              "split_date": "2024-08-13",
+              "symbols": 26,
+              "mean_oos_return": -0.4201912640603002,
+              "median_oos_return": -0.40722326924810953,
+              "positive_oos_fraction": 0.0,
+              "median_max_drawdown": 0.7861859304178314,
+              "median_closed_trades": 59.0
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_100",
+            "cost_multiple": 1.0,
+            "split_date": "2024-08-13",
+            "symbols": 26,
+            "mean_oos_return": -0.14670789043263327,
+            "median_oos_return": -0.15700510225361464,
+            "positive_oos_fraction": 0.19230769230769232,
+            "median_max_drawdown": 0.5506418181985782,
+            "median_closed_trades": 59.0
+          }
+        },
+        {
+          "candidate": "symmetric_100",
+          "split_date": "2025-02-14",
+          "costs": [
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 1.0,
+              "split_date": "2025-02-14",
+              "symbols": 26,
+              "mean_oos_return": -0.13738529929935375,
+              "median_oos_return": -0.11818894486746201,
+              "positive_oos_fraction": 0.23076923076923078,
+              "median_max_drawdown": 0.5506418181985782,
+              "median_closed_trades": 43.0
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 2.0,
+              "split_date": "2025-02-14",
+              "symbols": 26,
+              "mean_oos_return": -0.2530726497682453,
+              "median_oos_return": -0.22424628264480717,
+              "positive_oos_fraction": 0.038461538461538464,
+              "median_max_drawdown": 0.6938776956317987,
+              "median_closed_trades": 43.0
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 3.0,
+              "split_date": "2025-02-14",
+              "symbols": 26,
+              "mean_oos_return": -0.3534107359610299,
+              "median_oos_return": -0.31806708677104556,
+              "positive_oos_fraction": 0.0,
+              "median_max_drawdown": 0.7861859304178314,
+              "median_closed_trades": 43.0
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_100",
+            "cost_multiple": 1.0,
+            "split_date": "2025-02-14",
+            "symbols": 26,
+            "mean_oos_return": -0.13738529929935375,
+            "median_oos_return": -0.11818894486746201,
+            "positive_oos_fraction": 0.23076923076923078,
+            "median_max_drawdown": 0.5506418181985782,
+            "median_closed_trades": 43.0
+          }
+        },
+        {
+          "candidate": "symmetric_100",
+          "split_date": "2025-08-19",
+          "costs": [
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 1.0,
+              "split_date": "2025-08-19",
+              "symbols": 26,
+              "mean_oos_return": -0.09358174542180614,
+              "median_oos_return": -0.0636196198073975,
+              "positive_oos_fraction": 0.34615384615384615,
+              "median_max_drawdown": 0.5506418181985782,
+              "median_closed_trades": 31.0
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 2.0,
+              "split_date": "2025-08-19",
+              "symbols": 26,
+              "mean_oos_return": -0.17704599876201244,
+              "median_oos_return": -0.1412417247623159,
+              "positive_oos_fraction": 0.15384615384615385,
+              "median_max_drawdown": 0.6938776956317987,
+              "median_closed_trades": 31.0
+            },
+            {
+              "candidate": "symmetric_100",
+              "cost_multiple": 3.0,
+              "split_date": "2025-08-19",
+              "symbols": 26,
+              "mean_oos_return": -0.25294360522576087,
+              "median_oos_return": -0.21286943328191027,
+              "positive_oos_fraction": 0.0,
+              "median_max_drawdown": 0.7861859304178314,
+              "median_closed_trades": 31.0
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_100",
+            "cost_multiple": 1.0,
+            "split_date": "2025-08-19",
+            "symbols": 26,
+            "mean_oos_return": -0.09358174542180614,
+            "median_oos_return": -0.0636196198073975,
+            "positive_oos_fraction": 0.34615384615384615,
+            "median_max_drawdown": 0.5506418181985782,
+            "median_closed_trades": 31.0
+          }
+        }
+      ],
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": false,
+            "value": 4.0,
+            "threshold": 200.0,
+            "detail": "4 observations",
+            "status": "fail"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0093,
+            "threshold": 0.9,
+            "detail": "DSR=0.009 over 6 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": -56.4827,
+            "threshold": 0.3,
+            "detail": "Sharpe under 3.0x costs is -56.48 < 0.3",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": false,
+            "value": 0.0,
+            "threshold": 0.5,
+            "detail": "0% of walk-forward windows stable",
+            "status": "fail"
+          }
+        ],
+        "status": "fail"
+      }
+    },
+    "symmetric_200": {
+      "folds": [
+        {
+          "candidate": "symmetric_200",
+          "split_date": "2024-02-09",
+          "costs": [
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 1.0,
+              "split_date": "2024-02-09",
+              "symbols": 26,
+              "mean_oos_return": -0.16741774041275131,
+              "median_oos_return": -0.1827425275113187,
+              "positive_oos_fraction": 0.15384615384615385,
+              "median_max_drawdown": 0.4333434504154595,
+              "median_closed_trades": 49.5
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 2.0,
+              "split_date": "2024-02-09",
+              "symbols": 26,
+              "mean_oos_return": -0.29806839204780944,
+              "median_oos_return": -0.28969569667037925,
+              "positive_oos_fraction": 0.07692307692307693,
+              "median_max_drawdown": 0.5369703253232065,
+              "median_closed_trades": 49.5
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 3.0,
+              "split_date": "2024-02-09",
+              "symbols": 26,
+              "mean_oos_return": -0.40794586585102033,
+              "median_oos_return": -0.3777882890773954,
+              "positive_oos_fraction": 0.038461538461538464,
+              "median_max_drawdown": 0.6269413742524241,
+              "median_closed_trades": 49.5
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_200",
+            "cost_multiple": 1.0,
+            "split_date": "2024-02-09",
+            "symbols": 26,
+            "mean_oos_return": -0.16741774041275131,
+            "median_oos_return": -0.1827425275113187,
+            "positive_oos_fraction": 0.15384615384615385,
+            "median_max_drawdown": 0.4333434504154595,
+            "median_closed_trades": 49.5
+          }
+        },
+        {
+          "candidate": "symmetric_200",
+          "split_date": "2024-08-13",
+          "costs": [
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 1.0,
+              "split_date": "2024-08-13",
+              "symbols": 26,
+              "mean_oos_return": -0.13622464400052584,
+              "median_oos_return": -0.14506013257832817,
+              "positive_oos_fraction": 0.2692307692307692,
+              "median_max_drawdown": 0.4333434504154595,
+              "median_closed_trades": 38.5
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 2.0,
+              "split_date": "2024-08-13",
+              "symbols": 26,
+              "mean_oos_return": -0.24618499527579776,
+              "median_oos_return": -0.23830762961156376,
+              "positive_oos_fraction": 0.038461538461538464,
+              "median_max_drawdown": 0.5369703253232065,
+              "median_closed_trades": 38.5
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 3.0,
+              "split_date": "2024-08-13",
+              "symbols": 26,
+              "mean_oos_return": -0.3420161511710126,
+              "median_oos_return": -0.3220775224477264,
+              "positive_oos_fraction": 0.038461538461538464,
+              "median_max_drawdown": 0.6269413742524241,
+              "median_closed_trades": 38.5
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_200",
+            "cost_multiple": 1.0,
+            "split_date": "2024-08-13",
+            "symbols": 26,
+            "mean_oos_return": -0.13622464400052584,
+            "median_oos_return": -0.14506013257832817,
+            "positive_oos_fraction": 0.2692307692307692,
+            "median_max_drawdown": 0.4333434504154595,
+            "median_closed_trades": 38.5
+          }
+        },
+        {
+          "candidate": "symmetric_200",
+          "split_date": "2025-02-14",
+          "costs": [
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 1.0,
+              "split_date": "2025-02-14",
+              "symbols": 26,
+              "mean_oos_return": -0.14531973732653813,
+              "median_oos_return": -0.1405115903862369,
+              "positive_oos_fraction": 0.15384615384615385,
+              "median_max_drawdown": 0.4333434504154595,
+              "median_closed_trades": 29.0
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 2.0,
+              "split_date": "2025-02-14",
+              "symbols": 26,
+              "mean_oos_return": -0.22582216419982937,
+              "median_oos_return": -0.21451249593656102,
+              "positive_oos_fraction": 0.11538461538461539,
+              "median_max_drawdown": 0.5369703253232065,
+              "median_closed_trades": 29.0
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 3.0,
+              "split_date": "2025-02-14",
+              "symbols": 26,
+              "mean_oos_return": -0.29875258019958756,
+              "median_oos_return": -0.2806178161802472,
+              "positive_oos_fraction": 0.0,
+              "median_max_drawdown": 0.6269413742524241,
+              "median_closed_trades": 29.0
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_200",
+            "cost_multiple": 1.0,
+            "split_date": "2025-02-14",
+            "symbols": 26,
+            "mean_oos_return": -0.14531973732653813,
+            "median_oos_return": -0.1405115903862369,
+            "positive_oos_fraction": 0.15384615384615385,
+            "median_max_drawdown": 0.4333434504154595,
+            "median_closed_trades": 29.0
+          }
+        },
+        {
+          "candidate": "symmetric_200",
+          "split_date": "2025-08-19",
+          "costs": [
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 1.0,
+              "split_date": "2025-08-19",
+              "symbols": 26,
+              "mean_oos_return": -0.07673323911351472,
+              "median_oos_return": -0.0703469920726717,
+              "positive_oos_fraction": 0.34615384615384615,
+              "median_max_drawdown": 0.4333434504154595,
+              "median_closed_trades": 20.5
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 2.0,
+              "split_date": "2025-08-19",
+              "symbols": 26,
+              "mean_oos_return": -0.14123499908769463,
+              "median_oos_return": -0.12560343875174013,
+              "positive_oos_fraction": 0.23076923076923078,
+              "median_max_drawdown": 0.5369703253232065,
+              "median_closed_trades": 20.5
+            },
+            {
+              "candidate": "symmetric_200",
+              "cost_multiple": 3.0,
+              "split_date": "2025-08-19",
+              "symbols": 26,
+              "mean_oos_return": -0.20114862527986552,
+              "median_oos_return": -0.17256041618381074,
+              "positive_oos_fraction": 0.07692307692307693,
+              "median_max_drawdown": 0.6269413742524241,
+              "median_closed_trades": 20.5
+            }
+          ],
+          "base": {
+            "candidate": "symmetric_200",
+            "cost_multiple": 1.0,
+            "split_date": "2025-08-19",
+            "symbols": 26,
+            "mean_oos_return": -0.07673323911351472,
+            "median_oos_return": -0.0703469920726717,
+            "positive_oos_fraction": 0.34615384615384615,
+            "median_max_drawdown": 0.4333434504154595,
+            "median_closed_trades": 20.5
+          }
+        }
+      ],
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": false,
+            "value": 4.0,
+            "threshold": 200.0,
+            "detail": "4 observations",
+            "status": "fail"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0442,
+            "threshold": 0.9,
+            "detail": "DSR=0.044 over 6 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": -57.188,
+            "threshold": 0.3,
+            "detail": "Sharpe under 3.0x costs is -57.19 < 0.3",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": false,
+            "value": 0.0,
+            "threshold": 0.5,
+            "detail": "0% of walk-forward windows stable",
+            "status": "fail"
+          }
+        ],
+        "status": "fail"
+      }
+    }
+  },
+  "status": "replay_only_not_promoted"
+}
