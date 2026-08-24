@@ -10,8 +10,8 @@ checks:
 - text: 完成风险归一化、OOS 稳定性、PBO/DSR 和组合层聚类审计
   done: true
 - text: 通过测试、报告、Git 提交推送并明确晋级或拒绝结论
-  done: false
+  done: true
 deps: []
 branch: pb-0028-sec-insider-hold30
 blocked: null
-updated: '2026-08-24T14:07:03+00:00'
+updated: '2026-08-24T14:08:08+00:00'
