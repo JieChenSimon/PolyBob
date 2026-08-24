@@ -125,3 +125,12 @@
 - operation: create
 - status: approved-by-explicit-request
 - notes: 用户要求研究任务合理使用多核，但总 CPU 不超过 60%；正常运行不自动停止，需根据实际资源和系统影响判断是否调整并发。
+
+## 2026-08-25T03:30:00+08:00
+
+- proposal_ref: user-explicit-all-instruments-validation
+- approved_item_ids: asset-domain-instrument-strategy-matrix
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: create
+- status: approved-by-explicit-request
+- notes: 用户明确要求不能只测试 BTC 5 分钟；A 股、美股、BTC 和山寨币的每一个标的都必须逐一完成真实数据、成本后、样本外、收益目标和风险门禁验证，结果不得跨标的外推。

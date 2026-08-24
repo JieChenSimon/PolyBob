@@ -148,7 +148,11 @@ async def replay(rows: list[dict], threshold: float, split: str, multiple: float
             "market_id": "BTC-USDT", "timestamp": timestamp, "mid_price": price,
             "source": "btc_1m_bars", "price_basis": "close",
         })
-        await service._record_equity(service._active[run_id])
+        # ``_process_signal`` records equity after each actual fill.  Calling
+        # ``_record_equity`` unconditionally here duplicated the full positions /
+        # trades / settlements read-and-write path for every event.  The service
+        # equity loop remains responsible for mark-only intervals in live runs;
+        # this replay's event stream emits a signal on each target transition.
     await service.stop_run(run_id)
     trade_count = len(service.store.list_trades(run_id))
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
