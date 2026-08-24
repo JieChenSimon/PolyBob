@@ -55,7 +55,7 @@ class ReplayClock:
 
 
 async def replay_symbol(symbol: str, timestamps: list, prices: list[float], positions: list[float],
-                        split_date: str, out_dir: Path) -> dict:
+                        split_date: str, out_dir: Path, position_fraction: float | None = None) -> dict:
     timestamps = [datetime.fromisoformat(value) if isinstance(value, str) else value
                   for value in timestamps]
     timestamps = [value if value.tzinfo else value.replace(tzinfo=UTC) for value in timestamps]
@@ -73,7 +73,8 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
         initial_capital=10_000.0,
         config={
             "replay_positions": positions,
-            "position_fraction": max(positions) if positions else 0.0,
+            "position_fraction": (float(position_fraction) if position_fraction is not None
+                                  else max(positions) if positions else 0.0),
             "fee_bps": 20.0,
             "mid_penalty_bps": 10.0,
             "allow_short": False,

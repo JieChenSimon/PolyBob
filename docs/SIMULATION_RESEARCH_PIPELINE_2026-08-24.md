@@ -90,6 +90,12 @@
 
 因此横截面组合暂不进入模拟盘自动运行。下一轮应继续做独立日历簇、幸存者偏差、组合最大回撤和成本敏感性复核，并把候选与 kernel replay 的逐笔账本对账；若不能在多折中保持中位数绝对收益和相对收益均为正，就淘汰该候选。
 
+### 均值回归 Paper Lab kernel replay 与仓位压力测试
+
+新增 [mean_reversion_kernel_replay.json](../data/mean_reversion_kernel_replay.json)，将预注册的 long-only `lookback=20, entry_bps=100` 候选逐标的注入同一 `SimulationService`，费用 20bp、成交中价惩罚 10bp。结果显示，美股 26 个流动性标的的单次独立 OOS 平均收益 +8.45%、中位数 +6.15%、正收益比例 65.4%，但完整区间最大回撤中位数约 45.7%，最高约 79.1%；A 股 62 个标的 OOS 平均 -9.70%、中位数 -9.36%，加密 57 个清洁标的（9 个质量拒绝）平均 -27.97%、中位数 -30.33%。因此只有美股候选进入风险压力测试，三个域均保持 `replay_only_not_promoted`。
+
+新增 [mean_reversion_risk_replay.json](../data/mean_reversion_risk_replay.json)，对美股候选进行 100%/50%/25%/10% 仓位压力测试。仓位从 100% 降到 25% 后，OOS 收益中位数从 +4.76% 降至 +1.41%，而完整区间最大回撤中位数从 45.7% 降至 12.8%；10% 仓位的中位数回撤约 5.2%、OOS 收益中位数约 +0.59%。正收益标的比例在四档均为 65.4%，说明这主要是风险缩放，不是新 alpha。由于当前只有一个时间切分，且组合级多折稳定性、相对基准、DSR/PBO 和容量尚未通过，所有仓位档位仍不放行到自动运行；下一步继续做多折/日历簇复核和组合级 replay。
+
 ## 外部真实 OHLCV focused scoreboard
 
 在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：
