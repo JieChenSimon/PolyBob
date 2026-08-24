@@ -30,6 +30,11 @@ def main() -> int:
             2.0: Path("data/insider_kernel_replay_original_market20_equal_exposure_2x.json"),
             3.0: Path("data/insider_kernel_replay_original_market20_equal_exposure_3x.json"),
         },
+        "market20_extended_history": {
+            1.0: Path("data/insider_kernel_replay_extended_market20.json"),
+            2.0: Path("data/insider_kernel_replay_extended_market20_2x.json"),
+            3.0: Path("data/insider_kernel_replay_extended_market20_3x.json"),
+        },
     }
     audits = {}
     for name, cost_paths in candidates.items():

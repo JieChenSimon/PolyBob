@@ -122,6 +122,67 @@
         "status": "fail"
       },
       "status": "replay_only_not_promoted"
+    },
+    "market20_extended_history": {
+      "source_reports": {
+        "1.0": "data/insider_kernel_replay_extended_market20.json",
+        "2.0": "data/insider_kernel_replay_extended_market20_2x.json",
+        "3.0": "data/insider_kernel_replay_extended_market20_3x.json"
+      },
+      "candidate_family_size": 108,
+      "daily_observations": 1269,
+      "base_annualized_sharpe": 0.4850136622489189,
+      "cost_annualized_sharpe": {
+        "1.0": 0.4850136622489189,
+        "2.0": 0.365396108079874,
+        "3.0": 0.2471171004569277
+      },
+      "oos_fold_returns": [
+        0.1104094846982373,
+        0.12405576941561591,
+        0.05534354793560192,
+        0.03732392152070929
+      ],
+      "oos_stability_rate": 1.0,
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": true,
+            "value": 1269.0,
+            "threshold": 60.0,
+            "detail": "1269 observations",
+            "status": "pass"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0742,
+            "threshold": 0.95,
+            "detail": "DSR=0.074 over 108 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": 0.2471,
+            "threshold": 0.5,
+            "detail": "Sharpe under 3.0x costs is 0.25 < 0.5",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": true,
+            "value": 1.0,
+            "threshold": 0.75,
+            "detail": "100% of walk-forward windows stable",
+            "status": "pass"
+          }
+        ],
+        "status": "fail"
+      },
+      "status": "replay_only_not_promoted"
     }
   },
   "status": "replay_only_not_promoted"

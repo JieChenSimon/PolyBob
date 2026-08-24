@@ -27,8 +27,9 @@ from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import SimSignal
 
-QUARTERS = [(year, quarter) for year in (2024, 2025, 2026)
-            for quarter in (1, 2, 3, 4) if (year, quarter) <= (2026, 2)]
+QUARTERS = [(year, quarter) for year in (2021, 2022, 2023, 2024, 2025, 2026)
+            for quarter in (1, 2, 3, 4)
+            if (2021, 3) <= (year, quarter) <= (2026, 2)]
 HOLD_SESSIONS = 5
 MIN_INSIDERS = 3
 MIN_VALUE_USD = 100_000.0
@@ -323,6 +324,7 @@ async def main_async(args: argparse.Namespace) -> int:
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
+        "sec_quarters": QUARTERS,
         "strategy": {"family": "sec_insider_cluster_buy", "hold_sessions": args.hold_sessions,
                       "min_insiders": args.min_insiders, "min_value_usd": args.min_value_usd,
                       "max_pre_event_volatility": args.max_pre_event_volatility,
