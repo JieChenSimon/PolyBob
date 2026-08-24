@@ -12,6 +12,7 @@ import pandas as pd
 from libs.data import run_manifest, store
 
 COST_BPS = {"a_share": 8.0, "us_equity": 5.0, "crypto": 10.0}
+MAX_MULTIPLE = {"a_share": 1.5, "us_equity": 1.5, "crypto": 5.0}
 CANDIDATES = tuple(
     {"lookback": lookback, "top_frac": top_frac, "rebalance_days": rebalance_days}
     for lookback in (20, 30, 60)
@@ -42,7 +43,7 @@ def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
 
 
 def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_bps: float,
-                     end: int | None = None) -> dict:
+                     end: int | None = None, return_cap: float | None = None) -> dict:
     end = prices.shape[1] - 1 if end is None else min(end, prices.shape[1] - 1)
     gross = []
     net = []
@@ -55,6 +56,8 @@ def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_b
             weights = current[valid]
             weights = weights / weights.sum()
             r = prices[valid, day + 1] / prices[valid, day] - 1.0
+            if return_cap is not None:
+                r = np.clip(r, -return_cap, return_cap)
             gross_r = float(np.dot(weights, r))
         else:
             gross_r = 0.0
@@ -88,18 +91,25 @@ def rolling_folds(prices: np.ndarray, positions: np.ndarray, cost_bps: float,
     return folds
 
 
-def read_matrix(symbols: list[str], as_of: datetime) -> tuple[list[str], np.ndarray]:
+def read_matrix(symbols: list[str], as_of: datetime) -> tuple[list[str], np.ndarray, int]:
     frames = {}
+    rejected_quality = 0
+    domain = symbol_domain(symbols[0]) if symbols else "us_equity"
     for symbol in symbols:
         try:
             frame = store.read(store.DAILY_BARS, symbol, as_of=as_of)
-            frames[symbol] = frame["close"].astype(float)
+            values = frame["close"].astype(float)
+            finite = values.to_numpy(dtype=float)
+            if has_unresolved_price_jump(finite, MAX_MULTIPLE[domain]):
+                rejected_quality += 1
+                continue
+            frames[symbol] = values
         except Exception:
             continue
     if not frames:
-        return [], np.empty((0, 0))
+        return [], np.empty((0, 0)), rejected_quality
     matrix = pd.DataFrame(frames).sort_index()
-    return list(matrix.columns), matrix.to_numpy(dtype=float).T
+    return list(matrix.columns), matrix.to_numpy(dtype=float).T, rejected_quality
 
 
 def symbol_domain(symbol: str) -> str:
@@ -110,6 +120,14 @@ def symbol_domain(symbol: str) -> str:
     return "us_equity"
 
 
+def has_unresolved_price_jump(values: np.ndarray, maximum: float) -> bool:
+    values = np.asarray(values, dtype=float)
+    if len(values) < 300 or np.any(~np.isfinite(values)) or np.any(values <= 0):
+        return True
+    ratios = values[1:] / values[:-1]
+    return bool(np.any(ratios > maximum) or np.any(ratios < 1.0 / maximum))
+
+
 def main() -> int:
     as_of = datetime.now(UTC)
     manifest = run_manifest.pin("cross_sectional_local_screen", as_of=as_of,
@@ -117,40 +135,46 @@ def main() -> int:
     report = {"generated_at": datetime.now(UTC).isoformat(), "as_of": as_of.isoformat(),
               "real_data_only": True, "research_only": True,
               "parameters": {"candidates": CANDIDATES, "cost_bps": COST_BPS,
-                              "oos_fraction": 0.3, "long_only": True}, "domains": {}}
+                              "oos_fraction": 0.3, "long_only": True,
+                              "max_single_bar_multiple": MAX_MULTIPLE}, "domains": {}}
     all_symbols = store.symbols(store.DAILY_BARS)
     domains = {domain: [] for domain in COST_BPS}
     for symbol in all_symbols:
         domains[symbol_domain(symbol)].append(symbol)
     for domain, symbols in domains.items():
-        used, matrix = read_matrix(symbols, as_of)
+        used, matrix, rejected_quality = read_matrix(symbols, as_of)
         manifest.record_input(f"daily_bars:{domain}", symbols=used,
                               coverage=store.coverage(store.DAILY_BARS))
         if matrix.shape[1] < 300 or matrix.shape[0] < 4:
-            report["domains"][domain] = {"status": "blocked_insufficient_data", "symbols": len(used)}
+            report["domains"][domain] = {"status": "blocked_insufficient_data", "symbols": len(used),
+                                         "rejected_quality": rejected_quality}
             continue
         cut = int(matrix.shape[1] * 0.7)
         test_days = np.sum(np.sum((matrix[:, cut:] > 0) & np.isfinite(matrix[:, cut:]), axis=0) >= 4)
         if test_days < 20:
             report["domains"][domain] = {
                 "status": "blocked_insufficient_contemporaneous_universe",
-                "symbols": len(used), "test_days_with_four_assets": int(test_days),
+                "symbols": len(used), "rejected_quality": rejected_quality,
+                "test_days_with_four_assets": int(test_days),
             }
             continue
         rows = []
         for candidate in CANDIDATES:
             positions = select_long_only(matrix, **candidate)
             result = portfolio_result(matrix, positions, cut, COST_BPS[domain])
+            stress = portfolio_result(matrix, positions, cut, COST_BPS[domain], return_cap=0.20)
             folds = rolling_folds(matrix, positions, COST_BPS[domain])
             eligible = (matrix[:, cut] > 0) & (matrix[:, -1] > 0)
             benchmark = float(np.mean(matrix[eligible, -1] / matrix[eligible, cut] - 1.0)) if eligible.any() else None
             excess = result["oos_return"] - benchmark if benchmark is not None else None
             rows.append({**candidate, **result, "benchmark_return": benchmark,
                          "excess_return": excess,
+                         "stress_oos_return_cap_20pct": stress["oos_return"],
                          "rolling_folds": folds,
                          "rolling_median_excess": float(np.median([f["excess_return"] for f in folds])) if folds else None,
                          "status": "screen_only" if result["oos_return"] is not None and result["oos_return"] > 0 and excess is not None and excess > 0 else "tested_no_edge"})
-        report["domains"][domain] = {"status": "screened", "symbols": len(used), "rows": rows}
+        report["domains"][domain] = {"status": "screened", "symbols": len(used),
+                                     "rejected_quality": rejected_quality, "rows": rows}
     report["manifest"] = manifest.to_dict()
     out = Path("data/cross_sectional_local_screen.json")
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")

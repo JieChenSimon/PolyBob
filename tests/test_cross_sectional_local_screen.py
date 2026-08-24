@@ -1,6 +1,6 @@
 import numpy as np
 
-from scripts.cross_sectional_local_screen import select_long_only
+from scripts.cross_sectional_local_screen import has_unresolved_price_jump, select_long_only
 
 
 def test_cross_sectional_selection_uses_only_past_prices():
@@ -22,3 +22,9 @@ def test_cross_sectional_selection_is_long_only_and_bounded():
     positions = select_long_only(prices, lookback=5, top_frac=0.25)
     assert np.all(positions >= 0)
     assert np.all(positions <= 1)
+
+
+def test_cross_sectional_rejects_unresolved_price_jump():
+    values = np.ones(300)
+    values[150] = 100.0
+    assert has_unresolved_price_jump(values, 1.5)
