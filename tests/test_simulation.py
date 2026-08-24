@@ -328,6 +328,12 @@ async def test_conservative_fill_buys_at_ask_plus_fee(tmp_path):
     # Fee = 20 bps of notional.
     assert trade.fee == pytest.approx(trade.size * 0.92 * 0.002)
     assert trade.realized_pnl is None
+    assert trade.quote_bid == pytest.approx(0.90)
+    assert trade.quote_ask == pytest.approx(0.92)
+    assert trade.bid_depth == pytest.approx(1_000_000.0)
+    assert trade.ask_depth == pytest.approx(1_000_000.0)
+    assert trade.quote_quality == "full_depth"
+    assert trade.quote_source == "unknown"
 
     # Position sized at position_fraction (5%) of equity, priced at the ask,
     # with the fee folded into avg_price (avg > raw fill price).
@@ -344,6 +350,28 @@ async def test_conservative_fill_buys_at_ask_plus_fee(tmp_path):
     record = service.store.get_run(run_id)
     assert record.cash == pytest.approx(10_000.0 - trade.size * 0.92 - trade.fee)
     assert len(service.store.list_equity_points(run_id)) >= 1
+
+
+def test_trade_quote_provenance_keeps_synthetic_or_missing_depth_explicit(tmp_path):
+    store = make_store(tmp_path)
+    store.append_trade(
+        "r1", instrument_id="BTC5M:1:UP", side="buy", size=10.0,
+        price=0.5, fee=0.0, slippage=0.025,
+        signal_meta={"execution_basis": "fixed_spread_stress"},
+        executed_at="2026-08-25T00:00:00+00:00",
+        quote_bid=0.475, quote_ask=0.525,
+        quote_timestamp="2026-08-25T00:00:00+00:00",
+        quote_source="synthetic_probability_stress",
+        quote_provenance={"clob": "raw-sha-only"},
+        quote_quality="missing_depth",
+    )
+
+    trade = store.list_trades("r1")[0]
+    assert trade.quote_source == "synthetic_probability_stress"
+    assert trade.quote_quality == "missing_depth"
+    assert trade.bid_depth is None
+    assert trade.ask_depth is None
+    assert trade.quote_provenance == {"clob": "raw-sha-only"}
 
 
 @pytest.mark.asyncio

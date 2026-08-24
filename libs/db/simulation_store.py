@@ -11,7 +11,8 @@ Tables:
 - ``sim_positions``     current open position per (run, instrument), avg-price
 - ``sim_trades``        append-only fills; ``realized_pnl`` is NULL for trades
                         that only open/extend a position and set for trades
-                        that close (part of) one
+                        that close (part of) one; quote provenance is stored
+                        beside each fill so missing depth is explicit
 - ``sim_equity_points`` periodic equity snapshots (equity curve source)
 
 All methods are synchronous; event-loop callers must wrap them in
@@ -67,7 +68,15 @@ _SCHEMA_STATEMENTS = (
         slippage REAL NOT NULL DEFAULT 0,
         signal_meta_json TEXT NOT NULL DEFAULT '{}',
         realized_pnl REAL,
-        executed_at TEXT NOT NULL
+        executed_at TEXT NOT NULL,
+        quote_bid REAL,
+        quote_ask REAL,
+        bid_depth REAL,
+        ask_depth REAL,
+        quote_timestamp TEXT,
+        quote_source TEXT NOT NULL DEFAULT 'unknown',
+        quote_provenance_json TEXT NOT NULL DEFAULT '{}',
+        quote_quality TEXT NOT NULL DEFAULT 'unknown'
     )
     """,
     """
@@ -193,6 +202,14 @@ class SimTradeRecord:
     signal_meta: dict[str, Any]
     realized_pnl: float | None
     executed_at: str
+    quote_bid: float | None = None
+    quote_ask: float | None = None
+    bid_depth: float | None = None
+    ask_depth: float | None = None
+    quote_timestamp: str | None = None
+    quote_source: str = "unknown"
+    quote_provenance: dict[str, Any] = field(default_factory=dict)
+    quote_quality: str = "unknown"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -207,6 +224,14 @@ class SimTradeRecord:
             "signal_meta": dict(self.signal_meta),
             "realized_pnl": self.realized_pnl,
             "executed_at": self.executed_at,
+            "quote_bid": self.quote_bid,
+            "quote_ask": self.quote_ask,
+            "bid_depth": self.bid_depth,
+            "ask_depth": self.ask_depth,
+            "quote_timestamp": self.quote_timestamp,
+            "quote_source": self.quote_source,
+            "quote_provenance": dict(self.quote_provenance),
+            "quote_quality": self.quote_quality,
         }
 
 
@@ -274,6 +299,25 @@ class SimulationStore:
         connection = fact_store.connect(self._db_path)
         for statement in _SCHEMA_STATEMENTS:
             connection.execute(statement)
+        columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(sim_trades)").fetchall()
+        }
+        migrations = (
+            ("quote_bid", "REAL"),
+            ("quote_ask", "REAL"),
+            ("bid_depth", "REAL"),
+            ("ask_depth", "REAL"),
+            ("quote_timestamp", "TEXT"),
+            ("quote_source", "TEXT NOT NULL DEFAULT 'unknown'"),
+            ("quote_provenance_json", "TEXT NOT NULL DEFAULT '{}'"),
+            ("quote_quality", "TEXT NOT NULL DEFAULT 'unknown'"),
+        )
+        for name, definition in migrations:
+            if name not in columns:
+                connection.execute(
+                    f"ALTER TABLE sim_trades ADD COLUMN {name} {definition}"
+                )
         return connection
 
     # ------------------------------------------------------------------ runs
@@ -428,15 +472,25 @@ class SimulationStore:
         signal_meta: Mapping[str, Any] | None = None,
         realized_pnl: float | None = None,
         executed_at: str | None = None,
+        quote_bid: float | None = None,
+        quote_ask: float | None = None,
+        bid_depth: float | None = None,
+        ask_depth: float | None = None,
+        quote_timestamp: str | None = None,
+        quote_source: str = "unknown",
+        quote_provenance: Mapping[str, Any] | None = None,
+        quote_quality: str = "unknown",
     ) -> int:
         with self._connect() as connection:
             cursor = connection.execute(
                 """
                 INSERT INTO sim_trades (
                     run_id, instrument_id, side, size, price, fee, slippage,
-                    signal_meta_json, realized_pnl, executed_at
+                    signal_meta_json, realized_pnl, executed_at, quote_bid,
+                    quote_ask, bid_depth, ask_depth, quote_timestamp,
+                    quote_source, quote_provenance_json, quote_quality
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run_id,
@@ -449,6 +503,14 @@ class SimulationStore:
                     _dump_json(dict(signal_meta or {})),
                     realized_pnl,
                     executed_at or _utcnow_iso(),
+                    quote_bid,
+                    quote_ask,
+                    bid_depth,
+                    ask_depth,
+                    quote_timestamp,
+                    str(quote_source or "unknown"),
+                    _dump_json(dict(quote_provenance or {})),
+                    str(quote_quality or "unknown"),
                 ),
             )
             return int(cursor.lastrowid)
@@ -615,6 +677,14 @@ class SimulationStore:
                 float(row["realized_pnl"]) if row["realized_pnl"] is not None else None
             ),
             executed_at=row["executed_at"],
+            quote_bid=(float(row["quote_bid"]) if row["quote_bid"] is not None else None),
+            quote_ask=(float(row["quote_ask"]) if row["quote_ask"] is not None else None),
+            bid_depth=(float(row["bid_depth"]) if row["bid_depth"] is not None else None),
+            ask_depth=(float(row["ask_depth"]) if row["ask_depth"] is not None else None),
+            quote_timestamp=row["quote_timestamp"],
+            quote_source=row["quote_source"] or "unknown",
+            quote_provenance=_load_json(row["quote_provenance_json"], {}) or {},
+            quote_quality=row["quote_quality"] or "unknown",
         )
 
     @staticmethod

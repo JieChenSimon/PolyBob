@@ -1,0 +1,166 @@
+{
+  "promotion_status": "UNKNOWN",
+  "real_data_only": true,
+  "rules": {
+    "drawdown_requires_preregistered_threshold": true,
+    "min_complete_return_target_months": 12,
+    "min_independent_clusters": 20,
+    "missing_or_unresolvable_evidence_is_unknown": true,
+    "positive_mean_does_not_pass": true,
+    "positive_oos_does_not_pass": true
+  },
+  "schema_version": "btc5m-statistical-manifest-v1",
+  "scope": "BTC 5m research evidence; direction is spot proxy, not Polymarket contract evidence",
+  "sources": {
+    "calibration": {
+      "generated_at": "2026-08-24T15:40:05.718125+00:00",
+      "status": "calibration_only_not_trading_evidence"
+    },
+    "direction": {
+      "generated_at": "2026-08-24T16:11:20.946645+00:00",
+      "status": "replay_only_not_promoted"
+    },
+    "event": {
+      "collection_status": "partial",
+      "generated_at": "2026-08-24T17:52:13.083786+00:00",
+      "snapshot_status": "consistent"
+    }
+  },
+  "studies": {
+    "calibration": {
+      "available": false,
+      "cluster_floor": {
+        "min_clusters": 20,
+        "observed": 22,
+        "reason": "independent day count is reported but no clustered inference is computed",
+        "status": "UNKNOWN"
+      },
+      "drawdown": {
+        "max_observed": null,
+        "status": "UNKNOWN",
+        "threshold": null,
+        "threshold_status": "NOT_APPLICABLE"
+      },
+      "fold_count": 0,
+      "method": null,
+      "multiple_testing": {
+        "n_trials": null,
+        "reason": "no pre-registered trial count or multiplicity correction in calibration report",
+        "rows": 3,
+        "status": "UNKNOWN"
+      },
+      "reason": "calibration report is a single pooled comparison; it has no train-validation-test or OOS split",
+      "return_target": {
+        "reason": "calibration is not a return-target study",
+        "status": "UNKNOWN"
+      },
+      "split_dates": [],
+      "status": "UNKNOWN"
+    },
+    "direction": {
+      "available": true,
+      "cluster_floor": {
+        "min_clusters": 20,
+        "observed": null,
+        "reason": "direction report has raw windows/folds, not independent calendar clusters",
+        "status": "UNKNOWN"
+      },
+      "drawdown": {
+        "max_observed": 0.9951103966894063,
+        "status": "UNKNOWN",
+        "threshold": null,
+        "threshold_status": "NOT_SPECIFIED"
+      },
+      "fold_count": 4,
+      "method": "walk_forward_folds",
+      "multiple_testing": {
+        "cost_stress_checks": 3,
+        "dsr_checks": 3,
+        "n_trials": 9,
+        "oos_stability_checks": 3,
+        "status": "FAIL"
+      },
+      "reason": "OOS exists, but no independent-calendar cluster inference is recorded for each fold",
+      "return_target": {
+        "observed_statuses": [
+          "UNKNOWN"
+        ],
+        "reason": "inherits per-fold target result; no promotion upgrade from incomplete months",
+        "status": "UNKNOWN"
+      },
+      "split_dates": [
+        "2026-08-14",
+        "2026-08-16",
+        "2026-08-18",
+        "2026-08-20"
+      ],
+      "status": "UNKNOWN"
+    },
+    "event": {
+      "available": true,
+      "cluster_floor": {
+        "min_clusters": 20,
+        "observed": 12,
+        "reason": "cluster floor and p resolution are required independently",
+        "resolvable": false,
+        "status": "UNKNOWN"
+      },
+      "drawdown": {
+        "max_observed": 0.0,
+        "status": "UNKNOWN",
+        "threshold": null,
+        "threshold_status": "NOT_SPECIFIED"
+      },
+      "fold_count": 1,
+      "method": "fixed_chronological",
+      "multiple_testing": {
+        "n_trials": 255,
+        "p_floor": 0.000488,
+        "resolvable": false,
+        "status": "APPLIED",
+        "t_hurdle": 4.2,
+        "wild_p": 0.0015
+      },
+      "oos": {
+        "first_date": "2026-08-20",
+        "independent_days": 5,
+        "last_date": "2026-08-24",
+        "mean_pnl_per_contract": 0.23679337,
+        "n_trades": 1026,
+        "status": "UNKNOWN",
+        "win_rate": 0.73976608
+      },
+      "reason": "OOS is present but remains UNKNOWN when train/OOS independent days are below the floor or collection is partial",
+      "return_target": {
+        "complete_months": 1,
+        "required_months": 12,
+        "status": "UNKNOWN"
+      },
+      "split_dates": [
+        "2026-08-20"
+      ],
+      "status": "UNKNOWN",
+      "train": {
+        "first_date": "2026-08-13",
+        "independent_days": 7,
+        "last_date": "2026-08-19",
+        "mean_pnl_per_contract": 0.26782353,
+        "n_trades": 1190,
+        "status": "UNKNOWN",
+        "win_rate": 0.77058824
+      }
+    }
+  },
+  "unified_gates": {
+    "cluster_floor": "UNKNOWN",
+    "drawdown": "UNKNOWN",
+    "multiple_testing": "UNKNOWN",
+    "oos": "UNKNOWN",
+    "return_target": "UNKNOWN",
+    "temporal_split": "UNKNOWN"
+  },
+  "validation": {
+    "errors": [],
+    "status": "PASS"
+  }
+}

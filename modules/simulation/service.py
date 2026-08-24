@@ -901,6 +901,24 @@ class SimulationService:
             executed_at = now.isoformat()
             signal_meta = dict(signal.signal_meta)
             signal_meta["confidence"] = signal.confidence
+            depth_values = (signal.bid_depth, signal.ask_depth)
+            if all(value is not None and value > 0 for value in depth_values):
+                quote_quality = "full_depth"
+            elif any(value is not None and value > 0 for value in depth_values):
+                quote_quality = "partial_depth"
+            else:
+                quote_quality = "missing_depth"
+            quote_source = str(
+                signal_meta.get("quote_source")
+                or signal_meta.get("market_data_source")
+                or "unknown"
+            )
+            quote_provenance = signal_meta.get("raw_sha256")
+            if not isinstance(quote_provenance, dict):
+                quote_provenance = (
+                    {"raw_sha256": quote_provenance}
+                    if quote_provenance is not None else {}
+                )
 
             def persist() -> None:
                 receipt = self.ledger.apply_fill(FillCommand(
@@ -922,6 +940,16 @@ class SimulationService:
                     signal_meta=signal_meta,
                     realized_pnl=realized,
                     executed_at=executed_at,
+                    quote_bid=signal.bid,
+                    quote_ask=signal.ask,
+                    bid_depth=signal.bid_depth,
+                    ask_depth=signal.ask_depth,
+                    quote_timestamp=(
+                        signal.timestamp.isoformat() if signal.timestamp is not None else None
+                    ),
+                    quote_source=quote_source,
+                    quote_provenance=quote_provenance,
+                    quote_quality=quote_quality,
                 )
                 self.store.upsert_position(run_id, instrument, new_size, new_avg)
                 self.store.update_run(run_id, cash=new_cash)

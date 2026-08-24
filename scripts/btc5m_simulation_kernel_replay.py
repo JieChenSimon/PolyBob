@@ -126,6 +126,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                     "okx": row.get("okx_raw_sha256"),
                 },
                 "execution_basis": "historical_probability_plus_fixed_spread_stress",
+                "quote_source": "synthetic_probability_stress",
             },
         })
         positions = [p for p in service.store.list_positions(run_id)
