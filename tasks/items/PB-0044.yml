@@ -1,0 +1,18 @@
+id: PB-0044
+title: 数据集与日志文件治理
+state: todo
+p: P1
+area: data
+why: 当前 data 约 4.4G、约 143k 个文件，包含 79k 个 insider Parquet、21k 个 BTC 缓存响应和大量回放临时 SQLite/WAL；需要按来源区分不可变原始证据、规范化数据、缓存和临时物，合并小文件、去重、压缩、轮转并验证可重放与审计不受破坏
+checks:
+- text: 完成数据/缓存/临时回放/日志文件来源盘点、重复率和保留级别报告
+  done: false
+- text: 建立标准化数据布局与小文件合并/压缩/去重工具，保留 manifest、PIT 和 provenance
+  done: false
+- text: 建立日志结构化输出、轮转/保留/采样策略，并通过回放、关闭、恢复和数据完整性测试
+  done: false
+deps:
+- PB-0043
+branch: null
+blocked: null
+updated: '2026-08-24T20:20:32+00:00'

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import gc
 import json
 import logging
 import math
@@ -34,6 +35,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from libs.data import store
+from libs.db import fact_store
 from libs.data.run_manifest import RunManifest
 from libs.quant.pbo import deflated_t_stat_threshold
 from libs.quant.pbo import probability_of_backtest_overfitting
@@ -106,6 +108,14 @@ MOMENTUM_CANDIDATES: tuple[dict[str, Any], ...] = (
      "min_rebalance_bps": 0.0, "allow_short": True},
 )
 
+# A daily-bar replay can otherwise reverse or resize on every observed bar.
+# These are explicit, pre-registered cost-discipline alternatives—not a
+# post-hoc choice after seeing OOS results.  The service expects seconds.
+COOLDOWN_CANDIDATES: tuple[dict[str, Any], ...] = tuple(
+    {**candidate, "id": f"{candidate['id']}_cooldown2d", "cooldown_seconds": 2 * 86400}
+    for candidate in MOMENTUM_CANDIDATES
+)
+
 
 def _candidates_for_domain(domain: str) -> tuple[dict[str, Any], ...]:
     """Return a small pre-registered family for the venue's constraints."""
@@ -113,7 +123,7 @@ def _candidates_for_domain(domain: str) -> tuple[dict[str, Any], ...]:
         # A-shares are not treated as freely shortable. These are deliberately
         # narrow alternatives: long-only plus turnover hysteresis, not an
         # unbounded parameter search.
-        return MOMENTUM_CANDIDATES + tuple(
+        return MOMENTUM_CANDIDATES + COOLDOWN_CANDIDATES + tuple(
         {**candidate,
          "id": f"{candidate['id']}_longonly_r25",
          "allow_short": False,
@@ -129,7 +139,7 @@ def _candidates_for_domain(domain: str) -> tuple[dict[str, Any], ...]:
          "min_rebalance_bps": 25.0}
         for candidate in MOMENTUM_CANDIDATES
     )
-    return MOMENTUM_CANDIDATES + turnover
+    return MOMENTUM_CANDIDATES + COOLDOWN_CANDIDATES + turnover
 
 
 def _parse_date(value: str | None) -> datetime | None:
@@ -182,7 +192,7 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
         initial_capital=10_000.0,
         config={
             **config,
-            "cooldown_seconds": 0.0,
+            "cooldown_seconds": float(config.get("cooldown_seconds", 0.0)),
             "max_staleness_seconds": 172800.0,
             "equity_interval_minutes": 1440.0,
         },
@@ -215,9 +225,16 @@ async def _run_symbol(symbol: str, rows: list[dict[str, Any]], config: dict[str,
         if previous.equity > 0:
             period_returns.append({"ts": current.ts, "return": current.equity / previous.equity - 1.0})
     await service.stop()
+    # ExecutionLedger/ExperimentRegistry use fact_store's persistent writer
+    # registry.  A matrix creates one SQLite path per run; leaving those
+    # connections cached makes RSS grow with the candidate family even after
+    # the WAL files are deleted.  Close the path explicitly after the service
+    # lifecycle has ended, then let Python release the per-run object graph.
+    fact_store.close_writer_connections(db_path)
     if not retain_db:
         for suffix in ("", "-wal", "-shm"):
             db_path.with_name(db_path.name + suffix).unlink(missing_ok=True)
+    gc.collect()
     return {
         "symbol": symbol,
         "domain": _domain(symbol),
@@ -409,13 +426,20 @@ async def _evaluate_candidate(symbols: list[str], config: dict[str, Any], *, as_
                       if item["period"] == "oos" and item["result"].get("status") == "ANALYZED"]
     common_returns = [sum(values) / len(values) for _, values in sorted(by_timestamp.items())
                       if len(values) == len(analyzable_oos)]
+    # Do not retain every calibration run's equity curve in the top-level
+    # report.  The detailed SQLite ledger is the audit artifact; keeping all
+    # period returns here made a 43-symbol matrix grow past 100 MB and caused
+    # avoidable RSS growth during long candidate families.
+    analyzed_count = sum(item.get("status") == "ANALYZED" for item in results)
     return {"candidate": config, "symbols": symbols,
             "score_train_mean_return": train_score,
             "score_train_median_return": train_median,
             "score_oos_mean_return": oos_score,
             "score_oos_median_return": oos_median,
             "oos_portfolio_returns": common_returns,
-            "results": results, "status": "ANALYZED" if analyzed else "BLOCKED"}
+            "calibration_runs": len(results),
+            "analyzed_runs": analyzed_count,
+            "status": "ANALYZED" if analyzed else "BLOCKED"}
 
 
 async def run(args: argparse.Namespace) -> dict[str, Any]:
@@ -543,7 +567,10 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         experiment="simulation_research_pipeline",
         as_of=as_of,
         params={"min_rows": MIN_ROWS, "min_closed_trades": MIN_CLOSED_TRADES,
-                "candidate_count": len(MOMENTUM_CANDIDATES),
+                "candidate_count": {
+                    domain: len(_candidates_for_domain(domain))
+                    for domain in calibration_by_domain
+                },
                 "selected_by_domain": {
                     domain: selected["candidate"] if selected else None
                     for domain, selected in selected_by_domain.items()
@@ -571,7 +598,9 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             "n_trials_by_domain": {domain: len(_candidates_for_domain(domain))
                                     for domain in calibration_by_domain},
             "n_trials": max(len(_candidates_for_domain(domain)) for domain in calibration_by_domain),
-            "deflated_t_threshold": deflated_t_stat_threshold(len(MOMENTUM_CANDIDATES)),
+            "deflated_t_threshold": deflated_t_stat_threshold(
+                max(len(_candidates_for_domain(domain)) for domain in calibration_by_domain)
+            ),
             "pbo_by_domain": pbo_by_domain,
             "status": "BLOCKED",
         },

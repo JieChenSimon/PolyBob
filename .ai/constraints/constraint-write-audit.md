@@ -134,3 +134,12 @@
 - operation: create
 - status: approved-by-explicit-request
 - notes: 用户明确要求不能只测试 BTC 5 分钟；A 股、美股、BTC 和山寨币的每一个标的都必须逐一完成真实数据、成本后、样本外、收益目标和风险门禁验证，结果不得跨标的外推。
+
+## 2026-08-25T04:20:00+08:00
+
+- proposal_ref: user-small-file-and-log-lifecycle-governance
+- approved_item_ids: layered-dataset-small-file-compaction-cache-ttl-and-structured-log-retention
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`, `tasks/items/PB-0044.yml`
+- operation: create
+- status: approved-by-explicit-request
+- notes: 用户要求盘点大量小文件、识别数据/缓存/临时物/日志来源，按专业标准合并压缩去重并治理重复日志；保留原始证据、PIT、manifest 和审计账本，禁止未经校验的宽泛删除。
