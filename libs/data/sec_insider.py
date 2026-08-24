@@ -33,6 +33,7 @@ from libs.data.resilient import FetchPolicy, fetch_cached_bytes
 
 CACHE_DIR = Path("data/market_cache/sec")
 _BASE = "https://www.sec.gov/files/structureddata/data/insider-transactions-data-sets"
+_CURRENT_BASE = "https://www.sec.gov/files/datastandardsinnovation/data/insider-transactions-data-sets"
 # The SEC requires a User-Agent naming the requester with contact details, and
 # caps requests at 10/second; anything vaguer is rejected with HTTP 403.
 _UA = "PolyBob Research idiotprofessorchen@gmail.com"
@@ -77,7 +78,11 @@ def _download_quarter(year: int, quarter: int) -> bytes:
     cache = CACHE_DIR / f"{year}q{quarter}_form345.zip"
     if cache.exists() and cache.stat().st_size > 1000:
         return cache.read_bytes()
-    url = f"{_BASE}/{year}q{quarter}_form345.zip"
+    # SEC moved the current-quarter download directory in 2026. Keep the
+    # historical path for vintages that are already stable, and use the
+    # official current link for the newly published quarter.
+    base = _CURRENT_BASE if (year, quarter) >= (2026, 2) else _BASE
+    url = f"{base}/{year}q{quarter}_form345.zip"
     try:
         # Multi-megabyte zip: streamed and retried; the durable cache means a
         # later run never re-downloads quarters that already completed.
@@ -158,6 +163,27 @@ def fetch_insider_trades(year: int, quarter: int) -> list[InsiderTrade]:
         source="sec_form345",
         partition_by=("symbol",),
     )
+    # Mirror the normalized events into the bitemporal query store as well.  The
+    # immutable lake is the archival source, while the store is the canonical
+    # point-in-time query layer used by edges, coverage checks, and the dashboard.
+    # Without this mirror a successful SEC download still appeared as
+    # ``insider_filings: 0 rows`` to research consumers.
+    from libs.data import store
+
+    by_symbol: dict[str, list[dict[str, object]]] = defaultdict(list)
+    for trade in trades:
+        by_symbol[trade.symbol].append({
+            "symbol": trade.symbol,
+            "symbol_reported": trade.symbol,
+            store.EVENT_DATE: trade.filing_date,
+            "insider": trade.issuer,
+            "transaction_date": trade.trans_date,
+            "value_usd": trade.value_usd,
+            "is_open_market_buy": trade.is_open_market_buy,
+            "source": "sec_form345",
+        })
+    for symbol, rows in by_symbol.items():
+        store.write(store.INSIDER_FILINGS, symbol, rows, deduplicate_payload=True)
     return trades
 
 

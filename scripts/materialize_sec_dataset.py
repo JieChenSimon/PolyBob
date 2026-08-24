@@ -6,7 +6,14 @@ from libs.data.sec_insider import fetch_insider_trades
 
 
 def main() -> None:
-    quarters = ((2025, 3), (2025, 4), (2026, 1))
+    # SEC publishes the structured archive quarterly. Keep a contiguous window
+    # so the study can be rerun without a hidden recent-history selection.
+    quarters = tuple(
+        (year, quarter)
+        for year in (2024, 2025, 2026)
+        for quarter in (1, 2, 3, 4)
+        if (year, quarter) <= (2026, 2)
+    )
     total = 0
     for year, quarter in quarters:
         trades = fetch_insider_trades(year, quarter)

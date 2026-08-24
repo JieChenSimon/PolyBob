@@ -384,79 +384,74 @@
       },
       "result": {
         "strategy": "内部人集群买入(≥2人)",
-        "signals_found": 1141,
+        "signals_found": 3928,
         "dropped": {
-          "no_prices": 43,
-          "window_too_short": 13,
+          "no_prices": 429,
+          "window_too_short": 47,
           "no_benchmark": 0,
           "no_carry": 0,
-          "no_risk_estimate": 66
+          "no_risk_estimate": 1147,
+          "ambiguous_corporate_action": 0
         },
-        "measurable_rate": 0.8931,
-        "n": 1019,
-        "n_clusters": 9,
-        "mean_excess_pct": 3.25,
-        "median_excess_pct": 0.795,
-        "win_rate": 0.526,
-        "t_stat": 4.21,
-        "t_stat_iid": 4.8,
-        "t_hurdle": 4.19,
+        "measurable_rate": 0.5868,
+        "n": 2305,
+        "n_clusters": 23,
+        "mean_excess_pct": -38.089,
+        "median_excess_pct": -22.016,
+        "win_rate": 0.2625,
+        "t_stat": -3.88,
+        "t_stat_iid": -17.91,
+        "t_hurdle": 4.2,
         "significant": false,
         "bootstrap_ci_pct": [
-          2.048,
-          5.024
+          -57.959,
+          -19.26
         ],
-        "sign_test_p": 0.1033,
-        "wild_p": 0.005,
-        "p_floor": 0.00391,
-        "resolvable": false,
-        "skew_ratio": 4.09,
+        "sign_test_p": 0.0,
+        "wild_p": 0.001,
+        "p_floor": 2.38e-07,
+        "resolvable": true,
+        "status": "fail",
+        "skew_ratio": 1.73,
         "cluster_by": "month",
         "inference": "cluster_robust",
-        "warnings": [
-          "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "mean is 4.1x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
-          "t 值接近或超过门槛,但中位数与 0 无法区分(符号检验 p=0.10,胜率 52.6%)—— 这个效应只存在于尾部。组合层面可能是真的收益,但它不是'这些股票会跑赢'那个意思,而且仓位算法必须按整个分布定,不能按胜率定。",
-          "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
-        ],
+        "warnings": [],
         "control_single_buy": {
           "strategy": "对照:单人买入",
-          "signals_found": 2149,
+          "signals_found": 7198,
           "dropped": {
-            "no_prices": 61,
-            "window_too_short": 23,
+            "no_prices": 672,
+            "window_too_short": 83,
             "no_benchmark": 0,
             "no_carry": 0,
-            "no_risk_estimate": 112
+            "no_risk_estimate": 1971,
+            "ambiguous_corporate_action": 0
           },
-          "measurable_rate": 0.9088,
-          "n": 1953,
-          "n_clusters": 9,
-          "mean_excess_pct": 0.817,
-          "median_excess_pct": 0.223,
-          "win_rate": 0.5064,
-          "t_stat": 0.61,
-          "t_stat_iid": 1.37,
-          "t_hurdle": 4.19,
+          "measurable_rate": 0.6213,
+          "n": 4472,
+          "n_clusters": 26,
+          "mean_excess_pct": -49.201,
+          "median_excess_pct": -22.276,
+          "win_rate": 0.2522,
+          "t_stat": -4.09,
+          "t_stat_iid": -26.37,
+          "t_hurdle": 4.2,
           "significant": false,
           "bootstrap_ci_pct": [
-            -1.243,
-            4.196
+            -74.64,
+            -27.032
           ],
-          "sign_test_p": 0.5871,
-          "wild_p": 0.6205,
-          "p_floor": 0.00391,
-          "resolvable": false,
-          "skew_ratio": 3.67,
+          "sign_test_p": 0.0,
+          "wild_p": 0.0005,
+          "p_floor": 2.98e-08,
+          "resolvable": true,
+          "status": "fail",
+          "skew_ratio": 2.21,
           "cluster_by": "month",
           "inference": "cluster_robust",
-          "warnings": [
-            "only 9 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-            "mean is 3.7x the median — the average is carried by a few tail events, so the typical trade looks nothing like it",
-            "the 95% bootstrap interval on the mean contains zero",
-            "9 个独立单元最细只能表达 p=3.9e-03,而门槛 t=4.19 要求 p≤2.8e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
-          ]
-        }
+          "warnings": []
+        },
+        "clustering_premise": "unsupported_control_at_least_as_strong"
       }
     },
     {

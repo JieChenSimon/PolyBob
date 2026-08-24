@@ -1,8 +1,32 @@
 {
   "experiment": "insider_cluster_buy",
-  "as_of": "2026-08-10T05:44:05.068146+00:00",
+  "as_of": "2026-08-24T05:44:38.805886+00:00",
   "params": {
     "quarters": [
+      [
+        2024,
+        1
+      ],
+      [
+        2024,
+        2
+      ],
+      [
+        2024,
+        3
+      ],
+      [
+        2024,
+        4
+      ],
+      [
+        2025,
+        1
+      ],
+      [
+        2025,
+        2
+      ],
       [
         2025,
         3
@@ -14,6 +38,10 @@
       [
         2026,
         1
+      ],
+      [
+        2026,
+        2
       ]
     ],
     "hold_days": 20,
@@ -27,24 +55,67 @@
     "benchmark": "SPY"
   },
   "code": {
-    "commit": "6ef2b65b4806ddc930710cdfbb9a41ebdd4e4cb9",
-    "dirty": false,
-    "dirty_files": 0,
-    "dirty_sample": []
+    "commit": "76e3d1aa4a99ed4ba536c7cb5d97cc74a65d2868",
+    "dirty": true,
+    "dirty_files": 2,
+    "dirty_sample": [
+      "scripts/insider_experiment.py",
+      "scripts/materialize_sec_dataset.py"
+    ]
   },
-  "started_at": "2026-08-10T05:44:05.089218+00:00",
+  "started_at": "2026-08-24T05:44:38.931152+00:00",
   "inputs": {
     "insider_filings": {
-      "quarters": 3,
-      "trades": 216961,
-      "clusters": 1141,
-      "singles": 2149
+      "quarters": 10,
+      "trades": 762258,
+      "clusters": 3928,
+      "singles": 7198,
+      "data_contract": {
+        "dataset": "insider_filings",
+        "instrument": "symbol",
+        "effective_at": "event_date",
+        "observed_at": "fetched_at",
+        "pit_level": "collected_observation_time",
+        "strict_historical_pit": false,
+        "price_basis": "not_applicable",
+        "value_columns": [
+          "symbol_reported",
+          "insider",
+          "transaction_date",
+          "value_usd",
+          "is_open_market_buy",
+          "source"
+        ]
+      }
     },
     "daily_bars": {
-      "symbols_requested": 1430,
-      "symbols_available": 1370,
-      "price_coverage": 0.958
+      "symbols_requested": 3010,
+      "symbols_available": 2528,
+      "price_coverage": 0.8399,
+      "data_contract": {
+        "dataset": "daily_bars",
+        "instrument": "symbol",
+        "effective_at": "event_date",
+        "observed_at": "fetched_at",
+        "pit_level": "collected_observation_time",
+        "strict_historical_pit": false,
+        "price_basis": "row_declared",
+        "value_columns": [
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "source",
+          "price_basis"
+        ]
+      }
     }
   },
-  "reproducible": true
+  "lineage": {
+    "input_hash": "8fc939891773d2c800c4a69ac49d02b4a80e5f99321f613fe7313e31881b0c61",
+    "model_hash": null,
+    "has_lineage": false
+  },
+  "reproducible": false
 }

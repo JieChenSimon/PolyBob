@@ -276,7 +276,10 @@ async def test_funding_snapshot_is_booked_once_and_replayed(tmp_path):
         initial_capital=10_000.0, config=RUN_CONFIG,
     )
     await service.start_run(run["run_id"])
-    timestamp = datetime(2026, 8, 24, tzinfo=UTC)
+    # Use a fresh event timestamp: the production simulator must reject stale
+    # funding snapshots, so a hard-coded midnight becomes stale as the test
+    # day advances in UTC.
+    timestamp = datetime.now(UTC)
     snapshot = feature_snapshot(bid=0.90, ask=0.92, timestamp=timestamp)
     snapshot["funding_rate"] = 0.001
     await service._on_feature_snapshot(snapshot)

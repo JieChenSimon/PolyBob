@@ -35,14 +35,19 @@ import numpy as np
 
 from libs.data.real_sources import DataUnavailable, fetch_us_equity_daily
 from libs.data.sec_insider import SecDataUnavailable, cluster_buys, fetch_insider_trades
-from libs.data import run_manifest
+from libs.data import run_manifest, store
 from libs.data.universe import US_BENCHMARK
 from libs.quant import edge_backtest
 from libs.quant.edge import Direction
 from libs.quant.hypothesis import Hypothesis, HypothesisRegistry, Rationale
 from libs.quant.pbo import deflated_t_stat_threshold
 
-QUARTERS = [(2025, 3), (2025, 4), (2026, 1)]
+QUARTERS = [
+    (year, quarter)
+    for year in (2024, 2025, 2026)
+    for quarter in (1, 2, 3, 4)
+    if (year, quarter) <= (2026, 2)
+]
 HOLD_DAYS = 20          # insider signals are documented over weeks, not days
 COST_BPS = 10.0
 RISK_VOL_WINDOW = 60    # sessions of pre-signal history used to size each event
@@ -129,11 +134,7 @@ def main() -> None:
     preregister(registry)
     print(f"累计试验 {registry.n_trials}")
 
-    # Pin the observation cut before the first read. Everything this run sees is
-    # what was known at this instant — which is the only reason its n will be the
-    # same next time. It was not: this experiment reported 753 events one day and
-    # 667 the next, off the same overwritable cache.
-    manifest = run_manifest.pin("insider_cluster_buy", params={
+    manifest_params = {
         "quarters": QUARTERS, "hold_days": HOLD_DAYS,
         "cost_bps": COST_BPS, "symbol_cap": None,
         "benchmark_mode": "cross_sectional_universe_mean",
@@ -141,8 +142,7 @@ def main() -> None:
         "risk_vol_window": RISK_VOL_WINDOW,
         "min_insiders": 2, "min_value_usd": 50_000,
         "benchmark": US_BENCHMARK,
-    })
-    print(f"观测时点 as_of = {manifest.as_of.isoformat()}\n")
+    }
 
     trades = []
     for year, quarter in QUARTERS:
@@ -170,10 +170,25 @@ def main() -> None:
 
     prices: dict[str, tuple[list[str], list[float]]] = {}
     missing: list[str] = []
+    collection_cut = datetime.now(UTC)
+    try:
+        local = store.read(store.DAILY_BARS, symbols, as_of=collection_cut)
+        for symbol, group in local.groupby("symbol", sort=False):
+            dates = [str(value) for value in group[store.EVENT_DATE].tolist()]
+            closes = [float(value) for value in group["close"].tolist()]
+            if len(closes) >= 200:
+                prices[str(symbol)] = (dates, closes)
+    except Exception as exc:  # noqa: BLE001 - missing local coverage stays visible
+        print(f"  本地日线批量读取失败，转为逐标的真实获取: {exc}")
     for symbol in symbols:
+        if symbol in prices:
+            continue
         try:
             bars = fetch_us_equity_daily(symbol, years=2)
-            prices[symbol] = (bars.dates, bars.closes)
+            if len(bars) >= 200:
+                prices[symbol] = (bars.dates, bars.closes)
+            else:
+                missing.append(symbol)
         except DataUnavailable:
             missing.append(symbol)
             continue
@@ -185,11 +200,19 @@ def main() -> None:
         print(f"  ⚠ 覆盖率 {len(prices)/len(symbols)*100:.1f}% —— "
               f"取不到价格的标的若系统性偏向流动性差的小盘股,这个偏差会留在结果里")
 
-    try:
-        fetch_us_equity_daily(US_BENCHMARK, years=2)      # warms the store
-    except DataUnavailable as exc:
-        print(f"基准不可用: {exc}")
-        return
+    if US_BENCHMARK not in prices:
+        try:
+            benchmark = fetch_us_equity_daily(US_BENCHMARK, years=2)
+            prices[US_BENCHMARK] = (benchmark.dates, benchmark.closes)
+        except DataUnavailable as exc:
+            print(f"基准不可用: {exc}")
+            return
+
+    # Freeze PIT only after all real observations have been collected. Pinning
+    # before warming the cache makes newly downloaded rows correctly invisible
+    # to the replay and silently shrinks the sample.
+    manifest = run_manifest.pin("insider_cluster_buy", params=manifest_params)
+    print(f"观测时点 as_of = {manifest.as_of.isoformat()}\n")
 
     # Every fetch above mirrored into the bitemporal store, so the replay reads
     # prices *as they were known at* the manifest's cut rather than as they look
