@@ -108,6 +108,14 @@
 
 四折绝对 OOS 中位数为 -14.60%、-15.42%、-14.30%、-17.90%，相对买入持有中位数为 +52.09pp、+56.75pp、+31.97pp、+2.21pp；完整区间最大回撤中位数约 50.0%，每标的完整区间中位数约 40 笔成交、费用约 709（初始资金 10,000）。这证明短仓趋势可以减少下跌基准的损失，但当前成本后绝对收益仍显著为负，且最后一折相对优势已接近消失；候选计入 6 个探索配置的多重检验，继续保持 `replay_only_not_promoted`。
 
+### SEC insider 集群买入真实成交内核复核
+
+新增 [insider_kernel_replay.json](../data/insider_kernel_replay.json)，将 SEC 公开披露日事件转为“下一本地交易日进场、持有 5 个交易日退出”，在真实 `SimulationService` 中回放 1,297 个事件、484 个可定价标的。候选为至少 3 位内部人、单次金额至少 10 万美元，1% 单标的仓位；标准成本下组合收益 +5.99%、最大回撤 2.19%、利润因子 1.26、最大杠杆 0.74 倍，四个切分 OOS 分别 +5.99%、+6.89%、+2.30%、+0.91%，没有风险拒单，权益曲线未降级。
+
+作为原始预注册候选对照，新增 [insider_kernel_replay_original_unlevered.json](../data/insider_kernel_replay_original_unlevered.json)：20 日、至少 2 位内部人、至少 5 万美元，仓位降至 0.25% 使最大杠杆约 0.99 倍。标准成本下收益 +9.54%、最大回撤 7.67%、利润因子 1.34，四折 OOS 为 +9.54%、+9.80%、+5.97%、+4.80%；但该规则来自 18 个候选族的训练期筛选，仍必须承受多重检验和事件级收益集中度审计。
+
+成本加倍压力测试 [insider_kernel_replay_original_cost_stress.json](../data/insider_kernel_replay_original_cost_stress.json) 显示原始候选在 40bp fee、20bp 中价惩罚下收益降至 +25.67%，利润因子 1.20，四折 OOS 仍为 +25.68%、+27.58%、+15.01%、+13.80%；这说明该候选比短持有版本更耐成本，但尚未通过独立事件聚类、收益集中度、PBO/DSR、幸存者偏差和真实容量门禁，全部保持 `replay_only_not_promoted`。
+
 ## 外部真实 OHLCV focused scoreboard
 
 在本地质量门禁复核之外，运行 `scripts/focused_scoreboard.py --alt-universe 20`，从真实 OKX/Yahoo/Tencent 数据加载 18 个加密、26 个美股和 8 个 A 股标的，测试 3 个 OHLCV 假设的正反方向，共 255 次注册试验。结果 18/18 失败，没有策略通过 DSR、成本压力和样本外稳定性门禁：

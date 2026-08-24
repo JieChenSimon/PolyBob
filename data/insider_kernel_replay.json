@@ -1,0 +1,2973 @@
+{
+  "generated_at": "2026-08-24T11:43:01.173263+00:00",
+  "real_data_only": true,
+  "execution_kernel": "modules.simulation.SimulationService",
+  "strategy": {
+    "family": "sec_insider_cluster_buy",
+    "hold_sessions": 5,
+    "min_insiders": 3,
+    "min_value_usd": 100000.0
+  },
+  "execution_config": {
+    "fee_bps": 20.0,
+    "mid_penalty_bps": 10.0,
+    "allow_short": false,
+    "position_fraction": 0.01
+  },
+  "events": 1297,
+  "symbols_requested": 611,
+  "symbols_replayed": 484,
+  "coverage": 0.7921440261865794,
+  "candidate_family_size": 18,
+  "selection_note": "candidate was observed in the existing train/OOS optimizer; kernel replay remains independent evidence",
+  "full_metrics": {
+    "total_return": 0.05991540462438705,
+    "equity": 105991.54046243872,
+    "win_rate": 0.48663101604278075,
+    "profit_factor": 1.2607733099659815,
+    "max_drawdown": 0.0218654457454026,
+    "equity_curve_degraded": false,
+    "sharpe": 0.5542811824231206,
+    "trade_count": 1496,
+    "closed_trade_count": 748,
+    "realized_pnl": 5991.540462438664,
+    "total_fees": 3131.3846327282745,
+    "total_slippage": 80.52116388381589,
+    "total_explicit_cost": 3211.905796612088,
+    "funding_pnl": 0.0,
+    "avg_win": 79.58129094105901,
+    "avg_loss": -59.83346208361146,
+    "per_instrument": {
+      "FSBC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.394097162814553,
+        "win_rate": 0.0
+      },
+      "ACDC": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -35.61667377048252,
+        "win_rate": 0.5
+      },
+      "LOAR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 110.51566914015545,
+        "win_rate": 0.5
+      },
+      "LRMR": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -20.833215253252227,
+        "win_rate": 0.3333333333333333
+      },
+      "RAPP": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -31.540107375050972,
+        "win_rate": 0.5
+      },
+      "RIG": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 107.33369829670207,
+        "win_rate": 1.0
+      },
+      "SLRC": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -41.7127074980107,
+        "win_rate": 0.3333333333333333
+      },
+      "SMMT": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 85.22746499430504,
+        "win_rate": 0.3333333333333333
+      },
+      "AFCG": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -85.04281930730906,
+        "win_rate": 0.3333333333333333
+      },
+      "ALMS": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 734.7650061627078,
+        "win_rate": 0.75
+      },
+      "AMR": {
+        "trade_count": 12,
+        "closed_trades": 6,
+        "realized_pnl": 108.04110407325643,
+        "win_rate": 0.5
+      },
+      "BH": {
+        "trade_count": 12,
+        "closed_trades": 6,
+        "realized_pnl": 98.43791032082635,
+        "win_rate": 0.8333333333333334
+      },
+      "BHVN": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 5.959720851592552,
+        "win_rate": 0.3333333333333333
+      },
+      "BPRN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -18.349491812259778,
+        "win_rate": 0.0
+      },
+      "BRT": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": -43.14596764494238,
+        "win_rate": 0.25
+      },
+      "ENPH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 68.4869460776529,
+        "win_rate": 1.0
+      },
+      "FCNCA": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 29.45672198972163,
+        "win_rate": 0.6666666666666666
+      },
+      "GLP": {
+        "trade_count": 18,
+        "closed_trades": 9,
+        "realized_pnl": -30.964579836354087,
+        "win_rate": 0.4444444444444444
+      },
+      "KVHI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -14.973477688592673,
+        "win_rate": 0.0
+      },
+      "KYN": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -33.73792320639923,
+        "win_rate": 0.5
+      },
+      "LAB": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": 401.0159611456182,
+        "win_rate": 0.8
+      },
+      "LINE": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -89.0497833191026,
+        "win_rate": 0.0
+      },
+      "MSCI": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": 112.05355273713387,
+        "win_rate": 0.8
+      },
+      "PENN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 66.658052367201,
+        "win_rate": 1.0
+      },
+      "PRME": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -307.64666201779846,
+        "win_rate": 0.0
+      },
+      "RXO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -60.61390820655129,
+        "win_rate": 0.0
+      },
+      "SRZN": {
+        "trade_count": 12,
+        "closed_trades": 6,
+        "realized_pnl": -123.14831086541201,
+        "win_rate": 0.3333333333333333
+      },
+      "STAA": {
+        "trade_count": 18,
+        "closed_trades": 9,
+        "realized_pnl": -44.11491324617887,
+        "win_rate": 0.3333333333333333
+      },
+      "SUNS": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 84.1712644031633,
+        "win_rate": 0.6666666666666666
+      },
+      "VSTS": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 8.596709267265977,
+        "win_rate": 0.5
+      },
+      "ACET": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 222.57692071583028,
+        "win_rate": 1.0
+      },
+      "ALLE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 20.781128404995048,
+        "win_rate": 1.0
+      },
+      "ALTG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -63.25740555354828,
+        "win_rate": 0.0
+      },
+      "AON": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 7.748829338754603,
+        "win_rate": 1.0
+      },
+      "AUB": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 38.22359707898628,
+        "win_rate": 0.5
+      },
+      "CLF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -58.850177516228825,
+        "win_rate": 0.0
+      },
+      "CMTG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -60.312040424417624,
+        "win_rate": 0.0
+      },
+      "COFS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 13.637141765582998,
+        "win_rate": 1.0
+      },
+      "CPNG": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -150.28644918507342,
+        "win_rate": 0.0
+      },
+      "CTRI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 8.030120060178243,
+        "win_rate": 1.0
+      },
+      "EG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 19.276421600076134,
+        "win_rate": 1.0
+      },
+      "GL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 44.6355186086315,
+        "win_rate": 1.0
+      },
+      "HTLD": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 67.9018889344798,
+        "win_rate": 1.0
+      },
+      "IVFH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -121.95831091248125,
+        "win_rate": 0.0
+      },
+      "KRRO": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 68.1280916241131,
+        "win_rate": 0.5
+      },
+      "MCFT": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": -112.770495072493,
+        "win_rate": 0.25
+      },
+      "MGM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 39.42521785301372,
+        "win_rate": 1.0
+      },
+      "NA": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 121.05623080150356,
+        "win_rate": 1.0
+      },
+      "NN": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 78.23326172147858,
+        "win_rate": 1.0
+      },
+      "NRDE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 44.07388828602474,
+        "win_rate": 1.0
+      },
+      "NSC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -9.612808054605848,
+        "win_rate": 0.0
+      },
+      "OXY": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 4.498483623473714,
+        "win_rate": 0.5
+      },
+      "PLCE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -117.7686571868208,
+        "win_rate": 0.0
+      },
+      "PRM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 2.618277548411843,
+        "win_rate": 1.0
+      },
+      "RGEN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -30.964272005253086,
+        "win_rate": 0.0
+      },
+      "RLMD": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 616.4171532519345,
+        "win_rate": 1.0
+      },
+      "RMCF": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -156.50198018481296,
+        "win_rate": 0.5
+      },
+      "SOC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 61.705310010749955,
+        "win_rate": 1.0
+      },
+      "SPMC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 27.2726809606008,
+        "win_rate": 1.0
+      },
+      "TBN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 49.752672658961636,
+        "win_rate": 1.0
+      },
+      "TELA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -251.26850027798662,
+        "win_rate": 0.0
+      },
+      "TLYS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 39.072131189349825,
+        "win_rate": 1.0
+      },
+      "TRS": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 130.9342223286058,
+        "win_rate": 1.0
+      },
+      "WGS": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 376.3761493649616,
+        "win_rate": 0.5
+      },
+      "HTGC": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": -15.272671192362404,
+        "win_rate": 0.25
+      },
+      "ONEW": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 96.82523331763363,
+        "win_rate": 1.0
+      },
+      "GT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 35.82336908990588,
+        "win_rate": 1.0
+      },
+      "DGICA": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": -3.0736101818048027,
+        "win_rate": 0.4
+      },
+      "ACHR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -44.17128274172903,
+        "win_rate": 0.0
+      },
+      "ACRS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -31.094433231602192,
+        "win_rate": 0.0
+      },
+      "ACTU": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 78.81374875213126,
+        "win_rate": 1.0
+      },
+      "ALAB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 206.4910050382032,
+        "win_rate": 1.0
+      },
+      "ALTI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -39.76588405810741,
+        "win_rate": 0.0
+      },
+      "APEI": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -24.882754578130005,
+        "win_rate": 0.5
+      },
+      "APPN": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 108.79330357950118,
+        "win_rate": 1.0
+      },
+      "ARTV": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 2.9814611327418987,
+        "win_rate": 0.5
+      },
+      "AVBP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 116.15302375824756,
+        "win_rate": 1.0
+      },
+      "BCAT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -2.3513117461200648,
+        "win_rate": 0.0
+      },
+      "BCRX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 82.43448153902077,
+        "win_rate": 1.0
+      },
+      "BMEZ": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 11.094440631497786,
+        "win_rate": 1.0
+      },
+      "BNED": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 53.59049436272906,
+        "win_rate": 1.0
+      },
+      "BOLD": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -85.69423834760025,
+        "win_rate": 0.0
+      },
+      "BOW": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 37.711929611499876,
+        "win_rate": 1.0
+      },
+      "BTSG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 60.102591633809595,
+        "win_rate": 1.0
+      },
+      "BY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 33.73217684046903,
+        "win_rate": 1.0
+      },
+      "CALC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 22.735083526121183,
+        "win_rate": 1.0
+      },
+      "CART": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 18.968101284416733,
+        "win_rate": 1.0
+      },
+      "CODI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 28.551985021548003,
+        "win_rate": 1.0
+      },
+      "CRBP": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -97.22120352378766,
+        "win_rate": 0.0
+      },
+      "CRK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -99.579955995495,
+        "win_rate": 0.0
+      },
+      "CRMT": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 76.77778079727867,
+        "win_rate": 1.0
+      },
+      "CTRN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -50.9973677029223,
+        "win_rate": 0.0
+      },
+      "DOMO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -26.369666580429605,
+        "win_rate": 0.0
+      },
+      "ECAT": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -54.073964325377034,
+        "win_rate": 0.0
+      },
+      "GBDC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -16.699331233825653,
+        "win_rate": 0.0
+      },
+      "GENK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 60.522098554736374,
+        "win_rate": 1.0
+      },
+      "GEO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -16.99518333022146,
+        "win_rate": 0.0
+      },
+      "GUTS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 224.58921694863895,
+        "win_rate": 1.0
+      },
+      "HXL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -0.019635094270209718,
+        "win_rate": 0.0
+      },
+      "INBX": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 122.52955204593718,
+        "win_rate": 1.0
+      },
+      "INMB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 57.63684438910925,
+        "win_rate": 1.0
+      },
+      "IOVA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -26.712488286746716,
+        "win_rate": 0.0
+      },
+      "IRON": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -4.999832514427827,
+        "win_rate": 0.0
+      },
+      "LILA": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 135.75592864707605,
+        "win_rate": 0.6666666666666666
+      },
+      "LPSN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -85.84786772466941,
+        "win_rate": 0.0
+      },
+      "MDRX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 25.266322741566075,
+        "win_rate": 1.0
+      },
+      "MPAA": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -26.068065328083126,
+        "win_rate": 0.0
+      },
+      "MRCY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 11.612205933760753,
+        "win_rate": 1.0
+      },
+      "NE": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -17.064184428271624,
+        "win_rate": 0.5
+      },
+      "NUVB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 137.0094912248979,
+        "win_rate": 1.0
+      },
+      "OXLC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -0.3366467596527488,
+        "win_rate": 0.0
+      },
+      "PAYS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 2.531954948453055,
+        "win_rate": 1.0
+      },
+      "PBF": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -13.867264489612253,
+        "win_rate": 0.0
+      },
+      "PDCC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -54.354947606961034,
+        "win_rate": 0.0
+      },
+      "PGY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 184.27273699517198,
+        "win_rate": 1.0
+      },
+      "POCI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -32.719479134206196,
+        "win_rate": 0.0
+      },
+      "PRVA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 3.485586860540642,
+        "win_rate": 1.0
+      },
+      "PSBD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -6.641506342633684,
+        "win_rate": 0.0
+      },
+      "RH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -34.62097962763484,
+        "win_rate": 0.0
+      },
+      "RM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 62.63077221870789,
+        "win_rate": 1.0
+      },
+      "RRR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 48.02070101778123,
+        "win_rate": 1.0
+      },
+      "RSVR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 38.55042121354146,
+        "win_rate": 1.0
+      },
+      "SANA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 64.08921476844037,
+        "win_rate": 1.0
+      },
+      "SOWG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -131.81721995649096,
+        "win_rate": 0.0
+      },
+      "SPRY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 7.258530934723885,
+        "win_rate": 1.0
+      },
+      "SRPT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -35.60043078593114,
+        "win_rate": 0.0
+      },
+      "TALO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 59.14573022524992,
+        "win_rate": 1.0
+      },
+      "TELO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -80.27948370306562,
+        "win_rate": 0.0
+      },
+      "TLS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 123.19408515457708,
+        "win_rate": 1.0
+      },
+      "TMCI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 5.275703603525854,
+        "win_rate": 1.0
+      },
+      "TTSH": {
+        "trade_count": 12,
+        "closed_trades": 6,
+        "realized_pnl": -154.2650405149936,
+        "win_rate": 0.5
+      },
+      "TWFG": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 66.38694220732762,
+        "win_rate": 1.0
+      },
+      "ULS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 16.992693424662928,
+        "win_rate": 1.0
+      },
+      "USGO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 14.338305795541872,
+        "win_rate": 1.0
+      },
+      "VCNX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 71.99021249047462,
+        "win_rate": 1.0
+      },
+      "Z": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 36.93354115416341,
+        "win_rate": 1.0
+      },
+      "BILL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 17.05449529515287,
+        "win_rate": 1.0
+      },
+      "TCBI": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -77.74619944637567,
+        "win_rate": 0.0
+      },
+      "LOCO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -31.6015632229494,
+        "win_rate": 0.0
+      },
+      "HPK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -127.29880592775055,
+        "win_rate": 0.0
+      },
+      "BFLY": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 521.0779806273954,
+        "win_rate": 0.6666666666666666
+      },
+      "DYN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -23.680535137525478,
+        "win_rate": 0.0
+      },
+      "PSEC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 28.929813770799843,
+        "win_rate": 1.0
+      },
+      "CLAR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 87.04399652882076,
+        "win_rate": 1.0
+      },
+      "CNTM": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 194.94934913056358,
+        "win_rate": 0.5
+      },
+      "CHI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 23.362092873670964,
+        "win_rate": 1.0
+      },
+      "CHY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 19.9925797177022,
+        "win_rate": 1.0
+      },
+      "CGNT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -39.986337208517305,
+        "win_rate": 0.0
+      },
+      "ZBIO": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": 52.65805310901354,
+        "win_rate": 0.6
+      },
+      "MBX": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -82.45250778699207,
+        "win_rate": 0.5
+      },
+      "TAKAX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -6.160869943709411,
+        "win_rate": 0.0
+      },
+      "CULP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -85.2494432330685,
+        "win_rate": 0.0
+      },
+      "CDXS": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 176.07758828445589,
+        "win_rate": 1.0
+      },
+      "LUCY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -204.5100574226599,
+        "win_rate": 0.0
+      },
+      "NEWT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 9.201043649971865,
+        "win_rate": 1.0
+      },
+      "TECX": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 60.77437309195963,
+        "win_rate": 0.6666666666666666
+      },
+      "BIOA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 38.22508669298881,
+        "win_rate": 1.0
+      },
+      "BKV": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.769137810828287,
+        "win_rate": 0.0
+      },
+      "GDOT": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -96.47774256085316,
+        "win_rate": 0.5
+      },
+      "IBTA": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 122.51774558226913,
+        "win_rate": 0.5
+      },
+      "LUV": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.179764530140982,
+        "win_rate": 0.0
+      },
+      "RNAC": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": -324.45415321155645,
+        "win_rate": 0.2
+      },
+      "GIFT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 47.1115479507811,
+        "win_rate": 1.0
+      },
+      "LFCR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -42.51468978277566,
+        "win_rate": 0.0
+      },
+      "FVR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -14.349693948977556,
+        "win_rate": 0.0
+      },
+      "GRAL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 12.927525352746462,
+        "win_rate": 1.0
+      },
+      "GATX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -37.4343149095754,
+        "win_rate": 0.0
+      },
+      "SIRI": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": -73.13050613870575,
+        "win_rate": 0.2
+      },
+      "CAMP": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -301.70391265897194,
+        "win_rate": 0.5
+      },
+      "SNDA": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -216.2286975948531,
+        "win_rate": 0.0
+      },
+      "DRUG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 31.421150092878474,
+        "win_rate": 1.0
+      },
+      "RRGB": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -230.66283559449332,
+        "win_rate": 0.0
+      },
+      "UPB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -38.69670948677631,
+        "win_rate": 0.0
+      },
+      "ENGN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -109.54938810933965,
+        "win_rate": 0.0
+      },
+      "JETMF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 105.35392559215018,
+        "win_rate": 1.0
+      },
+      "IKT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -2.0981831122677588,
+        "win_rate": 0.0
+      },
+      "NRDS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 338.4745844730705,
+        "win_rate": 1.0
+      },
+      "INGM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -24.524324086092214,
+        "win_rate": 0.0
+      },
+      "ROLR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -198.65819039002062,
+        "win_rate": 0.0
+      },
+      "CCO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 112.91723075898955,
+        "win_rate": 1.0
+      },
+      "MPB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 1.780008815997358,
+        "win_rate": 1.0
+      },
+      "NMFC": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -7.086769528505421,
+        "win_rate": 0.5
+      },
+      "JELD": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 257.2610526258753,
+        "win_rate": 0.75
+      },
+      "UAN": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": 162.404059119183,
+        "win_rate": 0.6
+      },
+      "OSCR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 162.63765336242176,
+        "win_rate": 1.0
+      },
+      "NRDY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 467.9760156095049,
+        "win_rate": 1.0
+      },
+      "QTI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -183.68753504636217,
+        "win_rate": 0.0
+      },
+      "RXST": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.123982794118193,
+        "win_rate": 0.0
+      },
+      "EL": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 188.2355133257373,
+        "win_rate": 1.0
+      },
+      "ZETA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -98.31611681859111,
+        "win_rate": 0.0
+      },
+      "AZTA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 50.29304103013933,
+        "win_rate": 1.0
+      },
+      "BRKR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 90.03568091262771,
+        "win_rate": 1.0
+      },
+      "CLVT": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 14.016988630062007,
+        "win_rate": 0.5
+      },
+      "IMNM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 172.72578269194545,
+        "win_rate": 1.0
+      },
+      "NGNE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -75.43740087751235,
+        "win_rate": 0.0
+      },
+      "AUPH": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": -161.71007451010863,
+        "win_rate": 0.2
+      },
+      "STRW": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 8.94358376290296,
+        "win_rate": 1.0
+      },
+      "MNR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 80.34939717187723,
+        "win_rate": 1.0
+      },
+      "ADCT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.325803905983037,
+        "win_rate": 0.0
+      },
+      "TKO": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 1.6924174046885359,
+        "win_rate": 0.3333333333333333
+      },
+      "DOW": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -18.352759990102328,
+        "win_rate": 0.0
+      },
+      "FISI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -44.49543054619626,
+        "win_rate": 0.0
+      },
+      "TDW": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -53.16843494758676,
+        "win_rate": 0.0
+      },
+      "BCYC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -54.141660868646554,
+        "win_rate": 0.0
+      },
+      "TXO": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 76.93966168362441,
+        "win_rate": 1.0
+      },
+      "VRSN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 46.1862179365038,
+        "win_rate": 1.0
+      },
+      "TYG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -17.273631937915845,
+        "win_rate": 0.0
+      },
+      "TTGT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -17.816253875345936,
+        "win_rate": 0.0
+      },
+      "ZYME": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -65.25875476968636,
+        "win_rate": 0.3333333333333333
+      },
+      "FUND": {
+        "trade_count": 14,
+        "closed_trades": 7,
+        "realized_pnl": -52.43668157398192,
+        "win_rate": 0.5714285714285714
+      },
+      "ASA": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -98.49713589892235,
+        "win_rate": 0.5
+      },
+      "FLWS": {
+        "trade_count": 12,
+        "closed_trades": 6,
+        "realized_pnl": -134.85308687665497,
+        "win_rate": 0.3333333333333333
+      },
+      "CADCX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -5.365483029200433,
+        "win_rate": 0.0
+      },
+      "FLOC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -20.226345662044086,
+        "win_rate": 0.0
+      },
+      "MYCB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -77.15596046810056,
+        "win_rate": 0.0
+      },
+      "RLI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 29.65772993488191,
+        "win_rate": 1.0
+      },
+      "XALFX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -5.378614061982571,
+        "win_rate": 0.0
+      },
+      "SFD": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -23.328360948124086,
+        "win_rate": 0.5
+      },
+      "INR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 50.871662179470945,
+        "win_rate": 0.5
+      },
+      "LFUS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 68.0867771811913,
+        "win_rate": 1.0
+      },
+      "BZH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 11.549340569755234,
+        "win_rate": 1.0
+      },
+      "SION": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -27.96133382627335,
+        "win_rate": 0.0
+      },
+      "CREMX": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -9.568454710697605,
+        "win_rate": 0.0
+      },
+      "APPF": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -56.18382986048563,
+        "win_rate": 0.0
+      },
+      "JBHT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -60.66700980433074,
+        "win_rate": 0.0
+      },
+      "MRP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -61.108303683112204,
+        "win_rate": 0.0
+      },
+      "AARD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -236.61278286365533,
+        "win_rate": 0.0
+      },
+      "AMCR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -52.46039209331762,
+        "win_rate": 0.0
+      },
+      "AMKR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 66.55898866800865,
+        "win_rate": 0.5
+      },
+      "ORKA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 25.090631389700135,
+        "win_rate": 1.0
+      },
+      "OSUR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -3.217055606877805,
+        "win_rate": 0.0
+      },
+      "MRNA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.959362769955515,
+        "win_rate": 0.0
+      },
+      "AMRC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -56.7947900358224,
+        "win_rate": 0.0
+      },
+      "JANX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 37.48860117997518,
+        "win_rate": 1.0
+      },
+      "EVH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 75.54991314900012,
+        "win_rate": 1.0
+      },
+      "NCMI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 95.43171085552954,
+        "win_rate": 1.0
+      },
+      "VG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 129.32750659841585,
+        "win_rate": 1.0
+      },
+      "CVI": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 467.605244691954,
+        "win_rate": 1.0
+      },
+      "FSUN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -21.956019603343716,
+        "win_rate": 0.0
+      },
+      "TREE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 43.97032257594252,
+        "win_rate": 1.0
+      },
+      "ASAN": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 91.91126050361112,
+        "win_rate": 1.0
+      },
+      "MLYS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 83.44118209101093,
+        "win_rate": 1.0
+      },
+      "BTMD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -127.36440573563641,
+        "win_rate": 0.0
+      },
+      "WEST": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 79.45660985080416,
+        "win_rate": 1.0
+      },
+      "IMCR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -16.2896620918939,
+        "win_rate": 0.0
+      },
+      "GDRZF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.732629054430086,
+        "win_rate": 0.0
+      },
+      "TAKNX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -7.3996229264720235,
+        "win_rate": 0.0
+      },
+      "AEVA": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 112.56511485382413,
+        "win_rate": 0.5
+      },
+      "NTAP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -159.25306911824757,
+        "win_rate": 0.0
+      },
+      "WOOF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -33.832632492906555,
+        "win_rate": 0.0
+      },
+      "FGBI": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 122.1298173945703,
+        "win_rate": 0.5
+      },
+      "EWTX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 36.96086844278172,
+        "win_rate": 1.0
+      },
+      "NXDT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -88.38703453886963,
+        "win_rate": 0.0
+      },
+      "SBGI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 70.70938150730058,
+        "win_rate": 1.0
+      },
+      "GTE": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": 86.06912552016965,
+        "win_rate": 0.4
+      },
+      "WYNN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -34.578592796517306,
+        "win_rate": 0.0
+      },
+      "MSM": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 43.523416363872094,
+        "win_rate": 1.0
+      },
+      "KROS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 86.17018045165665,
+        "win_rate": 1.0
+      },
+      "EGLE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 30.479114221263938,
+        "win_rate": 1.0
+      },
+      "ROAD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 28.87444295192068,
+        "win_rate": 1.0
+      },
+      "GS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 85.64839849366348,
+        "win_rate": 1.0
+      },
+      "UPXI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -65.73539026611967,
+        "win_rate": 0.0
+      },
+      "DOC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -24.66101076426885,
+        "win_rate": 0.0
+      },
+      "PRTA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -65.84254034040278,
+        "win_rate": 0.0
+      },
+      "SON": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 15.045021483122289,
+        "win_rate": 1.0
+      },
+      "BNL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -36.329083706696046,
+        "win_rate": 0.0
+      },
+      "HCWB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 654.5737781388298,
+        "win_rate": 1.0
+      },
+      "HAIN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 199.82737171895667,
+        "win_rate": 1.0
+      },
+      "CRWV": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 605.8542088068692,
+        "win_rate": 1.0
+      },
+      "FTK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 7.151216405899724,
+        "win_rate": 1.0
+      },
+      "JAZZ": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 10.047580099797154,
+        "win_rate": 1.0
+      },
+      "LGND": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -32.110903627122106,
+        "win_rate": 0.0
+      },
+      "MIDD": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -14.72037503677614,
+        "win_rate": 0.5
+      },
+      "CHD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 0.8840889198643084,
+        "win_rate": 1.0
+      },
+      "CVRX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 70.52348248214467,
+        "win_rate": 1.0
+      },
+      "ILMN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -10.808724717585456,
+        "win_rate": 0.0
+      },
+      "GBLI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -3.8211492175297765,
+        "win_rate": 0.0
+      },
+      "RPAY": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 210.428435330379,
+        "win_rate": 0.6666666666666666
+      },
+      "UNH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -75.05756948811428,
+        "win_rate": 0.0
+      },
+      "SDHC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 154.2045960640984,
+        "win_rate": 1.0
+      },
+      "VFC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -56.192274257484975,
+        "win_rate": 0.0
+      },
+      "SHEN": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": 24.283998889640102,
+        "win_rate": 0.75
+      },
+      "LION": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -128.29932117602783,
+        "win_rate": 0.0
+      },
+      "SGHT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -18.596298055269155,
+        "win_rate": 0.0
+      },
+      "AMPY": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -30.661049146249567,
+        "win_rate": 0.0
+      },
+      "COOK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 89.09833558445447,
+        "win_rate": 1.0
+      },
+      "MSTR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -86.0910619243954,
+        "win_rate": 0.0
+      },
+      "QTRX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -76.04132705406853,
+        "win_rate": 0.0
+      },
+      "RFL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -339.38310985357924,
+        "win_rate": 0.0
+      },
+      "NNUP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -361.67102065639216,
+        "win_rate": 0.0
+      },
+      "AIRS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -101.41260407274005,
+        "win_rate": 0.0
+      },
+      "BHC": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 6.897537443199678,
+        "win_rate": 0.5
+      },
+      "ASIC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -69.06506565034915,
+        "win_rate": 0.0
+      },
+      "HPP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -32.513314852398516,
+        "win_rate": 0.0
+      },
+      "SONO": {
+        "trade_count": 14,
+        "closed_trades": 7,
+        "realized_pnl": -110.34718499550691,
+        "win_rate": 0.2857142857142857
+      },
+      "TYRA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -1.9122095919512174,
+        "win_rate": 0.0
+      },
+      "PTN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 62.86091361210284,
+        "win_rate": 1.0
+      },
+      "VERA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 25.337591833546426,
+        "win_rate": 1.0
+      },
+      "LTC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 21.545735568541904,
+        "win_rate": 1.0
+      },
+      "KYMR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 9.594850679482255,
+        "win_rate": 1.0
+      },
+      "COSO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -22.189873916886793,
+        "win_rate": 0.0
+      },
+      "NEGG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 1105.3155778345026,
+        "win_rate": 1.0
+      },
+      "CRSP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -12.154754925278082,
+        "win_rate": 0.0
+      },
+      "ELV": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 29.53910341448926,
+        "win_rate": 1.0
+      },
+      "PBT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 53.08507485848199,
+        "win_rate": 1.0
+      },
+      "SFNC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -41.17135894776241,
+        "win_rate": 0.0
+      },
+      "DMAC": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -36.52486382841061,
+        "win_rate": 0.3333333333333333
+      },
+      "LOOP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -43.42251102099667,
+        "win_rate": 0.0
+      },
+      "PCB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.819941529406172,
+        "win_rate": 0.0
+      },
+      "PINE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 40.26287242974214,
+        "win_rate": 1.0
+      },
+      "NSP": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 75.54383974545249,
+        "win_rate": 0.5
+      },
+      "TFX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 13.703497768073456,
+        "win_rate": 1.0
+      },
+      "VRTX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 68.34307783779357,
+        "win_rate": 1.0
+      },
+      "PTLO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -56.6630914858187,
+        "win_rate": 0.0
+      },
+      "TMDX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -19.424176358063406,
+        "win_rate": 0.0
+      },
+      "AVBH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -3.2214731337352647,
+        "win_rate": 0.0
+      },
+      "BSM": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -19.983807378537158,
+        "win_rate": 0.5
+      },
+      "AKAM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 2.2952582336990397,
+        "win_rate": 1.0
+      },
+      "LLY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 64.8035434314758,
+        "win_rate": 1.0
+      },
+      "REZI": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -39.59959828323569,
+        "win_rate": 0.5
+      },
+      "SMRT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 62.89351035158531,
+        "win_rate": 1.0
+      },
+      "ALKT": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": -81.8367960427437,
+        "win_rate": 0.5
+      },
+      "MSDL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -8.073803583307742,
+        "win_rate": 0.0
+      },
+      "MXCT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 1.1239446290055204,
+        "win_rate": 1.0
+      },
+      "RPD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -47.23092644424469,
+        "win_rate": 0.0
+      },
+      "AAOI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 106.95964278951898,
+        "win_rate": 1.0
+      },
+      "HTH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 83.18748370436867,
+        "win_rate": 1.0
+      },
+      "BLND": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": 91.15541640013379,
+        "win_rate": 0.8
+      },
+      "MDGL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 70.88902135340109,
+        "win_rate": 1.0
+      },
+      "TPVG": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 98.76250390519343,
+        "win_rate": 1.0
+      },
+      "BKKT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -41.64359427485849,
+        "win_rate": 0.0
+      },
+      "REYN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 25.942518438764964,
+        "win_rate": 1.0
+      },
+      "EMN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -27.764064910707113,
+        "win_rate": 0.0
+      },
+      "FOA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -67.37545348890089,
+        "win_rate": 0.0
+      },
+      "STTK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 378.2705187506606,
+        "win_rate": 1.0
+      },
+      "MKZR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 95.85170317201636,
+        "win_rate": 1.0
+      },
+      "AVGO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -48.16114022669599,
+        "win_rate": 0.0
+      },
+      "CELC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -50.35311694960381,
+        "win_rate": 0.0
+      },
+      "PLSE": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 183.9852663087836,
+        "win_rate": 1.0
+      },
+      "BWFG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 31.80516541073935,
+        "win_rate": 1.0
+      },
+      "TSLA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 4.223241420521435,
+        "win_rate": 1.0
+      },
+      "STRR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -12.711491603285205,
+        "win_rate": 0.0
+      },
+      "WSBC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -4.371618917606422,
+        "win_rate": 0.0
+      },
+      "MRVL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 32.21589362447119,
+        "win_rate": 1.0
+      },
+      "RNGE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 104.29917031217285,
+        "win_rate": 1.0
+      },
+      "BGC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -6.333343009086851,
+        "win_rate": 0.0
+      },
+      "SRRK": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -139.50011605887846,
+        "win_rate": 0.5
+      },
+      "CGEM": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 29.870192354880366,
+        "win_rate": 0.5
+      },
+      "REFI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -9.48302069078652,
+        "win_rate": 0.0
+      },
+      "CNS": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -69.38276104917792,
+        "win_rate": 0.0
+      },
+      "KO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -28.74223445049336,
+        "win_rate": 0.0
+      },
+      "RYES": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -6.301063869029853,
+        "win_rate": 0.0
+      },
+      "NMRA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -131.33942471936217,
+        "win_rate": 0.0
+      },
+      "NVCT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -159.2102895673278,
+        "win_rate": 0.0
+      },
+      "CLS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -74.2997847525156,
+        "win_rate": 0.0
+      },
+      "AJG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 7.4233741398386055,
+        "win_rate": 1.0
+      },
+      "NIC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 29.278404045299528,
+        "win_rate": 1.0
+      },
+      "UTZ": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -6.284761972113333,
+        "win_rate": 0.0
+      },
+      "OSPN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 23.65291007241128,
+        "win_rate": 1.0
+      },
+      "NCLH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -48.942809096083785,
+        "win_rate": 0.0
+      },
+      "MNRO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -76.38687439211881,
+        "win_rate": 0.0
+      },
+      "KREF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -25.226571436871488,
+        "win_rate": 0.0
+      },
+      "LSCC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -27.80908695170216,
+        "win_rate": 0.0
+      },
+      "RHLD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -22.127606753585635,
+        "win_rate": 0.0
+      },
+      "ROP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -22.423430158439114,
+        "win_rate": 0.0
+      },
+      "TRDA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 40.224899249905015,
+        "win_rate": 1.0
+      },
+      "FTAI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -11.65840199764029,
+        "win_rate": 0.0
+      },
+      "GLXY": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -25.423267263549562,
+        "win_rate": 0.5
+      },
+      "HYMC": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 920.596291000953,
+        "win_rate": 0.6666666666666666
+      },
+      "SPRU": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -138.84878523788976,
+        "win_rate": 0.0
+      },
+      "VAC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 124.69529968497933,
+        "win_rate": 1.0
+      },
+      "TDG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -5.150173704017762,
+        "win_rate": 0.0
+      },
+      "ANNX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 49.97446816042312,
+        "win_rate": 1.0
+      },
+      "NEXT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -101.48023591029207,
+        "win_rate": 0.0
+      },
+      "OBDC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 92.46245497802475,
+        "win_rate": 1.0
+      },
+      "ALRM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 23.5946422177076,
+        "win_rate": 1.0
+      },
+      "OPK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 1.6277933564220044,
+        "win_rate": 1.0
+      },
+      "RUM": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -0.6348607592282463,
+        "win_rate": 0.5
+      },
+      "PROP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 5.4025541798472405,
+        "win_rate": 1.0
+      },
+      "TPC": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -6.8746065024952046,
+        "win_rate": 0.5
+      },
+      "VRCA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 260.86590165800794,
+        "win_rate": 1.0
+      },
+      "ONMD": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -191.45312827031918,
+        "win_rate": 0.0
+      },
+      "DASH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 95.3040987912558,
+        "win_rate": 1.0
+      },
+      "OWL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -3.052823955385172,
+        "win_rate": 0.0
+      },
+      "UTI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -7.131850307679931,
+        "win_rate": 0.0
+      },
+      "BAER": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -81.84445625498033,
+        "win_rate": 0.0
+      },
+      "MERC": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -143.36665308981327,
+        "win_rate": 0.0
+      },
+      "IT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 11.245948678980104,
+        "win_rate": 1.0
+      },
+      "KNSL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -13.286959923399081,
+        "win_rate": 0.0
+      },
+      "CNK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 17.917915164204747,
+        "win_rate": 1.0
+      },
+      "WRB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -42.319692631769,
+        "win_rate": 0.0
+      },
+      "BMNM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 400.633423976863,
+        "win_rate": 1.0
+      },
+      "BNTC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -143.39449751064845,
+        "win_rate": 0.0
+      },
+      "UA": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 288.43991179816624,
+        "win_rate": 0.6666666666666666
+      },
+      "AVO": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 136.09378968188634,
+        "win_rate": 0.6666666666666666
+      },
+      "BOC": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 16.485580002711135,
+        "win_rate": 1.0
+      },
+      "SLGL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 394.189705498967,
+        "win_rate": 1.0
+      },
+      "PAR": {
+        "trade_count": 8,
+        "closed_trades": 4,
+        "realized_pnl": -167.4102346282265,
+        "win_rate": 0.75
+      },
+      "MU": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 71.61537454922032,
+        "win_rate": 1.0
+      },
+      "PETV": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -61.95263138631954,
+        "win_rate": 0.0
+      },
+      "UAA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -21.822315455590175,
+        "win_rate": 0.0
+      },
+      "EMPD": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -48.42475169033048,
+        "win_rate": 0.5
+      },
+      "CR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 39.32939025822135,
+        "win_rate": 1.0
+      },
+      "ARCC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -36.20952033477753,
+        "win_rate": 0.0
+      },
+      "VRNS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -32.30545058403701,
+        "win_rate": 0.0
+      },
+      "RDDT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 15.193647954736132,
+        "win_rate": 1.0
+      },
+      "CHRW": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -6.659853889412766,
+        "win_rate": 0.0
+      },
+      "DMLP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -0.10105622383690288,
+        "win_rate": 0.0
+      },
+      "PSNL": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -41.64349267631577,
+        "win_rate": 0.0
+      },
+      "COCH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -61.94664501351797,
+        "win_rate": 0.0
+      },
+      "FAF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 21.857712667509183,
+        "win_rate": 1.0
+      },
+      "KKR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -174.8634329748014,
+        "win_rate": 0.0
+      },
+      "SAH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -24.84797024384893,
+        "win_rate": 0.0
+      },
+      "SSTI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 19.61509360973564,
+        "win_rate": 1.0
+      },
+      "TLSI": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -76.04326739752506,
+        "win_rate": 0.5
+      },
+      "HLNE": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": -252.85315509577043,
+        "win_rate": 0.3333333333333333
+      },
+      "TZOO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -21.671799208045506,
+        "win_rate": 0.0
+      },
+      "AAT": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 126.77118874771566,
+        "win_rate": 0.3333333333333333
+      },
+      "LEE": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -169.82067533619244,
+        "win_rate": 0.0
+      },
+      "LOGC": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 24.39081882751,
+        "win_rate": 0.5
+      },
+      "TNC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 13.30744236026126,
+        "win_rate": 1.0
+      },
+      "THRY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 0.2708963432003499,
+        "win_rate": 1.0
+      },
+      "VNO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -88.35991356508407,
+        "win_rate": 0.0
+      },
+      "TTD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -124.34941390785887,
+        "win_rate": 0.0
+      },
+      "ABTC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -55.77912426020615,
+        "win_rate": 0.0
+      },
+      "SSP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -312.37387457758706,
+        "win_rate": 0.0
+      },
+      "XSPIX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 75.0465182361211,
+        "win_rate": 1.0
+      },
+      "ABG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -61.824041176332415,
+        "win_rate": 0.0
+      },
+      "PRCT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 135.14774182286146,
+        "win_rate": 1.0
+      },
+      "SSII": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 46.671748635095874,
+        "win_rate": 1.0
+      },
+      "GO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -50.487969918144266,
+        "win_rate": 0.0
+      },
+      "TGLS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -54.927935874163424,
+        "win_rate": 0.0
+      },
+      "AHCO": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -56.90881967590354,
+        "win_rate": 0.5
+      },
+      "CVSA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 7.59253317764328,
+        "win_rate": 1.0
+      },
+      "KOS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 227.39273508048117,
+        "win_rate": 1.0
+      },
+      "IFF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -56.948329971256086,
+        "win_rate": 0.0
+      },
+      "ULBI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -83.24599510764725,
+        "win_rate": 0.0
+      },
+      "TOI": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -148.32778663417923,
+        "win_rate": 0.0
+      },
+      "EXFY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 34.09294801173747,
+        "win_rate": 1.0
+      },
+      "PHR": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": -159.5534937634252,
+        "win_rate": 0.0
+      },
+      "MKTW": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 137.17605249851565,
+        "win_rate": 0.5
+      },
+      "IPX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 193.44956684498817,
+        "win_rate": 1.0
+      },
+      "WVE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -28.259615322480972,
+        "win_rate": 0.0
+      },
+      "SVRE": {
+        "trade_count": 6,
+        "closed_trades": 3,
+        "realized_pnl": 87.38776331575052,
+        "win_rate": 0.3333333333333333
+      },
+      "MESO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 100.15960816659093,
+        "win_rate": 1.0
+      },
+      "COE": {
+        "trade_count": 10,
+        "closed_trades": 5,
+        "realized_pnl": -415.3158321644345,
+        "win_rate": 0.4
+      },
+      "IMDX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 291.27129442231103,
+        "win_rate": 1.0
+      },
+      "PRLD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -6.416627966948754,
+        "win_rate": 0.0
+      },
+      "TORO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -219.38253167834517,
+        "win_rate": 0.0
+      },
+      "EFOR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -59.474689103854345,
+        "win_rate": 0.0
+      },
+      "GAME": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -237.56889895437038,
+        "win_rate": 0.0
+      },
+      "CHTR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -20.728624021452426,
+        "win_rate": 0.0
+      },
+      "SRAD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -67.33510632783963,
+        "win_rate": 0.0
+      },
+      "PATK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -19.989294752666858,
+        "win_rate": 0.0
+      },
+      "OFIX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 26.453911774384153,
+        "win_rate": 1.0
+      },
+      "ATEC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 59.449736944081,
+        "win_rate": 1.0
+      },
+      "EVTC": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 8.221526531235275,
+        "win_rate": 1.0
+      },
+      "OLED": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -59.11737999610569,
+        "win_rate": 0.0
+      },
+      "FLUT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 13.040755063106731,
+        "win_rate": 1.0
+      },
+      "HUBS": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 138.1255025651956,
+        "win_rate": 1.0
+      },
+      "IBP": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 42.7997136015582,
+        "win_rate": 1.0
+      },
+      "RSG": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -22.067104447710133,
+        "win_rate": 0.0
+      },
+      "FCN": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 70.07317083088094,
+        "win_rate": 1.0
+      },
+      "ONON": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 55.75234256734322,
+        "win_rate": 1.0
+      },
+      "LWAY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -56.40726040131554,
+        "win_rate": 0.0
+      },
+      "SHAK": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -2.093687515009623,
+        "win_rate": 0.0
+      },
+      "CTEV": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 160.28371893253265,
+        "win_rate": 1.0
+      },
+      "BSX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -188.12604755537308,
+        "win_rate": 0.0
+      },
+      "GOLD": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -100.60451355846992,
+        "win_rate": 0.0
+      },
+      "INM": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -105.95578351236631,
+        "win_rate": 0.0
+      },
+      "XPOF": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -15.820659786258565,
+        "win_rate": 0.0
+      },
+      "PAX": {
+        "trade_count": 4,
+        "closed_trades": 2,
+        "realized_pnl": 35.2263953311174,
+        "win_rate": 1.0
+      },
+      "CELH": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -61.83778184419057,
+        "win_rate": 0.0
+      },
+      "NAKA": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -339.2822668227558,
+        "win_rate": 0.0
+      },
+      "QTTB": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -69.6526503743774,
+        "win_rate": 0.0
+      },
+      "MNSO": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -14.427461991892516,
+        "win_rate": 0.0
+      },
+      "LODE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -74.78896972896442,
+        "win_rate": 0.0
+      },
+      "DNUT": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 236.35650295958942,
+        "win_rate": 1.0
+      },
+      "ERIE": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -8.988024412520945,
+        "win_rate": 0.0
+      },
+      "AII": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 11.094461701402926,
+        "win_rate": 1.0
+      },
+      "XRAY": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": 0.7211196382659609,
+        "win_rate": 1.0
+      },
+      "FISV": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -33.23245674751838,
+        "win_rate": 0.0
+      },
+      "ENR": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -13.687952613986457,
+        "win_rate": 0.0
+      },
+      "KMX": {
+        "trade_count": 2,
+        "closed_trades": 1,
+        "realized_pnl": -48.07903908702927,
+        "win_rate": 0.0
+      }
+    }
+  },
+  "folds": [
+    {
+      "split_date": "2024-02-09",
+      "oos_return": 0.05991540462438705,
+      "oos_closed_trades": 748
+    },
+    {
+      "split_date": "2024-08-13",
+      "oos_return": 0.06894498956138206,
+      "oos_closed_trades": 747
+    },
+    {
+      "split_date": "2025-02-14",
+      "oos_return": 0.022953542134847016,
+      "oos_closed_trades": 484
+    },
+    {
+      "split_date": "2025-08-19",
+      "oos_return": 0.009127911503662878,
+      "oos_closed_trades": 322
+    }
+  ],
+  "risk_rejections": 0,
+  "max_gross_exposure": 74990.13300481347,
+  "max_gross_leverage": 0.7356112577651331,
+  "status": "replay_only_not_promoted"
+}

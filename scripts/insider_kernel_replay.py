@@ -1,0 +1,231 @@
+"""Replay SEC insider-cluster events through the real Paper Lab kernel.
+
+The event study and this replay deliberately answer different questions.  The
+event study measures cross-sectional excess returns; this script uses the
+public filing date, enters on the next local trading bar, exits after a fixed
+number of sessions, and books the actual Paper Lab fee and mid-price penalty.
+It is evidence only and never grants promotion authority.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import argparse
+import bisect
+import json
+import uuid
+from collections import defaultdict
+from datetime import UTC, datetime
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from libs.data import store
+from libs.data.sec_insider import cluster_buys, fetch_insider_trades
+from modules.simulation import SimulationService
+from modules.simulation import metrics as sim_metrics
+from modules.simulation.sources import SimSignal
+
+QUARTERS = [(year, quarter) for year in (2024, 2025, 2026)
+            for quarter in (1, 2, 3, 4) if (year, quarter) <= (2026, 2)]
+HOLD_SESSIONS = 5
+MIN_INSIDERS = 3
+MIN_VALUE_USD = 100_000.0
+POSITION_FRACTION = 0.01
+SPLIT_FRACTIONS = (0.50, 0.60, 0.70, 0.80)
+
+
+class EventReplaySource:
+    topics = ("features.snapshots",)
+
+    def __init__(self, config: dict):
+        self.positions = {
+            str(symbol): [float(value) for value in values]
+            for symbol, values in config["event_positions"].items()
+        }
+        self.index = defaultdict(int)
+        self.previous = defaultdict(float)
+
+    async def on_snapshot(self, topic: str, snapshot: dict) -> list[SimSignal]:
+        symbol = str(snapshot["market_id"])
+        values = self.positions.get(symbol, [])
+        index = self.index[symbol]
+        if index >= len(values):
+            return []
+        target = values[index]
+        self.index[symbol] += 1
+        previous = self.previous[symbol]
+        if target == previous:
+            return []
+        self.previous[symbol] = target
+        side = "buy" if target > 0 or (target == 0 and previous < 0) else "sell"
+        return [SimSignal(
+            instrument_id=symbol,
+            side=side,
+            confidence=1.0,
+            mid=float(snapshot["mid_price"]),
+            timestamp=snapshot["timestamp"],
+            signal_meta={"source": "insider_kernel_replay", "target": target},
+        )]
+
+
+class ReplayClock:
+    def __init__(self, value: datetime):
+        self.current = value
+
+    def __call__(self) -> datetime:
+        return self.current
+
+
+def build_event_positions(frames: dict, events: list[tuple[str, str]],
+                          hold_sessions: int) -> dict[str, list[float]]:
+    """Build causal next-bar entry/5-session exit targets per symbol."""
+    by_symbol: dict[str, list[str]] = {}
+    positions: dict[str, list[float]] = {}
+    for symbol, series in frames.items():
+        dates = list(series.index)
+        by_symbol[symbol] = dates
+        positions[symbol] = [0.0] * len(dates)
+    for symbol, filing_date in events:
+        dates = by_symbol.get(symbol)
+        if not dates:
+            continue
+        entry = bisect.bisect_right(dates, filing_date)
+        exit_index = entry + hold_sessions
+        if entry >= len(dates):
+            continue
+        positions[symbol][entry:min(exit_index, len(dates))] = [
+            1.0
+        ] * (min(exit_index, len(dates)) - entry)
+    return positions
+
+
+def split_dates(index: list[str]) -> list[str]:
+    if len(index) < 300:
+        raise ValueError("insider replay requires at least 300 market dates")
+    return [index[int(len(index) * fraction)] for fraction in SPLIT_FRACTIONS]
+
+
+def oos_return(points, split_date: str) -> float | None:
+    oos = [point for point in points if point.ts >= split_date]
+    prior = [point for point in points if point.ts < split_date]
+    start = prior[-1] if prior else (oos[0] if oos else None)
+    end = oos[-1] if oos else None
+    if start is None or end is None or start.equity <= 0:
+        return None
+    return float(end.equity / start.equity - 1.0)
+
+
+async def main_async(args: argparse.Namespace) -> int:
+    as_of = datetime.now(UTC)
+    trades = [trade for year, quarter in QUARTERS
+              for trade in fetch_insider_trades(year, quarter)]
+    clusters = cluster_buys(trades, min_insiders=args.min_insiders,
+                            min_value_usd=args.min_value_usd)
+    events = sorted(clusters)
+    symbols = sorted({symbol for symbol, _ in events})
+    raw = store.read(store.DAILY_BARS, symbols, as_of=as_of)
+    frames = {}
+    for symbol, group in raw.groupby("symbol", sort=False):
+        dates = [str(value) for value in group[store.EVENT_DATE].tolist()]
+        closes = group["close"].astype(float).to_numpy()
+        if len(dates) >= 300 and np.all(np.isfinite(closes)) and np.all(closes > 0):
+            frames[str(symbol)] = pd.Series(closes, index=dates, dtype=float)
+    if len(frames) < 4:
+        raise RuntimeError("insufficient insider event price coverage")
+
+    positions = build_event_positions(frames, events, args.hold_sessions)
+    all_dates = sorted({date for series in frames.values() for date in series.index})
+    splits = split_dates(all_dates)
+    clock = ReplayClock(datetime.fromisoformat(all_dates[0]).replace(tzinfo=UTC))
+    out_dir = Path("data/.kernel_replay_insider")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    db_path = out_dir / f"insider-{uuid.uuid4().hex[:10]}.sqlite3"
+    service = SimulationService(
+        db_path, clock=clock, equity_poll_seconds=10**9,
+        source_factories={"event_replay": lambda config, _db: EventReplaySource(config)},
+    )
+    await service.start()
+    run = await service.create_run(
+        name="insider-kernel-replay", strategy_id="event_replay", universe=list(frames),
+        initial_capital=100_000.0,
+        config={
+            "event_positions": positions,
+            "position_fraction": args.position_fraction,
+            "fee_bps": args.fee_bps,
+            "mid_penalty_bps": args.mid_penalty_bps,
+            "allow_short": False,
+            "cooldown_seconds": 0.0,
+            "max_staleness_seconds": 172800.0,
+            "equity_interval_minutes": 1440.0,
+        },
+    )
+    run_id = str(run["run_id"])
+    await service.start_run(run_id)
+    for date in all_dates:
+        timestamp = datetime.fromisoformat(date).replace(tzinfo=UTC)
+        clock.current = timestamp
+        for symbol, series in frames.items():
+            if date not in series.index:
+                continue
+            index = series.index.get_loc(date)
+            await service._dispatch("features.snapshots", {
+                "market_id": symbol, "timestamp": timestamp,
+                "mid_price": float(series.to_numpy()[index]),
+                "source": "local_daily_bars", "price_basis": "unadjusted",
+            })
+        await service._record_equity(service._active[run_id])
+    active_before_stop = service._active.get(run_id)
+    risk_rejections = int(active_before_stop.risk_rejections) if active_before_stop is not None else None
+    await service.stop_run(run_id)
+    metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    points = service.store.list_equity_points(run_id)
+    trades_out = service.store.list_trades(run_id)
+    max_gross = max((float(point.gross_exposure) for point in points), default=0.0)
+    max_leverage = max((float(point.gross_exposure) / point.equity
+                        for point in points if point.equity > 0), default=0.0)
+    folds = [{
+        "split_date": split,
+        "oos_return": oos_return(points, split),
+        "oos_closed_trades": sum(1 for trade in trades_out
+                                  if trade.executed_at >= split and trade.realized_pnl is not None),
+    } for split in splits]
+    report = {
+        "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
+        "execution_kernel": "modules.simulation.SimulationService",
+        "strategy": {"family": "sec_insider_cluster_buy", "hold_sessions": args.hold_sessions,
+                      "min_insiders": args.min_insiders, "min_value_usd": args.min_value_usd},
+        "execution_config": {"fee_bps": args.fee_bps, "mid_penalty_bps": args.mid_penalty_bps,
+                              "allow_short": False, "position_fraction": args.position_fraction},
+        "events": len(events), "symbols_requested": len(symbols),
+        "symbols_replayed": len(frames), "coverage": len(frames) / len(symbols),
+        "candidate_family_size": 18,
+        "selection_note": "candidate was observed in the existing train/OOS optimizer; kernel replay remains independent evidence",
+        "full_metrics": metrics, "folds": folds,
+        "risk_rejections": risk_rejections,
+        "max_gross_exposure": max_gross,
+        "max_gross_leverage": max_leverage,
+        "status": "replay_only_not_promoted",
+    }
+    out = Path(args.output)
+    out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
+    await service.stop()
+    for suffix in ("", "-wal", "-shm"):
+        db_path.with_name(db_path.name + suffix).unlink(missing_ok=True)
+    print(json.dumps({key: value for key, value in report.items() if key != "full_metrics"},
+                     ensure_ascii=False, indent=2, default=str))
+    print(f"写入 {out}")
+    return 0
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fee-bps", type=float, default=20.0)
+    parser.add_argument("--mid-penalty-bps", type=float, default=10.0)
+    parser.add_argument("--position-fraction", type=float, default=POSITION_FRACTION)
+    parser.add_argument("--hold-sessions", type=int, default=HOLD_SESSIONS)
+    parser.add_argument("--min-insiders", type=int, default=MIN_INSIDERS)
+    parser.add_argument("--min-value-usd", type=float, default=MIN_VALUE_USD)
+    parser.add_argument("--output", default="data/insider_kernel_replay.json")
+    raise SystemExit(asyncio.run(main_async(parser.parse_args())))
