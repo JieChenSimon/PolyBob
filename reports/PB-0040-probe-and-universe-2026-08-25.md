@@ -67,7 +67,10 @@ NVDA 68、TSLA 61、ADBE 69、INTC 69、DIS 30、F 68、UPS 69；重复运行会
 不会重复写入相同 payload。
 
 这一步只证明“原始事实可获取”，不改变研究门禁：当前镜像仍使用 filing date 的日级
-保守可用时间，`accepted_at` 缺失，`strict_historical_pit=false`。所以这些公司现在从
-“无数据 UNKNOWN”推进到“有原始数据但 PIT UNKNOWN”，仍不能据此允许 OOS 交易或宣称
-策略有效；下一步必须补齐 submission/accepted 时间连接、退市/生存偏差审计和历史可成交
-报价后，才能重新运行质量门禁与逐标的回放。
+保守可用时间，且 submissions 索引对较老 filing 的覆盖不完整，所以数据集全局仍为
+`strict_historical_pit=false`。本轮 acceptance 匹配覆盖：SNDK 7/7、MRVL 21/21、
+MU 36/64、WDC 32/68、AMD 35/65、NVDA 24/68、TSLA 34/61、ADBE 33/69、INTC 30/69、
+DIS 27/30、F 28/68、UPS 42/69。于是部分公司可以进入“逐行可审计 PIT 候选”，但不能
+把整家公司或整段历史宣布为 PIT 合格；仍不能据此允许 OOS 交易或宣称策略有效。下一步
+必须扩展历史 submissions 文件、补退市/生存偏差审计和历史可成交报价后，才能重新运行
+质量门禁与逐标的回放。

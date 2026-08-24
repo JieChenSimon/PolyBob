@@ -78,6 +78,41 @@ def _payload(symbol: str) -> tuple[dict[str, Any], str, str]:
     return json.loads(raw), digest, url
 
 
+def _submission_acceptance(symbol: str) -> dict[str, str]:
+    """Return SEC accession -> accepted timestamp for the filing index.
+
+    Companyfacts exposes ``filed`` but not the timestamp at which a filing was
+    accepted.  The submissions endpoint is a separate, cacheable source.  A
+    missing accession remains missing; it is never replaced with an inferred
+    midnight timestamp.
+    """
+    cik = CIK_BY_SYMBOL.get(symbol.upper())
+    if cik is None:
+        raise SecFundamentalsUnavailable(f"no SEC CIK mapping for {symbol}")
+    url = f"https://data.sec.gov/submissions/CIK{cik}.json"
+    cache = CACHE_DIR / f"CIK{cik}.submissions.json"
+    if cache.exists():
+        raw = cache.read_bytes()
+    else:
+        try:
+            raw = http_get_bytes(url, timeout=60.0, headers={"User-Agent": USER_AGENT})
+        except HttpFetchError as exc:
+            raise SecFundamentalsUnavailable(str(exc)) from exc
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        pending = cache.with_suffix(".pending")
+        pending.write_bytes(raw)
+        pending.replace(cache)
+    record_raw("sec_submissions_raw", raw, source="data.sec.gov", request=url)
+    recent = json.loads(raw).get("filings", {}).get("recent", {})
+    accession = recent.get("accessionNumber", [])
+    accepted = recent.get("acceptanceDateTime", [])
+    return {
+        str(acc): str(stamp)
+        for acc, stamp in zip(accession, accepted)
+        if acc and stamp
+    }
+
+
 def _facts(facts: dict[str, Any], names: tuple[str, ...]) -> list[dict[str, Any]]:
     us_gaap = facts.get("facts", {}).get("us-gaap", {})
     out: list[dict[str, Any]] = []
@@ -103,6 +138,7 @@ def _value_for_filing(facts: dict[str, Any], names: tuple[str, ...], accn: str, 
 def materialize(symbol: str, *, as_of: datetime | None = None) -> dict[str, Any]:
     """Mirror SEC filing-period facts into the PIT-aware fundamentals dataset."""
     payload, raw_sha, url = _payload(symbol)
+    accepted_by_accession = _submission_acceptance(symbol)
     facts = payload.get("facts", {})
     # One canonical row per filing.  Companyfacts includes comparative prior
     # periods in the same filing; keeping all of them would collide with the
@@ -120,14 +156,18 @@ def materialize(symbol: str, *, as_of: datetime | None = None) -> dict[str, Any]
                 filings[key] = max(str(end), filings.get(key, ""))
     records: list[dict[str, Any]] = []
     for (accn, filed), end in sorted(filings.items()):
+        accepted_at = accepted_by_accession.get(accn)
         row: dict[str, Any] = {
             "symbol": symbol.upper(),
             store.EVENT_DATE: filed,
             "period_end": end,
-            "announcement_at": f"{filed}T00:00:00+00:00",
+            "announcement_at": accepted_at or f"{filed}T00:00:00+00:00",
             "filing_id": accn,
             "source": "sec_companyfacts",
-            "quality_flags": {"accepted_at": "missing", "raw_sha256": raw_sha},
+            "quality_flags": {
+                "accepted_at": accepted_at or "missing",
+                "raw_sha256": raw_sha,
+            },
         }
         for key, names in FLOW_TAGS.items():
             row[key] = _value_for_filing(payload, names, accn, end)
@@ -142,7 +182,10 @@ def materialize(symbol: str, *, as_of: datetime | None = None) -> dict[str, Any]
     observed = as_of or datetime.now(UTC)
     written = store.write(store.FUNDAMENTALS, symbol.upper(), records,
                           fetched_at=observed, deduplicate_payload=True)
+    accepted_rows = sum(1 for row in records if row["quality_flags"].get("accepted_at") != "missing")
     return {"symbol": symbol.upper(), "rows": len(records), "written": written,
+            "accepted_at_rows": accepted_rows,
+            "strict_pit_candidate": bool(records) and accepted_rows == len(records),
             "raw_sha256": raw_sha, "source_url": url, "status": "available" if records else "empty"}
 
 

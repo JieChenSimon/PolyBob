@@ -1,0 +1,42 @@
+from libs.data import sec_fundamentals
+
+
+def test_sec_mapping_covers_autodiscovered_priority_symbols():
+    assert sec_fundamentals.CIK_BY_SYMBOL["MRVL"] == "0001835632"
+    assert sec_fundamentals.CIK_BY_SYMBOL["AMD"] == "0000002488"
+    assert sec_fundamentals.CIK_BY_SYMBOL["NVDA"] == "0001045810"
+    assert sec_fundamentals.CIK_BY_SYMBOL["TSLA"] == "0001318605"
+
+
+def test_materialize_prefers_sec_acceptance_timestamp(monkeypatch):
+    payload = {
+        "facts": {"us-gaap": {
+            "RevenueFromContractWithCustomerExcludingAssessedTax": {
+                "units": {"USD": [{
+                    "accn": "000-test", "end": "2025-06-30", "filed": "2025-07-20",
+                    "form": "10-K", "val": 100,
+                }]}
+            },
+            "NetIncomeLoss": {"units": {"USD": [{
+                "accn": "000-test", "end": "2025-06-30", "filed": "2025-07-20",
+                "form": "10-K", "val": 10,
+            }]}}
+        }}
+    }
+    captured = {}
+    monkeypatch.setattr(sec_fundamentals, "_payload", lambda symbol: (payload, "sha", "facts-url"))
+    monkeypatch.setattr(
+        sec_fundamentals, "_submission_acceptance",
+        lambda symbol: {"000-test": "2025-07-20T12:34:56.000Z"},
+    )
+    monkeypatch.setattr(
+        sec_fundamentals.store, "write",
+        lambda dataset, symbol, records, **kwargs: captured.setdefault("records", records) or 1,
+    )
+
+    result = sec_fundamentals.materialize("MRVL")
+
+    assert result["accepted_at_rows"] == 1
+    assert result["strict_pit_candidate"] is True
+    assert captured["records"][0]["announcement_at"] == "2025-07-20T12:34:56.000Z"
+    assert captured["records"][0]["quality_flags"]["accepted_at"] == "2025-07-20T12:34:56.000Z"
