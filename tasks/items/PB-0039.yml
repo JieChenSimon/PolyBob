@@ -6,7 +6,7 @@ area: quant
 why: BTC 5 分钟当前仅有 12 个独立日和 1 个完整月份，无法满足样本外、逐月收益和独立性要求；需要继续扩展可重放真实历史后再测试概率/错价策略
 checks:
 - text: 获取并落盘至少 20 个独立交易日的真实 BTC 1m/5m 数据，记录来源、覆盖、PIT 和失败状态
-  done: false
+  done: true
 - text: 在真实历史上对校准、错价和成本后成交候选做时间切分、逐日/逐月收益与回撤审计
   done: false
 - text: 逐标的收益目标按年化不少于 50% 且每个完整月不少于 15% 同时验收；不满足则保持 UNKNOWN/NO_EDGE 并记录下一轮原因
@@ -15,4 +15,4 @@ deps:
 - PB-0038
 branch: pb-0037-funding-strategy-replay
 blocked: null
-updated: '2026-08-24T18:18:25+00:00'
+updated: '2026-08-24T19:06:25+00:00'
