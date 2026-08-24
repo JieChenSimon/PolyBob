@@ -6,13 +6,13 @@ area: quant
 why: 现有真实模拟盘重放的原始收益主要来自多头暴露，四折相对买入持有超额收益均为负且回撤过高，需要在真实数据和真实成交内核上加入基准中性、波动率控制与成本压力的候选优化并严谨复核
 checks:
 - text: 记录 26 个美股标的四折均值回归基线及相对基准、回撤和交易成本归因
-  done: false
+  done: true
 - text: 在不使用 OOS 选参的前提下测试基准中性或风险控制候选，并通过真实 SimulationService 重放
-  done: false
+  done: true
 - text: 对候选进行样本外、成本压力、稳定性和 PromotionGate 审计；未通过则保留拒绝证据，禁止晋级
-  done: false
+  done: true
 deps:
 - PB-0037
 branch: null
 blocked: null
-updated: '2026-08-24T15:18:19+00:00'
+updated: '2026-08-24T15:30:06+00:00'
