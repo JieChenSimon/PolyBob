@@ -1,6 +1,6 @@
 id: PB-0034
 title: 加密 TSMOM 阈值敏感性与退化候选审计
-state: doing
+state: done
 p: P1
 area: quant
 why: 真实 SimulationService 重放显示低阈值高回撤、高阈值退化为几乎不交易，需要把敏感性结果固化并防止伪改善进入执行台
