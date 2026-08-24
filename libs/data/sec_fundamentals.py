@@ -22,6 +22,8 @@ from libs.data.http_client import HttpFetchError, http_get_bytes
 
 CACHE_DIR = Path("data/market_cache/sec_fundamentals")
 USER_AGENT = "PolyBob research research@example.com"
+TICKER_MAPPING_URL = "https://www.sec.gov/files/company_tickers.json"
+TICKER_MAPPING_CACHE = CACHE_DIR / "company_tickers.json"
 CIK_BY_SYMBOL = {
     "ADBE": "0000796343",
     "AMD": "0000002488",
@@ -56,10 +58,44 @@ class SecFundamentalsUnavailable(RuntimeError):
     pass
 
 
-def _payload(symbol: str) -> tuple[dict[str, Any], str, str]:
-    cik = CIK_BY_SYMBOL.get(symbol.upper())
-    if cik is None:
+def _dynamic_cik_by_symbol() -> dict[str, str]:
+    """Load SEC's official ticker/CIK directory with an append-only cache."""
+    if TICKER_MAPPING_CACHE.exists():
+        raw = TICKER_MAPPING_CACHE.read_bytes()
+    else:
+        try:
+            raw = http_get_bytes(TICKER_MAPPING_URL, timeout=60.0,
+                                 headers={"User-Agent": USER_AGENT})
+        except HttpFetchError as exc:
+            raise SecFundamentalsUnavailable(str(exc)) from exc
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        pending = TICKER_MAPPING_CACHE.with_suffix(".pending")
+        pending.write_bytes(raw)
+        pending.replace(TICKER_MAPPING_CACHE)
+    record_raw("sec_ticker_mapping_raw", raw, source="www.sec.gov", request=TICKER_MAPPING_URL)
+    try:
+        payload = json.loads(raw)
+        return {
+            str(item["ticker"]).upper(): f"{int(item['cik_str']):010d}"
+            for item in payload.values()
+            if item.get("ticker") and item.get("cik_str") is not None
+        }
+    except (AttributeError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise SecFundamentalsUnavailable("invalid SEC ticker mapping payload") from exc
+
+
+def cik_for_symbol(symbol: str) -> str:
+    clean = symbol.upper().strip()
+    if clean in CIK_BY_SYMBOL:
+        return CIK_BY_SYMBOL[clean]
+    dynamic = _dynamic_cik_by_symbol().get(clean)
+    if dynamic is None:
         raise SecFundamentalsUnavailable(f"no SEC CIK mapping for {symbol}")
+    return dynamic
+
+
+def _payload(symbol: str) -> tuple[dict[str, Any], str, str]:
+    cik = cik_for_symbol(symbol)
     url = f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik}.json"
     cache = CACHE_DIR / f"CIK{cik}.json"
     if cache.exists():
@@ -86,9 +122,7 @@ def _submission_acceptance(symbol: str) -> dict[str, str]:
     missing accession remains missing; it is never replaced with an inferred
     midnight timestamp.
     """
-    cik = CIK_BY_SYMBOL.get(symbol.upper())
-    if cik is None:
-        raise SecFundamentalsUnavailable(f"no SEC CIK mapping for {symbol}")
+    cik = cik_for_symbol(symbol)
     url = f"https://data.sec.gov/submissions/CIK{cik}.json"
     cache = CACHE_DIR / f"CIK{cik}.submissions.json"
     if cache.exists():
@@ -221,4 +255,4 @@ def materialize(symbol: str, *, as_of: datetime | None = None) -> dict[str, Any]
             "raw_sha256": raw_sha, "source_url": url, "status": "available" if records else "empty"}
 
 
-__all__ = ["CIK_BY_SYMBOL", "SecFundamentalsUnavailable", "materialize"]
+__all__ = ["CIK_BY_SYMBOL", "SecFundamentalsUnavailable", "cik_for_symbol", "materialize"]

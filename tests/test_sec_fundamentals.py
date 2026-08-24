@@ -8,6 +8,12 @@ def test_sec_mapping_covers_autodiscovered_priority_symbols():
     assert sec_fundamentals.CIK_BY_SYMBOL["TSLA"] == "0001318605"
 
 
+def test_sec_mapping_falls_back_to_official_dynamic_directory(monkeypatch):
+    monkeypatch.setattr(sec_fundamentals, "_dynamic_cik_by_symbol",
+                        lambda: {"EXAMPLE": "0000000042"})
+    assert sec_fundamentals.cik_for_symbol("example") == "0000000042"
+
+
 def test_materialize_prefers_sec_acceptance_timestamp(monkeypatch):
     payload = {
         "facts": {"us-gaap": {

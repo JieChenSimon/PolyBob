@@ -66,6 +66,11 @@
 NVDA 68、TSLA 61、ADBE 69、INTC 69、DIS 30、F 68、UPS 69；重复运行会复用缓存，
 不会重复写入相同 payload。
 
+同时新增 SEC 官方全量 ticker/CIK 目录的动态回退映射，不再局限于人工维护的 12 个
+优先标的；已用真实接口验证 AAPL=`0000320193`、AARD=`0001774857`，并成功将 AAPL
+69 条 Companyfacts/submissions 基本面行落盘。动态发现出的非优先美股现在可以自动进入
+同一材料化流程，但仍必须逐行通过 acceptance、质量规则、历史报价和 OOS 门禁。
+
 这一步只证明“原始事实可获取”，不改变研究门禁：数据集全局仍为
 `strict_historical_pit=false`。本轮补读 SEC 历史 submissions 分片后，acceptance 匹配覆盖
 已达到：SNDK 7/7、MRVL 21/21、MU 64/64、WDC 68/68、AMD 65/65、NVDA 68/68、TSLA 61/61、
