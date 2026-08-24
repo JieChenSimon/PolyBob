@@ -368,6 +368,8 @@ def replay_events(
     neutralise_universe: Sequence[str] | None = None,
     risk_scale_window: int | None = None,
     risk_target: float = 0.20,
+    bootstrap_draws: int = 5000,
+    wild_draws: int = 1999,
 ) -> BacktestResult:
     """Price a list of ``(symbol, signal_date)`` events under one exit rule.
 
@@ -566,6 +568,7 @@ def replay_events(
             [t.excess for t in edge_result.trades],
             [t.signal_date for t in edge_result.trades],
             t_hurdle=t_hurdle, hold_days=hold_sessions,
+            bootstrap_draws=bootstrap_draws, wild_draws=wild_draws,
         )
     return edge_result
 

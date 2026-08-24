@@ -86,6 +86,8 @@ def main() -> int:
                     "edge_id": f"insider_cluster_{hold}_{min_insiders}_{int(min_value)}",
                     "neutralise_universe": price_symbols,
                     "risk_scale_window": None,
+                    "bootstrap_draws": 499,
+                    "wild_draws": 199,
                 }
                 train_result = replay_events(train, **common)
                 oos_result = replay_events(oos, **common)
