@@ -1,0 +1,18 @@
+id: PB-0034
+title: 加密 TSMOM 阈值敏感性与退化候选审计
+state: doing
+p: P1
+area: quant
+why: 真实 SimulationService 重放显示低阈值高回撤、高阈值退化为几乎不交易，需要把敏感性结果固化并防止伪改善进入执行台
+checks:
+- text: 记录真实内核对 0.25、0.60、0.75、1.00 阈值的四折 OOS、回撤、交易数和否决原因
+  done: true
+- text: 测试严格拒绝负 OOS、零交易和不稳定候选，不能把零回撤误判为通过
+  done: true
+- text: 运行相关测试与开发控制验证，提交并推送任务证据
+  done: true
+deps:
+- PB-0033
+branch: pb-0034-crypto-tsmom-threshold
+blocked: null
+updated: '2026-08-24T14:54:12+00:00'
