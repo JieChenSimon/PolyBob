@@ -488,6 +488,128 @@
         "status": "fail"
       },
       "status": "replay_only_not_promoted"
+    },
+    "market20_extended_hold30_weak0_cap1x": {
+      "source_reports": {
+        "1.0": "data/insider_kernel_replay_extended_market20_hold30_weak0_cap1x.json",
+        "2.0": "data/insider_kernel_replay_extended_market20_hold30_weak0_cap1x_2x.json",
+        "3.0": "data/insider_kernel_replay_extended_market20_hold30_weak0_cap1x_3x.json"
+      },
+      "candidate_family_size": 648,
+      "daily_observations": 1269,
+      "base_annualized_sharpe": 0.529782693014817,
+      "cost_annualized_sharpe": {
+        "1.0": 0.529782693014817,
+        "2.0": 0.4582876421546663,
+        "3.0": 0.38602203540650654
+      },
+      "oos_fold_returns": [
+        0.07464760784509661,
+        0.07909001073173672,
+        0.01659711905978689,
+        0.01589920836375347
+      ],
+      "oos_stability_rate": 1.0,
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": true,
+            "value": 1269.0,
+            "threshold": 60.0,
+            "detail": "1269 observations",
+            "status": "pass"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0246,
+            "threshold": 0.95,
+            "detail": "DSR=0.025 over 648 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": 0.386,
+            "threshold": 0.5,
+            "detail": "Sharpe under 3.0x costs is 0.39 < 0.5",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": true,
+            "value": 1.0,
+            "threshold": 0.75,
+            "detail": "100% of walk-forward windows stable",
+            "status": "pass"
+          }
+        ],
+        "status": "fail"
+      },
+      "status": "replay_only_not_promoted"
+    },
+    "market20_extended_hold30_weak5_cap1x": {
+      "source_reports": {
+        "1.0": "data/insider_kernel_replay_extended_market20_hold30_weak5_cap1x.json",
+        "2.0": "data/insider_kernel_replay_extended_market20_hold30_weak5_cap1x_2x.json",
+        "3.0": "data/insider_kernel_replay_extended_market20_hold30_weak5_cap1x_3x.json"
+      },
+      "candidate_family_size": 648,
+      "daily_observations": 1269,
+      "base_annualized_sharpe": 0.42606618398327434,
+      "cost_annualized_sharpe": {
+        "1.0": 0.42606618398327434,
+        "2.0": 0.37627949479578127,
+        "3.0": 0.32626425113441154
+      },
+      "oos_fold_returns": [
+        0.03221610399290453,
+        0.03354281185859165,
+        0.00655903730351004,
+        0.00186248560418667
+      ],
+      "oos_stability_rate": 1.0,
+      "promotion": {
+        "approved": false,
+        "checks": [
+          {
+            "name": "min_observations",
+            "passed": true,
+            "value": 1269.0,
+            "threshold": 60.0,
+            "detail": "1269 observations",
+            "status": "pass"
+          },
+          {
+            "name": "deflated_sharpe",
+            "passed": false,
+            "value": 0.0133,
+            "threshold": 0.95,
+            "detail": "DSR=0.013 over 648 trial(s)",
+            "status": "fail"
+          },
+          {
+            "name": "cost_stress",
+            "passed": false,
+            "value": 0.3263,
+            "threshold": 0.5,
+            "detail": "Sharpe under 3.0x costs is 0.33 < 0.5",
+            "status": "fail"
+          },
+          {
+            "name": "oos_stability",
+            "passed": true,
+            "value": 1.0,
+            "threshold": 0.75,
+            "detail": "100% of walk-forward windows stable",
+            "status": "pass"
+          }
+        ],
+        "status": "fail"
+      },
+      "status": "replay_only_not_promoted"
     }
   },
   "status": "replay_only_not_promoted"

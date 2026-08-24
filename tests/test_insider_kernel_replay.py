@@ -87,6 +87,16 @@ def test_market_filter_uses_only_bars_before_filing():
     assert selected == events
 
 
+def test_market_filter_supports_a_causal_ceiling():
+    dates = pd.date_range("2024-01-01", periods=80).strftime("%Y-%m-%d").tolist()
+    market = pd.Series([100.0 - i for i in range(80)], index=dates)
+    events = [("A", "2024-03-01"), ("B", "2024-03-02")]
+    selected = filter_events_by_market_return(
+        market, events, lookback=20, min_return=-0.5, max_return=-0.1
+    )
+    assert selected == events
+
+
 def test_filing_delay_filter_is_causal_and_fail_closed():
     def trade(filing, transaction):
         return InsiderTrade("ABC", "Issuer", filing, transaction, "P", 100, 10)

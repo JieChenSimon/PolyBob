@@ -160,8 +160,9 @@ def filter_events_by_pre_event_vol(frames: dict, events: list[tuple[str, str]],
 def filter_events_by_market_return(market_frame: pd.Series,
                                    events: list[tuple[str, str]],
                                    lookback: int,
-                                   min_return: float) -> list[tuple[str, str]]:
-    """Keep events only when a causal market lookback return clears a floor."""
+                                   min_return: float,
+                                   max_return: float | None = None) -> list[tuple[str, str]]:
+    """Keep events inside a causal market lookback return interval."""
     dates = list(market_frame.index)
     prices = market_frame.to_numpy(dtype=float)
     selected = []
@@ -170,7 +171,7 @@ def filter_events_by_market_return(market_frame: pd.Series,
         if entry < lookback or not np.all(np.isfinite(prices[entry-lookback:entry+1])):
             continue
         market_return = prices[entry] / prices[entry - lookback] - 1.0
-        if market_return >= min_return:
+        if market_return >= min_return and (max_return is None or market_return <= max_return):
             selected.append(event)
     return selected
 
@@ -265,7 +266,8 @@ async def main_async(args: argparse.Namespace) -> int:
             dtype=float,
         )
         events = filter_events_by_market_return(
-            market_frame, events, args.market_lookback, args.min_market_return
+            market_frame, events, args.market_lookback, args.min_market_return,
+            args.max_market_return,
         )
 
     positions = build_event_positions(frames, events, args.hold_sessions)
@@ -358,7 +360,8 @@ async def main_async(args: argparse.Namespace) -> int:
                       "volatility_window": args.volatility_window,
                       "market_symbol": args.market_symbol,
                       "market_lookback": args.market_lookback,
-                      "min_market_return": args.min_market_return},
+                      "min_market_return": args.min_market_return,
+                      "max_market_return": args.max_market_return},
         "execution_config": {"fee_bps": args.fee_bps, "mid_penalty_bps": args.mid_penalty_bps,
                               "allow_short": False, "position_fraction": args.position_fraction,
                               "risk_weighted": args.risk_weighted},
@@ -405,6 +408,8 @@ if __name__ == "__main__":
                         help="causal market regime symbol used to filter events")
     parser.add_argument("--market-lookback", type=int, default=20)
     parser.add_argument("--min-market-return", type=float, default=0.0)
+    parser.add_argument("--max-market-return", type=float, default=None,
+                        help="causal market-return ceiling for event entry")
     parser.add_argument("--hold-sessions", type=int, default=HOLD_SESSIONS)
     parser.add_argument("--min-insiders", type=int, default=MIN_INSIDERS)
     parser.add_argument("--min-value-usd", type=float, default=MIN_VALUE_USD)
