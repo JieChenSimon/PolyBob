@@ -1,0 +1,17 @@
+id: PB-0029
+title: SEC insider 事件质量过滤复核
+state: doing
+p: P1
+area: quant
+why: 验证更严格的内部人数量和事件金额过滤是否改善 30 日策略的成本后收益、稳定性和集中度，而非只降低参与度
+checks:
+- text: 完成至少 3 名内部人和 $100k 事件金额候选的真实回放与成本压力
+  done: true
+- text: 完成 OOS、风险归一化、集中度和多重检验比较并保留淘汰归因
+  done: true
+- text: 完成测试、报告、Git 提交推送和任务状态记录
+  done: false
+deps: []
+branch: pb-0029-insider-quality-filters
+blocked: null
+updated: '2026-08-24T14:14:14+00:00'
