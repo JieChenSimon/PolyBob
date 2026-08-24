@@ -1,7 +1,11 @@
 import asyncio
 from datetime import UTC, datetime
 
+import pytest
+
 from scripts.cross_sectional_kernel_replay import ReplayPositionSource
+from scripts.mean_reversion_multifold_replay import buy_and_hold_return, fold_dates
+import pandas as pd
 
 
 def test_replay_source_emits_only_target_changes():
@@ -20,3 +24,13 @@ def test_replay_source_emits_only_target_changes():
     assert second[0].side == "buy"
     assert third == []
     assert fourth[0].side == "sell"
+
+
+def test_multifold_cut_dates_are_chronological_and_date_aligned():
+    dates = [date.strftime("%Y-%m-%d") for date in pd.date_range("2020-01-01", periods=360)]
+    cuts = fold_dates(dates, (0.5, 0.7, 0.8))
+    assert cuts == sorted(cuts)
+    assert len(set(cuts)) == 3
+
+    series = pd.Series([100.0, 110.0, 121.0], index=["2020-01-01", "2020-01-02", "2020-01-03"])
+    assert buy_and_hold_return(series, "2020-01-02") == pytest.approx(0.21)
