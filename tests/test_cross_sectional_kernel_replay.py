@@ -5,6 +5,7 @@ import pytest
 
 from scripts.cross_sectional_kernel_replay import ReplayPositionSource
 from scripts.cross_sectional_multifold_replay import fold_dates as cross_sectional_fold_dates
+from scripts.crypto_tsmom_multifold_replay import signed_positions
 from scripts.mean_reversion_multifold_replay import buy_and_hold_return, fold_dates
 import pandas as pd
 
@@ -27,6 +28,28 @@ def test_replay_source_emits_only_target_changes():
     assert fourth[0].side == "sell"
 
 
+def test_replay_source_closes_a_short_with_a_buy():
+    source = ReplayPositionSource({"replay_positions": [-1.0, -1.0, 0.0]})
+    timestamp = datetime(2025, 1, 1, tzinfo=UTC)
+
+    async def run():
+        first = await source.on_snapshot("features.snapshots", {
+            "market_id": "BTC-USDT", "mid_price": 100, "timestamp": timestamp,
+        })
+        second = await source.on_snapshot("features.snapshots", {
+            "market_id": "BTC-USDT", "mid_price": 100, "timestamp": timestamp,
+        })
+        third = await source.on_snapshot("features.snapshots", {
+            "market_id": "BTC-USDT", "mid_price": 100, "timestamp": timestamp,
+        })
+        return first, second, third
+
+    first, second, third = asyncio.run(run())
+    assert first[0].side == "sell"
+    assert second == []
+    assert third[0].side == "buy"
+
+
 def test_multifold_cut_dates_are_chronological_and_date_aligned():
     dates = [date.strftime("%Y-%m-%d") for date in pd.date_range("2020-01-01", periods=360)]
     cuts = fold_dates(dates, (0.5, 0.7, 0.8))
@@ -42,3 +65,13 @@ def test_cross_sectional_multifold_cut_dates_are_chronological():
     cuts = cross_sectional_fold_dates(dates, (0.5, 0.7, 0.8))
     assert cuts == sorted(cuts)
     assert len(set(cuts)) == 3
+
+
+def test_signed_tsmom_emits_both_directions_without_lookahead():
+    prices = [100.0] * 121
+    prices[1:61] = [100.0 + i for i in range(1, 61)]
+    prices[61:] = [160.0 - i for i in range(0, 60)]
+    positions = signed_positions(prices, lookback=20, vol_lookback=20, threshold=0.25)
+    assert positions[0] == 0.0
+    assert positions[20] == 1.0
+    assert -1.0 in positions[61:]

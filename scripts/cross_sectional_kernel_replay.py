@@ -35,10 +35,18 @@ class ReplayPositionSource:
         self.index += 1
         if target == self.previous:
             return []
+        previous = self.previous
         self.previous = target
+        # A zero target closes a short with a buy, while it closes a long with
+        # a sell.  Using only the new target's sign would leave short positions
+        # stranded at zero because the simulation risk layer correctly refuses
+        # a sell signal whose target is less short than the current position.
+        side = (
+            "buy" if target > 0 or (target == 0 and previous < 0) else "sell"
+        )
         return [SimSignal(
             instrument_id=str(snapshot["market_id"]),
-            side="buy" if target > 0 else "sell",
+            side=side,
             confidence=1.0,
             mid=float(snapshot["mid_price"]),
             timestamp=snapshot["timestamp"],
@@ -55,7 +63,8 @@ class ReplayClock:
 
 
 async def replay_symbol(symbol: str, timestamps: list, prices: list[float], positions: list[float],
-                        split_date: str, out_dir: Path, position_fraction: float | None = None) -> dict:
+                        split_date: str, out_dir: Path, position_fraction: float | None = None,
+                        allow_short: bool = False) -> dict:
     timestamps = [datetime.fromisoformat(value) if isinstance(value, str) else value
                   for value in timestamps]
     timestamps = [value if value.tzinfo else value.replace(tzinfo=UTC) for value in timestamps]
@@ -74,10 +83,10 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
         config={
             "replay_positions": positions,
             "position_fraction": (float(position_fraction) if position_fraction is not None
-                                  else max(positions) if positions else 0.0),
+                                  else max((abs(value) for value in positions), default=0.0)),
             "fee_bps": 20.0,
             "mid_penalty_bps": 10.0,
-            "allow_short": False,
+            "allow_short": bool(allow_short),
             "cooldown_seconds": 0.0,
             "max_staleness_seconds": 172800.0,
             "equity_interval_minutes": 1440.0,
