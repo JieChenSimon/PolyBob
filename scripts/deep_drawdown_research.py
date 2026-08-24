@@ -168,13 +168,30 @@ def _split(events: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _fundamental_quality(symbol: str, event_date: str, as_of) -> dict[str, Any]:
-    """Evaluate only declared, point-in-time fundamentals; missing is UNKNOWN."""
+    """Evaluate row-level PIT evidence; missing acceptance is UNKNOWN.
+
+    The dataset remains globally non-promotable because historical coverage and
+    survivorship controls are incomplete.  A filing with an SEC acceptance
+    timestamp can nevertheless be evaluated honestly for this event instead of
+    being discarded merely because another older filing in the same symbol is
+    unresolved.
+    """
     frame = store.read(store.FUNDAMENTALS, symbol, as_of=as_of, end=event_date)
     if frame.empty:
         return {"status": "UNKNOWN", "reason": "fundamentals_dataset_missing"}
     frame = frame.sort_values("event_date").drop_duplicates("event_date", keep="last")
     if len(frame) < 4:
         return {"status": "UNKNOWN", "reason": "fewer_than_four_pit_periods", "periods": int(len(frame))}
+    accepted = frame["quality_flags"].map(
+        lambda value: isinstance(value, dict) and value.get("accepted_at") not in (None, "missing", "")
+    )
+    if not bool(accepted.all()):
+        return {
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_for_historical_period",
+            "periods": int(len(frame)),
+            "accepted_periods": int(accepted.sum()),
+        }
     latest = frame.iloc[-1]
     required = ("revenue", "gross_profit", "operating_cash_flow", "total_debt", "cash")
     if any(_numeric(latest.get(column)) is None for column in required):
@@ -190,8 +207,13 @@ def _fundamental_quality(symbol: str, event_date: str, as_of) -> dict[str, Any]:
     if symbol.upper() in {"SNDK", "MU", "WDC"}:
         return {"status": "UNKNOWN", "reason": "storage_cycle_fields_missing",
                 "periods": int(len(frame)), "gross_margin": round(margin, 8)}
-    return {"status": "UNKNOWN", "reason": "strict_historical_pit_contract_false", "periods": int(len(frame)),
-            "gross_margin": round(margin, 8)}
+    return {
+        "status": "PASS",
+        "reason": "row_level_sec_acceptance_timestamp_and_quality_rule_passed",
+        "pit_scope": "row_level_only_global_dataset_not_promotable",
+        "periods": int(len(frame)),
+        "gross_margin": round(margin, 8),
+    }
 
 
 def run() -> dict[str, Any]:
@@ -298,7 +320,13 @@ def run() -> dict[str, Any]:
         "pit_status": "UNKNOWN",
         "strict_historical_pit": False,
         "survivorship_control": "UNKNOWN",
-        "fundamental_quality_filter": "UNKNOWN_NO_TRADE",
+        "fundamental_quality_filter": "ROW_LEVEL_CANDIDATE_GLOBAL_BLOCKED",
+        "fundamental_quality_summary": {
+            "pass_events": sum(e["fundamental_quality"]["status"] == "PASS" for e in all_events),
+            "unknown_events": sum(e["fundamental_quality"]["status"] == "UNKNOWN" for e in all_events),
+            "fail_events": sum(e["fundamental_quality"]["status"] == "FAIL" for e in all_events),
+            "interpretation": "row-level acceptance and quality only; global PIT/survivorship/executable gates remain blocked",
+        },
         "asset_date_cluster_floor": {
             "min_assets": MIN_ASSET_CLUSTERS,
             "min_dates": MIN_DATE_CLUSTERS,
