@@ -269,6 +269,35 @@ async def test_conservative_fill_buys_at_ask_plus_fee(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_per_instrument_position_fraction_overrides_scalar(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="instrument-sizing",
+        strategy_id="spread_reversion_v1",
+        universe=["m1", "m2"],
+        initial_capital=10_000.0,
+        config={**RUN_CONFIG, "position_fraction": 0.05,
+                "position_fraction_by_instrument": {"m1": 0.01}},
+    )
+    await service.start_run(run["run_id"])
+    now = datetime.now(UTC)
+    await service._process_signal(
+        service._active[run["run_id"]],
+        SimSignal("m1", "buy", 0.9, bid=0.99, ask=1.01, mid=1.0, timestamp=now),
+    )
+    await service._process_signal(
+        service._active[run["run_id"]],
+        SimSignal("m2", "buy", 0.9, bid=0.99, ask=1.01, mid=1.0, timestamp=now),
+    )
+    positions = {position.instrument_id: position for position in service.store.list_positions(run["run_id"])}
+    assert positions["m1"].size == pytest.approx(0.01 * 10_000.0 / 1.01, rel=1e-6)
+    # The second fill uses the slightly reduced equity after the first fee;
+    # compare the intended five-to-one sizing ratio rather than a stale cash
+    # snapshot.
+    assert positions["m2"].size / positions["m1"].size == pytest.approx(5.0, rel=2e-4)
+
+
+@pytest.mark.asyncio
 async def test_long_only_run_flattens_sell_signal_without_opening_short(tmp_path):
     service = make_service(tmp_path)
     run = await service.create_run(

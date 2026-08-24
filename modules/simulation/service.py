@@ -669,6 +669,11 @@ class SimulationService:
                 return
 
             fraction = float(active.config_value("position_fraction"))
+            fraction_by_instrument = active.config_value("position_fraction_by_instrument")
+            if isinstance(fraction_by_instrument, dict) and instrument in fraction_by_instrument:
+                fraction = float(fraction_by_instrument[instrument])
+            if not math.isfinite(fraction) or fraction < 0:
+                return
             direction = 1.0 if signal.side == "buy" else -1.0
             allow_short = bool(active.config_value("allow_short"))
             target_size = (

@@ -3,7 +3,12 @@ from datetime import UTC, datetime
 import asyncio
 import pandas as pd
 
-from scripts.insider_kernel_replay import EventReplaySource, build_event_positions, concentration
+from scripts.insider_kernel_replay import (
+    EventReplaySource,
+    build_event_positions,
+    build_risk_fractions,
+    concentration,
+)
 
 
 def test_insider_event_enters_next_bar_and_holds_fixed_sessions():
@@ -43,3 +48,16 @@ def test_concentration_reports_positive_pnl_tail_without_hiding_losses():
     assert result["instruments"] == 3
     assert result["positive_instrument_fraction"] == 2 / 3
     assert result["top1_positive_pnl_share"] == 100 / 125
+
+
+def test_risk_fractions_use_only_pre_event_bars_and_keep_base_median():
+    dates = pd.date_range("2024-01-01", periods=80).strftime("%Y-%m-%d").tolist()
+    calm = pd.Series([100.0 + i * 0.1 for i in range(80)], index=dates)
+    volatile = pd.Series([100.0 + (i % 2) * 10.0 for i in range(80)], index=dates)
+    fractions = build_risk_fractions(
+        {"CALM": calm, "VOL": volatile},
+        [("CALM", "2024-03-01"), ("VOL", "2024-03-01")],
+        0.0025,
+    )
+    assert fractions["CALM"] > fractions["VOL"]
+    assert all(0.0025 * 0.25 <= value <= 0.0025 * 2 for value in fractions.values())

@@ -101,6 +101,32 @@ def build_event_positions(frames: dict, events: list[tuple[str, str]],
     return positions
 
 
+def build_risk_fractions(frames: dict, events: list[tuple[str, str]],
+                         base_fraction: float) -> dict[str, float]:
+    """Scale notional inversely to pre-first-event daily volatility, causally."""
+    first_event: dict[str, str] = {}
+    for symbol, filing_date in events:
+        first_event.setdefault(symbol, filing_date)
+    volatilities: dict[str, float] = {}
+    for symbol, filing_date in first_event.items():
+        series = frames.get(symbol)
+        if series is None:
+            continue
+        entry = bisect.bisect_right(list(series.index), filing_date)
+        prices = series.to_numpy(dtype=float)[:entry]
+        returns = np.diff(prices[-61:]) / prices[-61:-1] if len(prices) >= 21 else np.asarray([])
+        if len(returns) >= 20 and np.all(np.isfinite(returns)):
+            volatilities[symbol] = float(np.std(returns, ddof=1) * np.sqrt(252.0))
+    positive = [value for value in volatilities.values() if value > 0]
+    reference = float(np.median(positive)) if positive else 0.0
+    fractions = {}
+    for symbol in frames:
+        vol = volatilities.get(symbol, reference)
+        scale = np.clip(reference / vol, 0.25, 2.0) if reference > 0 and vol > 0 else 1.0
+        fractions[symbol] = float(base_fraction * scale)
+    return fractions
+
+
 def split_dates(index: list[str]) -> list[str]:
     if len(index) < 300:
         raise ValueError("insider replay requires at least 300 market dates")
@@ -152,6 +178,10 @@ async def main_async(args: argparse.Namespace) -> int:
         raise RuntimeError("insufficient insider event price coverage")
 
     positions = build_event_positions(frames, events, args.hold_sessions)
+    fraction_by_instrument = (
+        build_risk_fractions(frames, events, args.position_fraction)
+        if args.risk_weighted else None
+    )
     all_dates = sorted({date for series in frames.values() for date in series.index})
     splits = split_dates(all_dates)
     clock = ReplayClock(datetime.fromisoformat(all_dates[0]).replace(tzinfo=UTC))
@@ -169,6 +199,7 @@ async def main_async(args: argparse.Namespace) -> int:
         config={
             "event_positions": positions,
             "position_fraction": args.position_fraction,
+            "position_fraction_by_instrument": fraction_by_instrument,
             "fee_bps": args.fee_bps,
             "mid_penalty_bps": args.mid_penalty_bps,
             "allow_short": False,
@@ -231,10 +262,11 @@ async def main_async(args: argparse.Namespace) -> int:
         "strategy": {"family": "sec_insider_cluster_buy", "hold_sessions": args.hold_sessions,
                       "min_insiders": args.min_insiders, "min_value_usd": args.min_value_usd},
         "execution_config": {"fee_bps": args.fee_bps, "mid_penalty_bps": args.mid_penalty_bps,
-                              "allow_short": False, "position_fraction": args.position_fraction},
+                              "allow_short": False, "position_fraction": args.position_fraction,
+                              "risk_weighted": args.risk_weighted},
         "events": len(events), "symbols_requested": len(symbols),
         "symbols_replayed": len(frames), "coverage": len(frames) / len(symbols),
-        "candidate_family_size": 18,
+        "candidate_family_size": 36 if args.risk_weighted else 18,
         "selection_note": "candidate was observed in the existing train/OOS optimizer; kernel replay remains independent evidence",
         "full_metrics": metrics, "folds": folds,
         "concentration": concentration(metrics),
@@ -262,6 +294,7 @@ if __name__ == "__main__":
     parser.add_argument("--fee-bps", type=float, default=20.0)
     parser.add_argument("--mid-penalty-bps", type=float, default=10.0)
     parser.add_argument("--position-fraction", type=float, default=POSITION_FRACTION)
+    parser.add_argument("--risk-weighted", action="store_true")
     parser.add_argument("--hold-sessions", type=int, default=HOLD_SESSIONS)
     parser.add_argument("--min-insiders", type=int, default=MIN_INSIDERS)
     parser.add_argument("--min-value-usd", type=float, default=MIN_VALUE_USD)
