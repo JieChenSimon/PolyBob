@@ -24,7 +24,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
-def _file_inventory(root: Path) -> dict[str, Any]:
+def _file_inventory(root: Path, *, top_level_limit: int = 50) -> dict[str, Any]:
     by_extension: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "bytes": 0})
     by_top_level: dict[str, dict[str, int]] = defaultdict(lambda: {"files": 0, "bytes": 0})
     small_files = 0
@@ -44,13 +44,19 @@ def _file_inventory(root: Path) -> dict[str, Any]:
         total_files += 1
         total_bytes += size
         small_files += size < 64 * 1024
+    ranked = sorted(by_top_level.items(), key=lambda item: item[1]["bytes"], reverse=True)
+    retained = dict(ranked[:max(0, top_level_limit)])
+    omitted = ranked[max(0, top_level_limit):]
     return {
         "root": str(root),
         "files": total_files,
         "bytes": total_bytes,
         "small_files_lt_64KiB": small_files,
         "by_extension": dict(sorted(by_extension.items())),
-        "by_top_level": dict(sorted(by_top_level.items())),
+        "by_top_level": retained,
+        "omitted_top_level_groups": len(omitted),
+        "omitted_top_level_files": sum(item[1]["files"] for item in omitted),
+        "omitted_top_level_bytes": sum(item[1]["bytes"] for item in omitted),
     }
 
 
@@ -128,6 +134,7 @@ def main() -> int:
     inventory = sub.add_parser("inventory")
     inventory.add_argument("--root", default="data")
     inventory.add_argument("--output", default=None)
+    inventory.add_argument("--top-level-limit", type=int, default=50)
     compact = sub.add_parser("compact")
     compact.add_argument("--source", required=True)
     compact.add_argument("--destination", required=True)
@@ -137,7 +144,7 @@ def main() -> int:
                          help="write the new dataset; without this flag only print the plan")
     args = parser.parse_args()
     if args.command == "inventory":
-        result = _file_inventory(Path(args.root))
+        result = _file_inventory(Path(args.root), top_level_limit=args.top_level_limit)
         payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
         if args.output:
             Path(args.output).write_text(payload, encoding="utf-8")
