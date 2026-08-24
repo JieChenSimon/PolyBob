@@ -320,7 +320,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "full_results": full_results,
         "blocked_capabilities": {
             "btc_5m": "local btc_1m_bars coverage is only 314 rows; not enough for large-scale 5m validation",
-            "sec_insider": "insider_filings store currently has zero rows; no strategy claim is allowed",
+            "sec_insider": "SEC Form 345 is now materialized locally; the insider strategy has a separate event-study/OOS report and is not part of this daily momentum run",
         },
         "promotion": {"status": "BLOCKED", "reason": "This pipeline has no promotion authority; independent statistical gate required"},
         "manifest": manifest.to_dict(),
