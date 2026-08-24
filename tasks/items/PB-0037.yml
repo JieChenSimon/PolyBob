@@ -6,13 +6,13 @@ area: quant
 why: 需要在包含历史重放时钟和真实 SimulationService 的最新基线上验证 funding contrarian，避免旧主分支基线产生错误结论
 checks:
 - text: 迁移并验证 PB-0033 至 PB-0036 变更在最新 PB-0032 基线上完整可用
-  done: false
+  done: true
 - text: 用 funding-enabled SimulationService 对 BTC/ETH 真实价格与 Deribit 资金费率做四折重放
-  done: false
+  done: true
 - text: 报告成本后收益、资金现金流、OOS、回撤和 PromotionGate 结果，测试通过并推送
-  done: false
+  done: true
 deps:
-- PB-0035
+- PB-0036
 branch: pb-0037-funding-strategy-replay
 blocked: null
-updated: '2026-08-24T15:13:14+00:00'
+updated: '2026-08-24T15:14:20+00:00'
