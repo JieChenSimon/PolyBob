@@ -101,6 +101,25 @@ def _coverage(member: RosterMember, min_bars: int, min_dollar_volume: float) -> 
     }
 
 
+def _missing_local_coverage(member: RosterMember) -> dict[str, Any]:
+    """Represent a roster member absent from the local daily-bar index.
+
+    Full-roster discovery must not open one Parquet scan per absent issuer.  The
+    absence itself is a real, auditable UNKNOWN state and is sufficient to
+    reject the symbol from research until a historical dataset is materialized.
+    """
+    return {
+        **asdict(member),
+        "status": "UNKNOWN",
+        "bars": 0,
+        "start": None,
+        "latest": None,
+        "price_basis": "unknown",
+        "median_dollar_volume_60": None,
+        "reasons": ["no_local_daily_bars"],
+    }
+
+
 def discover_equity_candidates(
     *, domains: Iterable[str] = ("us_equity", "a_share"),
     limit: int | None = None,
@@ -134,7 +153,20 @@ def discover_equity_candidates(
                 start = len(bounded) - domain_count
                 bounded = bounded[:start + limit]
         ordered_members = bounded
-    rows = [_coverage(member, min_bars, min_dollar_volume) for member in ordered_members]
+    if limit is None:
+        # A complete roster may contain many thousands of issuers.  Enumerating
+        # the local hive partitions once is bounded by the actual local dataset
+        # and avoids opening a separate Parquet/DuckDB scan for every absent
+        # issuer.  The roster remains complete; only READY candidates require
+        # a detailed local quality read.
+        local_symbols = set(store.symbols(store.DAILY_BARS))
+        rows = [
+            (_coverage(member, min_bars, min_dollar_volume)
+             if member.symbol in local_symbols else _missing_local_coverage(member))
+            for member in ordered_members
+        ]
+    else:
+        rows = [_coverage(member, min_bars, min_dollar_volume) for member in ordered_members]
     rows.sort(key=lambda row: (row["status"] != "READY_FOR_RESEARCH", -row["bars"], row["domain"], row["symbol"]))
     return {
         "generated_at": datetime.now(UTC).isoformat(),
