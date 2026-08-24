@@ -1,6 +1,6 @@
 import numpy as np
 
-from scripts.cross_sectional_local_screen import has_unresolved_price_jump, select_long_only
+from scripts.cross_sectional_local_screen import apply_risk_policy, has_unresolved_price_jump, select_long_only
 
 
 def test_cross_sectional_selection_uses_only_past_prices():
@@ -28,3 +28,12 @@ def test_cross_sectional_rejects_unresolved_price_jump():
     values = np.ones(300)
     values[150] = 100.0
     assert has_unresolved_price_jump(values, 1.5)
+
+
+def test_risk_policy_never_increases_long_exposure():
+    rng = np.random.default_rng(8)
+    prices = 100 * np.exp(np.cumsum(rng.normal(0, 0.02, size=(8, 100)), axis=1))
+    base = select_long_only(prices, lookback=20, top_frac=0.3, rebalance_days=5)
+    scaled = apply_risk_policy(prices, base, "vol_target_10_dd")
+    assert np.all(scaled >= 0)
+    assert np.all(scaled <= base + 1e-12)

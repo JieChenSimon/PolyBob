@@ -1,6 +1,6 @@
 {
   "experiment": "cross_sectional_local_screen",
-  "as_of": "2026-08-24T10:33:56.433095+00:00",
+  "as_of": "2026-08-24T10:45:27.386271+00:00",
   "params": {
     "candidates": [
       {
@@ -94,6 +94,11 @@
         "rebalance_days": 10
       }
     ],
+    "risk_policies": [
+      "raw",
+      "vol_target_10",
+      "vol_target_10_dd"
+    ],
     "cost_bps": {
       "a_share": 8.0,
       "us_equity": 5.0,
@@ -101,14 +106,14 @@
     }
   },
   "code": {
-    "commit": "89c63a1c47ef51d56788bee1f7d86c1b30cb14cb",
+    "commit": "e14c3effd44b94eff1a48c5778423de2b71e123b",
     "dirty": true,
     "dirty_files": 1,
     "dirty_sample": [
       "scripts/cross_sectional_local_screen.py"
     ]
   },
-  "started_at": "2026-08-24T10:33:56.458943+00:00",
+  "started_at": "2026-08-24T10:45:27.412449+00:00",
   "inputs": {
     "daily_bars:a_share": {
       "symbols": [
@@ -177,12 +182,12 @@
       ],
       "coverage": {
         "dataset": "daily_bars",
-        "symbols": 2843,
-        "rows": 9036974,
+        "symbols": 2849,
+        "rows": 9083825,
         "start": "2021-07-26",
-        "end": "2026-08-21",
+        "end": "2026-08-24",
         "first_fetch": "2026-07-27 15:26:23.165584+08:00",
-        "last_fetch": "2026-08-24 13:44:38.800373+08:00"
+        "last_fetch": "2026-08-24 18:36:38.438527+08:00"
       }
     },
     "daily_bars:us_equity": {
@@ -1760,7 +1765,9 @@
         "SGI",
         "SGMT",
         "SGU",
+        "SH600036",
         "SH600519",
+        "SH601318",
         "SHAK",
         "SHBI",
         "SHEN",
@@ -1857,7 +1864,11 @@
         "SYBT",
         "SYNA",
         "SYY",
+        "SZ000001",
+        "SZ000651",
         "SZ000858",
+        "SZ002594",
+        "SZ300750",
         "SZZL",
         "T",
         "TACT",
@@ -2124,12 +2135,12 @@
       ],
       "coverage": {
         "dataset": "daily_bars",
-        "symbols": 2843,
-        "rows": 9036974,
+        "symbols": 2849,
+        "rows": 9083825,
         "start": "2021-07-26",
-        "end": "2026-08-21",
+        "end": "2026-08-24",
         "first_fetch": "2026-07-27 15:26:23.165584+08:00",
-        "last_fetch": "2026-08-24 13:44:38.800373+08:00"
+        "last_fetch": "2026-08-24 18:36:38.438527+08:00"
       }
     },
     "daily_bars:crypto": {
@@ -2194,17 +2205,17 @@
       ],
       "coverage": {
         "dataset": "daily_bars",
-        "symbols": 2843,
-        "rows": 9036974,
+        "symbols": 2849,
+        "rows": 9083825,
         "start": "2021-07-26",
-        "end": "2026-08-21",
+        "end": "2026-08-24",
         "first_fetch": "2026-07-27 15:26:23.165584+08:00",
-        "last_fetch": "2026-08-24 13:44:38.800373+08:00"
+        "last_fetch": "2026-08-24 18:36:38.438527+08:00"
       }
     }
   },
   "lineage": {
-    "input_hash": "5ed48f8538b49854a0a5aa7c7776c2783590f50f247a73572aad15d1af13ff9d",
+    "input_hash": "d877ed05548c6f2f4e2bdfd178f19dda284b34db6375852b010bbc18d324f4ba",
     "model_hash": null,
     "has_lineage": false
   },

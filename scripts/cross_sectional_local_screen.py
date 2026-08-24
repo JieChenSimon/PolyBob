@@ -19,6 +19,7 @@ CANDIDATES = tuple(
     for top_frac in (0.2, 0.3)
     for rebalance_days in (1, 5, 10)
 )
+RISK_POLICIES = ("raw", "vol_target_10", "vol_target_10_dd")
 
 
 def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
@@ -40,6 +41,41 @@ def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
         winners = indices[np.argsort(scores)[-k:]]
         positions[winners, day] = 1.0 / len(winners)
     return positions
+
+
+def apply_risk_policy(prices: np.ndarray, positions: np.ndarray, policy: str) -> np.ndarray:
+    """Apply only causal portfolio-level risk scaling; never increases exposure."""
+    if policy not in RISK_POLICIES:
+        raise ValueError(f"unknown risk policy: {policy}")
+    scaled = np.zeros_like(positions, dtype=float)
+    if policy == "raw":
+        return positions.copy()
+    realized: list[float] = []
+    equity = 1.0
+    peak = 1.0
+    target_daily_vol = 0.10 / np.sqrt(252.0)
+    for day in range(positions.shape[1] - 1):
+        prior = np.asarray(realized[-60:], dtype=float)
+        vol = float(np.std(prior, ddof=1)) if len(prior) >= 20 else 0.0
+        scale = min(1.0, target_daily_vol / vol) if vol > 0 else 1.0
+        drawdown = 1.0 - equity / peak if peak > 0 else 0.0
+        if policy == "vol_target_10_dd":
+            if drawdown >= 0.20:
+                scale = 0.0
+            elif drawdown >= 0.10:
+                scale = min(scale, 0.5)
+        scaled[:, day] = positions[:, day] * scale
+        current = scaled[:, day]
+        valid = (current > 0) & np.isfinite(prices[:, day]) & np.isfinite(prices[:, day + 1])
+        if valid.any():
+            weights = current[valid] / current[valid].sum()
+            daily = float(np.dot(weights, prices[valid, day + 1] / prices[valid, day] - 1.0))
+        else:
+            daily = 0.0
+        realized.append(daily)
+        equity *= 1.0 + daily
+        peak = max(peak, equity)
+    return scaled
 
 
 def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_bps: float,
@@ -131,10 +167,11 @@ def has_unresolved_price_jump(values: np.ndarray, maximum: float) -> bool:
 def main() -> int:
     as_of = datetime.now(UTC)
     manifest = run_manifest.pin("cross_sectional_local_screen", as_of=as_of,
-                               params={"candidates": CANDIDATES, "cost_bps": COST_BPS})
+                               params={"candidates": CANDIDATES, "risk_policies": RISK_POLICIES,
+                                       "cost_bps": COST_BPS})
     report = {"generated_at": datetime.now(UTC).isoformat(), "as_of": as_of.isoformat(),
               "real_data_only": True, "research_only": True,
-              "parameters": {"candidates": CANDIDATES, "cost_bps": COST_BPS,
+              "parameters": {"candidates": CANDIDATES, "risk_policies": RISK_POLICIES, "cost_bps": COST_BPS,
                               "oos_fraction": 0.3, "long_only": True,
                               "max_single_bar_multiple": MAX_MULTIPLE}, "domains": {}}
     all_symbols = store.symbols(store.DAILY_BARS)
@@ -160,14 +197,16 @@ def main() -> int:
             continue
         rows = []
         for candidate in CANDIDATES:
-            positions = select_long_only(matrix, **candidate)
-            result = portfolio_result(matrix, positions, cut, COST_BPS[domain])
-            stress = portfolio_result(matrix, positions, cut, COST_BPS[domain], return_cap=0.20)
-            folds = rolling_folds(matrix, positions, COST_BPS[domain])
-            eligible = (matrix[:, cut] > 0) & (matrix[:, -1] > 0)
-            benchmark = float(np.mean(matrix[eligible, -1] / matrix[eligible, cut] - 1.0)) if eligible.any() else None
-            excess = result["oos_return"] - benchmark if benchmark is not None else None
-            rows.append({**candidate, **result, "benchmark_return": benchmark,
+            base_positions = select_long_only(matrix, **candidate)
+            for risk_policy in RISK_POLICIES:
+                positions = apply_risk_policy(matrix, base_positions, risk_policy)
+                result = portfolio_result(matrix, positions, cut, COST_BPS[domain])
+                stress = portfolio_result(matrix, positions, cut, COST_BPS[domain], return_cap=0.20)
+                folds = rolling_folds(matrix, positions, COST_BPS[domain])
+                eligible = (matrix[:, cut] > 0) & (matrix[:, -1] > 0)
+                benchmark = float(np.mean(matrix[eligible, -1] / matrix[eligible, cut] - 1.0)) if eligible.any() else None
+                excess = result["oos_return"] - benchmark if benchmark is not None else None
+                rows.append({**candidate, "risk_policy": risk_policy, **result, "benchmark_return": benchmark,
                          "excess_return": excess,
                          "stress_oos_return_cap_20pct": stress["oos_return"],
                          "rolling_folds": folds,
