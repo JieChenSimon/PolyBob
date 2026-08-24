@@ -1,7 +1,7 @@
 {
   "schema_version": "deep-drawdown-rebound-v1",
-  "generated_at": "2026-08-24T19:57:53.391967+00:00",
-  "as_of": "2026-08-24T19:57:52.670958+00:00",
+  "generated_at": "2026-08-24T21:57:43.423575+00:00",
+  "as_of": "2026-08-24T21:57:42.772945+00:00",
   "real_data_only": true,
   "strategy_status": "UNKNOWN",
   "promotion_status": "UNKNOWN",
@@ -16,7 +16,7 @@
     "status": "UNKNOWN"
   },
   "event_definition": "first close crossing >=50% below prior expanding close peak per asset episode",
-  "all_event_count": 196,
+  "all_event_count": 202,
   "sleeves": {
     "A_SHARE": {
       "symbols": [
@@ -746,7 +746,8 @@
         "INTC",
         "SNDK",
         "MU",
-        "WDC"
+        "WDC",
+        "MRVL"
       ],
       "cost_bps_round_trip": 20.0,
       "coverage": [
@@ -1015,6 +1016,16 @@
           "source": [
             "yahoo"
           ]
+        },
+        {
+          "symbol": "MRVL",
+          "rows": 513,
+          "start": "2024-08-06",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo",
+            "yahoo_migrated"
+          ]
         }
       ],
       "fundamental_coverage": [
@@ -1226,9 +1237,16 @@
           "source": [
             "sec_companyfacts"
           ]
+        },
+        {
+          "symbol": "MRVL",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
         }
       ],
-      "event_count": 140,
+      "event_count": 146,
       "events": [
         {
           "symbol": "NVDA",
@@ -21664,21 +21682,885 @@
               "cost_bps": 20.0
             }
           ]
+        },
+        {
+          "symbol": "MRVL",
+          "domain": "US_EQUITY",
+          "event_index": 161,
+          "event_date": "2025-03-28",
+          "peak_close": 126.0599975586,
+          "event_close": 62.0400009155,
+          "drawdown": 0.50785339,
+          "fundamental_quality": {
+            "status": "UNKNOWN",
+            "reason": "fundamentals_dataset_missing"
+          },
+          "outcomes": [
+            {
+              "horizon_days": 21,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-03-31",
+                  "exit_date": "2025-04-30",
+                  "gross_return": -0.0332892,
+                  "net_return": -0.0352892
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-07",
+                  "exit_date": "2025-05-07",
+                  "gross_return": 0.18647287,
+                  "net_return": 0.18447287
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-29",
+                  "exit_date": "2025-05-29",
+                  "gross_return": 0.09482908,
+                  "net_return": 0.09282908
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.08267092,
+              "net_return": 0.08067092,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 63,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-03-31",
+                  "exit_date": "2025-07-01",
+                  "gross_return": 0.2626697,
+                  "net_return": 0.2606697
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-07",
+                  "exit_date": "2025-07-09",
+                  "gross_return": 0.52254538,
+                  "net_return": 0.52054538
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-29",
+                  "exit_date": "2025-07-30",
+                  "gross_return": 0.40422606,
+                  "net_return": 0.40222606
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.39648038,
+              "net_return": 0.39448038,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 126,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-03-31",
+                  "exit_date": "2025-09-30",
+                  "gross_return": 0.39234843,
+                  "net_return": 0.39034843
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-07",
+                  "exit_date": "2025-10-07",
+                  "gross_return": 0.83249058,
+                  "net_return": 0.83049058
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-29",
+                  "exit_date": "2025-10-28",
+                  "gross_return": 0.51967017,
+                  "net_return": 0.51767017
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.58150306,
+              "net_return": 0.57950306,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 252,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-03-31",
+                  "exit_date": "2026-04-01",
+                  "gross_return": 0.76730701,
+                  "net_return": 0.76530701
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-07",
+                  "exit_date": "2026-04-09",
+                  "gross_return": 1.52697014,
+                  "net_return": 1.52497014
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-29",
+                  "exit_date": "2026-04-30",
+                  "gross_return": 1.83714132,
+                  "net_return": 1.83514132
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 1.37713949,
+              "net_return": 1.37513949,
+              "cost_bps": 20.0
+            }
+          ]
+        },
+        {
+          "symbol": "MRVL",
+          "domain": "US_EQUITY",
+          "event_index": 165,
+          "event_date": "2025-04-03",
+          "peak_close": 126.0599975586,
+          "event_close": 55.6399993896,
+          "drawdown": 0.55862287,
+          "fundamental_quality": {
+            "status": "UNKNOWN",
+            "reason": "fundamentals_dataset_missing"
+          },
+          "outcomes": [
+            {
+              "horizon_days": 21,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-04",
+                  "exit_date": "2025-05-06",
+                  "gross_return": 0.16189036,
+                  "net_return": 0.15989036
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-11",
+                  "exit_date": "2025-05-13",
+                  "gross_return": 0.24510369,
+                  "net_return": 0.24310369
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-05",
+                  "exit_date": "2025-06-04",
+                  "gross_return": 0.07472855,
+                  "net_return": 0.07272855
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.1605742,
+              "net_return": 0.1585742,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 63,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-04",
+                  "exit_date": "2025-07-08",
+                  "gross_return": 0.36553423,
+                  "net_return": 0.36353423
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-11",
+                  "exit_date": "2025-07-15",
+                  "gross_return": 0.3768778,
+                  "net_return": 0.3748778
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-05",
+                  "exit_date": "2025-08-05",
+                  "gross_return": 0.24217862,
+                  "net_return": 0.24017862
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.32819688,
+              "net_return": 0.32619688,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 126,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-04",
+                  "exit_date": "2025-10-06",
+                  "gross_return": 0.68760677,
+                  "net_return": 0.68560677
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-11",
+                  "exit_date": "2025-10-13",
+                  "gross_return": 0.69975279,
+                  "net_return": 0.69775279
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-05",
+                  "exit_date": "2025-11-03",
+                  "gross_return": 0.46490525,
+                  "net_return": 0.46290525
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.6174216,
+              "net_return": 0.6154216,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 252,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-04",
+                  "exit_date": "2026-04-08",
+                  "gross_return": 1.17213892,
+                  "net_return": 1.17013892
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-04-11",
+                  "exit_date": "2026-04-15",
+                  "gross_return": 1.55942205,
+                  "net_return": 1.55742205
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-05",
+                  "exit_date": "2026-05-06",
+                  "gross_return": 1.7905657,
+                  "net_return": 1.7885657
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 1.50737556,
+              "net_return": 1.50537556,
+              "cost_bps": 20.0
+            }
+          ]
+        },
+        {
+          "symbol": "MRVL",
+          "domain": "US_EQUITY",
+          "event_index": 196,
+          "event_date": "2025-05-19",
+          "peak_close": 126.0599975586,
+          "event_close": 62.5600013733,
+          "drawdown": 0.50372836,
+          "fundamental_quality": {
+            "status": "UNKNOWN",
+            "reason": "fundamentals_dataset_missing"
+          },
+          "outcomes": [
+            {
+              "horizon_days": 21,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-20",
+                  "exit_date": "2025-06-20",
+                  "gross_return": 0.20607057,
+                  "net_return": 0.20407057
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-28",
+                  "exit_date": "2025-06-27",
+                  "gross_return": 0.19074074,
+                  "net_return": 0.18874074
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-18",
+                  "exit_date": "2025-07-21",
+                  "gross_return": -0.01972362,
+                  "net_return": -0.02172362
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.1256959,
+              "net_return": 0.1236959,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 63,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-20",
+                  "exit_date": "2025-08-20",
+                  "gross_return": 0.16849877,
+                  "net_return": 0.16649877
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-28",
+                  "exit_date": "2025-08-27",
+                  "gross_return": 0.15416663,
+                  "net_return": 0.15216663
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-18",
+                  "exit_date": "2025-09-18",
+                  "gross_return": -0.00402516,
+                  "net_return": -0.00602516
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.10621341,
+              "net_return": 0.10421341,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 126,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-20",
+                  "exit_date": "2025-11-18",
+                  "gross_return": 0.29089416,
+                  "net_return": 0.28889416
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-28",
+                  "exit_date": "2025-11-25",
+                  "gross_return": 0.28749994,
+                  "net_return": 0.28549994
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-18",
+                  "exit_date": "2025-12-17",
+                  "gross_return": 0.09620285,
+                  "net_return": 0.09420285
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.22486565,
+              "net_return": 0.22286565,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 252,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-20",
+                  "exit_date": "2026-05-21",
+                  "gross_return": 2.12863003,
+                  "net_return": 2.12663003
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-05-28",
+                  "exit_date": "2026-05-29",
+                  "gross_return": 2.1635801,
+                  "net_return": 2.1615801
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-18",
+                  "exit_date": "2026-06-22",
+                  "gross_return": 3.1306855,
+                  "net_return": 3.1286855
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 2.47429854,
+              "net_return": 2.47229854,
+              "cost_bps": 20.0
+            }
+          ]
+        },
+        {
+          "symbol": "MRVL",
+          "domain": "US_EQUITY",
+          "event_index": 204,
+          "event_date": "2025-05-30",
+          "peak_close": 126.0599975586,
+          "event_close": 60.1899986267,
+          "drawdown": 0.52252896,
+          "fundamental_quality": {
+            "status": "UNKNOWN",
+            "reason": "fundamentals_dataset_missing"
+          },
+          "outcomes": [
+            {
+              "horizon_days": 21,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-02",
+                  "exit_date": "2025-07-02",
+                  "gross_return": 0.24267782,
+                  "net_return": 0.24067782
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-09",
+                  "exit_date": "2025-07-10",
+                  "gross_return": 0.05599538,
+                  "net_return": 0.05399538
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-07-01",
+                  "exit_date": "2025-07-31",
+                  "gross_return": 0.04743906,
+                  "net_return": 0.04543906
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.11537075,
+              "net_return": 0.11337075,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 63,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-02",
+                  "exit_date": "2025-09-02",
+                  "gross_return": 0.08117152,
+                  "net_return": 0.07917152
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-09",
+                  "exit_date": "2025-09-09",
+                  "gross_return": -0.03785814,
+                  "net_return": -0.03985814
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-07-01",
+                  "exit_date": "2025-09-30",
+                  "gross_return": 0.09566005,
+                  "net_return": 0.09366005
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.04632448,
+              "net_return": 0.04432448,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 126,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-02",
+                  "exit_date": "2025-12-01",
+                  "gross_return": 0.52468617,
+                  "net_return": 0.52268617
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-09",
+                  "exit_date": "2025-12-08",
+                  "gross_return": 0.32431263,
+                  "net_return": 0.32231263
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-07-01",
+                  "exit_date": "2025-12-30",
+                  "gross_return": 0.13071808,
+                  "net_return": 0.12871808
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.32657229,
+              "net_return": 0.32457229,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 252,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-02",
+                  "exit_date": "2026-06-03",
+                  "gross_return": 4.04853546,
+                  "net_return": 4.04653546
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-06-09",
+                  "exit_date": "2026-06-10",
+                  "gross_return": 2.63595785,
+                  "net_return": 2.63395785
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-07-01",
+                  "exit_date": "2026-07-02",
+                  "gross_return": 2.19679373,
+                  "net_return": 2.19479373
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 2.96042901,
+              "net_return": 2.95842901,
+              "cost_bps": 20.0
+            }
+          ]
+        },
+        {
+          "symbol": "MRVL",
+          "domain": "US_EQUITY",
+          "event_index": 267,
+          "event_date": "2025-08-29",
+          "peak_close": 126.0599975586,
+          "event_close": 62.8699989319,
+          "drawdown": 0.50126924,
+          "fundamental_quality": {
+            "status": "UNKNOWN",
+            "reason": "fundamentals_dataset_missing"
+          },
+          "outcomes": [
+            {
+              "horizon_days": 21,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-02",
+                  "exit_date": "2025-10-01",
+                  "gross_return": 0.35393803,
+                  "net_return": 0.35193803
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-09",
+                  "exit_date": "2025-10-08",
+                  "gross_return": 0.40449437,
+                  "net_return": 0.40249437
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-30",
+                  "exit_date": "2025-10-29",
+                  "gross_return": 0.10342723,
+                  "net_return": 0.10142723
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.28728654,
+              "net_return": 0.28528654,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 63,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-02",
+                  "exit_date": "2025-12-01",
+                  "gross_return": 0.47030342,
+                  "net_return": 0.46830342
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-09",
+                  "exit_date": "2025-12-08",
+                  "gross_return": 0.39690251,
+                  "net_return": 0.39490251
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-30",
+                  "exit_date": "2025-12-30",
+                  "gross_return": 0.06193397,
+                  "net_return": 0.05993397
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.3097133,
+              "net_return": 0.3077133,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 126,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-02",
+                  "exit_date": "2026-03-04",
+                  "gross_return": 0.2603292,
+                  "net_return": 0.2583292
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-09",
+                  "exit_date": "2026-03-11",
+                  "gross_return": 0.37321594,
+                  "net_return": 0.37121594
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-30",
+                  "exit_date": "2026-04-01",
+                  "gross_return": 0.30611999,
+                  "net_return": 0.30411999
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.31322171,
+              "net_return": 0.31122171,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 252,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "unresolved",
+                  "reason": "insufficient_forward_bars"
+                },
+                {
+                  "tranche": 2,
+                  "status": "unresolved",
+                  "reason": "insufficient_forward_bars"
+                },
+                {
+                  "tranche": 3,
+                  "status": "unresolved",
+                  "reason": "insufficient_forward_bars"
+                }
+              ],
+              "status": "UNKNOWN",
+              "gross_return": null,
+              "net_return": null,
+              "cost_bps": 20.0
+            }
+          ]
+        },
+        {
+          "symbol": "MRVL",
+          "domain": "US_EQUITY",
+          "event_index": 269,
+          "event_date": "2025-09-03",
+          "peak_close": 126.0599975586,
+          "event_close": 62.3100013733,
+          "drawdown": 0.50571155,
+          "fundamental_quality": {
+            "status": "UNKNOWN",
+            "reason": "fundamentals_dataset_missing"
+          },
+          "outcomes": [
+            {
+              "horizon_days": 21,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-04",
+                  "exit_date": "2025-10-03",
+                  "gross_return": 0.3875121,
+                  "net_return": 0.3855121
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-11",
+                  "exit_date": "2025-10-10",
+                  "gross_return": 0.2777612,
+                  "net_return": 0.2757612
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-10-02",
+                  "exit_date": "2025-10-31",
+                  "gross_return": 0.10191605,
+                  "net_return": 0.09991605
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.25572978,
+              "net_return": 0.25372978,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 63,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-04",
+                  "exit_date": "2025-12-03",
+                  "gross_return": 0.6124879,
+                  "net_return": 0.6104879
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-11",
+                  "exit_date": "2025-12-10",
+                  "gross_return": 0.38014927,
+                  "net_return": 0.37814927
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-10-02",
+                  "exit_date": "2026-01-02",
+                  "gross_return": 0.05078171,
+                  "net_return": 0.04878171
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.34780629,
+              "net_return": 0.34580629,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 126,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-04",
+                  "exit_date": "2026-03-06",
+                  "gross_return": 0.4414226,
+                  "net_return": 0.4394226
+                },
+                {
+                  "tranche": 2,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-09-11",
+                  "exit_date": "2026-03-13",
+                  "gross_return": 0.31134329,
+                  "net_return": 0.30934329
+                },
+                {
+                  "tranche": 3,
+                  "status": "diagnostic_fill",
+                  "entry_date": "2025-10-02",
+                  "exit_date": "2026-04-06",
+                  "gross_return": 0.28729285,
+                  "net_return": 0.28529285
+                }
+              ],
+              "status": "diagnostic_fill",
+              "gross_return": 0.34668625,
+              "net_return": 0.34468625,
+              "cost_bps": 20.0
+            },
+            {
+              "horizon_days": 252,
+              "tranches": [
+                {
+                  "tranche": 1,
+                  "status": "unresolved",
+                  "reason": "insufficient_forward_bars"
+                },
+                {
+                  "tranche": 2,
+                  "status": "unresolved",
+                  "reason": "insufficient_forward_bars"
+                },
+                {
+                  "tranche": 3,
+                  "status": "unresolved",
+                  "reason": "insufficient_forward_bars"
+                }
+              ],
+              "status": "UNKNOWN",
+              "gross_return": null,
+              "net_return": null,
+              "cost_bps": 20.0
+            }
+          ]
         }
       ],
       "quality_pass_events": 0,
-      "quality_unknown_events": 135,
+      "quality_unknown_events": 141,
       "quality_fail_events": 5,
-      "independent_asset_clusters": 15,
-      "independent_date_clusters": 114,
+      "independent_asset_clusters": 16,
+      "independent_date_clusters": 118,
       "horizons": {
         "21": {
           "diagnostic_all_events": {
-            "n_complete": 138,
+            "n_complete": 144,
             "n_unresolved": 2,
-            "mean_net_return": 0.04140023,
-            "median_net_return": 0.03370852,
-            "win_rate": 0.62318841,
+            "mean_net_return": 0.04672611,
+            "median_net_return": 0.04924958,
+            "win_rate": 0.63888889,
             "max_drawdown": 0.52196615,
             "cost_multiple": 1.0
           },
@@ -21690,29 +22572,29 @@
           },
           "cost_stress": [
             {
-              "n_complete": 138,
+              "n_complete": 144,
               "n_unresolved": 2,
-              "mean_net_return": 0.04140023,
-              "median_net_return": 0.03370852,
-              "win_rate": 0.62318841,
+              "mean_net_return": 0.04672611,
+              "median_net_return": 0.04924958,
+              "win_rate": 0.63888889,
               "max_drawdown": 0.52196615,
               "cost_multiple": 1.0
             },
             {
-              "n_complete": 138,
+              "n_complete": 144,
               "n_unresolved": 2,
-              "mean_net_return": 0.03940023,
-              "median_net_return": 0.03170852,
-              "win_rate": 0.61594203,
+              "mean_net_return": 0.04472611,
+              "median_net_return": 0.04724958,
+              "win_rate": 0.63194444,
               "max_drawdown": 0.53499422,
               "cost_multiple": 2.0
             },
             {
-              "n_complete": 138,
+              "n_complete": 144,
               "n_unresolved": 2,
-              "mean_net_return": 0.03740023,
-              "median_net_return": 0.02970852,
-              "win_rate": 0.60144928,
+              "mean_net_return": 0.04272611,
+              "median_net_return": 0.04524958,
+              "win_rate": 0.61805556,
               "max_drawdown": 0.54769401,
               "cost_multiple": 3.0
             }
@@ -21810,12 +22692,12 @@
               "2024-04-30",
               "2024-06-28",
               "2024-07-23",
-              "2024-07-25"
-            ],
-            "oos_dates": [
+              "2024-07-25",
               "2024-07-31",
               "2024-08-02",
-              "2024-08-05",
+              "2024-08-05"
+            ],
+            "oos_dates": [
               "2024-08-14",
               "2024-09-30",
               "2024-10-02",
@@ -21828,6 +22710,10 @@
               "2025-04-04",
               "2025-04-10",
               "2025-04-21",
+              "2025-05-19",
+              "2025-05-30",
+              "2025-08-29",
+              "2025-09-03",
               "2025-10-07",
               "2025-11-20",
               "2026-03-05",
@@ -21842,11 +22728,11 @@
         },
         "63": {
           "diagnostic_all_events": {
-            "n_complete": 137,
+            "n_complete": 143,
             "n_unresolved": 3,
-            "mean_net_return": 0.09503897,
-            "median_net_return": 0.08466124,
-            "win_rate": 0.64963504,
+            "mean_net_return": 0.10169982,
+            "median_net_return": 0.08663619,
+            "win_rate": 0.66433566,
             "max_drawdown": 0.69845324,
             "cost_multiple": 1.0
           },
@@ -21858,29 +22744,29 @@
           },
           "cost_stress": [
             {
-              "n_complete": 137,
+              "n_complete": 143,
               "n_unresolved": 3,
-              "mean_net_return": 0.09503897,
-              "median_net_return": 0.08466124,
-              "win_rate": 0.64963504,
+              "mean_net_return": 0.10169982,
+              "median_net_return": 0.08663619,
+              "win_rate": 0.66433566,
               "max_drawdown": 0.69845324,
               "cost_multiple": 1.0
             },
             {
-              "n_complete": 137,
+              "n_complete": 143,
               "n_unresolved": 3,
-              "mean_net_return": 0.09303897,
-              "median_net_return": 0.08266124,
-              "win_rate": 0.64963504,
+              "mean_net_return": 0.09969982,
+              "median_net_return": 0.08463619,
+              "win_rate": 0.66433566,
               "max_drawdown": 0.7040185,
               "cost_multiple": 2.0
             },
             {
-              "n_complete": 137,
+              "n_complete": 143,
               "n_unresolved": 3,
-              "mean_net_return": 0.09103897,
-              "median_net_return": 0.08066124,
-              "win_rate": 0.64963504,
+              "mean_net_return": 0.09769982,
+              "median_net_return": 0.08263619,
+              "win_rate": 0.66433566,
               "max_drawdown": 0.70949371,
               "cost_multiple": 3.0
             }
@@ -21978,12 +22864,12 @@
               "2024-04-30",
               "2024-06-28",
               "2024-07-23",
-              "2024-07-25"
-            ],
-            "oos_dates": [
+              "2024-07-25",
               "2024-07-31",
               "2024-08-02",
-              "2024-08-05",
+              "2024-08-05"
+            ],
+            "oos_dates": [
               "2024-08-14",
               "2024-09-30",
               "2024-10-02",
@@ -21996,6 +22882,10 @@
               "2025-04-04",
               "2025-04-10",
               "2025-04-21",
+              "2025-05-19",
+              "2025-05-30",
+              "2025-08-29",
+              "2025-09-03",
               "2025-10-07",
               "2025-11-20",
               "2026-03-05",
@@ -22010,11 +22900,11 @@
         },
         "126": {
           "diagnostic_all_events": {
-            "n_complete": 134,
+            "n_complete": 140,
             "n_unresolved": 6,
-            "mean_net_return": 0.1637413,
-            "median_net_return": 0.06851874,
-            "win_rate": 0.64179104,
+            "mean_net_return": 0.17385432,
+            "median_net_return": 0.08148395,
+            "win_rate": 0.65714286,
             "max_drawdown": 0.9610631,
             "cost_multiple": 1.0
           },
@@ -22026,29 +22916,29 @@
           },
           "cost_stress": [
             {
-              "n_complete": 134,
+              "n_complete": 140,
               "n_unresolved": 6,
-              "mean_net_return": 0.1637413,
-              "median_net_return": 0.06851874,
-              "win_rate": 0.64179104,
+              "mean_net_return": 0.17385432,
+              "median_net_return": 0.08148395,
+              "win_rate": 0.65714286,
               "max_drawdown": 0.9610631,
               "cost_multiple": 1.0
             },
             {
-              "n_complete": 134,
+              "n_complete": 140,
               "n_unresolved": 6,
-              "mean_net_return": 0.1617413,
-              "median_net_return": 0.06651874,
-              "win_rate": 0.63432836,
+              "mean_net_return": 0.17185432,
+              "median_net_return": 0.07948395,
+              "win_rate": 0.65,
               "max_drawdown": 0.96199109,
               "cost_multiple": 2.0
             },
             {
-              "n_complete": 134,
+              "n_complete": 140,
               "n_unresolved": 6,
-              "mean_net_return": 0.1597413,
-              "median_net_return": 0.06451874,
-              "win_rate": 0.62686567,
+              "mean_net_return": 0.16985432,
+              "median_net_return": 0.07748395,
+              "win_rate": 0.64285714,
               "max_drawdown": 0.96289968,
               "cost_multiple": 3.0
             }
@@ -22146,12 +23036,12 @@
               "2024-04-30",
               "2024-06-28",
               "2024-07-23",
-              "2024-07-25"
-            ],
-            "oos_dates": [
+              "2024-07-25",
               "2024-07-31",
               "2024-08-02",
-              "2024-08-05",
+              "2024-08-05"
+            ],
+            "oos_dates": [
               "2024-08-14",
               "2024-09-30",
               "2024-10-02",
@@ -22164,6 +23054,10 @@
               "2025-04-04",
               "2025-04-10",
               "2025-04-21",
+              "2025-05-19",
+              "2025-05-30",
+              "2025-08-29",
+              "2025-09-03",
               "2025-10-07",
               "2025-11-20",
               "2026-03-05",
@@ -22178,11 +23072,11 @@
         },
         "252": {
           "diagnostic_all_events": {
-            "n_complete": 132,
-            "n_unresolved": 8,
-            "mean_net_return": 0.45589233,
-            "median_net_return": 0.24464484,
-            "win_rate": 0.76515152,
+            "n_complete": 136,
+            "n_unresolved": 10,
+            "mean_net_return": 0.50359581,
+            "median_net_return": 0.2628663,
+            "win_rate": 0.77205882,
             "max_drawdown": 0.76506598,
             "cost_multiple": 1.0
           },
@@ -22194,29 +23088,29 @@
           },
           "cost_stress": [
             {
-              "n_complete": 132,
-              "n_unresolved": 8,
-              "mean_net_return": 0.45589233,
-              "median_net_return": 0.24464484,
-              "win_rate": 0.76515152,
+              "n_complete": 136,
+              "n_unresolved": 10,
+              "mean_net_return": 0.50359581,
+              "median_net_return": 0.2628663,
+              "win_rate": 0.77205882,
               "max_drawdown": 0.76506598,
               "cost_multiple": 1.0
             },
             {
-              "n_complete": 132,
-              "n_unresolved": 8,
-              "mean_net_return": 0.45389233,
-              "median_net_return": 0.24264484,
-              "win_rate": 0.75757576,
+              "n_complete": 136,
+              "n_unresolved": 10,
+              "mean_net_return": 0.50159581,
+              "median_net_return": 0.2608663,
+              "win_rate": 0.76470588,
               "max_drawdown": 0.77321777,
               "cost_multiple": 2.0
             },
             {
-              "n_complete": 132,
-              "n_unresolved": 8,
-              "mean_net_return": 0.45189233,
-              "median_net_return": 0.24064484,
-              "win_rate": 0.74242424,
+              "n_complete": 136,
+              "n_unresolved": 10,
+              "mean_net_return": 0.49959581,
+              "median_net_return": 0.2588663,
+              "win_rate": 0.75,
               "max_drawdown": 0.78110405,
               "cost_multiple": 3.0
             }
@@ -22314,12 +23208,12 @@
               "2024-04-30",
               "2024-06-28",
               "2024-07-23",
-              "2024-07-25"
-            ],
-            "oos_dates": [
+              "2024-07-25",
               "2024-07-31",
               "2024-08-02",
-              "2024-08-05",
+              "2024-08-05"
+            ],
+            "oos_dates": [
               "2024-08-14",
               "2024-09-30",
               "2024-10-02",
@@ -22332,6 +23226,10 @@
               "2025-04-04",
               "2025-04-10",
               "2025-04-21",
+              "2025-05-19",
+              "2025-05-30",
+              "2025-08-29",
+              "2025-09-03",
               "2025-10-07",
               "2025-11-20",
               "2026-03-05",

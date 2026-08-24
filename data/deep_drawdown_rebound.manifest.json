@@ -1,6 +1,6 @@
 {
   "experiment": "deep_drawdown_rebound_v1",
-  "as_of": "2026-08-24T19:57:52.670958+00:00",
+  "as_of": "2026-08-24T21:57:42.772945+00:00",
   "params": {
     "model_revision": "deep-drawdown-quality-rebound-v1",
     "config": "config/research/deep_drawdown_rebound.yaml",
@@ -23,12 +23,12 @@
     ]
   },
   "code": {
-    "commit": "28ff4879651ac57138c24e4703817adfd52127ca",
+    "commit": "b8bad6e8d1f719e92ab12c0f945d38402ee0729a",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T19:57:52.696018+00:00",
+  "started_at": "2026-08-24T21:57:42.796258+00:00",
   "inputs": {
     "daily_bars:A_SHARE": {
       "symbols": 8,
@@ -173,8 +173,8 @@
       "strict_historical_pit": false
     },
     "daily_bars:US_EQUITY": {
-      "symbols": 29,
-      "events": 140,
+      "symbols": 30,
+      "events": 146,
       "coverage": [
         {
           "symbol": "AAPL",
@@ -441,12 +441,22 @@
           "source": [
             "yahoo"
           ]
+        },
+        {
+          "symbol": "MRVL",
+          "rows": 513,
+          "start": "2024-08-06",
+          "end": "2026-08-21",
+          "source": [
+            "yahoo",
+            "yahoo_migrated"
+          ]
         }
       ],
       "strict_historical_pit": false
     },
     "fundamentals:US_EQUITY": {
-      "symbols": 29,
+      "symbols": 30,
       "rows": 139,
       "coverage": [
         {
@@ -657,6 +667,13 @@
           "source": [
             "sec_companyfacts"
           ]
+        },
+        {
+          "symbol": "MRVL",
+          "rows": 0,
+          "start": null,
+          "end": null,
+          "source": []
         }
       ],
       "strict_historical_pit": false
@@ -844,7 +861,7 @@
     }
   },
   "lineage": {
-    "input_hash": "968bad796cbd79125fd8c5e441530b9ff0fa47f92eafb11d8b1d35233eb9e3ee",
+    "input_hash": "5cee488eed358eaa8ca8a2f1ebac5f3c758df719fd2072caee5a6253c4a2e114",
     "model_hash": "ae16d46aa14bbedf41cb7ca617daf912e59d186b6579859f228a36e70fa89e48",
     "has_lineage": true
   },
