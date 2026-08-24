@@ -1,0 +1,17 @@
+id: PB-0033
+title: 资金费率历史数据可用性与研究门禁
+state: doing
+p: P1
+area: quant
+why: 当前资金费率本地覆盖不足，必须建立真实数据就绪性检查并防止短样本被误判为有效策略
+checks:
+- text: 运行资金费率就绪性检查并生成带来源、覆盖区间、行数、最小样本和阻塞原因的 JSON 报告
+  done: true
+- text: 测试覆盖数据不足、四折样本不足和满足门禁三种状态
+  done: true
+- text: 研究管线对 BLOCKED/UNKNOWN 资金费率结果保持失败关闭且全量测试通过
+  done: true
+deps: []
+branch: pb-0033-task
+blocked: null
+updated: '2026-08-24T14:44:09+00:00'

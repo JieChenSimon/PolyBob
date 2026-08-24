@@ -1,0 +1,298 @@
+{
+  "dataset": "funding_rates",
+  "status": "BLOCKED",
+  "source_of_truth": "local_bitemporal_store",
+  "coverage": {
+    "dataset": "funding_rates",
+    "symbols": 15,
+    "rows": 2251,
+    "start": "2026-04-21",
+    "end": "2026-08-12",
+    "first_fetch": "2026-07-27 15:26:41.281615+08:00",
+    "last_fetch": "2026-08-12 15:54:13.016493+08:00"
+  },
+  "requirements": {
+    "min_observations": 252,
+    "min_span_days": 365,
+    "min_fold_observations": 40,
+    "required_folds": 4
+  },
+  "ready_symbols": [],
+  "blocked_symbols": [
+    "1INCH-USDT-SWAP",
+    "2Z-USDT-SWAP",
+    "A-USDT-SWAP",
+    "AAVE-USDT-SWAP",
+    "ACH-USDT-SWAP",
+    "ACT-USDT-SWAP",
+    "ADA-USDT-SWAP",
+    "AEVO-USDT-SWAP",
+    "AVAX-USDT-SWAP",
+    "BCH-USDT-SWAP",
+    "DOGE-USDT-SWAP",
+    "LINK-USDT-SWAP",
+    "LTC-USDT-SWAP",
+    "SOL-USDT-SWAP",
+    "XRP-USDT-SWAP"
+  ],
+  "unknown_symbols": [],
+  "results": [
+    {
+      "symbol": "1INCH-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 98,
+      "start": "2026-04-21",
+      "end": "2026-07-27",
+      "span_days": 98,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "2Z-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 98,
+      "start": "2026-04-21",
+      "end": "2026-07-27",
+      "span_days": 98,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "A-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 98,
+      "start": "2026-04-21",
+      "end": "2026-07-27",
+      "span_days": 98,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "AAVE-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 98,
+      "start": "2026-04-21",
+      "end": "2026-07-27",
+      "span_days": 98,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "ACH-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 92,
+      "start": "2026-04-27",
+      "end": "2026-07-27",
+      "span_days": 92,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "ACT-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 98,
+      "start": "2026-04-21",
+      "end": "2026-07-27",
+      "span_days": 98,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "ADA-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 99,
+      "start": "2026-05-04",
+      "end": "2026-08-10",
+      "span_days": 99,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "AEVO-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 98,
+      "start": "2026-04-21",
+      "end": "2026-07-27",
+      "span_days": 98,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "AVAX-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 99,
+      "start": "2026-05-04",
+      "end": "2026-08-10",
+      "span_days": 99,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "BCH-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 99,
+      "start": "2026-05-04",
+      "end": "2026-08-10",
+      "span_days": 99,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "DOGE-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 99,
+      "start": "2026-05-04",
+      "end": "2026-08-10",
+      "span_days": 99,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "LINK-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 99,
+      "start": "2026-05-04",
+      "end": "2026-08-10",
+      "span_days": 99,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "LTC-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 99,
+      "start": "2026-05-04",
+      "end": "2026-08-10",
+      "span_days": 99,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "SOL-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 101,
+      "start": "2026-05-04",
+      "end": "2026-08-12",
+      "span_days": 101,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    },
+    {
+      "symbol": "XRP-USDT-SWAP",
+      "status": "BLOCKED",
+      "observations": 99,
+      "start": "2026-05-04",
+      "end": "2026-08-10",
+      "span_days": 99,
+      "oos_folds": 2,
+      "sources": [
+        "okx_migrated"
+      ],
+      "reasons": [
+        "observations<252",
+        "span_days<365",
+        "oos_folds<4"
+      ]
+    }
+  ],
+  "reason": "no symbol satisfies the minimum historical and OOS requirements",
+  "generated_at": "2026-08-24T14:42:14.354729+00:00"
+}
