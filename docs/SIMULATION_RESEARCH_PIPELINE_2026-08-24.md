@@ -92,6 +92,16 @@
 - 美股 `gap_fade` 收益 +4.7%、Sharpe 0.16，DSR 0.005；A 股所有方向均未达到正收益/成本门槛。
 - 该结果已写入 [focused_board.json](../data/focused_board.json)，并同步更新试验注册表；未向 promotion board 或模拟盘放行任何 OHLCV 策略。
 
+## 资金费与完整真实 scoreboard
+
+进一步运行 `scripts/real_scoreboard.py --alt-universe 8`，从真实 OKX/Yahoo/Tencent 数据构造 359 次已注册试验，包含单资产 close-only、OHLCV、资金费反转、域组合和加密横截面组合。结果为 `0/359` 进入执行台：
+
+- 资金费反转最佳单币为 `ACH-USDT`，收益 +22.2%、Sharpe 1.73；仍被 `deflated_sharpe` 和 `cost_stress` 阻断，不能称为稳定优势。
+- 加密最佳单币 `A-USDT` 的收益 +217.0%，但只有 453 根日线且属于单资产极端结果；完整门禁状态为 `lab`，不是交易许可。
+- 美股最佳单币 `BAC` 的收益 +159.5%，同样只属于实验室候选；A 股最佳 `SZ000651` 收益 +32.8%，也未通过门禁。
+
+完整结果已写入 [price_edge_scoreboard.json](../data/price_edge_scoreboard.json)，并同步试验注册表；没有任何结果进入 promotion board 或模拟盘自动交易。
+
 ## 尚不能下结论的数据线
 
 - BTC 5 分钟：已从真实 OKX `history-candles` 补取 2,000 个 1m bar，得到 393 个有效 5m 窗口、2 个独立 UTC 日；真实波动率概率模型 Brier 从旧模型的 0.2277/0.2065/0.1824 改善到 0.2066/0.1734/0.1267（进场 1/2/3 分钟）。这证明概率校准改善，不证明费用后交易收益；因独立日数量不足，仍为 `BLOCKED`。
