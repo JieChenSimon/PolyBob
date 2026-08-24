@@ -1,6 +1,6 @@
 {
   "experiment": "btc5m_model_vs_market",
-  "as_of": "2026-08-24T17:52:12.346187+00:00",
+  "as_of": "2026-08-24T18:07:16.212385+00:00",
   "params": {
     "n_windows": 5760,
     "edge_threshold": 0.1,
@@ -10,32 +10,32 @@
     "time_split": "fixed_chronological"
   },
   "code": {
-    "commit": "d9eaf86ac1013feaface31d36a718d1a01514887",
+    "commit": "e0bf342ffcff10505d9c50b792f2b998e1b50481",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T17:52:12.371780+00:00",
+  "started_at": "2026-08-24T18:07:16.237833+00:00",
   "inputs": {
     "polymarket_windows": {
-      "settled": 3145,
-      "qualifying_trades": 2216,
+      "settled": 3345,
+      "qualifying_trades": 2360,
       "snapshot": {
         "status": "consistent",
-        "sample_rows": 3145,
-        "normalized_rows": 3145,
-        "unique_windows": 3145,
-        "normalized_parts": 1,
-        "checkpoint_sha256": "0fc9e2ae7a75e10c7684b1a590041171873b30a1f7b0f0ef8cc38e08a9381d42",
-        "sample_set_sha256": "977c611c09ee60dd184cce6c3244ead14c571e91dc324a949fb7cc161fb31fd5",
-        "normalized_rows_sha256": "a30d16a5c5244c9ffd82a1b0c75d0c4062decefb6f319f2182d649023938891d",
-        "raw_sha_set_sha256": "4b5d487ae41e78ca0e7cef941a33b3550874527c95e3b87ae24454fbf30c73e2",
-        "normalized_manifest_sha256": "90e41c9f6a3550507cca86783057d64098f9a072c0d9158a1ca8c93e834f8503"
+        "sample_rows": 3345,
+        "normalized_rows": 3345,
+        "unique_windows": 3345,
+        "normalized_parts": 3,
+        "checkpoint_sha256": "c9f1e5771035e6cbcdbb5b0097d62ba093081a2c94a892e4de9da29035439f24",
+        "sample_set_sha256": "82ce8946360cda8137b89d06f8395eb0f06d39f629b939a44d898b85476d917f",
+        "normalized_rows_sha256": "af99b5d63baf2d63667fddaba0c2f1bc5c47b0a645f89d38c81a01e532db06cf",
+        "raw_sha_set_sha256": "0e06cd91c57bb945ce562e1b45367866af362cfddccd34b6aac1e5b7882fa6df",
+        "normalized_manifest_sha256": "2eceb4cf72da05b67b6881946b7c73785340c07fc16838d935a273ef5d8e9dba"
       }
     }
   },
   "lineage": {
-    "input_hash": "c0915ddef1417158c23c1cc28e6e3aab13653a7fb4d53749b8e76475e3a711fd",
+    "input_hash": "de4b22c3382d6deb5c14d7bc36a9409569b114fc0a236cf2ba5733000a4dc746",
     "model_hash": "0fbe5231d55d51ee0b9e9003d89e4e15c27febc360096e4b09bd26d4f6e1f3fc",
     "has_lineage": true
   },

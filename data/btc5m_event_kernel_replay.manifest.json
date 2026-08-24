@@ -3,10 +3,10 @@
   "report_name": "event_kernel_replay",
   "report_path": "data/btc5m_event_kernel_replay.json",
   "report_sha256": "dbf6100843b625c4aee81d71b7115425b21923346681b0b4b0cfc72f5db0fe3a",
-  "generated_at": "2026-08-24T18:02:42.305907+00:00",
+  "generated_at": "2026-08-24T18:07:18.019076+00:00",
   "source_generated_at": "2026-08-24T17:57:42.921912+00:00",
   "code": {
-    "commit": "329711abedb8f23d7c37ccb9bf7d6fae26617d35",
+    "commit": "e0bf342ffcff10505d9c50b792f2b998e1b50481",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
@@ -16,9 +16,11 @@
   "pit_status": "UNKNOWN",
   "tradable_evidence": false,
   "dataset_paths": [
-    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-a30d16a5c5244c9ffd82a1b0c75d0c4062decefb6f319f2182d649023938891d.parquet"
+    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-a30d16a5c5244c9ffd82a1b0c75d0c4062decefb6f319f2182d649023938891d.parquet",
+    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-b18cbc809e0eba58a78cc4ec8d985ccbb61de51a128baca451b170306a97e919.parquet",
+    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-cd015de1c769ea2796390000f2440c83690f20c51c7ba71e4450720020d12a54.parquet"
   ],
-  "dataset_sha256": "2258e2bca79708d2edc07f400480a9a2b6eb37d7836465c4cc8edfe40c9a753f",
+  "dataset_sha256": "3029cc856418bdd478f38ea9cf774e3c42981d6d53833671b1848cc94e999138",
   "date_range": {
     "first": null,
     "last": null

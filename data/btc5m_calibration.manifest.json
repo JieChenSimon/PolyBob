@@ -3,10 +3,10 @@
   "report_name": "calibration",
   "report_path": "data/btc5m_calibration.json",
   "report_sha256": "9c739e5b3f3c6c59330ced0e3c7fe18ac59320cd713de1579d00d311b22292b3",
-  "generated_at": "2026-08-24T18:02:42.160743+00:00",
+  "generated_at": "2026-08-24T18:07:17.883894+00:00",
   "source_generated_at": "2026-08-24T15:40:05.718125+00:00",
   "code": {
-    "commit": "329711abedb8f23d7c37ccb9bf7d6fae26617d35",
+    "commit": "e0bf342ffcff10505d9c50b792f2b998e1b50481",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []

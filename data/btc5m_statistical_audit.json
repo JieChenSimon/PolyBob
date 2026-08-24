@@ -12,16 +12,16 @@
           "2026-08-23",
           "2026-08-24"
         ],
-        "mean_pct": 23.852,
+        "mean_pct": 23.803,
         "median_pct": 47.5,
-        "n": 583,
+        "n": 586,
         "n_clusters": 3,
         "p_floor": 0.25,
         "resolvable": false,
-        "sign_test_p": 1.0044505029216323e-33,
+        "sign_test_p": 8.864057437753412e-34,
         "status": "UNKNOWN",
-        "t_clustered": 38.089,
-        "t_iid": 13.704,
+        "t_clustered": 38.661,
+        "t_iid": 13.7,
         "warnings": [
           "only 3 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
           "3 个独立单元最细只能表达 p=2.5e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
@@ -30,8 +30,8 @@
       },
       "train": {
         "bootstrap_ci_pct": [
-          24.713,
-          28.216
+          24.621,
+          28.148
         ],
         "labels": [
           "2026-08-13",
@@ -42,16 +42,16 @@
           "2026-08-18",
           "2026-08-19"
         ],
-        "mean_pct": 26.782,
+        "mean_pct": 26.534,
         "median_pct": 47.5,
-        "n": 1190,
+        "n": 1331,
         "n_clusters": 7,
         "p_floor": 0.015625,
         "resolvable": false,
-        "sign_test_p": 1.0076922020890057e-81,
+        "sign_test_p": 8.005968512333982e-90,
         "status": "UNKNOWN",
-        "t_clustered": 28.181,
-        "t_iid": 22.662,
+        "t_clustered": 26.638,
+        "t_iid": 23.666,
         "warnings": [
           "only 7 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
           "7 个独立单元最细只能表达 p=1.6e-02,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
@@ -90,7 +90,7 @@
   },
   "drawdown": {
     "basis": "one additive unit stake per event; no overlap, capital, sizing, or fill model",
-    "max_drawdown": 0.365,
+    "max_drawdown": 0.492497,
     "reason": "drawdown is reported diagnostically; no pre-registered BTC drawdown limit is wired into PromotionGate",
     "status": "UNKNOWN",
     "threshold": null,
@@ -164,7 +164,7 @@
     "status": "APPLIED",
     "t_hurdle": 4.2033
   },
-  "n_events": 2216,
+  "n_events": 2360,
   "oos": {
     "bootstrap_ci_pct": [
       22.784,
@@ -175,16 +175,16 @@
       "2026-08-23",
       "2026-08-24"
     ],
-    "mean_pct": 23.852,
+    "mean_pct": 23.803,
     "median_pct": 47.5,
-    "n": 583,
+    "n": 586,
     "n_clusters": 3,
     "p_floor": 0.25,
     "resolvable": false,
-    "sign_test_p": 1.0044505029216323e-33,
+    "sign_test_p": 8.864057437753412e-34,
     "status": "UNKNOWN",
-    "t_clustered": 38.089,
-    "t_iid": 13.704,
+    "t_clustered": 38.661,
+    "t_iid": 13.7,
     "warnings": [
       "only 3 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
       "3 个独立单元最细只能表达 p=2.5e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
@@ -193,19 +193,19 @@
   },
   "overall": {
     "bootstrap_ci_pct": [
-      23.845,
-      26.732
+      23.905,
+      26.591
     ],
-    "mean_pct": 25.346,
+    "mean_pct": 25.277,
     "median_pct": 47.5,
-    "n": 2216,
+    "n": 2360,
     "n_clusters": 12,
     "p_floor": 0.00048828125,
     "resolvable": false,
-    "sign_test_p": 1.2276751675435618e-134,
+    "sign_test_p": 7.964903443766303e-143,
     "status": "UNKNOWN",
-    "t_clustered": 33.005,
-    "t_iid": 28.694,
+    "t_clustered": 34.247,
+    "t_iid": 29.508,
     "warnings": [
       "only 12 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
       "12 个独立单元最细只能表达 p=4.9e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"

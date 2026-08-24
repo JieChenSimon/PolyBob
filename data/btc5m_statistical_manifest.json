@@ -22,7 +22,7 @@
     },
     "event": {
       "collection_status": "partial",
-      "generated_at": "2026-08-24T17:52:13.083786+00:00",
+      "generated_at": "2026-08-24T18:07:16.964836+00:00",
       "snapshot_status": "consistent"
     }
   },
@@ -125,10 +125,10 @@
         "first_date": "2026-08-20",
         "independent_days": 5,
         "last_date": "2026-08-24",
-        "mean_pnl_per_contract": 0.23679337,
-        "n_trades": 1026,
+        "mean_pnl_per_contract": 0.23651603,
+        "n_trades": 1029,
         "status": "UNKNOWN",
-        "win_rate": 0.73976608
+        "win_rate": 0.73955296
       },
       "reason": "OOS is present but remains UNKNOWN when train/OOS independent days are below the floor or collection is partial",
       "return_target": {
@@ -144,10 +144,10 @@
         "first_date": "2026-08-13",
         "independent_days": 7,
         "last_date": "2026-08-19",
-        "mean_pnl_per_contract": 0.26782353,
-        "n_trades": 1190,
+        "mean_pnl_per_contract": 0.26533809,
+        "n_trades": 1331,
         "status": "UNKNOWN",
-        "win_rate": 0.77058824
+        "win_rate": 0.76859504
       }
     }
   },
