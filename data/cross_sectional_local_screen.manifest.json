@@ -1,6 +1,6 @@
 {
   "experiment": "cross_sectional_local_screen",
-  "as_of": "2026-08-24T10:25:19.787322+00:00",
+  "as_of": "2026-08-24T10:27:13.262280+00:00",
   "params": {
     "candidates": [
       {
@@ -35,14 +35,12 @@
     }
   },
   "code": {
-    "commit": "de6a944e24f9d01ac475e61d3b4014f1b8efec1e",
-    "dirty": true,
-    "dirty_files": 1,
-    "dirty_sample": [
-      "scripts/cross_sectional_local_screen.py"
-    ]
+    "commit": "6aafce688e8f919879328fee2327579685c003bb",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
   },
-  "started_at": "2026-08-24T10:25:19.814170+00:00",
+  "started_at": "2026-08-24T10:27:13.288457+00:00",
   "inputs": {
     "daily_bars:a_share": {
       "symbols": [
@@ -2932,5 +2930,5 @@
     "model_hash": null,
     "has_lineage": false
   },
-  "reproducible": false
+  "reproducible": true
 }

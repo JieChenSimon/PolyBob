@@ -36,12 +36,14 @@ def select_long_only(prices: np.ndarray, lookback: int, top_frac: float) -> np.n
     return positions
 
 
-def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_bps: float) -> dict:
+def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_bps: float,
+                     end: int | None = None) -> dict:
+    end = prices.shape[1] - 1 if end is None else min(end, prices.shape[1] - 1)
     gross = []
     net = []
     turnovers = []
     previous = np.zeros(prices.shape[0])
-    for day in range(cut, prices.shape[1] - 1):
+    for day in range(cut, end):
         current = positions[:, day]
         valid = (current > 0) & np.isfinite(prices[:, day]) & np.isfinite(prices[:, day + 1])
         if valid.any():
@@ -62,6 +64,23 @@ def portfolio_result(prices: np.ndarray, positions: np.ndarray, cut: int, cost_b
         "gross_return": float(np.prod(1.0 + np.asarray(gross)) - 1.0) if gross else None,
         "mean_turnover": float(np.mean(turnovers)) if turnovers else None,
     }
+
+
+def rolling_folds(prices: np.ndarray, positions: np.ndarray, cost_bps: float,
+                  train_days: int = 252, test_days: int = 126) -> list[dict]:
+    folds = []
+    for start in range(train_days, prices.shape[1] - test_days, test_days):
+        end = start + test_days
+        active = np.sum(np.sum((prices[:, start:end] > 0) & np.isfinite(prices[:, start:end]), axis=0) >= 4)
+        if active < 20:
+            continue
+        result = portfolio_result(prices, positions, start, cost_bps, end=end)
+        eligible = (prices[:, start] > 0) & (prices[:, end] > 0)
+        benchmark = float(np.mean(prices[eligible, end] / prices[eligible, start] - 1.0)) if eligible.any() else None
+        folds.append({**result, "benchmark_return": benchmark,
+                      "excess_return": result["oos_return"] - benchmark if benchmark is not None else None,
+                      "start": start, "end": end})
+    return folds
 
 
 def read_matrix(symbols: list[str], as_of: datetime) -> tuple[list[str], np.ndarray]:
@@ -117,11 +136,14 @@ def main() -> int:
         for candidate in CANDIDATES:
             positions = select_long_only(matrix, **candidate)
             result = portfolio_result(matrix, positions, cut, COST_BPS[domain])
+            folds = rolling_folds(matrix, positions, COST_BPS[domain])
             eligible = (matrix[:, cut] > 0) & (matrix[:, -1] > 0)
             benchmark = float(np.mean(matrix[eligible, -1] / matrix[eligible, cut] - 1.0)) if eligible.any() else None
             excess = result["oos_return"] - benchmark if benchmark is not None else None
             rows.append({**candidate, **result, "benchmark_return": benchmark,
                          "excess_return": excess,
+                         "rolling_folds": folds,
+                         "rolling_median_excess": float(np.median([f["excess_return"] for f in folds])) if folds else None,
                          "status": "screen_only" if result["oos_return"] is not None and result["oos_return"] > 0 and excess is not None and excess > 0 else "tested_no_edge"})
         report["domains"][domain] = {"status": "screened", "symbols": len(used), "rows": rows}
     report["manifest"] = manifest.to_dict()

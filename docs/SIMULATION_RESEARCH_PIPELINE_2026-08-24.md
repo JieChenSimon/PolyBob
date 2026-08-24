@@ -76,7 +76,7 @@
 
 新增 [cross_sectional_local_screen.json](../data/cross_sectional_local_screen.json)，在本地全量日线宇宙上测试预注册的 6 个 long-only 横截面动量组合（20/30/60 日回看，赢家占比 20%/30%），只用当日以前的收益排序，按日换仓并扣除域成本。
 
-- 美股 2715 个本地标的中，5/6 个候选跑输等权基准；唯一相对为正的 `lookback=60, top_frac=0.3` OOS 为 +27.96%、相对基准仅 +3.35pp，且只有单个 70/30 切分，状态为 `screen_only`，没有通过 walk-forward、PBO/DSR 或组合回撤门禁。
+- 美股 2715 个本地标的中，5/6 个候选跑输等权基准；唯一相对为正的 `lookback=60, top_frac=0.3` 单次 OOS 为 +27.96%、相对基准 +3.35pp，但 8 个滚动折的相对收益中位数为 -2.00pp，因此仍为 `screen_only`，没有通过 walk-forward、PBO/DSR 或组合回撤门禁。
 - 加密 66 个标的的 6 个候选 OOS 全部为 -64.95% 至 -78.89%，且全部跑输基准。
 - A 股全量标的在 OOS 时段没有至少 4 个同时有效的价格序列，直接 `blocked_insufficient_contemporaneous_universe`；这是真实数据覆盖不足，不用零收益冒充测试结果。
 
