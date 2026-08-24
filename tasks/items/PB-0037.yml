@@ -1,6 +1,6 @@
 id: PB-0037
 title: 在最新研究基线上重放资金费率策略
-state: doing
+state: done
 p: P1
 area: quant
 why: 需要在包含历史重放时钟和真实 SimulationService 的最新基线上验证 funding contrarian，避免旧主分支基线产生错误结论
@@ -15,4 +15,4 @@ deps:
 - PB-0036
 branch: pb-0037-funding-strategy-replay
 blocked: null
-updated: '2026-08-24T15:14:20+00:00'
+updated: '2026-08-24T15:16:39+00:00'
