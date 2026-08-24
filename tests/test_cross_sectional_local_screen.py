@@ -1,6 +1,8 @@
 import numpy as np
 
-from scripts.cross_sectional_local_screen import apply_risk_policy, has_unresolved_price_jump, select_long_only
+import pandas as pd
+
+from scripts.cross_sectional_local_screen import align_frames, apply_risk_policy, has_unresolved_price_jump, select_long_only
 
 
 def test_cross_sectional_selection_uses_only_past_prices():
@@ -37,3 +39,14 @@ def test_risk_policy_never_increases_long_exposure():
     scaled = apply_risk_policy(prices, base, "vol_target_10_dd")
     assert np.all(scaled >= 0)
     assert np.all(scaled <= base + 1e-12)
+
+
+def test_cross_sectional_frames_align_on_event_date_not_row_number():
+    frames = {
+        "A": pd.Series([10.0, 11.0], index=["2024-01-02", "2024-01-03"]),
+        "B": pd.Series([20.0, 21.0], index=["2024-01-03", "2024-01-04"]),
+    }
+    aligned = align_frames(frames)
+    assert aligned.loc["2024-01-03", "A"] == 11.0
+    assert aligned.loc["2024-01-03", "B"] == 20.0
+    assert pd.isna(aligned.loc["2024-01-02", "B"])

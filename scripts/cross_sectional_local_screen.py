@@ -127,7 +127,7 @@ def rolling_folds(prices: np.ndarray, positions: np.ndarray, cost_bps: float,
     return folds
 
 
-def read_matrix(symbols: list[str], as_of: datetime) -> tuple[list[str], np.ndarray, int]:
+def read_frames(symbols: list[str], as_of: datetime) -> tuple[dict[str, pd.Series], int]:
     frames = {}
     rejected_quality = 0
     domain = symbol_domain(symbols[0]) if symbols else "us_equity"
@@ -139,13 +139,24 @@ def read_matrix(symbols: list[str], as_of: datetime) -> tuple[list[str], np.ndar
             if has_unresolved_price_jump(finite, MAX_MULTIPLE[domain]):
                 rejected_quality += 1
                 continue
-            frames[symbol] = values
+            dates = frame[store.EVENT_DATE].astype(str).tolist()
+            frames[symbol] = pd.Series(finite, index=dates, dtype=float)
         except Exception:
             continue
+    return frames, rejected_quality
+
+
+def read_matrix(symbols: list[str], as_of: datetime) -> tuple[list[str], np.ndarray, int]:
+    frames, rejected_quality = read_frames(symbols, as_of)
     if not frames:
         return [], np.empty((0, 0)), rejected_quality
-    matrix = pd.DataFrame(frames).sort_index()
+    matrix = align_frames(frames)
     return list(matrix.columns), matrix.to_numpy(dtype=float).T, rejected_quality
+
+
+def align_frames(frames: dict[str, pd.Series]) -> pd.DataFrame:
+    """Align bars by their real event date, never by source row number."""
+    return pd.DataFrame(frames).sort_index()
 
 
 def symbol_domain(symbol: str) -> str:
