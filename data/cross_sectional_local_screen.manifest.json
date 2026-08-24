@@ -1,31 +1,97 @@
 {
   "experiment": "cross_sectional_local_screen",
-  "as_of": "2026-08-24T10:27:13.262280+00:00",
+  "as_of": "2026-08-24T10:28:54.843877+00:00",
   "params": {
     "candidates": [
       {
         "lookback": 20,
-        "top_frac": 0.2
+        "top_frac": 0.2,
+        "rebalance_days": 1
       },
       {
         "lookback": 20,
-        "top_frac": 0.3
+        "top_frac": 0.2,
+        "rebalance_days": 5
+      },
+      {
+        "lookback": 20,
+        "top_frac": 0.2,
+        "rebalance_days": 10
+      },
+      {
+        "lookback": 20,
+        "top_frac": 0.3,
+        "rebalance_days": 1
+      },
+      {
+        "lookback": 20,
+        "top_frac": 0.3,
+        "rebalance_days": 5
+      },
+      {
+        "lookback": 20,
+        "top_frac": 0.3,
+        "rebalance_days": 10
       },
       {
         "lookback": 30,
-        "top_frac": 0.2
+        "top_frac": 0.2,
+        "rebalance_days": 1
       },
       {
         "lookback": 30,
-        "top_frac": 0.3
+        "top_frac": 0.2,
+        "rebalance_days": 5
+      },
+      {
+        "lookback": 30,
+        "top_frac": 0.2,
+        "rebalance_days": 10
+      },
+      {
+        "lookback": 30,
+        "top_frac": 0.3,
+        "rebalance_days": 1
+      },
+      {
+        "lookback": 30,
+        "top_frac": 0.3,
+        "rebalance_days": 5
+      },
+      {
+        "lookback": 30,
+        "top_frac": 0.3,
+        "rebalance_days": 10
       },
       {
         "lookback": 60,
-        "top_frac": 0.2
+        "top_frac": 0.2,
+        "rebalance_days": 1
       },
       {
         "lookback": 60,
-        "top_frac": 0.3
+        "top_frac": 0.2,
+        "rebalance_days": 5
+      },
+      {
+        "lookback": 60,
+        "top_frac": 0.2,
+        "rebalance_days": 10
+      },
+      {
+        "lookback": 60,
+        "top_frac": 0.3,
+        "rebalance_days": 1
+      },
+      {
+        "lookback": 60,
+        "top_frac": 0.3,
+        "rebalance_days": 5
+      },
+      {
+        "lookback": 60,
+        "top_frac": 0.3,
+        "rebalance_days": 10
       }
     ],
     "cost_bps": {
@@ -35,12 +101,12 @@
     }
   },
   "code": {
-    "commit": "6aafce688e8f919879328fee2327579685c003bb",
+    "commit": "5ecb98087a0fe5f15991bee83668126ee0931387",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T10:27:13.288457+00:00",
+  "started_at": "2026-08-24T10:28:54.869632+00:00",
   "inputs": {
     "daily_bars:a_share": {
       "symbols": [

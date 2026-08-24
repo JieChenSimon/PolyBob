@@ -13,17 +13,22 @@ from libs.data import run_manifest, store
 
 COST_BPS = {"a_share": 8.0, "us_equity": 5.0, "crypto": 10.0}
 CANDIDATES = tuple(
-    {"lookback": lookback, "top_frac": top_frac}
+    {"lookback": lookback, "top_frac": top_frac, "rebalance_days": rebalance_days}
     for lookback in (20, 30, 60)
     for top_frac in (0.2, 0.3)
+    for rebalance_days in (1, 5, 10)
 )
 
 
-def select_long_only(prices: np.ndarray, lookback: int, top_frac: float) -> np.ndarray:
+def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
+                     rebalance_days: int = 1) -> np.ndarray:
     """Return causal weights; day t only ranks returns ending at t."""
     n_assets, n_days = prices.shape
     positions = np.zeros_like(prices, dtype=float)
     for day in range(lookback, n_days - 1):
+        if (day - lookback) % rebalance_days and day > lookback:
+            positions[:, day] = positions[:, day - 1]
+            continue
         past, now = prices[:, day - lookback], prices[:, day]
         valid = (past > 0) & (now > 0) & np.isfinite(past) & np.isfinite(now)
         indices = np.flatnonzero(valid)
