@@ -48,6 +48,20 @@ def _domain(symbol: str) -> str:
     return "us_equity"
 
 
+def _symbols_from_file(path: str) -> list[str]:
+    """Read a plain symbol list or only READY symbols from a discovery manifest."""
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(payload, dict):
+        if "candidates" in payload:
+            payload = [
+                row.get("symbol") for row in payload.get("candidates", [])
+                if row.get("status") == "READY_FOR_RESEARCH"
+            ]
+        else:
+            payload = payload.get("candidate_symbols", [])
+    return [str(item).strip() for item in payload if str(item).strip()]
+
+
 def _event_summaries(trades: list[Any], *, split: datetime) -> list[dict[str, Any]]:
     grouped: dict[str, dict[str, Any]] = {}
     for trade in trades:
@@ -231,10 +245,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     if args.symbols:
         requested = [item.strip() for item in args.symbols.split(",") if item.strip()]
     elif args.symbols_file:
-        payload = json.loads(Path(args.symbols_file).read_text(encoding="utf-8"))
-        if isinstance(payload, dict):
-            payload = payload.get("candidate_symbols", [])
-        requested = [str(item).strip() for item in payload if str(item).strip()]
+        requested = _symbols_from_file(args.symbols_file)
     else:
         requested = sorted(available)
     symbols = [symbol for symbol in requested if symbol in available]
