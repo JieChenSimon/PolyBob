@@ -1,27 +1,41 @@
 {
   "experiment": "btc5m_model_vs_market",
-  "as_of": "2026-08-24T17:31:39.244618+00:00",
+  "as_of": "2026-08-24T17:52:12.346187+00:00",
   "params": {
     "n_windows": 5760,
     "edge_threshold": 0.1,
     "fee": 0.02,
-    "model_revision": "realized-volatility-normal-cdf-v3"
+    "model_revision": "realized-volatility-normal-cdf-v3",
+    "oos_start": "2026-08-20",
+    "time_split": "fixed_chronological"
   },
   "code": {
-    "commit": "9e18bf4eccd18c3f0225d86dddd185ba16622f86",
+    "commit": "d9eaf86ac1013feaface31d36a718d1a01514887",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T17:31:39.270622+00:00",
+  "started_at": "2026-08-24T17:52:12.371780+00:00",
   "inputs": {
     "polymarket_windows": {
       "settled": 3145,
-      "qualifying_trades": 2216
+      "qualifying_trades": 2216,
+      "snapshot": {
+        "status": "consistent",
+        "sample_rows": 3145,
+        "normalized_rows": 3145,
+        "unique_windows": 3145,
+        "normalized_parts": 1,
+        "checkpoint_sha256": "0fc9e2ae7a75e10c7684b1a590041171873b30a1f7b0f0ef8cc38e08a9381d42",
+        "sample_set_sha256": "977c611c09ee60dd184cce6c3244ead14c571e91dc324a949fb7cc161fb31fd5",
+        "normalized_rows_sha256": "a30d16a5c5244c9ffd82a1b0c75d0c4062decefb6f319f2182d649023938891d",
+        "raw_sha_set_sha256": "4b5d487ae41e78ca0e7cef941a33b3550874527c95e3b87ae24454fbf30c73e2",
+        "normalized_manifest_sha256": "90e41c9f6a3550507cca86783057d64098f9a072c0d9158a1ca8c93e834f8503"
+      }
     }
   },
   "lineage": {
-    "input_hash": "718236f6ed7ead348d93e25651654f48497e297cda49800e67f40a6830cb74a6",
+    "input_hash": "c0915ddef1417158c23c1cc28e6e3aab13653a7fb4d53749b8e76475e3a711fd",
     "model_hash": "0fbe5231d55d51ee0b9e9003d89e4e15c27febc360096e4b09bd26d4f6e1f3fc",
     "has_lineage": true
   },

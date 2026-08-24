@@ -498,7 +498,150 @@
         ],
         "mean_pnl_per_contract": 0.2535,
         "brier_model": 0.1831,
-        "brier_market": 0.2441
+        "brier_market": 0.2441,
+        "period_audit": {
+          "basis": "fixed_initial_capital_per_event",
+          "initial_capital": 10000.0,
+          "position_fraction": 0.1,
+          "daily": [
+            {
+              "date": "2026-08-13",
+              "events": 43,
+              "pnl": 14569.476033,
+              "return": 1.4569476,
+              "equity": 24569.476033,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-14",
+              "events": 209,
+              "pnl": 130918.004162,
+              "return": 13.09180042,
+              "equity": 155487.480195,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-15",
+              "events": 165,
+              "pnl": 86231.106095,
+              "return": 8.62311061,
+              "equity": 241718.58629,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-16",
+              "events": 161,
+              "pnl": 78005.214703,
+              "return": 7.80052147,
+              "equity": 319723.800993,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-17",
+              "events": 202,
+              "pnl": 117678.120458,
+              "return": 11.76781205,
+              "equity": 437401.921451,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-18",
+              "events": 198,
+              "pnl": 116910.953807,
+              "return": 11.69109538,
+              "equity": 554312.875258,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-19",
+              "events": 212,
+              "pnl": 123805.211094,
+              "return": 12.38052111,
+              "equity": 678118.086352,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-20",
+              "events": 214,
+              "pnl": 106553.810447,
+              "return": 10.65538104,
+              "equity": 784671.896798,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-21",
+              "events": 229,
+              "pnl": 112013.576505,
+              "return": 11.20135765,
+              "equity": 896685.473303,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-22",
+              "events": 215,
+              "pnl": 95017.98854,
+              "return": 9.50179885,
+              "equity": 991703.461843,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-23",
+              "events": 223,
+              "pnl": 112371.758721,
+              "return": 11.23717587,
+              "equity": 1104075.220564,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-24",
+              "events": 145,
+              "pnl": 74184.020022,
+              "return": 7.418402,
+              "equity": 1178259.240586,
+              "drawdown": 0.0
+            }
+          ],
+          "monthly": [
+            {
+              "month": "2026-08",
+              "events": 2216,
+              "pnl": 1168259.240587,
+              "return": 116.82592406
+            }
+          ],
+          "max_drawdown": 0.0,
+          "total_return": 116.82592406,
+          "return_target": {
+            "status": "UNKNOWN",
+            "annual_min": 0.5,
+            "monthly_min": 0.15,
+            "complete_months": 1,
+            "required_months": 12
+          }
+        },
+        "time_split": {
+          "oos_start": "2026-08-20",
+          "min_independent_days": 20,
+          "train": {
+            "n_trades": 1190,
+            "independent_days": 7,
+            "first_date": "2026-08-13",
+            "last_date": "2026-08-19",
+            "mean_pnl_per_contract": 0.26782353,
+            "win_rate": 0.77058824,
+            "status": "UNKNOWN"
+          },
+          "oos": {
+            "n_trades": 1026,
+            "independent_days": 5,
+            "first_date": "2026-08-20",
+            "last_date": "2026-08-24",
+            "mean_pnl_per_contract": 0.23679337,
+            "win_rate": 0.73976608,
+            "status": "UNKNOWN"
+          },
+          "status": "UNKNOWN"
+        }
       }
     },
     {

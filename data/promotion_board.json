@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-24T17:43:16.949411+00:00",
+  "generated_at": "2026-08-24T17:52:13.083786+00:00",
   "real_data_only": true,
   "n_trials": 255,
   "t_hurdle": 4.2,
   "sources": {
     "data/billboard_results.json": "2026-08-10T05:45:48.301411+00:00",
-    "data/btc5m_mispricing.json": "2026-08-24T17:43:16.949411+00:00",
+    "data/btc5m_mispricing.json": "2026-08-24T17:52:13.083786+00:00",
     "data/insider_results.json": "2026-08-24T06:00:13.582718+00:00",
     "data/us_crypto_results.json": "2026-08-10T05:45:40.483335+00:00"
   },
@@ -169,7 +169,7 @@
       ],
       "evidence_end": "2026-08-24",
       "max_evidence_age_days": 30,
-      "run_as_of": "2026-08-24T17:31:39.244618+00:00",
+      "run_as_of": "2026-08-24T17:52:12.346187+00:00",
       "run_reproducible": true,
       "pit_status": "unknown",
       "out_of_sample": {
