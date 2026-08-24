@@ -1,0 +1,219 @@
+{
+  "generated_at": "2026-08-24T14:49:00+00:00",
+  "real_data_only": true,
+  "execution_kernel": "modules.simulation.SimulationService",
+  "universe": "predeclared_major_crypto_18",
+  "execution_config": {
+    "fee_bps": 20.0,
+    "mid_penalty_bps": 10.0,
+    "position_fraction": 0.5,
+    "allow_short": true
+  },
+  "folds": [
+    "2025-07-06",
+    "2025-09-26",
+    "2025-12-18",
+    "2026-03-11"
+  ],
+  "method": "Each row is an aggregate from 18 per-instrument SimulationService replays; no synthetic prices and no zero-funding fill.",
+  "candidates": [
+    {
+      "threshold": 0.25,
+      "folds": [
+        {
+          "split_date": "2025-07-06",
+          "mean_oos_return": -0.0129,
+          "median_oos_return": 0.0399,
+          "positive_oos_fraction": 0.5556,
+          "median_excess_oos_return": 0.4759,
+          "median_full_max_drawdown": 0.4194,
+          "median_oos_closed_trades": 25.0
+        },
+        {
+          "split_date": "2025-09-26",
+          "mean_oos_return": -0.0847,
+          "median_oos_return": -0.1597,
+          "positive_oos_fraction": 0.3333,
+          "median_excess_oos_return": 0.5019,
+          "median_full_max_drawdown": 0.4194,
+          "median_oos_closed_trades": 21.0
+        },
+        {
+          "split_date": "2025-12-18",
+          "mean_oos_return": -0.0541,
+          "median_oos_return": -0.0794,
+          "positive_oos_fraction": 0.3333,
+          "median_excess_oos_return": 0.2845,
+          "median_full_max_drawdown": 0.4194,
+          "median_oos_closed_trades": 13.5
+        },
+        {
+          "split_date": "2026-03-11",
+          "mean_oos_return": -0.1039,
+          "median_oos_return": -0.1035,
+          "positive_oos_fraction": 0.2778,
+          "median_excess_oos_return": 0.0205,
+          "median_full_max_drawdown": 0.4194,
+          "median_oos_closed_trades": 9.5
+        }
+      ],
+      "audit": {
+        "approved_for_next_stage": false,
+        "reasons": [
+          "nonpositive_median_oos_return",
+          "positive_oos_fraction<0.5",
+          "max_drawdown>0.30"
+        ]
+      }
+    },
+    {
+      "threshold": 0.6,
+      "folds": [
+        {
+          "split_date": "2025-07-06",
+          "mean_oos_return": -0.089,
+          "median_oos_return": -0.1528,
+          "positive_oos_fraction": 0.3889,
+          "median_excess_oos_return": 0.3867,
+          "median_full_max_drawdown": 0.3523,
+          "median_oos_closed_trades": 5.0
+        },
+        {
+          "split_date": "2025-09-26",
+          "mean_oos_return": -0.0726,
+          "median_oos_return": -0.0983,
+          "positive_oos_fraction": 0.3889,
+          "median_excess_oos_return": 0.4569,
+          "median_full_max_drawdown": 0.3523,
+          "median_oos_closed_trades": 3.0
+        },
+        {
+          "split_date": "2025-12-18",
+          "mean_oos_return": -0.1245,
+          "median_oos_return": -0.1838,
+          "positive_oos_fraction": 0.2778,
+          "median_excess_oos_return": 0.1663,
+          "median_full_max_drawdown": 0.3523,
+          "median_oos_closed_trades": 3.0
+        },
+        {
+          "split_date": "2026-03-11",
+          "mean_oos_return": -0.0837,
+          "median_oos_return": -0.0711,
+          "positive_oos_fraction": 0.1667,
+          "median_excess_oos_return": 0.041,
+          "median_full_max_drawdown": 0.3523,
+          "median_oos_closed_trades": 1.5
+        }
+      ],
+      "audit": {
+        "approved_for_next_stage": false,
+        "reasons": [
+          "nonpositive_median_oos_return",
+          "positive_oos_fraction<0.5",
+          "median_oos_closed_trades<5",
+          "max_drawdown>0.30"
+        ]
+      }
+    },
+    {
+      "threshold": 0.75,
+      "folds": [
+        {
+          "split_date": "2025-07-06",
+          "mean_oos_return": 0.0567,
+          "median_oos_return": 0.0107,
+          "positive_oos_fraction": 0.5556,
+          "median_excess_oos_return": 0.5671,
+          "median_full_max_drawdown": 0.201,
+          "median_oos_closed_trades": 0.5
+        },
+        {
+          "split_date": "2025-09-26",
+          "mean_oos_return": 0.0887,
+          "median_oos_return": 0.0138,
+          "positive_oos_fraction": 0.5,
+          "median_excess_oos_return": 0.6504,
+          "median_full_max_drawdown": 0.201,
+          "median_oos_closed_trades": 0.0
+        },
+        {
+          "split_date": "2025-12-18",
+          "mean_oos_return": 0.0185,
+          "median_oos_return": 0.0,
+          "positive_oos_fraction": 0.4444,
+          "median_excess_oos_return": 0.3899,
+          "median_full_max_drawdown": 0.201,
+          "median_oos_closed_trades": 0.0
+        },
+        {
+          "split_date": "2026-03-11",
+          "mean_oos_return": -0.017,
+          "median_oos_return": 0.0,
+          "positive_oos_fraction": 0.3333,
+          "median_excess_oos_return": 0.1121,
+          "median_full_max_drawdown": 0.201,
+          "median_oos_closed_trades": 0.0
+        }
+      ],
+      "audit": {
+        "approved_for_next_stage": false,
+        "reasons": [
+          "nonpositive_median_oos_return",
+          "positive_oos_fraction<0.5",
+          "median_oos_closed_trades<5"
+        ]
+      }
+    },
+    {
+      "threshold": 1.0,
+      "folds": [
+        {
+          "split_date": "2025-07-06",
+          "mean_oos_return": 0.0486,
+          "median_oos_return": 0.0,
+          "positive_oos_fraction": 0.2778,
+          "median_excess_oos_return": 0.5814,
+          "median_full_max_drawdown": 0.0,
+          "median_oos_closed_trades": 0.0
+        },
+        {
+          "split_date": "2025-09-26",
+          "mean_oos_return": 0.0749,
+          "median_oos_return": 0.0,
+          "positive_oos_fraction": 0.3333,
+          "median_excess_oos_return": 0.6232,
+          "median_full_max_drawdown": 0.0,
+          "median_oos_closed_trades": 0.0
+        },
+        {
+          "split_date": "2025-12-18",
+          "mean_oos_return": 0.0196,
+          "median_oos_return": 0.0,
+          "positive_oos_fraction": 0.2778,
+          "median_excess_oos_return": 0.4165,
+          "median_full_max_drawdown": 0.0,
+          "median_oos_closed_trades": 0.0
+        },
+        {
+          "split_date": "2026-03-11",
+          "mean_oos_return": -0.0016,
+          "median_oos_return": 0.0,
+          "positive_oos_fraction": 0.2778,
+          "median_excess_oos_return": 0.1471,
+          "median_full_max_drawdown": 0.0,
+          "median_oos_closed_trades": 0.0
+        }
+      ],
+      "audit": {
+        "approved_for_next_stage": false,
+        "reasons": [
+          "nonpositive_median_oos_return",
+          "positive_oos_fraction<0.5",
+          "median_oos_closed_trades<5"
+        ]
+      }
+    }
+  ],
+  "status": "all_candidates_rejected"
+}
