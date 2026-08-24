@@ -19,6 +19,7 @@ these markets are fast and bot-dominated — and a null result is reported as su
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -40,9 +41,10 @@ from libs.quant.pbo import deflated_t_stat_threshold
 UA = {"User-Agent": "Mozilla/5.0 (PolyBob research)"}
 CACHE_DIR = Path("data/market_cache/btc5m")
 CHECKPOINT = CACHE_DIR / "collection_checkpoint.json"
-COLLECTOR_SPEC = "btc5m-v4-open-price-verified-up-token-cache-checkpoint"
+COLLECTOR_SPEC = "btc5m-v5-window-provenance-open-price-up-token-cache-checkpoint"
 N_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_N_WINDOWS", "220"))
 MAX_NEW_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_MAX_NEW_WINDOWS", "60"))
+NORMALIZED_DATASET = "btc5m_settled_windows_v5"
 EDGE_THRESHOLD = 0.10     # model must disagree with the market by >= 10 points
 FEE = 0.02                # round-trip spread/fee assumption, in probability terms
 
@@ -64,6 +66,10 @@ def preregister(registry: HypothesisRegistry) -> None:
 
 
 def _get(url: str, timeout: float = 20.0):
+    return _get_with_digest(url, timeout=timeout)[0]
+
+
+def _get_with_digest(url: str, timeout: float = 20.0):
     raw = fetch_cached_bytes(
         url, cache_dir=CACHE_DIR / "responses",
         policy=FetchPolicy(attempts=2, timeout_seconds=min(timeout, 8.0),
@@ -71,10 +77,16 @@ def _get(url: str, timeout: float = 20.0):
         headers=UA,
         dataset="btc5m_provider_raw", source=url.split('/')[2],
     )
-    return json.loads(raw)
+    return json.loads(raw), hashlib.sha256(raw).hexdigest()
 
 
 def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]]:
+    return _btc_minute_bars_with_provenance(start_ms, end_ms)[0]
+
+
+def _btc_minute_bars_with_provenance(
+    start_ms: int, end_ms: int,
+) -> tuple[list[tuple[int, float, float]], str]:
     """Completed 1-minute BTC bars available before ``end_ms``.
 
     OKX timestamps identify the bar *open*.  A bar at ``end_ms`` is still
@@ -83,7 +95,8 @@ def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]
     """
     url = ("https://www.okx.com/api/v5/market/history-candles"
            f"?instId=BTC-USDT&bar=1m&limit=300&after={end_ms}")
-    rows = _get(url).get("data", [])
+    payload, raw_sha = _get_with_digest(url)
+    rows = payload.get("data", [])
     out = [
         # OKX history-candles schema: ts, open, high, low, close, volume.
         # Keep the open and close explicit; volume is never a price input.
@@ -107,7 +120,7 @@ def btc_minute_bars(start_ms: int, end_ms: int) -> list[tuple[int, float, float]
         source="okx_history_candles",
         partition_by=("symbol",),
     )
-    return sorted(out)
+    return sorted(out), raw_sha
 
 
 def normal_cdf(x: float) -> float:
@@ -143,11 +156,11 @@ def main() -> None:
 
     now = int(time.time())
     base = (now // 300) * 300
-    samples: list[tuple[float, float, int]] = []   # (model_p, market_p, outcome_up)
+    samples: list[dict[str, object]] = []
     checkpoint = load_checkpoint(CHECKPOINT, spec=COLLECTOR_SPEC)
     saved_samples = checkpoint.get("samples", [])
     if isinstance(saved_samples, list):
-        samples = [tuple(item) for item in saved_samples if isinstance(item, list) and len(item) == 4]
+        samples = [item for item in saved_samples if isinstance(item, dict)]
     completed = checkpoint.setdefault("items", {})
     provider_failures = int(checkpoint.get("provider_failures", 0))
     new_attempts = 0
@@ -163,25 +176,27 @@ def main() -> None:
             break
         new_attempts += 1
         try:
-            event = _get(f"https://gamma-api.polymarket.com/events/slug/btc-updown-5m-{window_start}")
+            event, gamma_sha = _get_with_digest(
+                f"https://gamma-api.polymarket.com/events/slug/btc-updown-5m-{window_start}"
+            )
         except HttpFetchError:
             provider_failures += 1
             save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
-                                         "samples": [list(s) for s in samples],
+                                         "samples": samples,
                                          "provider_failures": provider_failures})
             continue
         markets = event.get("markets") or []
         if not markets:
             completed[key] = "no_market"
             save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
-                                         "samples": [list(s) for s in samples],
+                                         "samples": samples,
                                          "provider_failures": provider_failures})
             continue
         market = markets[0]
         if not market.get("closed"):
             completed[key] = "open"
             save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
-                                         "samples": [list(s) for s in samples],
+                                         "samples": samples,
                                          "provider_failures": provider_failures})
             continue
         try:
@@ -193,8 +208,11 @@ def main() -> None:
         # Market quote roughly 2 minutes into the window.
         decision_ts = window_start + 120
         try:
-            history = _get(f"https://clob.polymarket.com/prices-history"
-                           f"?market={token}&interval=max&fidelity=1").get("history", [])
+            history_payload, clob_sha = _get_with_digest(
+                f"https://clob.polymarket.com/prices-history"
+                f"?market={token}&interval=max&fidelity=1"
+            )
+            history = history_payload.get("history", [])
         except HttpFetchError:
             provider_failures += 1
             continue
@@ -205,7 +223,9 @@ def main() -> None:
 
         # Model probability from real BTC minute data at the same instant.
         try:
-            bars = btc_minute_bars(window_start * 1000, decision_ts * 1000)
+            bars, okx_sha = _btc_minute_bars_with_provenance(
+                window_start * 1000, decision_ts * 1000
+            )
         except HttpFetchError:
             provider_failures += 1
             continue
@@ -232,10 +252,22 @@ def main() -> None:
         # day. This is the field whose absence left the board unable to verify this
         # row at all ("no_per_event_data_cannot_verify_t").
         window_date = datetime.fromtimestamp(window_start, tz=UTC).date().isoformat()
-        samples.append((model_p, market_p, outcome_up, window_date))
+        samples.append({
+            "window_start": window_start,
+            "window_end": window_start + 300,
+            "decision_ts": decision_ts,
+            "date": window_date,
+            "model_probability": model_p,
+            "market_probability": market_p,
+            "outcome_up": outcome_up,
+            "market_token_up": token,
+            "gamma_raw_sha256": gamma_sha,
+            "clob_raw_sha256": clob_sha,
+            "okx_raw_sha256": okx_sha,
+        })
         completed[key] = "sample"
         save_checkpoint(CHECKPOINT, {"spec": COLLECTOR_SPEC, "items": completed,
-                                     "samples": [list(s) for s in samples],
+                                     "samples": samples,
                                      "provider_failures": provider_failures})
         if len(samples) % 25 == 0:
             print(f"  已重建 {len(samples)} 个已结算窗口…")
@@ -243,17 +275,24 @@ def main() -> None:
 
     print(f"\n可用已结算窗口: {len(samples)}，提供方失败: {provider_failures}")
     write_records(
-        "btc5m_settled_windows",
+        NORMALIZED_DATASET,
         [
             {
                 "symbol": "BTC-USDT",
-                "event_at": f"{day}T00:00:00+00:00",
-                "model_probability": model_p,
-                "market_probability": market_p,
-                "outcome_up": outcome,
+                "event_at": datetime.fromtimestamp(int(sample["decision_ts"]), tz=UTC).isoformat(),
+                "window_start": sample["window_start"],
+                "window_end": sample["window_end"],
+                "decision_ts": sample["decision_ts"],
+                "model_probability": sample["model_probability"],
+                "market_probability": sample["market_probability"],
+                "outcome_up": sample["outcome_up"],
+                "market_token_up": sample["market_token_up"],
+                "gamma_raw_sha256": sample["gamma_raw_sha256"],
+                "clob_raw_sha256": sample["clob_raw_sha256"],
+                "okx_raw_sha256": sample["okx_raw_sha256"],
                 "source": "polymarket_gamma_clob_okx",
             }
-            for model_p, market_p, outcome, day in samples
+            for sample in samples
         ],
         source="polymarket_gamma_clob_okx",
         partition_by=("symbol",),
@@ -261,10 +300,10 @@ def main() -> None:
     if len(samples) < 60:
         print("样本不足,不做结论(遵守真实数据规则,不用模拟数据凑)")
 
-    model_ps = np.array([s[0] for s in samples])
-    market_ps = np.array([s[1] for s in samples])
-    outcomes = np.array([s[2] for s in samples])
-    dates = [s[3] for s in samples]
+    model_ps = np.array([float(s["model_probability"]) for s in samples])
+    market_ps = np.array([float(s["market_probability"]) for s in samples])
+    outcomes = np.array([int(s["outcome_up"]) for s in samples])
+    dates = [str(s["date"]) for s in samples]
 
     brier_model = float(np.mean((model_ps - outcomes) ** 2))
     brier_market = float(np.mean((market_ps - outcomes) ** 2))
@@ -316,6 +355,8 @@ def main() -> None:
     out.write_text(json.dumps({
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "n_windows": len(samples), "edge_threshold": EDGE_THRESHOLD, "fee": FEE,
+        "normalized_dataset": NORMALIZED_DATASET,
+        "per_window_provenance": True,
         "collection_status": "complete" if (
             len(samples) >= N_WINDOWS and provider_failures == 0 and not budget_exhausted
         ) else "partial",

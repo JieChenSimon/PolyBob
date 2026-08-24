@@ -10,7 +10,9 @@ def test_minute_bars_exclude_the_forming_decision_bar(monkeypatch):
         [60_000, "100", "101", "99", "101", "8001"],
         [0, "99", "100", "98", "100", "7001"],
     ]
-    monkeypatch.setattr(btc5m_mispricing, "_get", lambda _url: {"data": rows})
+    monkeypatch.setattr(
+        btc5m_mispricing, "_get_with_digest", lambda _url: ({"data": rows}, "sha")
+    )
 
     bars = btc5m_mispricing.btc_minute_bars(0, 120_000)
 
