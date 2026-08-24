@@ -145,8 +145,9 @@ def apply_avg_price_fill(
 class _ActiveRun:
     """In-memory companion of a persisted run (source binding, marks, locks)."""
 
-    __slots__ = ("record", "source", "marks", "mark_times", "last_trade_at", "lock",
-                 "last_equity_at", "last_feedback_at", "risk_rejections")
+    __slots__ = ("record", "source", "marks", "mark_times", "last_trade_at",
+                 "last_funding_at", "lock", "last_equity_at", "last_feedback_at",
+                 "risk_rejections")
 
     def __init__(self, record: SimRunRecord, source: SignalSource):
         self.record = record
@@ -156,6 +157,7 @@ class _ActiveRun:
         # old and still be used to value a position at face value.
         self.mark_times: dict[str, datetime] = {}
         self.last_trade_at: dict[str, datetime] = {}
+        self.last_funding_at: dict[str, str] = {}
         self.lock = asyncio.Lock()
         self.last_equity_at: datetime | None = None
         self.last_feedback_at: datetime | None = None
@@ -390,6 +392,14 @@ class SimulationService:
             # moved only when cash did. Every return, drawdown and Sharpe this
             # project reports is computed from that curve.
             self._update_mark(active, snapshot)
+            if bool(active.config_value("funding_enabled")):
+                if not await self._apply_funding(active, snapshot, str(key)):
+                    logger.warning(
+                        "sim_funding_missing",
+                        run_id=active.record.run_id,
+                        instrument=str(key),
+                    )
+                    continue
             try:
                 signals = await active.source.on_snapshot(topic, snapshot)
             except Exception as exc:
@@ -402,6 +412,55 @@ class SimulationService:
                 continue
             for signal in signals:
                 await self._process_signal(active, signal)
+
+    async def _apply_funding(self, active: _ActiveRun, snapshot: dict, instrument: str) -> bool:
+        """Apply one idempotent funding cashflow for a timestamped mark."""
+        raw_rate = snapshot.get("funding_rate")
+        timestamp = snapshot.get("timestamp")
+        if not isinstance(raw_rate, (int, float)) or not math.isfinite(float(raw_rate)):
+            return False
+        if timestamp is None:
+            return False
+        event_ts = timestamp.isoformat() if isinstance(timestamp, datetime) else str(timestamp)
+        async with active.lock:
+            if active.last_funding_at.get(instrument) == event_ts:
+                return True
+            positions = await asyncio.to_thread(
+                self.store.list_positions, active.record.run_id
+            )
+            mark = active.marks.get(instrument)
+            if positions and (mark is None or mark <= 0):
+                return False
+            rate = float(raw_rate)
+            cash = active.record.cash
+            for position in positions:
+                if position.instrument_id != instrument:
+                    continue
+                notional = abs(position.size) * float(mark)
+                amount = -position.size * float(mark) * rate
+                await asyncio.to_thread(
+                    self.store.append_cashflow,
+                    active.record.run_id,
+                    instrument_id=instrument,
+                    kind="funding",
+                    amount=amount,
+                    notional=notional,
+                    rate=rate,
+                    event_ts=event_ts,
+                    metadata={"position_size": position.size},
+                )
+                cash += amount
+            if cash != active.record.cash:
+                await asyncio.to_thread(
+                    self.store.update_run, active.record.run_id, cash=cash
+                )
+                refreshed = await asyncio.to_thread(
+                    self.store.get_run, active.record.run_id
+                )
+                if refreshed is not None:
+                    active.record = refreshed
+            active.last_funding_at[instrument] = event_ts
+            return True
 
     # ----------------------------------------------------------- trade logic
 

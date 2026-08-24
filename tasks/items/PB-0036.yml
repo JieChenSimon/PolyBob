@@ -1,0 +1,18 @@
+id: PB-0036
+title: 将资金费率现金流纳入模拟盘账本
+state: doing
+p: P1
+area: execution
+why: 长期 Deribit 资金费率已可用，但 SimulationService 当前只记成交成本，若不记录 funding payment 会高估永续策略收益
+checks:
+- text: SimulationService 在 funding_enabled run 中按持仓、标记价和资金费率记录有符号现金流并更新现金
+  done: true
+- text: 资金费率缺失时研究 run 失败关闭；现金流可查询且指标单独报告，不污染成交胜率
+  done: true
+- text: 测试长时间重复快照幂等、长短仓正负方向、缺失费率和全量回归后提交推送
+  done: true
+deps:
+- PB-0035
+branch: pb-0036-funding-cashflow-ledger
+blocked: null
+updated: '2026-08-24T15:05:13+00:00'

@@ -13,6 +13,7 @@ Tables:
                         that only open/extend a position and set for trades
                         that close (part of) one
 - ``sim_equity_points`` periodic equity snapshots (equity curve source)
+- ``sim_cashflows`` append-only funding and other non-trade cash movements
 
 All methods are synchronous; event-loop callers must wrap them in
 ``asyncio.to_thread`` (the repositories.py convention).
@@ -81,7 +82,21 @@ _SCHEMA_STATEMENTS = (
         PRIMARY KEY (run_id, ts)
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS sim_cashflows (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        run_id TEXT NOT NULL,
+        instrument_id TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        amount REAL NOT NULL,
+        notional REAL NOT NULL,
+        rate REAL NOT NULL,
+        event_ts TEXT NOT NULL,
+        metadata_json TEXT NOT NULL DEFAULT '{}'
+    )
+    """,
     "CREATE INDEX IF NOT EXISTS idx_sim_trades_run ON sim_trades(run_id, id)",
+    "CREATE INDEX IF NOT EXISTS idx_sim_cashflows_run ON sim_cashflows(run_id, id)",
 )
 
 RUN_STATUSES = ("running", "paused", "stopped")
@@ -199,6 +214,32 @@ class SimEquityPointRecord:
             "equity": self.equity,
             "cash": self.cash,
             "gross_exposure": self.gross_exposure,
+        }
+
+
+@dataclass(frozen=True)
+class SimCashflowRecord:
+    cashflow_id: int
+    run_id: str
+    instrument_id: str
+    kind: str
+    amount: float
+    notional: float
+    rate: float
+    event_ts: str
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "cashflow_id": self.cashflow_id,
+            "run_id": self.run_id,
+            "instrument_id": self.instrument_id,
+            "kind": self.kind,
+            "amount": self.amount,
+            "notional": self.notional,
+            "rate": self.rate,
+            "event_ts": self.event_ts,
+            "metadata": dict(self.metadata),
         }
 
 
@@ -435,6 +476,56 @@ class SimulationStore:
             executed_at=row["executed_at"],
         )
 
+    # ------------------------------------------------------------ cashflows
+
+    def append_cashflow(
+        self,
+        run_id: str,
+        *,
+        instrument_id: str,
+        kind: str,
+        amount: float,
+        notional: float,
+        rate: float,
+        event_ts: str,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> int:
+        with self._connect() as connection:
+            cursor = connection.execute(
+                """
+                INSERT INTO sim_cashflows
+                    (run_id, instrument_id, kind, amount, notional, rate, event_ts, metadata_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    run_id, instrument_id, kind, float(amount), float(notional),
+                    float(rate), event_ts, _dump_json(dict(metadata or {})),
+                ),
+            )
+            return int(cursor.lastrowid)
+
+    def list_cashflows(
+        self, run_id: str, *, kind: str | None = None
+    ) -> list[SimCashflowRecord]:
+        query = "SELECT * FROM sim_cashflows WHERE run_id = ?"
+        params: list[Any] = [run_id]
+        if kind is not None:
+            query += " AND kind = ?"
+            params.append(kind)
+        query += " ORDER BY id"
+        with self._connect() as connection:
+            rows = connection.execute(query, params).fetchall()
+        return [
+            SimCashflowRecord(
+                cashflow_id=int(row["id"]), run_id=row["run_id"],
+                instrument_id=row["instrument_id"], kind=row["kind"],
+                amount=float(row["amount"]), notional=float(row["notional"]),
+                rate=float(row["rate"]), event_ts=row["event_ts"],
+                metadata=_load_json(row["metadata_json"], {}),
+            )
+            for row in rows
+        ]
+
     # ---------------------------------------------------------------- equity
 
     def append_equity_point(
@@ -485,6 +576,7 @@ class SimulationStore:
 
 __all__ = [
     "RUN_STATUSES",
+    "SimCashflowRecord",
     "SimEquityPointRecord",
     "SimPositionRecord",
     "SimRunRecord",

@@ -87,6 +87,7 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         raise KeyError(run_id)
 
     trades = store.list_trades(run_id)
+    cashflows = store.list_cashflows(run_id)
     points = store.list_equity_points(run_id)
     closed = [t for t in trades if t.realized_pnl is not None]
     wins = [t for t in closed if t.realized_pnl > 0]
@@ -161,6 +162,8 @@ def compute_run_metrics(store: SimulationStore, run_id: str) -> dict[str, Any]:
         "closed_trade_count": len(closed),
         "realized_pnl": sum(t.realized_pnl for t in closed),
         "total_fees": sum(t.fee for t in trades),
+        "total_funding_pnl": sum(c.amount for c in cashflows if c.kind == "funding"),
+        "cashflow_count": len(cashflows),
         "avg_win": avg_win,
         "avg_loss": avg_loss,
         "per_instrument": per_instrument,
