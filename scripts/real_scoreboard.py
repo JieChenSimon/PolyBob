@@ -25,10 +25,10 @@ from libs.data.real_sources import (
     DailyBars,
     fetch_a_share_daily,
     fetch_altcoin_daily,
-    fetch_funding_rate_daily,
     fetch_us_equity_daily,
     okx_usdt_universe,
 )
+from libs.data import store
 from libs.quant.edges import (
     OHLCV_EDGES,
     SINGLE_ASSET_EDGES,
@@ -37,6 +37,7 @@ from libs.quant.edges import (
 )
 from libs.data.universe import A_SHARE_LIQUID, US_LIQUID
 from libs.quant.promotion import PromotionGate, annualized_sharpe
+from libs.quant.funding_readiness import assess_store, research_symbols
 
 # In-scope instruments only (see project memory: BTC-5m / US+A-share / altcoins).
 US_EQUITIES = list(US_LIQUID)      # 见 libs/data/universe
@@ -151,12 +152,17 @@ def main() -> None:
             tests.append((f"{edge_name}_portfolio", f"{domain.upper()}_x{len(legs)}",
                           domain, port, np.ones(len(port) + 1)))
 
-    # Round 2: altcoin perp funding contrarian (crowded-positioning edge).
+    # Round 2: altcoin perp funding contrarian (crowded-positioning edge).  Funding
+    # is read from the bitemporal local store only after its history passes the
+    # explicit long-history/OOS gate.  A short OKX response is not evidence.
+    funding_readiness = assess_store()
+    ready_funding = set(research_symbols(funding_readiness))
     for bars in data["altcoin"]:
-        try:
-            funding_map = fetch_funding_rate_daily(bars.symbol)
-        except DataUnavailable:
+        swap_symbol = f"{bars.symbol}-SWAP"
+        if swap_symbol not in ready_funding:
             continue
+        funding_frame = store.read(store.FUNDING_RATES, swap_symbol)
+        funding_map = dict(zip(funding_frame["event_date"], funding_frame["rate"]))
         aligned = np.array([funding_map.get(d, np.nan) for d in bars.dates], dtype=float)
         if np.isfinite(aligned).sum() < 60:      # need real overlap, never pad
             continue
@@ -211,7 +217,9 @@ def main() -> None:
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps({
         "generated_at": datetime.now(UTC).isoformat(),
-        "data_sources": {"altcoin": "okx", "us_equity": "yahoo", "a_share": "tencent"},
+        "data_sources": {"altcoin": "okx", "us_equity": "yahoo", "a_share": "tencent",
+                          "funding": "local_bitemporal_store"},
+        "funding_readiness": funding_readiness,
         "real_data_only": True, "n_trials": n_trials, "cost_bps": COST_BPS,
         "board": board,
     }, indent=2, ensure_ascii=False))
