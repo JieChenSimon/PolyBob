@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-08-24T06:00:13.582718+00:00",
+  "generated_at": "2026-08-24T16:46:42.318192+00:00",
   "real_data_only": true,
   "n_trials": 255,
   "t_hurdle": 4.2,
   "sources": {
     "data/billboard_results.json": "2026-08-10T05:45:48.301411+00:00",
-    "data/btc5m_mispricing.json": "2026-08-23T19:21:12.061569+00:00",
+    "data/btc5m_mispricing.json": "2026-08-24T16:46:42.318192+00:00",
     "data/insider_results.json": "2026-08-24T06:00:13.582718+00:00",
     "data/us_crypto_results.json": "2026-08-10T05:45:40.483335+00:00"
   },
@@ -141,33 +141,35 @@
       "t_hurdle": 4.2,
       "approved": false,
       "failed": [
+        "collection_partial",
         "independent_clusters<20",
-        "wrong_sign_vs_preregistration",
-        "unresolvable_at_1_clusters",
         "no_pit_contract_cannot_trade"
       ],
       "notes": "旗舰标的:必须和别的边用同一条门槛,不因投入大而放宽。",
-      "n": 219,
-      "win_rate": 0.4658,
-      "mean_excess_pct": -5.936,
-      "median_excess_pct": -38.5,
-      "t_stat": 0.0,
-      "t_stat_iid": -1.8,
-      "n_clusters": 1,
+      "n": 386,
+      "win_rate": 0.7539,
+      "mean_excess_pct": 24.473,
+      "median_excess_pct": 47.5,
+      "t_stat": 60.64,
+      "t_stat_iid": 11.46,
+      "n_clusters": 3,
       "cluster_by": "day",
       "inference": "cluster_robust",
-      "bootstrap_ci_pct": null,
-      "sign_test_p": 0.3442,
-      "wild_p": null,
-      "p_floor": null,
+      "bootstrap_ci_pct": [
+        23.743,
+        27.214
+      ],
+      "sign_test_p": 0.0,
+      "wild_p": 0.25,
+      "p_floor": 0.25,
       "resolvable": false,
       "inference_warnings": [
-        "only one independence cluster — no inference is possible",
-        "only 1 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count"
+        "only 3 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+        "3 个独立单元最细只能表达 p=2.5e-01,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
       ],
-      "evidence_end": "2026-08-23",
+      "evidence_end": "2026-08-24",
       "max_evidence_age_days": 30,
-      "run_as_of": "2026-08-23T19:21:08.074986+00:00",
+      "run_as_of": "2026-08-24T16:45:19.661032+00:00",
       "run_reproducible": true,
       "pit_status": "unknown",
       "out_of_sample": {
@@ -175,7 +177,7 @@
       },
       "cluster_floor": 20,
       "pipeline_searched": false,
-      "evidence": "来源 data/btc5m_mispricing.json; n=219; 独立day=1; t(聚类)=0.00 vs t(iid)=-1.80; 证据截至 2026-08-23; 持有 1 日"
+      "evidence": "来源 data/btc5m_mispricing.json; n=386; 独立day=3; t(聚类)=60.64 vs t(iid)=11.46; 证据截至 2026-08-24; 持有 1 日"
     },
     {
       "strategy": "us_insider_cluster_buy",
