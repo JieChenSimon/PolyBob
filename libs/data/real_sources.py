@@ -23,7 +23,7 @@ import urllib.parse
 from dataclasses import dataclass
 from pathlib import Path
 
-from libs.data.http_client import HttpFetchError, http_get_bytes
+from libs.data.http_client import HttpFetchError, http_get_bytes, http_post_json
 
 CACHE_DIR = Path("data/market_cache")
 CACHE_TTL_SECONDS = 6 * 3600
@@ -264,6 +264,99 @@ def fetch_funding_rate_daily(inst_id: str, days: int = 400) -> dict[str, float]:
         except (KeyError, TypeError, ValueError):
             continue
     return {day: sum(v) / len(v) for day, v in sorted(by_day.items())}
+
+
+def fetch_deribit_funding_rate_daily(inst_id: str, days: int = 400) -> dict[str, float]:
+    """Daily Deribit perpetual funding from the official public history API.
+
+    Deribit exposes hourly ``interest_1h`` and an 8-hour equivalent. We sum
+    the hourly rate per UTC day, which is the daily carry; missing hours remain
+    missing and are never replaced with zero. The result is mirrored to the
+    bitemporal funding dataset with an explicit source label.
+    """
+    instrument = inst_id.upper()
+    if instrument not in {"BTC-PERPETUAL", "ETH-PERPETUAL"}:
+        raise DataUnavailable(f"Deribit funding unsupported for {instrument}")
+    if days <= 0:
+        raise ValueError("days must be positive")
+
+    def load() -> dict:
+        now_ms = int(time.time() * 1000)
+        start_ms = now_ms - days * 86_400_000
+        cursor = now_ms
+        rows: list[dict] = []
+        endpoint = "https://www.deribit.com/api/v2"
+        while cursor > start_ms:
+            window_start = max(start_ms, cursor - 31 * 86_400_000)
+            payload = http_post_json(
+                endpoint,
+                {
+                    "jsonrpc": "2.0",
+                    "id": "polybob-funding",
+                    "method": "public/get_funding_rate_history",
+                    "params": {
+                        "instrument_name": instrument,
+                        "start_timestamp": window_start,
+                        "end_timestamp": cursor,
+                    },
+                },
+            )
+            if payload.get("error"):
+                raise DataUnavailable(f"Deribit funding error: {payload['error']}")
+            page = payload.get("result") or []
+            if not page:
+                break
+            rows.extend(page)
+            timestamps = [int(row["timestamp"]) for row in page if "timestamp" in row]
+            if not timestamps:
+                break
+            oldest = min(timestamps)
+            if oldest >= cursor:
+                break
+            cursor = oldest - 1
+        return {"rows": rows}
+
+    rows = _cached_json(f"deribit_funding_{instrument}_{days}", load).get("rows", [])
+    cutoff = int(time.time() * 1000) - days * 86_400_000
+    by_day: dict[str, list[float]] = {}
+    for row in rows:
+        try:
+            timestamp = int(row["timestamp"])
+            rate = float(row["interest_1h"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if timestamp < cutoff:
+            continue
+        day = time.strftime("%Y-%m-%d", time.gmtime(timestamp / 1000))
+        by_day.setdefault(day, []).append(rate)
+    result = {day: sum(values) for day, values in sorted(by_day.items()) if values}
+    if not result:
+        raise DataUnavailable(f"Deribit returned no funding history for {instrument}")
+    try:
+        from libs.data import store
+
+        source = "deribit_interest_1h_daily_sum"
+        rows = [
+            {store.EVENT_DATE: day, "rate": rate, "source": source}
+            for day, rate in result.items()
+        ]
+        # The bitemporal store is append-only, but a cache hit must not create a
+        # new parquet file on every page refresh. Keep restatements visible while
+        # suppressing byte-for-byte duplicate observations.
+        existing = store.read(store.FUNDING_RATES, instrument)
+        known = {
+            (str(row[store.EVENT_DATE])[:10], float(row["rate"]), str(row["source"]))
+            for row in existing.to_dict("records")
+            if row.get(store.EVENT_DATE) is not None and row.get("rate") is not None
+        }
+        pending = [row for row in rows if (
+            str(row[store.EVENT_DATE])[:10], float(row["rate"]), source
+        ) not in known]
+        if pending:
+            store.write(store.FUNDING_RATES, instrument, pending)
+    except Exception as exc:  # noqa: BLE001 - mirror failure is visible, data remains usable
+        print(f"warning: Deribit funding store mirror failed: {exc}")
+    return result
 
 
 # ------------------------------------------------------------------ us equity

@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-08-24T14:59:12.340656+00:00",
+  "real_data_only": true,
+  "endpoint": "https://www.deribit.com/api/v2/public/get_funding_rate_history",
+  "requested_days": 400,
+  "symbols": {
+    "BTC-PERPETUAL": {
+      "rows": 401,
+      "start": "2025-07-20",
+      "end": "2026-08-24",
+      "source": "deribit_interest_1h_daily_sum"
+    },
+    "ETH-PERPETUAL": {
+      "rows": 401,
+      "start": "2025-07-20",
+      "end": "2026-08-24",
+      "source": "deribit_interest_1h_daily_sum"
+    }
+  }
+}

@@ -1,15 +1,15 @@
 {
   "dataset": "funding_rates",
-  "status": "BLOCKED",
+  "status": "READY",
   "source_of_truth": "local_bitemporal_store",
   "coverage": {
     "dataset": "funding_rates",
-    "symbols": 15,
-    "rows": 2251,
-    "start": "2026-04-21",
-    "end": "2026-08-12",
+    "symbols": 17,
+    "rows": 3855,
+    "start": "2025-07-20",
+    "end": "2026-08-24",
     "first_fetch": "2026-07-27 15:26:41.281615+08:00",
-    "last_fetch": "2026-08-12 15:54:13.016493+08:00"
+    "last_fetch": "2026-08-24 22:58:40.012936+08:00"
   },
   "requirements": {
     "min_observations": 252,
@@ -17,7 +17,10 @@
     "min_fold_observations": 40,
     "required_folds": 4
   },
-  "ready_symbols": [],
+  "ready_symbols": [
+    "BTC-PERPETUAL",
+    "ETH-PERPETUAL"
+  ],
   "blocked_symbols": [
     "1INCH-USDT-SWAP",
     "2Z-USDT-SWAP",
@@ -208,6 +211,19 @@
       ]
     },
     {
+      "symbol": "BTC-PERPETUAL",
+      "status": "READY",
+      "observations": 401,
+      "start": "2025-07-20",
+      "end": "2026-08-24",
+      "span_days": 401,
+      "oos_folds": 4,
+      "sources": [
+        "deribit_interest_1h_daily_sum"
+      ],
+      "reasons": []
+    },
+    {
       "symbol": "DOGE-USDT-SWAP",
       "status": "BLOCKED",
       "observations": 99,
@@ -223,6 +239,19 @@
         "span_days<365",
         "oos_folds<4"
       ]
+    },
+    {
+      "symbol": "ETH-PERPETUAL",
+      "status": "READY",
+      "observations": 401,
+      "start": "2025-07-20",
+      "end": "2026-08-24",
+      "span_days": 401,
+      "oos_folds": 4,
+      "sources": [
+        "deribit_interest_1h_daily_sum"
+      ],
+      "reasons": []
     },
     {
       "symbol": "LINK-USDT-SWAP",
@@ -293,6 +322,6 @@
       ]
     }
   ],
-  "reason": "no symbol satisfies the minimum historical and OOS requirements",
-  "generated_at": "2026-08-24T14:42:14.354729+00:00"
+  "reason": null,
+  "generated_at": "2026-08-24T14:59:12.589477+00:00"
 }
