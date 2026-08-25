@@ -91,9 +91,16 @@ async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
     for symbol, series in frames.items():
         prices = series.to_numpy(dtype=float)
         positions = candidate_positions(prices, candidate)
-        timestamps = [datetime.fromisoformat(date) for date in series.index]
+        oos_start = int(np.searchsorted(np.asarray(series.index), split_date, side="left"))
+        # The candidate and signal path are computed causally from the full
+        # history, but only fresh OOS bars enter the execution kernel. This
+        # prevents training-period fills/PnL from contaminating OOS capital.
+        oos_prices = prices[oos_start:]
+        oos_positions = positions[oos_start:]
+        oos_dates = list(series.index[oos_start:])
+        timestamps = [datetime.fromisoformat(date) for date in oos_dates]
         replay = await replay_symbol(
-            symbol, timestamps, prices.tolist(), positions.tolist(), split_date, out_dir,
+            symbol, timestamps, oos_prices.tolist(), oos_positions.tolist(), split_date, out_dir,
             position_fraction=POSITION_FRACTION, allow_short=True, fee_bps=FEE_BPS,
             event_sleep_seconds=EVENT_SLEEP_SECONDS,
             equity_sample_every=EQUITY_SAMPLE_EVERY,
@@ -154,6 +161,7 @@ async def main_async(major_only: bool, output: str) -> int:
                               "event_sleep_seconds": EVENT_SLEEP_SECONDS},
         "symbols": len(frames), "quality_rejected": rejected,
         "folds": folds, "selection_is_train_only": True,
+        "oos_execution_capital": "fresh_initial_capital_per_symbol_and_fold",
         "status": "replay_only_not_promoted",
     }
     Path(output).write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
