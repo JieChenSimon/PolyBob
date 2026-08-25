@@ -1,0 +1,1560 @@
+{
+  "schema_version": "instrument-strategy-evidence-v1",
+  "generated_at": "2026-08-25T03:38:41.650505+00:00",
+  "real_data_only": true,
+  "research_only": true,
+  "target_contract": {
+    "annualized_return_min": 0.5,
+    "monthly_return_min": 0.15,
+    "missing_is_not_pass": true
+  },
+  "sources": [
+    "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+    "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+    "data/crypto_tsmom_multifold_replay.json"
+  ],
+  "missing_sources": [],
+  "instrument_count": 53,
+  "evidence_row_count": 53,
+  "target_status_counts": {
+    "PASS": 0,
+    "FAIL": 35,
+    "UNKNOWN": 18
+  },
+  "instruments": {
+    "A": [
+      {
+        "instrument": "A",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.11789508491786016,
+        "max_drawdown": 0.17092407051227249,
+        "sharpe": 0.6505007476274792,
+        "closed_trade_count": 6,
+        "oos_return": null,
+        "annualized_return": 0.07595926969003708,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "AA": [
+      {
+        "instrument": "AA",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.19466189665721367,
+        "max_drawdown": 0.4048313690501306,
+        "sharpe": -0.21317240961910366,
+        "closed_trade_count": 11,
+        "oos_return": null,
+        "annualized_return": -0.13256925520487461,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 22,
+          "quote_quality_counts": {
+            "missing_depth": 22
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 22,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "AAAU": [
+      {
+        "instrument": "AAAU",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.3543390351239013,
+        "max_drawdown": 0.10993729748088796,
+        "sharpe": 1.3181636243193477,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": 0.22049203221166414,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "AAON": [
+      {
+        "instrument": "AAON",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.04786831032886907,
+        "max_drawdown": 0.3179438555825525,
+        "sharpe": 0.28526781656850525,
+        "closed_trade_count": 9,
+        "oos_return": null,
+        "annualized_return": 0.031193038053612954,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 18,
+          "quote_quality_counts": {
+            "missing_depth": 18
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 18,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "AAT": [
+      {
+        "instrument": "AAT",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.07567180094878867,
+        "max_drawdown": 0.11154566986232883,
+        "sharpe": 0.4660697406349194,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": 0.04908632207309527,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "AB": [
+      {
+        "instrument": "AB",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.1070402455845958,
+        "max_drawdown": 0.1411796536477559,
+        "sharpe": -0.7606356486261528,
+        "closed_trade_count": 7,
+        "oos_return": null,
+        "annualized_return": -0.07167453656812361,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 14,
+          "quote_quality_counts": {
+            "missing_depth": 14
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 14,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ABCB": [
+      {
+        "instrument": "ABCB",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.10596686225463303,
+        "max_drawdown": 0.046365357693730326,
+        "sharpe": 0.8246508190618731,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": 0.06945786112658126,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ABCL": [
+      {
+        "instrument": "ABCL",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.5848644043793954,
+        "max_drawdown": 0.4014077461229438,
+        "sharpe": 0.7833738930694253,
+        "closed_trade_count": 10,
+        "oos_return": null,
+        "annualized_return": 0.3532552164498184,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 20,
+          "quote_quality_counts": {
+            "missing_depth": 20
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 20,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ABG": [
+      {
+        "instrument": "ABG",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.3217637072766991,
+        "max_drawdown": 0.32074448437550457,
+        "sharpe": -1.133873394001262,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": -0.2243630620124173,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ABR": [
+      {
+        "instrument": "ABR",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.0285898439024852,
+        "max_drawdown": 0.12973273778131028,
+        "sharpe": 0.2101690824876924,
+        "closed_trade_count": 4,
+        "oos_return": null,
+        "annualized_return": 0.01869041904149915,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 8,
+          "quote_quality_counts": {
+            "missing_depth": 8
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 8,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ABSI": [
+      {
+        "instrument": "ABSI",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.2068093826995887,
+        "max_drawdown": 0.9303726075416049,
+        "sharpe": 0.9926839265592128,
+        "closed_trade_count": 9,
+        "oos_return": null,
+        "annualized_return": 0.13255383940133547,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 18,
+          "quote_quality_counts": {
+            "missing_depth": 18
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 18,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ABT": [
+      {
+        "instrument": "ABT",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.009053042908738762,
+        "max_drawdown": 0.1828271537724406,
+        "sharpe": 0.11762525950033904,
+        "closed_trade_count": 9,
+        "oos_return": null,
+        "annualized_return": 0.0069307695418892035,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 18,
+          "quote_quality_counts": {
+            "missing_depth": 18
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 18,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ABX": [
+      {
+        "instrument": "ABX",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.25005776788408873,
+        "max_drawdown": 0.2537618176340241,
+        "sharpe": 0.7470715666250292,
+        "closed_trade_count": 9,
+        "oos_return": null,
+        "annualized_return": 0.15905529340964275,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 18,
+          "quote_quality_counts": {
+            "missing_depth": 18
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 18,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ACA": [
+      {
+        "instrument": "ACA",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.1759743365287616,
+        "max_drawdown": 0.15073607159454697,
+        "sharpe": 0.6232439119300195,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": 0.11345963571150519,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ACGL": [
+      {
+        "instrument": "ACGL",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.0716858318663719,
+        "max_drawdown": 0.1297699486000104,
+        "sharpe": -0.30544756592860905,
+        "closed_trade_count": 6,
+        "oos_return": null,
+        "annualized_return": -0.047690665301165835,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ACHR": [
+      {
+        "instrument": "ACHR",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.47124552949487464,
+        "max_drawdown": 0.5741651071887028,
+        "sharpe": -0.2710748051845702,
+        "closed_trade_count": 12,
+        "oos_return": null,
+        "annualized_return": -0.34139165416764183,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 24,
+          "quote_quality_counts": {
+            "missing_depth": 24
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 24,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ACIW": [
+      {
+        "instrument": "ACIW",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.07013969295920586,
+        "max_drawdown": 0.24149391963049088,
+        "sharpe": -0.18706217870795105,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": -0.04664901246552988,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ACLS": [
+      {
+        "instrument": "ACLS",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.4083981142043631,
+        "max_drawdown": 0.2930568944089528,
+        "sharpe": 0.7560471815898365,
+        "closed_trade_count": 11,
+        "oos_return": null,
+        "annualized_return": 0.2522798024618702,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 22,
+          "quote_quality_counts": {
+            "missing_depth": 22
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 22,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ACM": [
+      {
+        "instrument": "ACM",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.05231916224743971,
+        "max_drawdown": 0.040144717951090675,
+        "sharpe": 0.531307686638806,
+        "closed_trade_count": 6,
+        "oos_return": null,
+        "annualized_return": 0.034068289941900254,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ACT": [
+      {
+        "instrument": "ACT",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.012494032206203265,
+        "max_drawdown": 0.1371101746686683,
+        "sharpe": 0.12786806129009953,
+        "closed_trade_count": 11,
+        "oos_return": null,
+        "annualized_return": 0.008190142452945803,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 22,
+          "quote_quality_counts": {
+            "missing_depth": 22
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 22,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ADC": [
+      {
+        "instrument": "ADC",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.05169091661757608,
+        "max_drawdown": 0.06972106330839777,
+        "sharpe": 0.5442571817975321,
+        "closed_trade_count": 7,
+        "oos_return": null,
+        "annualized_return": 0.03366269630153096,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 14,
+          "quote_quality_counts": {
+            "missing_depth": 14
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 14,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ADM": [
+      {
+        "instrument": "ADM",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.17149179641287837,
+        "max_drawdown": 0.23471905031964824,
+        "sharpe": -0.6551564784916976,
+        "closed_trade_count": 10,
+        "oos_return": null,
+        "annualized_return": -0.11625457617147583,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 20,
+          "quote_quality_counts": {
+            "missing_depth": 20
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 20,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ADMA": [
+      {
+        "instrument": "ADMA",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.0234517032293855,
+        "max_drawdown": 0.5279146709920585,
+        "sharpe": 0.1411838517764654,
+        "closed_trade_count": 6,
+        "oos_return": null,
+        "annualized_return": -0.015468633327859194,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ADSK": [
+      {
+        "instrument": "ADSK",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.23234303199475215,
+        "max_drawdown": 0.13953823423635214,
+        "sharpe": 0.9458680921117153,
+        "closed_trade_count": 5,
+        "oos_return": null,
+        "annualized_return": 0.1471067001453028,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 10,
+          "quote_quality_counts": {
+            "missing_depth": 10
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 10,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ADT": [
+      {
+        "instrument": "ADT",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 0.06647783942691232,
+        "max_drawdown": 0.1005255570317068,
+        "sharpe": 0.3616563549377769,
+        "closed_trade_count": 4,
+        "oos_return": null,
+        "annualized_return": 0.04318718779356212,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 8,
+          "quote_quality_counts": {
+            "missing_depth": 8
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 8,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ADTN": [
+      {
+        "instrument": "ADTN",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": -0.2016402233773601,
+        "max_drawdown": 0.6580018951465103,
+        "sharpe": 0.15961180001929162,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": -0.13666308370774327,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "AEHR": [
+      {
+        "instrument": "AEHR",
+        "domain": "us_equity",
+        "strategy": "cross_sectional_standalone_us_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "total_return": 1.6980748264628893,
+        "max_drawdown": 0.3251668701083536,
+        "sharpe": 1.367315873331226,
+        "closed_trade_count": 9,
+        "oos_return": null,
+        "annualized_return": 0.9194195314372215,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 18,
+          "quote_quality_counts": {
+            "missing_depth": 18
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 18,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "000001": [
+      {
+        "instrument": "000001",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": 0.07451104561975463,
+        "max_drawdown": 0.10290514448130618,
+        "sharpe": 0.581993660614391,
+        "closed_trade_count": 5,
+        "oos_return": null,
+        "annualized_return": 0.048342501849193864,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 10,
+          "quote_quality_counts": {
+            "missing_depth": 10
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 10,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "000651": [
+      {
+        "instrument": "000651",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": 0.015207553737959234,
+        "max_drawdown": 0.1371553261337894,
+        "sharpe": 0.1487576849151169,
+        "closed_trade_count": 7,
+        "oos_return": null,
+        "annualized_return": 0.009964328731146832,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 14,
+          "quote_quality_counts": {
+            "missing_depth": 14
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 14,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "000858": [
+      {
+        "instrument": "000858",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": -0.06774072752242577,
+        "max_drawdown": 0.08820203971435248,
+        "sharpe": -0.6302793953171467,
+        "closed_trade_count": 3,
+        "oos_return": null,
+        "annualized_return": -0.045033975318509833,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 6,
+          "quote_quality_counts": {
+            "missing_depth": 6
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 6,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "002594": [
+      {
+        "instrument": "002594",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": -0.08532034010171818,
+        "max_drawdown": 0.25735017345446565,
+        "sharpe": -0.20073442050762966,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": -0.05578498593876913,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "300750": [
+      {
+        "instrument": "300750",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": 0.16278091253274285,
+        "max_drawdown": 0.2144795865590783,
+        "sharpe": 0.48850506573984853,
+        "closed_trade_count": 10,
+        "oos_return": null,
+        "annualized_return": 0.10414769131377888,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 20,
+          "quote_quality_counts": {
+            "missing_depth": 20
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 20,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "600036": [
+      {
+        "instrument": "600036",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": -0.061437688912679755,
+        "max_drawdown": 0.09751422127157529,
+        "sharpe": -0.42851001913037157,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": -0.03966098532404516,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "600519": [
+      {
+        "instrument": "600519",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": -0.12525518263077084,
+        "max_drawdown": 0.18843469117366782,
+        "sharpe": -0.6603920713391858,
+        "closed_trade_count": 8,
+        "oos_return": null,
+        "annualized_return": -0.08415821192070339,
+        "monthly_target_status": "FAIL",
+        "stability_status": "FAIL_UNSTABLE",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "601318": [
+      {
+        "instrument": "601318",
+        "domain": "a_share",
+        "strategy": "cross_sectional_standalone_a_oos_candidate_20_30_5",
+        "source": "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "total_return": 0.12369577695049672,
+        "max_drawdown": 0.13530218316651343,
+        "sharpe": 0.7102540323362159,
+        "closed_trade_count": 6,
+        "oos_return": null,
+        "annualized_return": 0.07962368074973258,
+        "monthly_target_status": "FAIL",
+        "stability_status": "PASS_STABLE",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "historical_executable_quote_unknown"
+      }
+    ],
+    "ADA-USDT": [
+      {
+        "instrument": "ADA-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.4324963831333095,
+        "max_drawdown": 0.5460642096685561,
+        "sharpe": -0.6332501162775802,
+        "closed_trade_count": 2,
+        "oos_return": -0.18710202313318613,
+        "oos_excess_return": -0.028244880276043216,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "ATOM-USDT": [
+      {
+        "instrument": "ATOM-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.04487982140590463,
+        "max_drawdown": 0.36656737618492446,
+        "sharpe": 0.019715033714480693,
+        "closed_trade_count": 0,
+        "oos_return": -0.1566889140775587,
+        "oos_excess_return": 0.16970758099363525,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "AVAX-USDT": [
+      {
+        "instrument": "AVAX-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.43909435622762105,
+        "max_drawdown": 0.5351166897387667,
+        "sharpe": -0.6765707545517704,
+        "closed_trade_count": 2,
+        "oos_return": -0.26420410043870635,
+        "oos_excess_return": 0.08711347064763886,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "BCH-USDT": [
+      {
+        "instrument": "BCH-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": 0.7910723402236304,
+        "max_drawdown": 0.2559190922112687,
+        "sharpe": 1.0204089256282642,
+        "closed_trade_count": 8,
+        "oos_return": -0.18551079960416272,
+        "oos_excess_return": 0.3396264122509416,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "BNB-USDT": [
+      {
+        "instrument": "BNB-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.0833327890611334,
+        "max_drawdown": 0.215943538168012,
+        "sharpe": -0.11010494985286211,
+        "closed_trade_count": 8,
+        "oos_return": -0.07172205743541149,
+        "oos_excess_return": 0.0380472566999035,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "BTC-USDT": [
+      {
+        "instrument": "BTC-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.18560929812835525,
+        "max_drawdown": 0.2528196753580391,
+        "sharpe": -0.42962508962052265,
+        "closed_trade_count": 0,
+        "oos_return": -0.04639195840265786,
+        "oos_excess_return": 0.04537320978792303,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "DOGE-USDT": [
+      {
+        "instrument": "DOGE-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.24055065009774623,
+        "max_drawdown": 0.4724155593975982,
+        "sharpe": -0.11630300139346939,
+        "closed_trade_count": 0,
+        "oos_return": -0.11897720135652057,
+        "oos_excess_return": 0.12352577580056501,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "DOT-USDT": [
+      {
+        "instrument": "DOT-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.5204263758503824,
+        "max_drawdown": 0.6549735379456153,
+        "sharpe": -1.0288496559419764,
+        "closed_trade_count": 13,
+        "oos_return": -0.37832745084327724,
+        "oos_excess_return": 0.11725884691693356,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "ETC-USDT": [
+      {
+        "instrument": "ETC-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.23998464595656765,
+        "max_drawdown": 0.45578386917161734,
+        "sharpe": -0.1954405263813618,
+        "closed_trade_count": 2,
+        "oos_return": -0.21312592900966443,
+        "oos_excess_return": -0.014886449930923362,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "ETH-USDT": [
+      {
+        "instrument": "ETH-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": 0.0936318498737212,
+        "max_drawdown": 0.5179918133795549,
+        "sharpe": 0.28644596639032455,
+        "closed_trade_count": 6,
+        "oos_return": -0.03700072704563728,
+        "oos_excess_return": 0.04059738031759785,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "FIL-USDT": [
+      {
+        "instrument": "FIL-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.15356363129036366,
+        "max_drawdown": 0.4124326520189316,
+        "sharpe": -0.07264783589180758,
+        "closed_trade_count": 0,
+        "oos_return": -0.04447011868929007,
+        "oos_excess_return": 0.14116473890744197,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "LINK-USDT": [
+      {
+        "instrument": "LINK-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.4112985977324807,
+        "max_drawdown": 0.5370248199218438,
+        "sharpe": -0.5755187906366661,
+        "closed_trade_count": 0,
+        "oos_return": -0.013560716979413523,
+        "oos_excess_return": 0.01389898285382718,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "LTC-USDT": [
+      {
+        "instrument": "LTC-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": 0.010380849692781746,
+        "max_drawdown": 0.2953734947750951,
+        "sharpe": 0.1560510238903753,
+        "closed_trade_count": 10,
+        "oos_return": -0.1374587273457416,
+        "oos_excess_return": 0.029330128959243806,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "NEAR-USDT": [
+      {
+        "instrument": "NEAR-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": 0.5324095987470161,
+        "max_drawdown": 0.3742789639429851,
+        "sharpe": 0.6876788729947168,
+        "closed_trade_count": 5,
+        "oos_return": 0.21330339732289616,
+        "oos_excess_return": -0.06061635576352353,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "SOL-USDT": [
+      {
+        "instrument": "SOL-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": 0.14597664622441187,
+        "max_drawdown": 0.2866540724718191,
+        "sharpe": 0.3606832489407942,
+        "closed_trade_count": 4,
+        "oos_return": -0.09828438911776127,
+        "oos_excess_return": 0.010380716268655554,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "TRX-USDT": [
+      {
+        "instrument": "TRX-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.010310527654159851,
+        "max_drawdown": 0.29168586486686376,
+        "sharpe": 0.09048490480079284,
+        "closed_trade_count": 13,
+        "oos_return": 0.010925691701471951,
+        "oos_excess_return": -0.12056446117003339,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "UNI-USDT": [
+      {
+        "instrument": "UNI-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": 0.25722132283119836,
+        "max_drawdown": 0.4445871793836068,
+        "sharpe": 0.46886356858763034,
+        "closed_trade_count": 5,
+        "oos_return": 0.111686243157189,
+        "oos_excess_return": -0.016551766588899675,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ],
+    "XRP-USDT": [
+      {
+        "instrument": "XRP-USDT",
+        "domain": "crypto",
+        "strategy": "signed_time_series_momentum",
+        "source": "data/crypto_tsmom_multifold_replay.json",
+        "fold": "2026-03-11",
+        "total_return": -0.09487534717980084,
+        "max_drawdown": 0.496779953978193,
+        "sharpe": 0.04503427224412684,
+        "closed_trade_count": 2,
+        "oos_return": -0.17172281911891196,
+        "oos_excess_return": 0.07994095402923629,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {},
+        "promotion": "BLOCKED",
+        "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      }
+    ]
+  },
+  "promotion": "BLOCKED"
+}
