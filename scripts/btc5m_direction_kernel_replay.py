@@ -158,6 +158,20 @@ class ReplaySource:
         )]
 
 
+def build_targets(rows: list[dict], threshold: float) -> list[float]:
+    """Build the original per-window target sequence for reproducibility."""
+    return [
+        0.10 if row["probability"] >= threshold
+        else (-0.10 if row["probability"] <= 1.0 - threshold else 0.0)
+        for row in rows
+    ]
+
+
+def build_target_pairs(rows: list[dict], threshold: float) -> list[tuple[float, float]]:
+    """Return entry targets plus the original per-window exit-to-flat targets."""
+    return [(target, 0.0) for target in build_targets(rows, threshold)]
+
+
 def load_windows() -> list[dict]:
     if not DATASET.exists():
         raise RuntimeError(f"missing materialized dataset: {DATASET}")
@@ -190,15 +204,21 @@ def load_windows() -> list[dict]:
     return rows
 
 
-async def replay(rows: list[dict], threshold: float, split: str, multiple: float, out_dir: Path) -> dict:
+async def replay(
+    rows: list[dict], threshold: float, split: str, multiple: float, out_dir: Path,
+    *, target_builder=build_targets,
+) -> dict:
     timestamps: list[datetime] = []
     prices: list[float] = []
     targets: list[float] = []
-    for row in rows:
-        direction = 0.10 if row["probability"] >= threshold else (-0.10 if row["probability"] <= 1.0 - threshold else 0.0)
+    for row, target in zip(rows, target_builder(rows, threshold)):
+        if isinstance(target, tuple):
+            direction, exit_target = target
+        else:
+            direction, exit_target = target, 0.0
         timestamps.extend([row["entry_ts"], row["exit_ts"]])
         prices.extend([row["entry"], row["final"]])
-        targets.extend([direction, 0.0])
+        targets.extend([direction, exit_target])
     clock = Clock(timestamps[0])
     db = out_dir / f"btc5m-{uuid.uuid4().hex[:8]}.sqlite3"
     service = SimulationService(
