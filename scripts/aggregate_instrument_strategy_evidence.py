@@ -173,7 +173,13 @@ def build_evidence(root: Path) -> dict[str, Any]:
         root / "data/crypto_tsmom_multifold_replay.json",
         root / "data/crypto_tsmom_walk_forward_replay.json",
     ]
-    optional_sources = [root / "data/deep_drawdown_kernel_replay.json"]
+    optional_sources = [
+        root / "data/cross_sectional_six_frozen_2022.json",
+        root / "data/cross_sectional_six_breadth05_2022.json",
+        root / "data/cross_sectional_six_meanrev20_100_2022.json",
+        root / "data/deep_drawdown_kernel_replay.json",
+        root / "data/deep_drawdown_kernel_quality_confirm5.json",
+    ]
     missing = [str(path) for path in sources if not path.exists()]
     optional_missing = [str(path) for path in optional_sources if not path.exists()]
     rows: list[dict[str, Any]] = []
@@ -184,7 +190,10 @@ def build_evidence(root: Path) -> dict[str, Any]:
         rows.extend(_crypto_walk_forward(sources[3]))
         for path in optional_sources:
             if path.exists():
-                rows.extend(_deep_drawdown_kernel(path))
+                if path.name.startswith("cross_sectional_six_"):
+                    rows.extend(_standalone(path))
+                else:
+                    rows.extend(_deep_drawdown_kernel(path))
 
     by_instrument: dict[str, list[dict[str, Any]]] = {}
     for row in rows:

@@ -66,3 +66,22 @@ def test_deep_drawdown_cases_are_flattened_without_zero_trade_failures(tmp_path)
 
     assert report["instruments"]["AAA"][0]["monthly_target_status"] == "UNKNOWN"
     assert report["instruments"]["BBB"][0]["monthly_target_status"] == "FAIL"
+
+
+def test_latest_standalone_replays_are_part_of_the_gate_matrix(tmp_path):
+    data = tmp_path / "data"
+    data.mkdir()
+    for name in (
+        "cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+        "cross_sectional_six_frozen_2022.json",
+        "cross_sectional_six_breadth05_2022.json",
+        "cross_sectional_six_meanrev20_100_2022.json",
+    ):
+        (data / name).write_text(json.dumps({"results": []}))
+    (data / "crypto_tsmom_multifold_replay.json").write_text(json.dumps({"folds": []}))
+    (data / "crypto_tsmom_walk_forward_replay.json").write_text(json.dumps({"folds": []}))
+    report = build_evidence(tmp_path)
+    assert report["evidence_row_count"] == 0
+    assert any("cross_sectional_six_meanrev20_100_2022.json" in source
+               for source in report["sources"])
