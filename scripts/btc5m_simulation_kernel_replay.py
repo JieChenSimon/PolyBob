@@ -248,9 +248,8 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                     },
                 })
                 existing_trade_instruments.add(instrument)
-            positions = [p for p in service.store.list_positions(run_id)
-                         if p.instrument_id == instrument and p.size > 0]
-            if not positions:
+            position = service.store.get_position(run_id, instrument)
+            if position is None or position.size <= 0:
                 settlement_skipped += 1
                 continue
             clock.current = settle_ts
@@ -258,7 +257,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                 await service.settle_binary_position(
                     run_id, settlement_id=settlement_id,
                     market_id=f"BTC5M:{row['window_start']}", instrument_id=instrument,
-                    quantity=positions[0].size, payout_per_token=1.0 if outcome else 0.0,
+                    quantity=position.size, payout_per_token=1.0 if outcome else 0.0,
                     settled_at=settle_ts.isoformat(), metadata={
                         "source": "btc5m_event_kernel_diagnostic",
                         "execution_stage": "settlement", "window_start": row["window_start"],

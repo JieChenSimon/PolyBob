@@ -49,3 +49,6 @@ part，并保留旧 parts 的归档，避免研究阶段持续堆积小文件。
 这会把单笔审计提交的 CPU 峰值放大。回放专用路径现支持显式记录的
 `synchronous=NORMAL` 与较大 WAL checkpoint 间隔；生产/实时模拟盘默认配置不变，
 该降级仅用于可恢复的研究临时库，结果仍通过 WAL、分段 checkpoint 和完整账本校验。
+
+进一步发现回放在每个事件调用整本 `list_positions`，随成交数增长形成 O(n²) 扫描；
+新增按标的索引查询 `get_position` 并改用该路径，相关服务/API/回放测试继续通过。

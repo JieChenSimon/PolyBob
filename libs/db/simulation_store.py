@@ -646,17 +646,27 @@ class SimulationStore:
                 "SELECT * FROM sim_positions WHERE run_id = ? ORDER BY instrument_id",
                 (run_id,),
             ).fetchall()
-        return [
-            SimPositionRecord(
-                run_id=row["run_id"],
-                instrument_id=row["instrument_id"],
-                size=float(row["size"]),
-                avg_price=float(row["avg_price"]),
-                attribution_id=row["attribution_id"],
-                updated_at=row["updated_at"],
-            )
-            for row in rows
-        ]
+        return [self._position_record(row) for row in rows]
+
+    @staticmethod
+    def _position_record(row: sqlite3.Row) -> SimPositionRecord:
+        return SimPositionRecord(
+            run_id=row["run_id"],
+            instrument_id=row["instrument_id"],
+            size=float(row["size"]),
+            avg_price=float(row["avg_price"]),
+            attribution_id=row["attribution_id"],
+            updated_at=row["updated_at"],
+        )
+
+    def get_position(self, run_id: str, instrument_id: str) -> SimPositionRecord | None:
+        """Fetch one position without scanning the run's full position book."""
+        with self._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM sim_positions WHERE run_id = ? AND instrument_id = ?",
+                (run_id, instrument_id),
+            ).fetchone()
+        return self._position_record(row) if row is not None else None
 
     # ---------------------------------------------------------------- trades
 
