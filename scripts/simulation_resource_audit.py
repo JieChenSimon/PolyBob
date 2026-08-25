@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import resource
 import time
@@ -17,10 +18,13 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pyarrow.dataset as ds
+import structlog
 
 from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import SimSignal
+
+structlog.configure(wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING))
 
 DATASET = Path("data/datasets/parts/btc_1m_bars_clean_v2/symbol=BTC-USDT")
 DEFAULT_OUTPUT = Path("data/simulation_resource_audit.json")
@@ -54,7 +58,9 @@ def _ts(value: str) -> datetime:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
-async def run_audit(rows: list[dict], work_dir: Path) -> dict:
+async def run_audit(rows: list[dict], work_dir: Path, *, equity_sample_every: int = 25) -> dict:
+    if equity_sample_every < 1:
+        raise ValueError("equity_sample_every must be positive")
     work_dir.mkdir(parents=True, exist_ok=True)
     before = {path.name for path in work_dir.iterdir()}
     db = work_dir / f"resource-audit-{uuid.uuid4().hex[:8]}.sqlite3"
@@ -105,7 +111,7 @@ async def run_audit(rows: list[dict], work_dir: Path) -> dict:
                 )
             else:
                 service._active[run_id].marks["BTC-USDT"] = price
-            if index % 25 == 0 or index == len(rows) - 1:
+            if index % equity_sample_every == 0 or index == len(rows) - 1:
                 await service._record_equity(service._active[run_id])
             # Bound this single worker's average CPU share while preserving
             # the same synchronous fill and ledger path as the replay kernel.
@@ -140,6 +146,7 @@ async def run_audit(rows: list[dict], work_dir: Path) -> dict:
         "status": status,
         "scope": "single-process local real-kernel audit; not strategy evidence",
         "resource_policy": {"cpu_budget_fraction": CPU_BUDGET, "worker_count": 1},
+        "equity_sample_every": equity_sample_every,
         "observed": {
             "wall_seconds": round(elapsed, 4),
             "process_cpu_fraction": round(cpu_fraction, 4),
@@ -155,7 +162,41 @@ async def run_audit(rows: list[dict], work_dir: Path) -> dict:
 
 async def main_async(limit: int = 600, output: Path = DEFAULT_OUTPUT) -> int:
     rows = load_rows(limit)
-    report = await run_audit(rows, Path("data/.resource_audit"))
+    baseline = await run_audit(
+        rows, Path("data/.resource_audit_baseline"), equity_sample_every=1
+    )
+    report = await run_audit(
+        rows, Path("data/.resource_audit"), equity_sample_every=25
+    )
+    baseline_metrics = baseline["ledger"]["metrics"]
+    optimized_metrics = report["ledger"]["metrics"]
+    report["benchmark"] = {
+        "baseline": {"equity_sample_every": 1, "wall_seconds": baseline["observed"]["wall_seconds"],
+                      "equity_points": baseline["ledger"]["equity_points"]},
+        "optimized": {"equity_sample_every": 25, "wall_seconds": report["observed"]["wall_seconds"],
+                       "equity_points": report["ledger"]["equity_points"]},
+        "wall_speedup": round(
+            baseline["observed"]["wall_seconds"] /
+            max(report["observed"]["wall_seconds"], 1e-9), 3
+        ),
+        "final_equity_delta": round(
+            float(optimized_metrics.get("equity", 0.0)) -
+            float(baseline_metrics.get("equity", 0.0)), 10
+        ),
+        "trade_count_equal": baseline["ledger"]["trades"] == report["ledger"]["trades"],
+        "explicit_cost_equal": (
+            baseline_metrics.get("total_explicit_cost") ==
+            optimized_metrics.get("total_explicit_cost")
+        ),
+        "interpretation": "equity sampling reduces observation writes; fills and ledger costs remain per trade",
+    }
+    report["status"] = "PASS" if (
+        report["status"] == "PASS"
+        and baseline["status"] == "PASS"
+        and report["benchmark"]["final_equity_delta"] == 0.0
+        and report["benchmark"]["trade_count_equal"]
+        and report["benchmark"]["explicit_cost_equal"]
+    ) else "FAIL"
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
     print(json.dumps(report, ensure_ascii=False, indent=2, default=str))
     return 0 if report["status"] == "PASS" else 1

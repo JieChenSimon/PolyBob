@@ -8,11 +8,11 @@ checks:
 - text: 研究回放使用受控多核、数值库线程限制和可观测 CPU/内存预算，实测总 CPU 保持在 60% 以下
   done: true
 - text: 减少重复磁盘/SQLite/日志开销，保证结果、成本和审计账本与原内核一致，并有基准对比
-  done: false
+  done: true
 - text: 完成资源、异常退出、进程关闭和大批量数据回放测试，验证无明显句柄/临时文件泄漏
   done: false
 deps:
 - PB-0039
 branch: pb-0037-funding-strategy-replay
 blocked: null
-updated: '2026-08-25T04:25:17+00:00'
+updated: '2026-08-25T04:26:19+00:00'
