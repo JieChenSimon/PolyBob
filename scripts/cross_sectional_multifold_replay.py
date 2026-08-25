@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -18,6 +20,28 @@ SPLIT_FRACTIONS = (0.50, 0.60, 0.70, 0.80)
 LOOKBACK = 60
 TOP_FRAC = 0.30
 REBALANCE_DAYS = 10
+EVENT_SLEEP_SECONDS = 0.002
+EQUITY_SAMPLE_EVERY = 5
+
+
+class CpuBudgetThrottle:
+    """Keep this sequential research runner below a 50% process share."""
+
+    def __init__(self, target: float = 0.45):
+        self.target = max(0.05, min(0.50, target))
+        self.wall = time.monotonic()
+        self.cpu = time.process_time()
+
+    def pause(self) -> None:
+        wall = time.monotonic() - self.wall
+        cpu = time.process_time() - self.cpu
+        if wall < 0.05 or cpu <= 0:
+            return
+        desired = cpu / self.target
+        if desired > wall:
+            time.sleep(min(desired - wall, 1.0))
+        self.wall = time.monotonic()
+        self.cpu = time.process_time()
 
 
 def fold_dates(index: list[str], fractions: tuple[float, ...] = SPLIT_FRACTIONS) -> list[str]:
@@ -38,9 +62,11 @@ def buy_and_hold_return(series, split_date: str) -> float | None:
 
 
 async def run_fold(split_date: str, frames: dict, positions: np.ndarray,
-                   matrix_index: list[str], out_dir: Path) -> dict:
+                   matrix_index: list[str], out_dir: Path, progress: dict,
+                   progress_path: Path) -> dict:
     results = []
-    for symbol, target in zip(frames, positions):
+    throttle = CpuBudgetThrottle()
+    for index, (symbol, target) in enumerate(zip(frames, positions), start=1):
         series = frames[symbol]
         dates = list(series.index)
         valid_dates = [date for date in dates if date in matrix_index]
@@ -49,6 +75,8 @@ async def run_fold(split_date: str, frames: dict, positions: np.ndarray,
         timestamps = [datetime.fromisoformat(date) for date in valid_dates]
         replay = await replay_symbol(
             symbol, timestamps, prices.tolist(), aligned_target.tolist(), split_date, out_dir,
+            event_sleep_seconds=EVENT_SLEEP_SECONDS,
+            equity_sample_every=EQUITY_SAMPLE_EVERY,
         )
         replay["benchmark_oos_return"] = buy_and_hold_return(series.loc[valid_dates], split_date)
         replay["excess_oos_return"] = (
@@ -57,6 +85,11 @@ async def run_fold(split_date: str, frames: dict, positions: np.ndarray,
             else None
         )
         results.append(replay)
+        progress.update({"fold": split_date, "completed_symbols": index,
+                         "total_symbols": len(frames), "current": symbol,
+                         "updated_at": datetime.now(UTC).isoformat()})
+        progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
+        throttle.pause()
 
     def values(key: str) -> list[float]:
         return [float(row[key]) for row in results if row.get(key) is not None]
@@ -96,8 +129,21 @@ async def main_async() -> int:
     splits = fold_dates(list(matrix_frame.index))
     out_dir = Path("data/.kernel_replay_cross_sectional_multifold")
     out_dir.mkdir(parents=True, exist_ok=True)
-    folds = [await run_fold(split, frames, positions, list(matrix_frame.index), out_dir)
-             for split in splits]
+    progress_path = out_dir / "progress.json"
+    progress: dict = {"status": "running", "folds": {}}
+    progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
+    folds = []
+    for split in splits:
+        fold = await run_fold(split, frames, positions, list(matrix_frame.index), out_dir, progress, progress_path)
+        folds.append(fold)
+        progress["folds"][split] = {"status": "completed", "symbols": fold["symbols"]}
+        progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
+    progress["status"] = "completed"
+    progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
+    snapshot = hashlib.sha256()
+    for symbol in sorted(frames):
+        for date, value in frames[symbol].items():
+            snapshot.update(f"{symbol}\t{date}\t{float(value):.17g}\n".encode())
     report = {
         "generated_at": datetime.now(UTC).isoformat(),
         "real_data_only": True,
@@ -109,6 +155,13 @@ async def main_async() -> int:
         "symbols": symbols,
         "quality_rejected": rejected,
         "split_fractions": list(SPLIT_FRACTIONS),
+        "data_snapshot": {"schema_version": "cross-sectional-multifold-input-v1",
+                          "sha256": snapshot.hexdigest(), "symbols": len(frames),
+                          "rows": int(matrix_frame.shape[0]),
+                          "start": str(matrix_frame.index[0]), "end": str(matrix_frame.index[-1])},
+        "resource_policy": {"event_sleep_seconds": EVENT_SLEEP_SECONDS,
+                             "equity_sample_every": EQUITY_SAMPLE_EVERY,
+                             "cpu_target": "<=45% average process share"},
         "folds": folds,
         "status": "replay_only_not_promoted",
     }
