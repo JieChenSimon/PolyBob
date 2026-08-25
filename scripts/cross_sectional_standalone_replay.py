@@ -32,6 +32,25 @@ from scripts.cross_sectional_paper_replay import (
 from scripts.multi_asset_portfolio_replay import MultiPositionSource, ReplayClock
 
 
+def execution_safe_fraction(fee_bps: float, mid_penalty_bps: float,
+                            cash_buffer_fraction: float = 0.001) -> float:
+    """Return a cash-safe target fraction for a full-fill diagnostic.
+
+    A nominal 100% target is not executable when the first buy also pays the
+    modeled mid penalty and taker fee.  Keep a small explicit cash buffer so a
+    loss does not turn the next valid re-entry into a cash-solvency rejection.
+    The account still reports returns against its fixed initial-capital
+    denominator; the position sizing basis itself is current equity.
+    """
+    if fee_bps < 0 or mid_penalty_bps < 0:
+        raise ValueError("execution costs must be non-negative")
+    if not 0 <= cash_buffer_fraction < 1:
+        raise ValueError("cash_buffer_fraction must be in [0, 1)")
+    fee_factor = 1.0 + float(fee_bps) / 10_000.0
+    penalty_factor = 1.0 + float(mid_penalty_bps) / 10_000.0
+    return (1.0 - cash_buffer_fraction) / (fee_factor * penalty_factor)
+
+
 def binary_target(values: list[float]) -> list[float]:
     """Convert a portfolio weight signal into an isolated long-only target."""
     return [1.0 if float(value) > 0 else 0.0 for value in values]
@@ -182,6 +201,7 @@ async def _replay_one(
     initial_capital: float,
     fee_bps: float,
     mid_penalty_bps: float,
+    position_fraction: float,
     max_staleness_seconds: float,
     output_dir: Path,
 ) -> dict:
@@ -204,9 +224,9 @@ async def _replay_one(
         initial_capital=initial_capital,
         config={
             "positions_by_symbol": {symbol: targets},
-            "position_fraction_by_instrument": {symbol: 1.0},
+            "position_fraction_by_instrument": {symbol: position_fraction},
             "position_fraction": 0.0,
-            "position_fraction_basis": "initial_capital",
+            "position_fraction_basis": "equity",
             "fee_bps": fee_bps,
             "mid_penalty_bps": mid_penalty_bps,
             "allow_short": False,
@@ -241,6 +261,8 @@ async def _replay_one(
             "price_basis": "provider_declared",
         })
         await service._record_equity(service._active[run_id])
+        active = service._active.get(run_id)
+        risk_rejections = int(active.risk_rejections) if active is not None else None
         await service.stop_run(run_id)
         metrics = sim_metrics.compute_run_metrics(service.store, run_id)
         stability = rolling_equity_folds(service.store.list_equity_points(run_id))
@@ -256,6 +278,7 @@ async def _replay_one(
             "metrics": metrics,
             "return_target": metrics.get("return_target"),
             "stability": stability,
+            "risk_rejections": risk_rejections,
             "execution_evidence": evidence,
             "promotion": "BLOCKED",
             "promotion_reason": "historical_executable_quote_unknown",
@@ -281,6 +304,7 @@ async def run(args: argparse.Namespace) -> dict:
         raise RuntimeError("requested replay window has no dates")
     output_dir = Path(args.output).parent / f".standalone-{uuid.uuid4().hex[:8]}"
     output_dir.mkdir(parents=True, exist_ok=True)
+    position_fraction = execution_safe_fraction(args.fee_bps, args.mid_penalty_bps)
     max_staleness_seconds = (14 if args.domain == "a_share" else 4) * 86400
     results = []
     for symbol in sorted(frames):
@@ -306,6 +330,7 @@ async def run(args: argparse.Namespace) -> dict:
             initial_capital=args.initial_capital,
             fee_bps=args.fee_bps,
             mid_penalty_bps=args.mid_penalty_bps,
+            position_fraction=position_fraction,
             max_staleness_seconds=max_staleness_seconds,
             output_dir=output_dir,
         )
@@ -341,6 +366,9 @@ async def run(args: argparse.Namespace) -> dict:
         "capital_contract": {
             "initial_capital_per_instrument": args.initial_capital,
             "denominator": "fixed_initial_capital_per_instrument",
+            "position_fraction_basis": "equity",
+            "execution_safe_fraction": position_fraction,
+            "cash_buffer_fraction": 0.001,
         },
         "data_quality": {
             "rejected_quality": rejected_quality,

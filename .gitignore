@@ -112,4 +112,10 @@ data/simulation_research_a_crypto_report.json
 data/simulation_research_a_crypto_progress.json
 data/drawdown_universe_*replay.json
 data/drawdown_universe_*progress.json
+# New standalone cross-sectional replays are local evidence.  Keep the
+# compact, tracked report and runner; do not stage multi-megabyte per-trade
+# payloads produced by each risk-contract comparison.
+data/cross_sectional_standalone_*_fixed.json
+data/cross_sectional_standalone_*_dd.json
+data/cross_sectional_standalone_*_dd_all_local.json
 output/

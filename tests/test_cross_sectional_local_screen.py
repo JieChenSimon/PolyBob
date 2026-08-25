@@ -11,6 +11,7 @@ from scripts.cross_sectional_paper_replay import (
 from scripts.cross_sectional_standalone_replay import (
     apply_tail_risk_guard,
     binary_target,
+    execution_safe_fraction,
     rolling_equity_folds,
     slice_signal_window,
 )
@@ -169,6 +170,14 @@ def test_tail_risk_guard_rejects_invalid_parameters():
     series = pd.Series([100.0, 101.0], index=["a", "b"])
     with pytest.raises(ValueError):
         apply_tail_risk_guard(series, [1.0, 1.0], stop_loss_pct=1.0)
+
+
+def test_standalone_execution_fraction_reserves_costs_and_buffer():
+    fraction = execution_safe_fraction(8.0, 10.0)
+    effective_cost = (1.0 + 8.0 / 10_000.0) * (1.0 + 10.0 / 10_000.0)
+    assert fraction * effective_cost == pytest.approx(0.999, rel=1e-12)
+    with pytest.raises(ValueError):
+        execution_safe_fraction(-1.0, 10.0)
 
 
 def test_daily_oos_excess_charges_turnover_and_benchmark():
