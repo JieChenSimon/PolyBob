@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import hashlib
 import json
+import logging
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
+import structlog
 
 from libs.data import store
 from libs.data.universe import US_LIQUID
@@ -115,7 +118,13 @@ async def run_fold(split_date: str, frames: dict, positions: np.ndarray,
     }
 
 
-async def main_async() -> int:
+async def main_async(*, lookback: int = LOOKBACK, top_frac: float = TOP_FRAC,
+                     rebalance_days: int = REBALANCE_DAYS,
+                     output: Path = Path("data/cross_sectional_multifold_replay.json")) -> int:
+    # A replay can emit thousands of fill events. Keep the durable research
+    # evidence in the JSON result/progress files, not in an unbounded log
+    # stream that competes with the replay and fills the disk.
+    structlog.configure(wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING))
     as_of = datetime.now(UTC)
     frames, rejected = read_frames(list(US_LIQUID), as_of)
     matrix_frame = align_frames(frames)
@@ -124,7 +133,7 @@ async def main_async() -> int:
     symbols = list(frames)
     matrix = matrix_frame.to_numpy(dtype=float).T
     positions = select_long_only(
-        matrix, lookback=LOOKBACK, top_frac=TOP_FRAC, rebalance_days=REBALANCE_DAYS,
+        matrix, lookback=lookback, top_frac=top_frac, rebalance_days=rebalance_days,
     )
     splits = fold_dates(list(matrix_frame.index))
     out_dir = Path("data/.kernel_replay_cross_sectional_multifold")
@@ -133,11 +142,16 @@ async def main_async() -> int:
     progress: dict = {"status": "running", "folds": {}}
     progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
     folds = []
-    for split in splits:
-        fold = await run_fold(split, frames, positions, list(matrix_frame.index), out_dir, progress, progress_path)
-        folds.append(fold)
-        progress["folds"][split] = {"status": "completed", "symbols": fold["symbols"]}
+    try:
+        for split in splits:
+            fold = await run_fold(split, frames, positions, list(matrix_frame.index), out_dir, progress, progress_path)
+            folds.append(fold)
+            progress["folds"][split] = {"status": "completed", "symbols": fold["symbols"]}
+            progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
+    except asyncio.CancelledError:
+        progress["status"] = "cancelled"
         progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
+        raise
     progress["status"] = "completed"
     progress_path.write_text(json.dumps(progress, ensure_ascii=False, indent=2) + "\n")
     snapshot = hashlib.sha256()
@@ -148,8 +162,8 @@ async def main_async() -> int:
         "generated_at": datetime.now(UTC).isoformat(),
         "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
-        "strategy": {"lookback": LOOKBACK, "top_frac": TOP_FRAC,
-                      "rebalance_days": REBALANCE_DAYS, "long_only": True},
+        "strategy": {"lookback": lookback, "top_frac": top_frac,
+                      "rebalance_days": rebalance_days, "long_only": True},
         "execution_config": {"fee_bps": 20.0, "mid_penalty_bps": 10.0, "allow_short": False},
         "universe": "US_LIQUID",
         "symbols": symbols,
@@ -165,7 +179,7 @@ async def main_async() -> int:
         "folds": folds,
         "status": "replay_only_not_promoted",
     }
-    out = Path("data/cross_sectional_multifold_replay.json")
+    out = output
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
     print(json.dumps([{key: fold[key] for key in fold if key != "results"}
                       for fold in folds], ensure_ascii=False, indent=2))
@@ -174,4 +188,16 @@ async def main_async() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(asyncio.run(main_async()))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--lookback", type=int, default=LOOKBACK)
+    parser.add_argument("--top-frac", type=float, default=TOP_FRAC)
+    parser.add_argument("--rebalance-days", type=int, default=REBALANCE_DAYS)
+    parser.add_argument("--output", type=Path,
+                        default=Path("data/cross_sectional_multifold_replay.json"))
+    args = parser.parse_args()
+    if args.lookback <= 0 or not 0 < args.top_frac <= 1 or args.rebalance_days <= 0:
+        parser.error("lookback/rebalance-days must be positive and top-frac in (0,1]")
+    raise SystemExit(asyncio.run(main_async(
+        lookback=args.lookback, top_frac=args.top_frac,
+        rebalance_days=args.rebalance_days, output=args.output,
+    )))
