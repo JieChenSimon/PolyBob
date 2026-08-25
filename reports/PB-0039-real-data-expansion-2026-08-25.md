@@ -44,3 +44,8 @@ part，并保留旧 parts 的归档，避免研究阶段持续堆积小文件。
 执行，避免每次账本操作重复扫描 schema；相关服务、API 和回放测试共 59 项通过。
 下一轮应从现有 checkpoint 恢复，并用外部资源 watchdog 对总 CPU 做硬门禁后再生成
 正式成本情景结果。
+
+另确认 SQLite 回放连接默认使用 `synchronous=FULL` 与较小 WAL 自动 checkpoint，
+这会把单笔审计提交的 CPU 峰值放大。回放专用路径现支持显式记录的
+`synchronous=NORMAL` 与较大 WAL checkpoint 间隔；生产/实时模拟盘默认配置不变，
+该降级仅用于可恢复的研究临时库，结果仍通过 WAL、分段 checkpoint 和完整账本校验。

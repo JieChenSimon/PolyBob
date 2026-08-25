@@ -7,6 +7,7 @@ the API startup path, so workers can adopt it explicitly when ready.
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import threading
 from collections.abc import Iterable, Mapping
@@ -173,6 +174,12 @@ def connect(
     connection.execute("PRAGMA foreign_keys = ON")
     connection.execute("PRAGMA journal_mode=WAL")
     connection.execute("PRAGMA busy_timeout=5000")
+    synchronous = os.environ.get("POLYBOB_SQLITE_SYNCHRONOUS", "").strip().upper()
+    if synchronous in {"OFF", "NORMAL", "FULL", "EXTRA"}:
+        connection.execute(f"PRAGMA synchronous={synchronous}")
+    wal_autocheckpoint = os.environ.get("POLYBOB_SQLITE_WAL_AUTOCHECKPOINT", "").strip()
+    if wal_autocheckpoint.isdigit() and int(wal_autocheckpoint) > 0:
+        connection.execute(f"PRAGMA wal_autocheckpoint={int(wal_autocheckpoint)}")
     return connection
 
 

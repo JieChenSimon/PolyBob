@@ -38,6 +38,10 @@ REPLAY_CPU_WINDOW_SECONDS = max(
 REPLAY_MIN_SLEEP_SECONDS = max(
     0.01, float(os.environ.get("POLYBOB_BTC5M_REPLAY_MIN_SLEEP_SECONDS", "0.10"))
 )
+REPLAY_SQLITE_SYNCHRONOUS = os.environ.get("POLYBOB_BTC5M_SQLITE_SYNCHRONOUS", "NORMAL").upper()
+REPLAY_SQLITE_WAL_AUTOCHECKPOINT = max(
+    1000, int(os.environ.get("POLYBOB_BTC5M_SQLITE_WAL_AUTOCHECKPOINT", "10000"))
+)
 
 
 class CpuBudgetThrottle:
@@ -140,6 +144,10 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
     """Replay one cost case in resumable chunks with idempotent event keys."""
     if not rows:
         raise ValueError("rows must not be empty")
+    if REPLAY_SQLITE_SYNCHRONOUS not in {"OFF", "NORMAL", "FULL", "EXTRA"}:
+        raise ValueError(f"unsupported replay SQLite synchronous mode: {REPLAY_SQLITE_SYNCHRONOUS}")
+    os.environ["POLYBOB_SQLITE_SYNCHRONOUS"] = REPLAY_SQLITE_SYNCHRONOUS
+    os.environ["POLYBOB_SQLITE_WAL_AUTOCHECKPOINT"] = str(REPLAY_SQLITE_WAL_AUTOCHECKPOINT)
     first = datetime.fromtimestamp(int(rows[0]["decision_ts"]), tz=UTC)
     clock = Clock(first)
     universe = sorted({
@@ -340,6 +348,8 @@ async def main_async() -> int:
         "edge_threshold": EDGE_THRESHOLD, "spread_bps": SPREAD_BPS,
         "equity_sample_events": EQUITY_SAMPLE_EVENTS,
         "replay_throttle_seconds": REPLAY_THROTTLE_SECONDS,
+        "sqlite_synchronous": REPLAY_SQLITE_SYNCHRONOUS,
+        "sqlite_wal_autocheckpoint": REPLAY_SQLITE_WAL_AUTOCHECKPOINT,
         "results": [await replay(rows, multiple, out_dir) for multiple in COST_MULTIPLES],
         "status": "diagnostic_not_promotion",
     }
