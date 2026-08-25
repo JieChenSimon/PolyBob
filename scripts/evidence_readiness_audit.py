@@ -44,7 +44,7 @@ def _manifest_entries(data_root: Path) -> list[dict[str, Any]]:
 def _execution_replay_files(data_root: Path) -> list[dict[str, Any]]:
     """Read explicit real-data replay summaries, never infer from filenames alone."""
     results: list[dict[str, Any]] = []
-    for path in sorted(data_root.glob("*okx_l2_imbalance_replay*.json")):
+    for path in sorted(data_root.glob("*okx_l2_*.json")):
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):

@@ -187,3 +187,12 @@
 - operation: update
 - status: approved-by-explicit-request
 - notes: 用户补充要求逐标的胜率超过 80%；与年化 50% 和完整月份 15% 同时作为 Promotion 门槛，样本不足或未达标必须保持 UNKNOWN/NO_EDGE/BLOCKED。
+
+## 2026-08-25T00:00:00+08:00
+
+- proposal_ref: user-correction-progressive-component-preservation
+- approved_item_ids: preserve-partial-alpha-components-and-preregister-combinations
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: update
+- status: approved-by-explicit-request
+- notes: 用户要求保留有边际贡献但未达最终门槛的子策略，登记独立贡献、适用域和失败边界，并以冻结组件和权重进行组合验证，不得因单项未达标而静默丢弃。
