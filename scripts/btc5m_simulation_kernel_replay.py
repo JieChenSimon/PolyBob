@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
+import time
 import uuid
 from collections import Counter
 from datetime import UTC, datetime
@@ -26,6 +28,8 @@ DATASET = Path("data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT")
 COST_MULTIPLES = (1.0, 2.0, 3.0)
 EDGE_THRESHOLD = 0.10
 SPREAD_BPS = 50.0
+EQUITY_SAMPLE_EVENTS = max(1, int(os.environ.get("POLYBOB_BTC5M_EQUITY_SAMPLE_EVENTS", "20")))
+REPLAY_THROTTLE_SECONDS = max(0.0, float(os.environ.get("POLYBOB_BTC5M_REPLAY_THROTTLE_SECONDS", "0.20")))
 
 
 class Clock:
@@ -154,8 +158,12 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
             settlements += 1
         except Exception as exc:  # preserve failure evidence, do not hide it
             settlement_failures.append({"instrument": instrument, "error": str(exc)})
-        await service._record_equity(service._active[run_id])
+        if traded % EQUITY_SAMPLE_EVENTS == 0:
+            await service._record_equity(service._active[run_id])
         traded += 1
+        if REPLAY_THROTTLE_SECONDS:
+            time.sleep(REPLAY_THROTTLE_SECONDS)
+    await service._record_equity(service._active[run_id])
     active = service._active.get(run_id)
     risk_rejections = active.risk_rejections if active is not None else None
     rejection_events = active.risk_rejection_events if active is not None else []
@@ -209,6 +217,8 @@ async def main_async() -> int:
         "execution_basis": "historical midpoint plus fixed spread stress; not executable CLOB ask/depth",
         "dataset": str(DATASET), "rows": len(rows),
         "edge_threshold": EDGE_THRESHOLD, "spread_bps": SPREAD_BPS,
+        "equity_sample_events": EQUITY_SAMPLE_EVENTS,
+        "replay_throttle_seconds": REPLAY_THROTTLE_SECONDS,
         "results": [await replay(rows, multiple, out_dir) for multiple in COST_MULTIPLES],
         "status": "diagnostic_not_promotion",
     }

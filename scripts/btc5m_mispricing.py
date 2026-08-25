@@ -46,6 +46,10 @@ N_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_N_WINDOWS", "220"))
 MAX_NEW_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_MAX_NEW_WINDOWS", "60"))
 NORMALIZED_DATASET = "btc5m_settled_windows_v6"
 BATCH_SIZE = max(1, int(os.environ.get("POLYBOB_BTC5M_COMMIT_BATCH", "100")))
+FETCH_TIMEOUT_SECONDS = max(
+    1.0, float(os.environ.get("POLYBOB_BTC5M_FETCH_TIMEOUT_SECONDS", "8"))
+)
+FETCH_ATTEMPTS = max(1, int(os.environ.get("POLYBOB_BTC5M_FETCH_ATTEMPTS", "2")))
 EDGE_THRESHOLD = 0.10     # model must disagree with the market by >= 10 points
 FEE = 0.02                # round-trip spread/fee assumption, in probability terms
 OOS_START_DATE = "2026-08-20"  # fixed before this audit; never tuned on OOS results
@@ -180,7 +184,8 @@ def _get(url: str, timeout: float = 20.0):
 def _get_with_digest(url: str, timeout: float = 20.0):
     raw = fetch_cached_bytes(
         url, cache_dir=CACHE_DIR / "responses",
-        policy=FetchPolicy(attempts=2, timeout_seconds=min(timeout, 8.0),
+        policy=FetchPolicy(attempts=FETCH_ATTEMPTS,
+                           timeout_seconds=min(timeout, FETCH_TIMEOUT_SECONDS),
                            initial_backoff_seconds=0.5, max_backoff_seconds=4.0),
         headers=UA,
         dataset="btc5m_provider_raw", source=url.split('/')[2],
