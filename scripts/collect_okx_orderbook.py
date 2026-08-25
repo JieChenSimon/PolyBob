@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from datetime import UTC, datetime
 from typing import Any
 
@@ -60,7 +61,7 @@ def normalize_snapshot(symbol: str, payload: dict[str, Any], *, observed_at: dat
     }
 
 
-def collect(symbols: list[str], *, levels: int = 20) -> dict[str, Any]:
+def _collect_once(symbols: list[str], *, levels: int = 20) -> dict[str, Any]:
     if not symbols:
         raise ValueError("at least one symbol is required")
     if not 1 <= levels <= 400:
@@ -93,12 +94,75 @@ def collect(symbols: list[str], *, levels: int = 20) -> dict[str, Any]:
     }
 
 
+def collect_stream(symbols: list[str], *, levels: int = 20,
+                   interval_seconds: float = 5.0, polls: int = 1,
+                   checkpoint: str | None = None) -> dict[str, Any]:
+    """Poll real OKX books into a forward, timestamped replay dataset.
+
+    This creates a *new* history from real observations; it never backfills
+    the past or relabels live snapshots as historical.  The bounded poll count
+    and checkpoint make unattended collection restartable without an
+    unbounded process or an unbounded log/file stream.
+    """
+    if interval_seconds < 0.5:
+        raise ValueError("interval_seconds must be at least 0.5 seconds")
+    if polls <= 0:
+        raise ValueError("polls must be positive")
+    checkpoint_path = None
+    if checkpoint:
+        from pathlib import Path
+        checkpoint_path = Path(checkpoint)
+        checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    started = time.monotonic()
+    results = []
+    for poll in range(1, polls + 1):
+        result = _collect_once(symbols, levels=levels)
+        result["poll"] = poll
+        result["polls"] = polls
+        results.append(result)
+        if checkpoint_path:
+            checkpoint_path.write_text(json.dumps({
+                "status": "running" if poll < polls else "completed",
+                "poll": poll,
+                "polls": polls,
+                "symbols": symbols,
+                "last_observed_at": result["observed_at"],
+                "updated_at": datetime.now(UTC).isoformat(),
+            }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        if poll < polls:
+            elapsed = time.monotonic() - started
+            time.sleep(max(0.0, interval_seconds - (elapsed % interval_seconds)))
+    return {
+        "schema_version": "okx-orderbook-forward-replay-v1",
+        "history_scope": "forward_real_observation",
+        "symbols": symbols,
+        "levels": levels,
+        "polls": polls,
+        "interval_seconds": interval_seconds,
+        "snapshots": results,
+        "promotion": "BLOCKED",
+        "promotion_reason": "forward_live_observations_do_not_prove_prior_historical_execution",
+    }
+
+
+def collect(symbols: list[str], *, levels: int = 20) -> dict[str, Any]:
+    """Collect one real live snapshot (backward-compatible entry point)."""
+    return _collect_once(symbols, levels=levels)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--symbols", default="BTC-USDT,ETH-USDT,SOL-USDT")
     parser.add_argument("--levels", type=int, default=20)
+    parser.add_argument("--polls", type=int, default=1,
+                        help="bounded real polls; >1 builds forward history")
+    parser.add_argument("--interval-seconds", type=float, default=5.0)
+    parser.add_argument("--checkpoint", default=None)
     args = parser.parse_args()
-    result = collect([item.strip() for item in args.symbols.split(",") if item.strip()], levels=args.levels)
+    symbols = [item.strip() for item in args.symbols.split(",") if item.strip()]
+    result = collect_stream(symbols, levels=args.levels,
+                            interval_seconds=args.interval_seconds,
+                            polls=args.polls, checkpoint=args.checkpoint)
     print(json.dumps(result, ensure_ascii=False, indent=2, default=str))
     return 0
 
