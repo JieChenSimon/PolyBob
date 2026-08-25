@@ -138,6 +138,67 @@ def write_progress(path: Path, *, status: str, completed: int, total: int,
     temporary.replace(path)
 
 
+def instrument_return_gate(
+    curve: list[dict],
+    per_instrument: dict[str, dict],
+    *,
+    initial_capital: float,
+    fractions: dict[str, float],
+) -> dict[str, dict]:
+    """Report the explicit per-instrument return gate without pooling assets.
+
+    PnL is normalized by the declared initial allocation for that instrument.
+    A result with fewer than twelve sufficiently observed calendar months is
+    ``UNKNOWN`` rather than being treated as a pass or a zero return.
+    """
+    by_symbol: dict[str, list[dict]] = defaultdict(list)
+    for point in curve:
+        by_symbol[str(point["instrument_id"])].append(point)
+    output: dict[str, dict] = {}
+    for symbol, points in by_symbol.items():
+        points.sort(key=lambda point: str(point["ts"]))
+        allocation = initial_capital * float(fractions.get(symbol, 0.0))
+        if allocation <= 0 or len(points) < 2:
+            output[symbol] = {"status": "UNKNOWN", "reason": "insufficient_allocation_or_curve"}
+            continue
+        start = datetime.fromisoformat(str(points[0]["ts"]).replace("Z", "+00:00"))
+        end = datetime.fromisoformat(str(points[-1]["ts"]).replace("Z", "+00:00"))
+        total_return = float(points[-1]["pnl"]) / allocation
+        days = max(1.0, (end - start).total_seconds() / 86400.0)
+        annualized = ((1.0 + total_return) ** (365.25 / days) - 1.0
+                      if total_return > -1.0 else -1.0)
+        month_points: dict[str, list[dict]] = defaultdict(list)
+        for point in points:
+            month_points[str(point["ts"])[:7]].append(point)
+        monthly_returns: dict[str, float] = {}
+        complete_months = 0
+        previous_month_end: float | None = None
+        for month in sorted(month_points):
+            rows = month_points[month]
+            month_start = str(rows[0]["ts"])[8:10]
+            month_end = str(rows[-1]["ts"])[8:10]
+            if previous_month_end is not None and len(rows) >= 20 and int(month_start) <= 7 and int(month_end) >= 24:
+                monthly_returns[month] = (float(rows[-1]["pnl"]) - previous_month_end) / allocation
+                complete_months += 1
+            previous_month_end = float(rows[-1]["pnl"])
+        base = dict(per_instrument.get(symbol, {}))
+        win_rate = base.get("win_rate")
+        failed_months = sorted(month for month, value in monthly_returns.items() if value < 0.15)
+        status = (
+            "UNKNOWN" if complete_months < 12 or win_rate is None
+            else "PASS" if annualized >= 0.50 and not failed_months and win_rate > 0.80
+            else "FAIL"
+        )
+        output[symbol] = {
+            "status": status, "allocated_capital": allocation,
+            "annualized_return": annualized, "total_return_on_allocation": total_return,
+            "complete_months": complete_months, "monthly_returns": monthly_returns,
+            "failed_months": failed_months, "win_rate": win_rate,
+            "closed_trades": base.get("closed_trades"),
+        }
+    return output
+
+
 def stable_daily_frames(frames: dict[str, pd.Series], max_gap_days: int = 4
                         ) -> tuple[dict[str, pd.Series], list[str]]:
     """Reject symbols whose local daily history has an unsafe calendar gap."""
@@ -384,6 +445,10 @@ async def run(args: argparse.Namespace) -> dict:
     risk_rejections = int(active.risk_rejections) if active is not None else None
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    per_instrument_gate = instrument_return_gate(
+        metrics.get("instrument_pnl_curve", []), metrics.get("per_instrument", {}),
+        initial_capital=100_000.0, fractions=fractions,
+    )
     points = service.store.list_equity_points(run_id)
     trades = service.store.list_trades(run_id)
     period_pnl: dict[str, float] = defaultdict(float)
@@ -422,7 +487,8 @@ async def run(args: argparse.Namespace) -> dict:
                               "us_max_filing_delay_days": args.us_max_filing_delay_days,
                               "us_market_min_return": args.us_market_min_return,
                               "us_market_max_return": args.us_market_max_return},
-        "full_metrics": metrics, "risk_rejections": risk_rejections,
+        "full_metrics": metrics, "per_instrument_return_gate": per_instrument_gate,
+        "risk_rejections": risk_rejections,
         "max_gross_exposure": max((float(point.gross_exposure) for point in points), default=0.0),
         "max_gross_leverage": max((float(point.gross_exposure) / point.equity
                                     for point in points if point.equity > 0), default=0.0),

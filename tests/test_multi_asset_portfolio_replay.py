@@ -1,7 +1,9 @@
 import pandas as pd
 import pytest
 
-from scripts.multi_asset_portfolio_replay import MultiPositionSource, stable_daily_frames
+from scripts.multi_asset_portfolio_replay import (
+    MultiPositionSource, instrument_return_gate, stable_daily_frames,
+)
 
 
 def test_stable_daily_frames_rejects_long_gaps():
@@ -44,3 +46,16 @@ async def test_sparse_cursor_can_seek_to_terminal_zero_without_price_index_alias
     })
     assert signals[0].side == "sell"
     assert signals[0].signal_meta["target"] == 0.0
+
+
+def test_instrument_return_gate_does_not_pool_short_history_into_pass():
+    curve = [
+        {"instrument_id": "A", "ts": "2026-01-01T00:00:00+00:00", "pnl": 0.0},
+        {"instrument_id": "A", "ts": "2026-06-30T00:00:00+00:00", "pnl": 100.0},
+    ]
+    result = instrument_return_gate(
+        curve, {"A": {"win_rate": 1.0, "closed_trades": 1}},
+        initial_capital=100_000.0, fractions={"A": 0.001},
+    )
+    assert result["A"]["status"] == "UNKNOWN"
+    assert result["A"]["complete_months"] < 12
