@@ -32,6 +32,12 @@ EQUITY_SAMPLE_EVENTS = max(1, int(os.environ.get("POLYBOB_BTC5M_EQUITY_SAMPLE_EV
 REPLAY_THROTTLE_SECONDS = max(0.0, float(os.environ.get("POLYBOB_BTC5M_REPLAY_THROTTLE_SECONDS", "0.20")))
 REPLAY_CHUNK_ROWS = max(1, int(os.environ.get("POLYBOB_BTC5M_REPLAY_CHUNK_ROWS", "100")))
 REPLAY_CPU_TARGET = min(0.50, max(0.05, float(os.environ.get("POLYBOB_BTC5M_REPLAY_CPU_TARGET", "0.30"))))
+REPLAY_CPU_WINDOW_SECONDS = max(
+    0.02, float(os.environ.get("POLYBOB_BTC5M_REPLAY_CPU_WINDOW_SECONDS", "0.05"))
+)
+REPLAY_MIN_SLEEP_SECONDS = max(
+    0.01, float(os.environ.get("POLYBOB_BTC5M_REPLAY_MIN_SLEEP_SECONDS", "0.10"))
+)
 
 
 class CpuBudgetThrottle:
@@ -51,7 +57,7 @@ class CpuBudgetThrottle:
     def pause(self) -> None:
         wall = time.monotonic() - self._wall
         cpu = time.process_time() - self._cpu
-        if wall <= 0 or cpu <= 0:
+        if wall < REPLAY_CPU_WINDOW_SECONDS or cpu <= 0:
             return
         desired_wall = cpu / self.target
         if desired_wall > wall:
@@ -261,8 +267,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                 settlement_failures.append({"instrument": instrument, "error": str(exc)})
             if len(existing_trade_instruments) % EQUITY_SAMPLE_EVENTS == 0:
                 await service._record_equity(active)
-            if REPLAY_THROTTLE_SECONDS:
-                time.sleep(REPLAY_THROTTLE_SECONDS)
+            time.sleep(max(REPLAY_THROTTLE_SECONDS, REPLAY_MIN_SLEEP_SECONDS))
             throttle.pause()
         next_index = end_index
         await service._record_equity(active)
