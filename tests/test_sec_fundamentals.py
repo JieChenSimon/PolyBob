@@ -61,4 +61,5 @@ def test_materialize_prefers_sec_acceptance_timestamp(monkeypatch):
     assert result["accepted_at_rows"] == 1
     assert result["strict_pit_candidate"] is True
     assert captured["records"][0]["announcement_at"] == "2025-07-20T12:34:56.000Z"
+    assert captured["records"][0]["accepted_at"] == "2025-07-20T12:34:56.000Z"
     assert captured["records"][0]["quality_flags"]["accepted_at"] == "2025-07-20T12:34:56.000Z"

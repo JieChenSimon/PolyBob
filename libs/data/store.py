@@ -154,7 +154,7 @@ DAILY_BARS = Dataset(
 FUNDAMENTALS = Dataset(
     "fundamentals",
     (
-        "period_end", "announcement_at", "revenue", "gross_profit",
+        "period_end", "announcement_at", "accepted_at", "revenue", "gross_profit",
         "operating_income", "net_income", "operating_cash_flow",
         "capex", "total_debt", "cash", "shares_outstanding", "sector",
         "filing_id", "source", "quality_flags",

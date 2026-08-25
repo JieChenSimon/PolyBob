@@ -233,6 +233,7 @@ def materialize(symbol: str, *, as_of: datetime | None = None) -> dict[str, Any]
             store.EVENT_DATE: filed,
             "period_end": end,
             "announcement_at": accepted_at or f"{filed}T00:00:00+00:00",
+            "accepted_at": accepted_at,
             "filing_id": accn,
             "source": "sec_companyfacts",
             "quality_flags": {
