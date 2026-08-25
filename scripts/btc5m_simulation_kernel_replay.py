@@ -205,6 +205,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                 "min_trade_notional": 0.0, "equity_interval_minutes": 1.0,
                 "record_equity_on_fill": False,
                 "record_equity_on_settlement": False,
+                "min_cash_buffer": 0.0,
             },
         )
         run_id = str(run["run_id"])
@@ -300,6 +301,37 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
 
         await service.stop_run(run_id)
         metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+        settlements_for_split = service.store.list_settlements(run_id)
+        pnl_by_day: dict[str, float] = {}
+        for settlement in settlements_for_split:
+            day = str(settlement.settled_at)[:10]
+            pnl_by_day[day] = pnl_by_day.get(day, 0.0) + float(settlement.realized_pnl)
+        split_days = sorted(pnl_by_day)
+        split_at = max(1, min(len(split_days) - 1, int(len(split_days) * 0.70))) if len(split_days) > 1 else len(split_days)
+        in_sample_days = split_days[:split_at]
+        oos_days = split_days[split_at:]
+        time_split = {
+            "method": "chronological_70_30_by_settlement_day",
+            "independent_days": len(split_days),
+            "in_sample": {
+                "days": len(in_sample_days),
+                "start": in_sample_days[0] if in_sample_days else None,
+                "end": in_sample_days[-1] if in_sample_days else None,
+                "realized_pnl": sum(pnl_by_day[day] for day in in_sample_days),
+                "return_on_initial_capital": (
+                    sum(pnl_by_day[day] for day in in_sample_days) / 10_000.0
+                ),
+            },
+            "out_of_sample": {
+                "days": len(oos_days),
+                "start": oos_days[0] if oos_days else None,
+                "end": oos_days[-1] if oos_days else None,
+                "realized_pnl": sum(pnl_by_day[day] for day in oos_days),
+                "return_on_initial_capital": (
+                    sum(pnl_by_day[day] for day in oos_days) / 10_000.0
+                ),
+            },
+        }
         trades = len(service.store.list_trades(run_id))
         settlements = len(service.store.list_settlements(run_id))
         active = service._active.get(run_id)
@@ -332,6 +364,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
             "open_positions": open_positions,
             "unresolved_positions": unresolved_positions,
             "chunks": chunks + 1,
+            "time_split": time_split,
             "metrics": metrics,
         }
     raise RuntimeError("replay ended without a final result")

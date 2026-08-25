@@ -185,6 +185,36 @@ async def test_binary_settlement_can_skip_equity_sampling_for_replay(tmp_path):
     assert service.store.list_instrument_pnl_points(run_id) == []
 
 
+@pytest.mark.asyncio
+async def test_simulation_rejects_trade_that_would_create_negative_cash(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="cash-solvency",
+        strategy_id="momentum_dualma_v1",
+        universe=["market-1"],
+        initial_capital=100.0,
+        config={
+            **RUN_CONFIG,
+            "position_fraction": 2.0,
+            "min_trade_notional": 0.0,
+            "cooldown_seconds": 0.0,
+        },
+    )
+    run_id = run["run_id"]
+    await service.start_run(run_id)
+    await service._process_signal(
+        service._active[run_id],
+        SimSignal(
+            "market-1", "buy", 1.0, bid=1.0, ask=1.0, mid=1.0,
+            timestamp=datetime.now(UTC),
+        ),
+    )
+    refreshed = service.get_run_record(run_id)
+    assert refreshed.cash == pytest.approx(100.0)
+    assert service.store.list_trades(run_id) == []
+    assert service._active[run_id].risk_rejections == 1
+
+
 # ---------------------------------------------------------------------- store
 
 
@@ -587,7 +617,8 @@ async def test_initial_capital_position_sizing_does_not_compound(tmp_path):
     await service._on_feature_snapshot(feature_snapshot(market_id="m2"))
     positions = {p.instrument_id: p for p in service.store.list_positions(run_id)}
     assert positions["m1"].size == pytest.approx(5_000.0 / 0.97, rel=1e-6)
-    assert positions["m2"].size == pytest.approx(5_000.0 / 0.97, rel=1e-6)
+    assert "m2" not in positions
+    assert service._active[run_id].risk_rejections == 1
 
 
 @pytest.mark.asyncio

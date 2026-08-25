@@ -96,6 +96,10 @@ DEFAULT_RUN_CONFIG: dict[str, Any] = {
     "max_staleness_seconds": 30.0,
     "cooldown_seconds": 60.0,
     "min_trade_notional": 10.0,
+    # Paper trading must not create uncollateralised cash debt. A positive
+    # value reserves an explicit buffer; zero still means cash may not cross
+    # below zero. Short/margin policies remain a separate risk decision.
+    "min_cash_buffer": 0.0,
     # Avoid paying spread/impact to resize a position for immaterial price
     # moves. A value of zero preserves the historical per-bar rebalance.
     "min_rebalance_bps": 0.0,
@@ -1159,6 +1163,39 @@ class SimulationService:
             ):
                 return
             if abs(qty) * est_price < float(active.config_value("min_trade_notional")):
+                return
+
+            # The shared PortfolioRiskChecker has a configurable cash-buffer
+            # limit, but a zero buffer is still a solvency floor for a paper
+            # run. Enforce the run-level contract before persistence so a
+            # replay cannot manufacture capital by spending negative cash.
+            min_cash_buffer = float(active.config_value("min_cash_buffer"))
+            projected_cash = float(active.record.cash) - float(qty) * float(est_price)
+            if projected_cash < min_cash_buffer - _EPS:
+                active.risk_rejections += 1
+                active.risk_rejection_events.append({
+                    "stage": str(signal.signal_meta.get("execution_stage", "unknown")),
+                    "instrument": instrument,
+                    "side": signal.side,
+                    "quantity": float(qty),
+                    "price": float(est_price),
+                    "reasons": [
+                        f"projected cash {projected_cash:.8f} below buffer "
+                        f"{min_cash_buffer:.8f}"
+                    ],
+                    "measurements": {
+                        "projected_cash": projected_cash,
+                        "min_cash_buffer": min_cash_buffer,
+                    },
+                    "timestamp": now.isoformat(),
+                })
+                logger.info(
+                    "sim_trade_cash_solvency_rejected",
+                    run_id=run_id,
+                    instrument=instrument,
+                    projected_cash=projected_cash,
+                    min_cash_buffer=min_cash_buffer,
+                )
                 return
 
             decision = self.risk_checker.evaluate_intent(
