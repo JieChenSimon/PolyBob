@@ -68,7 +68,8 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
                         split_date: str, out_dir: Path, position_fraction: float | None = None,
                         allow_short: bool = False, fee_bps: float = 20.0,
                         mid_penalty_bps: float = 10.0,
-                        event_sleep_seconds: float = 0.0) -> dict:
+                        event_sleep_seconds: float = 0.0,
+                        equity_sample_every: int = 1) -> dict:
     timestamps = [datetime.fromisoformat(value) if isinstance(value, str) else value
                   for value in timestamps]
     timestamps = [value if value.tzinfo else value.replace(tzinfo=UTC) for value in timestamps]
@@ -98,13 +99,15 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
     )
     run_id = str(run["run_id"])
     await service.start_run(run_id)
-    for timestamp, price in zip(timestamps, prices):
+    sample_every = max(1, int(equity_sample_every))
+    for index, (timestamp, price) in enumerate(zip(timestamps, prices)):
         clock.current = timestamp
         await service._dispatch("features.snapshots", {
             "market_id": symbol, "timestamp": timestamp, "mid_price": price,
             "source": "local_daily_bars", "price_basis": "unadjusted",
         })
-        await service._record_equity(service._active[run_id])
+        if index % sample_every == 0 or index == len(prices) - 1:
+            await service._record_equity(service._active[run_id])
         if event_sleep_seconds > 0:
             await asyncio.sleep(float(event_sleep_seconds))
     await service.stop_run(run_id)
@@ -125,7 +128,7 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
         db_path.with_name(db_path.name + suffix).unlink(missing_ok=True)
     return {"symbol": symbol, "run_id": run_id, "metrics": metrics,
             "oos_return": oos_return, "oos_closed_trades": oos_closed,
-            "oos_points": len(oos_points)}
+            "oos_points": len(oos_points), "equity_sample_every": sample_every}
 
 
 async def replay_domain(domain: str, symbols: list[str], as_of: datetime, out_dir: Path) -> dict:

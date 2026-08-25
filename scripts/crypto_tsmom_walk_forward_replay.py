@@ -32,7 +32,8 @@ CANDIDATES = tuple(
 )
 POSITION_FRACTION = 0.50
 FEE_BPS = 20.0
-EVENT_SLEEP_SECONDS = 0.02
+EVENT_SLEEP_SECONDS = 0.005
+EQUITY_SAMPLE_EVERY = 5
 
 
 def candidate_positions(prices: np.ndarray, candidate: dict[str, float]) -> np.ndarray:
@@ -95,6 +96,7 @@ async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
             symbol, timestamps, prices.tolist(), positions.tolist(), split_date, out_dir,
             position_fraction=POSITION_FRACTION, allow_short=True, fee_bps=FEE_BPS,
             event_sleep_seconds=EVENT_SLEEP_SECONDS,
+            equity_sample_every=EQUITY_SAMPLE_EVERY,
         )
         benchmark = buy_and_hold_return(series, split_date)
         replay["benchmark_oos_return"] = benchmark
@@ -148,7 +150,8 @@ async def main_async(major_only: bool, output: str) -> int:
         "execution_kernel": "modules.simulation.SimulationService",
         "candidate_grid": list(CANDIDATES),
         "execution_config": {"fee_bps": FEE_BPS, "position_fraction": POSITION_FRACTION,
-                              "allow_short": True},
+                              "allow_short": True, "equity_sample_every": EQUITY_SAMPLE_EVERY,
+                              "event_sleep_seconds": EVENT_SLEEP_SECONDS},
         "symbols": len(frames), "quality_rejected": rejected,
         "folds": folds, "selection_is_train_only": True,
         "status": "replay_only_not_promoted",

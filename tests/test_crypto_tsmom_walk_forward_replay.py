@@ -22,4 +22,6 @@ def test_candidate_grid_is_fixed_and_train_score_is_causal():
 
 
 def test_replay_kernel_exposes_opt_in_event_pacing():
-    assert "event_sleep_seconds" in inspect.signature(replay_symbol).parameters
+    parameters = inspect.signature(replay_symbol).parameters
+    assert "event_sleep_seconds" in parameters
+    assert "equity_sample_every" in parameters
