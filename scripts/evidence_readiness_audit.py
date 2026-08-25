@@ -26,12 +26,30 @@ def _matching_files(root: Path, terms: tuple[str, ...]) -> list[str]:
     return sorted(matches)
 
 
+def _manifest_entries(data_root: Path) -> list[dict[str, Any]]:
+    manifest = data_root / "datasets" / "manifest.jsonl"
+    if not manifest.exists():
+        return []
+    entries: list[dict[str, Any]] = []
+    for line in manifest.read_text(encoding="utf-8").splitlines():
+        try:
+            item = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(item, dict):
+            entries.append(item)
+    return entries
+
+
 def audit(*, data_root: Path = Path("data")) -> dict[str, Any]:
     contracts = store.dataset_contracts()
     daily = store.coverage(store.DAILY_BARS)
     fundamentals = store.coverage(store.FUNDAMENTALS)
     quote_files = _matching_files(data_root, ("quote", "depth", "orderbook", "bbo"))
     survivorship_files = _matching_files(data_root, ("delist", "listing", "survivorship"))
+    manifest_entries = _manifest_entries(data_root)
+    live_quote_entries = [item for item in manifest_entries if item.get("dataset") == "okx_orderbook"]
+    historical_quote_entries = [item for item in manifest_entries if item.get("dataset") == "historical_orderbook"]
 
     strict_pit_ready = bool(
         contracts["daily_bars"].get("strict_historical_pit")
@@ -40,7 +58,14 @@ def audit(*, data_root: Path = Path("data")) -> dict[str, Any]:
     # A discovered/current universe is not historical membership evidence. A
     # dedicated file with explicit effective/observed timestamps is required.
     survivorship_ready = False
-    execution_ready = bool(quote_files)
+    execution_ready = bool(historical_quote_entries)
+    execution_reason = None
+    if not execution_ready:
+        execution_reason = (
+            "historical_quote_dataset_missing;_live_snapshots_present_but_not_historical"
+            if live_quote_entries
+            else "no_local_historical_quote_depth_artifact"
+        )
     gates = {
         "strict_historical_pit": {
             "status": "READY" if strict_pit_ready else "UNKNOWN",
@@ -52,7 +77,7 @@ def audit(*, data_root: Path = Path("data")) -> dict[str, Any]:
         },
         "historical_executable_quotes": {
             "status": "READY" if execution_ready else "UNKNOWN",
-            "reason": None if execution_ready else "no_local_historical_quote_depth_artifact",
+            "reason": execution_reason,
         },
     }
     overall = "READY" if all(item["status"] == "READY" for item in gates.values()) else "BLOCKED"
@@ -69,6 +94,8 @@ def audit(*, data_root: Path = Path("data")) -> dict[str, Any]:
         "coverage": {"daily_bars": daily, "fundamentals": fundamentals},
         "artifacts": {
             "historical_quote_like_files": quote_files,
+            "live_quote_observation_entries": live_quote_entries,
+            "historical_quote_entries": historical_quote_entries,
             "survivorship_like_files": survivorship_files,
         },
     }

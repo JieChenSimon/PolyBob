@@ -33,6 +33,14 @@ quote provenance and depth quality when supplied, but the daily-bar deep-drawdow
 equity replays had no linked historical quote observations. Their modeled fees and penalties are
 stress assumptions, not proof of executable fills.
 
+The public OKX market-books endpoint is now wired into `scripts/collect_okx_orderbook.py`. A real
+one-shot collection captured 20 levels for BTC-USDT, ETH-USDT and SOL-USDT, preserving raw response
+hashes plus normalized best bid/ask, depth, sequence and observation timestamps. These records are
+explicitly scoped as `live_observation`: they are useful for forward paper-trading and collector
+health checks, but they cannot be substituted for a timestamp-complete historical execution tape.
+The audit therefore continues to report historical executable quotes as `UNKNOWN` with
+`historical_quote_dataset_missing;_live_snapshots_present_but_not_historical`.
+
 ## External source path
 
 The official Polygon documentation describes historical US SIP top-of-book quote flat files with

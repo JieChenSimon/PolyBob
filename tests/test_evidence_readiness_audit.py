@@ -29,3 +29,21 @@ def test_audit_does_not_treat_current_universe_file_as_survivorship_evidence(mon
     assert result["gates"]["strict_historical_pit"]["status"] == "READY"
     assert result["gates"]["survivorship_control"]["status"] == "UNKNOWN"
     assert result["promotion"] == "BLOCKED"
+
+
+def test_audit_does_not_treat_live_okx_snapshot_as_historical_execution_evidence(monkeypatch, tmp_path):
+    manifest = tmp_path / "datasets" / "manifest.jsonl"
+    manifest.parent.mkdir()
+    manifest.write_text('{"dataset":"okx_orderbook","history_scope":"live_observation"}\n', encoding="utf-8")
+    monkeypatch.setattr("scripts.evidence_readiness_audit.store.dataset_contracts", lambda: {
+        "daily_bars": {"strict_historical_pit": True},
+        "fundamentals": {"strict_historical_pit": True},
+    })
+    monkeypatch.setattr("scripts.evidence_readiness_audit.store.coverage", lambda dataset: {
+        "dataset": dataset.name, "symbols": 1, "rows": 1,
+    })
+    result = audit(data_root=tmp_path)
+    gate = result["gates"]["historical_executable_quotes"]
+    assert gate["status"] == "UNKNOWN"
+    assert "live_snapshots_present_but_not_historical" in gate["reason"]
+    assert result["artifacts"]["live_quote_observation_entries"]
