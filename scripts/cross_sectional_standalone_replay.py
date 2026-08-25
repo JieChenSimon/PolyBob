@@ -17,6 +17,7 @@ import json
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
+from statistics import median
 
 from libs.data import store
 from modules.simulation import SimulationService
@@ -44,6 +45,57 @@ def slice_signal_window(series, targets: list[float], start_date: str | None,
     sliced = series.iloc[indices]
     sliced_targets = [float(targets[index]) for index in indices]
     return sliced, sliced_targets + [0.0]
+
+
+def rolling_equity_folds(points, fold_count: int = 3) -> dict:
+    """Summarize contiguous equity folds without selecting on their returns.
+
+    Fold boundaries are determined only by chronological observation count.  The
+    result is a stability diagnostic: it does not replace the independent OOS
+    gate, but exposes whether a total return is concentrated in one interval.
+    """
+    def field(point, name: str):
+        return getattr(point, name) if hasattr(point, name) else point[name]
+
+    ordered = sorted(points, key=lambda point: str(field(point, "ts")))
+    if fold_count < 2 or len(ordered) < fold_count * 2:
+        return {"status": "UNKNOWN", "reason": "insufficient_equity_points", "folds": []}
+    boundaries = [round(index * len(ordered) / fold_count) for index in range(fold_count + 1)]
+    folds = []
+    for index in range(fold_count):
+        chunk = ordered[boundaries[index]:boundaries[index + 1]]
+        if len(chunk) < 2:
+            continue
+        values = [float(field(point, "equity")) for point in chunk]
+        start, end = values[0], values[-1]
+        peak = start
+        max_drawdown = 0.0
+        for value in values:
+            peak = max(peak, value)
+            if peak > 0:
+                max_drawdown = max(max_drawdown, (peak - value) / peak)
+        folds.append({
+            "index": index + 1,
+            "start": str(field(chunk[0], "ts"))[:10],
+            "end": str(field(chunk[-1], "ts"))[:10],
+            "observations": len(chunk),
+            "return": end / start - 1.0 if start > 0 else None,
+            "max_drawdown": max_drawdown,
+        })
+    returns = [fold["return"] for fold in folds if fold["return"] is not None]
+    positive = sum(value > 0 for value in returns)
+    status = (
+        "PASS_STABLE"
+        if len(returns) == fold_count and positive >= max(2, fold_count - 1)
+        else "FAIL_UNSTABLE"
+    )
+    return {
+        "status": status,
+        "fold_count": len(folds),
+        "positive_fold_count": positive,
+        "median_fold_return": median(returns) if returns else None,
+        "folds": folds,
+    }
 
 
 async def _replay_one(
@@ -115,6 +167,7 @@ async def _replay_one(
         await service._record_equity(service._active[run_id])
         await service.stop_run(run_id)
         metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+        stability = rolling_equity_folds(service.store.list_equity_points(run_id))
         evidence = metrics.get("execution_evidence", {})
         return {
             "symbol": symbol,
@@ -126,6 +179,7 @@ async def _replay_one(
             "end": dates[-1][:10],
             "metrics": metrics,
             "return_target": metrics.get("return_target"),
+            "stability": stability,
             "execution_evidence": evidence,
             "promotion": "BLOCKED",
             "promotion_reason": "historical_executable_quote_unknown",

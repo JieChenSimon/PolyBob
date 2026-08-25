@@ -175,3 +175,13 @@ ADMA `-22.17%`。这证明收益高度集中，不能把组合整体正收益解
 `data/cross_sectional_standalone_a_oos_candidate_60_30_5.json`；主候选产物：
 `data/cross_sectional_standalone_us_oos_candidate_20_30_5.json`、
 `data/cross_sectional_standalone_a_oos_candidate_20_30_5.json`。
+
+### 三折滚动稳定性复核
+
+逐标的隔离回放现在将权益曲线按时间顺序切成 3 个连续折叠，并记录每折收益
+与最大回撤；至少 2/3 折为正才标记 `PASS_STABLE`。主候选结果为：美股
+14/27 `PASS_STABLE`、13/27 `FAIL_UNSTABLE`；A 股 3/8 `PASS_STABLE`、
+5/8 `FAIL_UNSTABLE`。例如 ABSI 总收益为正，但前两折分别约 `-80.85%`、
+`-16.24%`，最后一折约 `+653.63%`，属于尾部单折驱动；该标的被稳定性门禁
+拒绝。稳定性通过也不代表目标通过或可交易，当前仍受年/月收益、PIT 和真实
+盘口深度门禁约束。

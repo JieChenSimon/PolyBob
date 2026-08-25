@@ -7,7 +7,11 @@ from scripts.cross_sectional_paper_replay import (
     filter_replay_dates,
     summarize_instrument_oos_pnl,
 )
-from scripts.cross_sectional_standalone_replay import binary_target, slice_signal_window
+from scripts.cross_sectional_standalone_replay import (
+    binary_target,
+    rolling_equity_folds,
+    slice_signal_window,
+)
 from scripts.cross_sectional_oos_inference import daily_oos_excess
 from scripts.cross_sectional_local_screen import (
     align_frames,
@@ -139,6 +143,16 @@ def test_standalone_replay_uses_fixed_binary_target_and_window():
     assert binary_target([0.0, 0.4, -1.0]) == [0.0, 1.0, 0.0]
     assert sliced.index.tolist() == ["2025-01-02", "2025-01-03"]
     assert targets == [1.0, 0.0, 0.0]
+
+
+def test_rolling_equity_folds_expose_tail_concentration():
+    points = [{"ts": f"2025-01-{index:02d}T00:00:00+00:00", "equity": value}
+              for index, value in enumerate([100.0, 110.0, 105.0, 100.0, 99.0, 98.0], start=1)]
+    result = rolling_equity_folds(points, fold_count=3)
+    assert result["status"] == "FAIL_UNSTABLE"
+    assert result["fold_count"] == 3
+    assert result["positive_fold_count"] == 1
+    assert result["folds"][0]["return"] > 0
 
 
 def test_daily_oos_excess_charges_turnover_and_benchmark():
