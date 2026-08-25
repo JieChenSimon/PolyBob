@@ -33,6 +33,14 @@ quote provenance and depth quality when supplied, but the daily-bar deep-drawdow
 equity replays had no linked historical quote observations. Their modeled fees and penalties are
 stress assumptions, not proof of executable fills.
 
+## External source path
+
+The official Polygon documentation describes historical US SIP top-of-book quote flat files with
+nanosecond timestamps and historical records back to 2003, subject to plan access. This is a
+potential source for the US-equity execution gate, but no account credential or downloaded file
+is present in this workspace, so the gate remains `UNKNOWN`. Any ingestion must preserve the raw
+file hash, quote timestamp, bid/ask/depth and source entitlement before it can be used.
+
 ## Required data products before promotion
 
 1. **Strict PIT fundamentals:** filing-level `announcement_at`/`accepted_at`, raw accession
