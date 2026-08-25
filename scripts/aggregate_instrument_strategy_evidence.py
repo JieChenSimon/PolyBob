@@ -127,6 +127,45 @@ def _crypto_walk_forward(path: Path) -> list[dict[str, Any]]:
     return output
 
 
+def _deep_drawdown_kernel(path: Path) -> list[dict[str, Any]]:
+    """Flatten per-symbol drawdown kernel cases without averaging away risk."""
+    report = _read(path)
+    output = []
+    for result in report.get("results", []):
+        if not isinstance(result, dict) or not result.get("symbol"):
+            continue
+        metrics = result.get("metrics") if isinstance(result.get("metrics"), dict) else {}
+        target = metrics.get("return_target") if isinstance(metrics.get("return_target"), dict) else {}
+        event_stats = result.get("event_stats") if isinstance(result.get("event_stats"), dict) else {}
+        oos = event_stats.get("oos") if isinstance(event_stats.get("oos"), dict) else {}
+        target_status = (
+            _target_status(metrics)
+            if result.get("events") and int(oos.get("n_complete") or 0) > 0
+            else "UNKNOWN"
+        )
+        output.append({
+            "instrument": str(result["symbol"]),
+            "domain": str(result.get("domain", "unknown")),
+            "strategy": "deep_drawdown_rebound_v1",
+            "source": str(path),
+            "hold_days": result.get("hold_days"),
+            "cost_multiple": result.get("cost_multiple"),
+            "total_return": metrics.get("total_return"),
+            "max_drawdown": metrics.get("max_drawdown"),
+            "sharpe": metrics.get("sharpe"),
+            "closed_trade_count": metrics.get("closed_trade_count"),
+            "oos_return": oos.get("mean_net_return"),
+            "annualized_return": target.get("annualized_return"),
+            "monthly_target_status": target_status,
+            "stability_status": str(oos.get("status", "UNKNOWN")),
+            "execution_evidence": metrics.get("execution_evidence", {}),
+            "promotion": result.get("promotion", "BLOCKED"),
+            "promotion_reason": "deep-drawdown PIT, survivorship and executable quote gates remain unresolved",
+            "event_stats": event_stats,
+        })
+    return output
+
+
 def build_evidence(root: Path) -> dict[str, Any]:
     sources = [
         root / "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
@@ -134,13 +173,18 @@ def build_evidence(root: Path) -> dict[str, Any]:
         root / "data/crypto_tsmom_multifold_replay.json",
         root / "data/crypto_tsmom_walk_forward_replay.json",
     ]
+    optional_sources = [root / "data/deep_drawdown_kernel_replay.json"]
     missing = [str(path) for path in sources if not path.exists()]
+    optional_missing = [str(path) for path in optional_sources if not path.exists()]
     rows: list[dict[str, Any]] = []
     if not missing:
         rows.extend(_standalone(sources[0]))
         rows.extend(_standalone(sources[1]))
         rows.extend(_crypto_multifold(sources[2]))
         rows.extend(_crypto_walk_forward(sources[3]))
+        for path in optional_sources:
+            if path.exists():
+                rows.extend(_deep_drawdown_kernel(path))
 
     by_instrument: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
@@ -161,8 +205,8 @@ def build_evidence(root: Path) -> dict[str, Any]:
             "monthly_return_min": MONTHLY_TARGET,
             "missing_is_not_pass": True,
         },
-        "sources": [str(path) for path in sources],
-        "missing_sources": missing,
+        "sources": [str(path) for path in (*sources, *optional_sources)],
+        "missing_sources": [*missing, *optional_missing],
         "instrument_count": len(by_instrument),
         "evidence_row_count": len(rows),
         "target_status_counts": counts,

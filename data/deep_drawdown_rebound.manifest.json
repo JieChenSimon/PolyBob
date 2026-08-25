@@ -1,6 +1,6 @@
 {
   "experiment": "deep_drawdown_rebound_v1",
-  "as_of": "2026-08-24T22:31:01.413878+00:00",
+  "as_of": "2026-08-25T04:27:36.431013+00:00",
   "params": {
     "model_revision": "deep-drawdown-quality-rebound-v1",
     "config": "config/research/deep_drawdown_rebound.yaml",
@@ -23,12 +23,12 @@
     ]
   },
   "code": {
-    "commit": "c05758a8a70bcb8a319181063c07a94063597ac8",
+    "commit": "aa94e2a0efe069e0669ea9a51c2a143fb2403b24",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T22:31:01.440150+00:00",
+  "started_at": "2026-08-25T04:27:36.454951+00:00",
   "inputs": {
     "daily_bars:A_SHARE": {
       "symbols": 8,
@@ -143,63 +143,79 @@
     },
     "fundamentals:A_SHARE": {
       "symbols": 8,
-      "rows": 0,
+      "rows": 755,
       "coverage": [
         {
           "symbol": "600519",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 103,
+          "start": "1998-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "000001",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 123,
+          "start": "1989-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "300750",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 41,
+          "start": "2014-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "601318",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 90,
+          "start": "1997-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "000858",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 110,
+          "start": "1995-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "600036",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 101,
+          "start": "1999-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "000651",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 112,
+          "start": "1993-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "002594",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 75,
+          "start": "2002-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         }
       ],
       "strict_historical_pit": false
@@ -210,16 +226,17 @@
       "coverage": [
         {
           "symbol": "AAPL",
-          "rows": 1265,
+          "rows": 1266,
           "start": "2021-08-09",
-          "end": "2026-08-21",
+          "end": "2026-08-24",
           "source": [
             "yahoo"
           ],
           "price_basis": [
-            "provider_quote_adjustment_unknown"
+            "provider_quote_adjustment_unknown",
+            "yahoo_split_dividend_adjusted_ohlcv"
           ],
-          "missing_price_basis_rows": 1259
+          "missing_price_basis_rows": 6
         },
         {
           "symbol": "MSFT",
@@ -1023,7 +1040,7 @@
     }
   },
   "lineage": {
-    "input_hash": "08280e7e810f5e0a60284887b1a7a541d82783ac552f3e532871f1475a793c68",
+    "input_hash": "0c1be7a6ad0c1d46c05782bac4e95f2bdc6a753399c3919e7c53aed1bb2a7fed",
     "model_hash": "ae16d46aa14bbedf41cb7ca617daf912e59d186b6579859f228a36e70fa89e48",
     "has_lineage": true
   },

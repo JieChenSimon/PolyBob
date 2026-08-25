@@ -38,3 +38,31 @@ def test_aggregator_preserves_unknown_and_never_promotes(tmp_path):
     assert report["target_status_counts"]["FAIL"] == 1
     assert report["target_status_counts"]["UNKNOWN"] == 1
     assert report["instruments"]["000001"][0]["monthly_target_status"] == "UNKNOWN"
+
+
+def test_deep_drawdown_cases_are_flattened_without_zero_trade_failures(tmp_path):
+    data = tmp_path / "data"
+    data.mkdir()
+    for name in (
+        "cross_sectional_standalone_us_oos_candidate_20_30_5.json",
+        "cross_sectional_standalone_a_oos_candidate_20_30_5.json",
+    ):
+        (data / name).write_text(json.dumps({"results": []}))
+    (data / "crypto_tsmom_multifold_replay.json").write_text(json.dumps({"folds": []}))
+    (data / "crypto_tsmom_walk_forward_replay.json").write_text(json.dumps({"folds": []}))
+    (data / "deep_drawdown_kernel_replay.json").write_text(json.dumps({
+        "results": [
+            {"symbol": "AAA", "domain": "us_equity", "events": [],
+             "metrics": {"return_target": {"status": "FAIL"}},
+             "event_stats": {"oos": {"n_complete": 0}}, "promotion": "BLOCKED"},
+            {"symbol": "BBB", "domain": "us_equity", "events": [{"event_id": "e1"}],
+             "metrics": {"return_target": {"status": "FAIL"}},
+             "event_stats": {"oos": {"n_complete": 1, "mean_net_return": -0.1}},
+             "promotion": "BLOCKED"},
+        ]
+    }))
+
+    report = build_evidence(tmp_path)
+
+    assert report["instruments"]["AAA"][0]["monthly_target_status"] == "UNKNOWN"
+    assert report["instruments"]["BBB"][0]["monthly_target_status"] == "FAIL"
