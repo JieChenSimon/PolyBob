@@ -30,6 +30,44 @@ EDGE_THRESHOLD = 0.10
 SPREAD_BPS = 50.0
 EQUITY_SAMPLE_EVENTS = max(1, int(os.environ.get("POLYBOB_BTC5M_EQUITY_SAMPLE_EVENTS", "20")))
 REPLAY_THROTTLE_SECONDS = max(0.0, float(os.environ.get("POLYBOB_BTC5M_REPLAY_THROTTLE_SECONDS", "0.20")))
+REPLAY_CHUNK_ROWS = max(1, int(os.environ.get("POLYBOB_BTC5M_REPLAY_CHUNK_ROWS", "100")))
+REPLAY_CPU_TARGET = min(0.50, max(0.05, float(os.environ.get("POLYBOB_BTC5M_REPLAY_CPU_TARGET", "0.30"))))
+
+
+class CpuBudgetThrottle:
+    """Keep this worker's average CPU share bounded during SQLite-heavy replay.
+
+    ``ps`` reports an instantaneous process percentage, so a fixed sleep is
+    not sufficient: bursts during a large transaction can still exceed the
+    workstation budget.  This controller compares process CPU time with wall
+    time and sleeps until the configured worker share is restored.
+    """
+
+    def __init__(self, target: float = REPLAY_CPU_TARGET):
+        self.target = min(0.50, max(0.05, float(target)))
+        self._wall = time.monotonic()
+        self._cpu = time.process_time()
+
+    def pause(self) -> None:
+        wall = time.monotonic() - self._wall
+        cpu = time.process_time() - self._cpu
+        if wall <= 0 or cpu <= 0:
+            return
+        desired_wall = cpu / self.target
+        if desired_wall > wall:
+            time.sleep(min(desired_wall - wall, 2.0))
+        self._wall = time.monotonic()
+        self._cpu = time.process_time()
+
+
+def _checkpoint_path(out_dir: Path, multiple: float) -> Path:
+    return out_dir / f"btc5m-event-{multiple:g}x.checkpoint.json"
+
+
+def _write_checkpoint(path: Path, payload: dict) -> None:
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    temporary.replace(path)
 
 
 class Clock:
@@ -72,125 +110,175 @@ def _quote(probability: float, multiple: float) -> tuple[float, float, float]:
 
 
 async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
+    """Replay one cost case in resumable chunks with idempotent event keys."""
+    if not rows:
+        raise ValueError("rows must not be empty")
     first = datetime.fromtimestamp(int(rows[0]["decision_ts"]), tz=UTC)
     clock = Clock(first)
     universe = [
         f"BTC5M:{row['window_start']}:{side}"
         for row in rows for side in ("UP", "DOWN")
     ]
-    db = out_dir / f"btc5m-event-{uuid.uuid4().hex[:8]}.sqlite3"
-    service = SimulationService(
-        db, clock=clock, equity_poll_seconds=10**9,
-        source_factories={"btc5m_event_replay": lambda config, _db: EventReplaySource()},
-    )
-    await service.start()
-    run = await service.create_run(
-        name=f"btc5m-event-kernel:{multiple}x",
-        strategy_id="btc5m_event_replay", universe=universe,
-        initial_capital=10_000.0,
-        config={
-            # Keep the diagnostic's notional bounded by starting capital so a
-            # short event sample cannot compound into impossible capacity.
-            "position_fraction": 0.10, "position_fraction_basis": "initial_capital",
-            "fee_bps": 0.0,
-            "mid_penalty_bps": 0.0, "allow_short": False,
-            "cooldown_seconds": 0.0, "max_staleness_seconds": 600.0,
-            "min_trade_notional": 0.0,
-            "equity_interval_minutes": 1.0,
-        },
-    )
-    run_id = str(run["run_id"])
-    await service.start_run(run_id)
-    traded = 0
-    settlements = 0
-    settlement_failures: list[dict[str, str]] = []
-    settlement_skipped = 0
-    for row in rows:
-        edge = float(row["model_probability"]) - float(row["market_probability"])
-        if abs(edge) < EDGE_THRESHOLD:
-            continue
-        buy_up = edge >= EDGE_THRESHOLD
-        probability = float(row["market_probability"] if buy_up else 1.0 - row["market_probability"])
-        outcome = int(row["outcome_up"] if buy_up else 1 - row["outcome_up"])
-        instrument = f"BTC5M:{row['window_start']}:{'UP' if buy_up else 'DOWN'}"
-        entry_ts = datetime.fromtimestamp(int(row["decision_ts"]), tz=UTC)
-        settle_ts = datetime.fromtimestamp(int(row["window_end"]), tz=UTC)
-        bid, ask, mid = _quote(probability, multiple)
-        clock.current = entry_ts
-        await service._dispatch("features.snapshots", {
-            "market_id": instrument, "timestamp": entry_ts,
-            "mid_price": mid, "bid_price": bid, "ask_price": ask,
-            "signal_side": "buy",
-            "signal_meta": {
-                "source": "btc5m_event_kernel_diagnostic",
-                "execution_stage": "entry", "window_start": row["window_start"],
-                "raw_sha256": {
-                    "gamma": row.get("gamma_raw_sha256"),
-                    "clob": row.get("clob_raw_sha256"),
-                    "okx": row.get("okx_raw_sha256"),
-                },
-                "execution_basis": "historical_probability_plus_fixed_spread_stress",
-                "quote_source": "synthetic_probability_stress",
+    checkpoint = _checkpoint_path(out_dir, multiple)
+    state: dict = {}
+    if checkpoint.exists():
+        state = json.loads(checkpoint.read_text())
+        if state.get("rows") != len(rows) or float(state.get("cost_multiple")) != float(multiple):
+            raise RuntimeError(f"checkpoint does not match replay input: {checkpoint}")
+    db = Path(state.get("db") or (out_dir / f"btc5m-event-{uuid.uuid4().hex[:8]}.sqlite3"))
+    next_index = int(state.get("next_index", 0))
+    settlement_failures = list(state.get("settlement_failures", []))
+    settlement_skipped = int(state.get("settlement_skipped", 0))
+    chunks = 0
+    throttle = CpuBudgetThrottle()
+
+    async def open_service() -> tuple[SimulationService, str]:
+        service = SimulationService(
+            db, clock=clock, equity_poll_seconds=10**9,
+            source_factories={"btc5m_event_replay": lambda config, _db: EventReplaySource()},
+        )
+        await service.start()
+        run_id = state.get("run_id")
+        if run_id:
+            await service.restore_state()
+            active = service._active.get(str(run_id))
+            if active is None:
+                await service.stop()
+                raise RuntimeError(f"checkpoint run cannot be restored: {run_id}")
+            if active.record.status == "paused":
+                await service.start_run(str(run_id))
+            return service, str(run_id)
+        run = await service.create_run(
+            name=f"btc5m-event-kernel:{multiple}x",
+            strategy_id="btc5m_event_replay", universe=universe,
+            initial_capital=10_000.0,
+            config={
+                "position_fraction": 0.10, "position_fraction_basis": "initial_capital",
+                "fee_bps": 0.0, "mid_penalty_bps": 0.0, "allow_short": False,
+                "cooldown_seconds": 0.0, "max_staleness_seconds": 600.0,
+                "min_trade_notional": 0.0, "equity_interval_minutes": 1.0,
             },
-        })
-        positions = [p for p in service.store.list_positions(run_id)
-                     if p.instrument_id == instrument and p.size > 0]
-        if not positions:
-            settlement_skipped += 1
-            continue
-        clock.current = settle_ts
-        try:
-            await service.settle_binary_position(
-                run_id, settlement_id=f"btc5m:{row['window_start']}:{'UP' if buy_up else 'DOWN'}",
-                market_id=f"BTC5M:{row['window_start']}", instrument_id=instrument,
-                quantity=positions[0].size, payout_per_token=1.0 if outcome else 0.0,
-                settled_at=settle_ts.isoformat(), metadata={
-                    "source": "btc5m_event_kernel_diagnostic",
-                    "execution_stage": "settlement", "window_start": row["window_start"],
-                    "raw_sha256": {
-                        "gamma": row.get("gamma_raw_sha256"),
-                        "clob": row.get("clob_raw_sha256"),
-                        "okx": row.get("okx_raw_sha256"),
-                    },
-                    "execution_basis": "binary_payout_0_or_1; no_sell_fill",
-                },
-            )
-            settlements += 1
-        except Exception as exc:  # preserve failure evidence, do not hide it
-            settlement_failures.append({"instrument": instrument, "error": str(exc)})
-        if traded % EQUITY_SAMPLE_EVENTS == 0:
-            await service._record_equity(service._active[run_id])
-        traded += 1
-        if REPLAY_THROTTLE_SECONDS:
-            time.sleep(REPLAY_THROTTLE_SECONDS)
-    await service._record_equity(service._active[run_id])
-    active = service._active.get(run_id)
-    risk_rejections = active.risk_rejections if active is not None else None
-    rejection_events = active.risk_rejection_events if active is not None else []
-    rejection_reasons = Counter(
-        reason
-        for event in rejection_events
-        for reason in event.get("reasons", [])
-    )
-    rejection_by_stage = Counter(
-        event.get("stage", "unknown") for event in rejection_events
-    )
-    await service.stop_run(run_id)
-    metrics = sim_metrics.compute_run_metrics(service.store, run_id)
-    trades = len(service.store.list_trades(run_id))
-    open_positions = len(service.store.list_positions(run_id))
-    unresolved_positions = [
-        {
-            "instrument": position.instrument_id,
-            "size": position.size,
-            "avg_price": position.avg_price,
+        )
+        run_id = str(run["run_id"])
+        await service.start_run(run_id)
+        state.update({"rows": len(rows), "cost_multiple": multiple, "db": str(db), "run_id": run_id})
+        _write_checkpoint(checkpoint, {**state, "next_index": 0})
+        return service, run_id
+
+    while next_index < len(rows):
+        service, run_id = await open_service()
+        existing_settlements = {
+            item.settlement_id for item in service.store.list_settlements(run_id)
         }
-        for position in service.store.list_positions(run_id)
-    ]
-    await service.stop()
-    for suffix in ("", "-wal", "-shm"):
-        db.with_name(db.name + suffix).unlink(missing_ok=True)
-    return {"cost_multiple": multiple, "candidate_events": traded,
+        existing_trade_instruments = {
+            item.instrument_id for item in service.store.list_trades(run_id)
+        }
+        active = service._active[run_id]
+        end_index = min(len(rows), next_index + REPLAY_CHUNK_ROWS)
+        for row_index in range(next_index, end_index):
+            row = rows[row_index]
+            edge = float(row["model_probability"]) - float(row["market_probability"])
+            if abs(edge) < EDGE_THRESHOLD:
+                continue
+            buy_up = edge >= EDGE_THRESHOLD
+            direction = "UP" if buy_up else "DOWN"
+            settlement_id = f"btc5m:{row['window_start']}:{direction}"
+            instrument = f"BTC5M:{row['window_start']}:{direction}"
+            if settlement_id in existing_settlements:
+                continue
+            probability = float(row["market_probability"] if buy_up else 1.0 - row["market_probability"])
+            outcome = int(row["outcome_up"] if buy_up else 1 - row["outcome_up"])
+            entry_ts = datetime.fromtimestamp(int(row["decision_ts"]), tz=UTC)
+            settle_ts = datetime.fromtimestamp(int(row["window_end"]), tz=UTC)
+            bid, ask, mid = _quote(probability, multiple)
+            clock.current = entry_ts
+            if instrument not in existing_trade_instruments:
+                await service._dispatch("features.snapshots", {
+                    "market_id": instrument, "timestamp": entry_ts,
+                    "mid_price": mid, "bid_price": bid, "ask_price": ask,
+                    "signal_side": "buy",
+                    "signal_meta": {
+                        "source": "btc5m_event_kernel_diagnostic",
+                        "execution_stage": "entry", "window_start": row["window_start"],
+                        "raw_sha256": {
+                            "gamma": row.get("gamma_raw_sha256"),
+                            "clob": row.get("clob_raw_sha256"),
+                            "okx": row.get("okx_raw_sha256"),
+                        },
+                        "execution_basis": "historical_probability_plus_fixed_spread_stress",
+                        "quote_source": "synthetic_probability_stress",
+                    },
+                })
+                existing_trade_instruments.add(instrument)
+            positions = [p for p in service.store.list_positions(run_id)
+                         if p.instrument_id == instrument and p.size > 0]
+            if not positions:
+                settlement_skipped += 1
+                continue
+            clock.current = settle_ts
+            try:
+                await service.settle_binary_position(
+                    run_id, settlement_id=settlement_id,
+                    market_id=f"BTC5M:{row['window_start']}", instrument_id=instrument,
+                    quantity=positions[0].size, payout_per_token=1.0 if outcome else 0.0,
+                    settled_at=settle_ts.isoformat(), metadata={
+                        "source": "btc5m_event_kernel_diagnostic",
+                        "execution_stage": "settlement", "window_start": row["window_start"],
+                        "raw_sha256": {
+                            "gamma": row.get("gamma_raw_sha256"),
+                            "clob": row.get("clob_raw_sha256"),
+                            "okx": row.get("okx_raw_sha256"),
+                        },
+                        "execution_basis": "binary_payout_0_or_1; no_sell_fill",
+                    },
+                )
+                existing_settlements.add(settlement_id)
+            except Exception as exc:
+                settlement_failures.append({"instrument": instrument, "error": str(exc)})
+            if len(existing_trade_instruments) % EQUITY_SAMPLE_EVENTS == 0:
+                await service._record_equity(active)
+            if REPLAY_THROTTLE_SECONDS:
+                time.sleep(REPLAY_THROTTLE_SECONDS)
+            throttle.pause()
+        next_index = end_index
+        await service._record_equity(active)
+        if next_index < len(rows):
+            await service.pause_run(run_id)
+            await service.stop()
+            state.update({
+                "next_index": next_index,
+                "settlement_failures": settlement_failures,
+                "settlement_skipped": settlement_skipped,
+            })
+            _write_checkpoint(checkpoint, state)
+            chunks += 1
+            continue
+
+        await service.stop_run(run_id)
+        metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+        trades = len(service.store.list_trades(run_id))
+        settlements = len(service.store.list_settlements(run_id))
+        active = service._active.get(run_id)
+        risk_rejections = active.risk_rejections if active is not None else 0
+        rejection_events = active.risk_rejection_events if active is not None else []
+        rejection_reasons = Counter(
+            reason for event in rejection_events for reason in event.get("reasons", [])
+        )
+        rejection_by_stage = Counter(
+            event.get("stage", "unknown") for event in rejection_events
+        )
+        open_positions = len(service.store.list_positions(run_id))
+        unresolved_positions = [
+            {"instrument": position.instrument_id, "size": position.size,
+             "avg_price": position.avg_price}
+            for position in service.store.list_positions(run_id)
+        ]
+        await service.stop()
+        for suffix in ("", "-wal", "-shm"):
+            db.with_name(db.name + suffix).unlink(missing_ok=True)
+        checkpoint.unlink(missing_ok=True)
+        return {
+            "cost_multiple": multiple, "candidate_events": trades,
             "fills": trades, "settlements": settlements,
             "settlement_skipped": settlement_skipped,
             "settlement_failures": settlement_failures,
@@ -199,7 +287,10 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
             "risk_rejections_by_stage": dict(rejection_by_stage),
             "open_positions": open_positions,
             "unresolved_positions": unresolved_positions,
-            "metrics": metrics}
+            "chunks": chunks + 1,
+            "metrics": metrics,
+        }
+    raise RuntimeError("replay ended without a final result")
 
 
 async def main_async() -> int:

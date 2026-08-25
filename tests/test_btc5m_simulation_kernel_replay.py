@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from scripts import btc5m_simulation_kernel_replay as event_replay
 from scripts.btc5m_direction_kernel_replay import worker_budget
 from scripts.btc5m_simulation_kernel_replay import replay
 from scripts.btc5m_mispricing import _period_audit, _should_skip_checkpoint_window, _time_split_audit
@@ -40,6 +41,33 @@ async def test_known_answer_event_is_filled_and_settled(tmp_path):
     assert result["metrics"]["equity_curve_degraded"] is False
     assert result["metrics"]["execution_evidence"]["missing_depth_trade_count"] == 1
     assert result["metrics"]["execution_evidence"]["synthetic_quote_trade_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_event_replay_processes_resumable_chunks_and_cleans_state(tmp_path, monkeypatch):
+    monkeypatch.setattr(event_replay, "REPLAY_CHUNK_ROWS", 1)
+    monkeypatch.setattr(event_replay, "REPLAY_THROTTLE_SECONDS", 0.0)
+    rows = []
+    for offset in (0, 300):
+        rows.append({
+            "window_start": 1_700_000_000 + offset,
+            "window_end": 1_700_000_300 + offset,
+            "decision_ts": 1_700_000_120 + offset,
+            "model_probability": 0.70,
+            "market_probability": 0.50,
+            "outcome_up": 1,
+            "gamma_raw_sha256": "gamma",
+            "clob_raw_sha256": "clob",
+            "okx_raw_sha256": "okx",
+        })
+
+    result = await replay(rows, 1.0, tmp_path)
+
+    assert result["chunks"] == 2
+    assert result["candidate_events"] == 2
+    assert result["settlements"] == 2
+    assert not list(tmp_path.glob("*.checkpoint.json"))
+    assert not list(tmp_path.glob("*.sqlite3"))
 
 
 def test_checkpoint_open_state_is_retryable():
