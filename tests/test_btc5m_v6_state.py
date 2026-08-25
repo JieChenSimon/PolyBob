@@ -3,6 +3,7 @@ import json
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from libs.data import data_lake
 from scripts import btc5m_mispricing
 
 
@@ -61,3 +62,23 @@ def test_v6_snapshot_lineage_blocks_missing_window(tmp_path, monkeypatch):
 
     assert snapshot["status"] == "blocked_inconsistent"
     assert snapshot["normalized_rows"] == 0
+
+
+def test_live_minute_collection_does_not_recreate_retired_dataset(monkeypatch):
+    captured = []
+    monkeypatch.setattr(
+        btc5m_mispricing,
+        "_get_with_digest",
+        lambda url: ({"data": [["1000", "1", "0", "0", "2", "0"]]}, "o" * 64),
+    )
+    monkeypatch.setattr(
+        data_lake,
+        "write_records",
+        lambda dataset, records, **kwargs: captured.append((dataset, list(records), kwargs)),
+    )
+
+    rows, _ = btc5m_mispricing._btc_minute_bars_with_provenance(0, 2000)
+
+    assert rows == [(1000, 1.0, 2.0)]
+    assert captured[0][0] == "btc_1m_bars_live"
+    assert captured[0][0] != "btc_1m_bars"

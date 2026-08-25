@@ -29,4 +29,6 @@ data/datasets/compacted/btc_1m_bars/symbol=BTC-USDT/part-compact-00000.parquet
 
 删除动作只针对上述精确目录，不涉及 `data/datasets/parts` 下其他数据集、压缩输出、manifest、回放数据或缓存。删除后必须再次验证压缩文件可读、行数不变、完整测试和任务板校验通过。
 
+退役后的运行观察发现，BTC 5 分钟采集器曾将一次新的 2 行 1m 响应写回旧数据集名，短暂重新创建 1 个旧目录 part。已将采集器的实时暂存目标改为 `btc_1m_bars_live`，并加入回归测试；该临时旧 part 及其 manifest 登记已再次清除。历史压缩数据仍是只读基线，实时增量不再污染已退役目录。
+
 原始 5,143 个小文件本身不再可从本机恢复；其数据内容由压缩 Parquet 保存，输入路径和校验信息由 `data/btc_1m_bars_compaction_manifest.json` 与 `data/btc_1m_bars_compaction_plan.json` 保留。

@@ -45,6 +45,10 @@ COLLECTOR_SPEC = "btc5m-v6-atomic-window-provenance-open-price-up-token-cache-ch
 N_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_N_WINDOWS", "220"))
 MAX_NEW_WINDOWS = int(os.environ.get("POLYBOB_BTC5M_MAX_NEW_WINDOWS", "60"))
 NORMALIZED_DATASET = "btc5m_settled_windows_v6"
+# The historical ``btc_1m_bars`` parts were compacted and retired.  Live
+# collection must use a separate append-only staging dataset so a provider
+# retry cannot silently recreate the retired small-file tree.
+LIVE_MINUTE_DATASET = "btc_1m_bars_live"
 BATCH_SIZE = max(1, int(os.environ.get("POLYBOB_BTC5M_COMMIT_BATCH", "100")))
 FETCH_TIMEOUT_SECONDS = max(
     1.0, float(os.environ.get("POLYBOB_BTC5M_FETCH_TIMEOUT_SECONDS", "8"))
@@ -219,7 +223,7 @@ def _btc_minute_bars_with_provenance(
     ]
     from libs.data.data_lake import write_records
     write_records(
-        "btc_1m_bars",
+        LIVE_MINUTE_DATASET,
         [
             {
                 "symbol": "BTC-USDT",
