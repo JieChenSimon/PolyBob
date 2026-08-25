@@ -14,6 +14,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from collections import defaultdict
 from pathlib import Path
@@ -64,12 +65,23 @@ def _sql_string(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
 
+_SQL_IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _sql_identifier(value: str) -> str:
+    if not _SQL_IDENTIFIER.fullmatch(value):
+        raise ValueError(f"unsafe SQL identifier: {value!r}")
+    return value
+
+
 def compact_dataset(
     source: Path,
     destination: Path,
     *,
     partition_by: tuple[str, ...],
     deduplicate_exact_rows: bool = False,
+    deduplicate_keys: tuple[str, ...] = (),
+    latest_by: str | None = None,
 ) -> dict[str, Any]:
     """Write a compacted copy using DuckDB; never mutates ``source``."""
     import duckdb
@@ -92,7 +104,18 @@ def compact_dataset(
             ", union_by_name=true, hive_partitioning=true)"
         )
         count = int(connection.execute("SELECT count(*) FROM source_rows").fetchone()[0])
-        relation = "SELECT DISTINCT * FROM source_rows" if deduplicate_exact_rows else "SELECT * FROM source_rows"
+        if deduplicate_keys:
+            keys = ",".join(_sql_identifier(value) for value in deduplicate_keys)
+            order = f"{_sql_identifier(latest_by)} DESC NULLS LAST" if latest_by else "1"
+            relation = (
+                "SELECT * EXCLUDE (_rank) FROM ("
+                "SELECT *, row_number() OVER ("
+                f"PARTITION BY {keys} ORDER BY {order}"
+                ") AS _rank FROM source_rows"
+                ") WHERE _rank = 1"
+            )
+        else:
+            relation = "SELECT DISTINCT * FROM source_rows" if deduplicate_exact_rows else "SELECT * FROM source_rows"
         partition_sql = ""
         if partition_by:
             partition_sql = ", PARTITION_BY (" + ",".join(partition_by) + ")"
@@ -117,6 +140,8 @@ def compact_dataset(
             "output_bytes": output_bytes,
             "partition_by": list(partition_by),
             "deduplicate_exact_rows": deduplicate_exact_rows,
+            "deduplicate_keys": list(deduplicate_keys),
+            "latest_by": latest_by,
             "schema_sha256": schema_hash,
             "source_file_list_sha256": hashlib.sha256("\n".join(files).encode()).hexdigest(),
         }
@@ -140,6 +165,10 @@ def main() -> int:
     compact.add_argument("--destination", required=True)
     compact.add_argument("--partition-by", default="symbol")
     compact.add_argument("--deduplicate-exact-rows", action="store_true")
+    compact.add_argument("--deduplicate-keys", default="",
+                         help="comma-separated event identity columns")
+    compact.add_argument("--latest-by", default=None,
+                         help="observation column used to keep newest row per key")
     compact.add_argument("--apply", action="store_true",
                          help="write the new dataset; without this flag only print the plan")
     args = parser.parse_args()
@@ -164,6 +193,8 @@ def main() -> int:
         destination,
         partition_by=tuple(item for item in args.partition_by.split(",") if item),
         deduplicate_exact_rows=args.deduplicate_exact_rows,
+        deduplicate_keys=tuple(item for item in args.deduplicate_keys.split(",") if item),
+        latest_by=args.latest_by,
     )
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
