@@ -63,3 +63,31 @@ def test_materialize_prefers_sec_acceptance_timestamp(monkeypatch):
     assert captured["records"][0]["announcement_at"] == "2025-07-20T12:34:56.000Z"
     assert captured["records"][0]["accepted_at"] == "2025-07-20T12:34:56.000Z"
     assert captured["records"][0]["quality_flags"]["accepted_at"] == "2025-07-20T12:34:56.000Z"
+
+
+def test_materialize_keeps_missing_acceptance_timestamp_unknown(monkeypatch):
+    payload = {
+        "facts": {"us-gaap": {
+            "RevenueFromContractWithCustomerExcludingAssessedTax": {
+                "units": {"USD": [{
+                    "accn": "000-missing", "end": "2025-06-30", "filed": "2025-07-20",
+                    "form": "10-K", "val": 100,
+                }]}
+            },
+        }}
+    }
+    captured = {}
+    monkeypatch.setattr(sec_fundamentals, "_payload", lambda symbol: (payload, "sha", "facts-url"))
+    monkeypatch.setattr(sec_fundamentals, "_submission_acceptance", lambda symbol: {})
+    monkeypatch.setattr(
+        sec_fundamentals.store, "write",
+        lambda dataset, symbol, records, **kwargs: captured.setdefault("records", records) or 1,
+    )
+
+    result = sec_fundamentals.materialize("MRVL")
+
+    assert result["accepted_at_rows"] == 0
+    assert result["strict_pit_candidate"] is False
+    assert captured["records"][0]["announcement_at"] is None
+    assert captured["records"][0]["accepted_at"] is None
+    assert captured["records"][0]["quality_flags"]["accepted_at"] == "missing"

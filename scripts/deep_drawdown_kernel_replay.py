@@ -15,6 +15,7 @@ import json
 import logging
 import math
 import sys
+import time
 import uuid
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -38,6 +39,26 @@ COST_MULTIPLES = (1.0, 2.0, 3.0)
 MIN_ROWS = 120
 INITIAL_CAPITAL = 10_000.0
 DOMAIN_COST_BPS = {"a_share": 40.0, "us_equity": 20.0, "crypto": 35.0}
+
+
+class CpuBudgetThrottle:
+    """Cooperatively keep this sequential matrix below the process budget."""
+
+    def __init__(self, target: float = 0.45):
+        self.target = max(0.05, min(0.50, target))
+        self.wall = time.monotonic()
+        self.cpu = time.process_time()
+
+    def pause(self) -> None:
+        wall = time.monotonic() - self.wall
+        cpu = time.process_time() - self.cpu
+        if wall < 0.05 or cpu <= 0:
+            return
+        desired = cpu / self.target
+        if desired > wall:
+            time.sleep(min(desired - wall, 1.0))
+        self.wall = time.monotonic()
+        self.cpu = time.process_time()
 
 
 def _domain(symbol: str) -> str:
@@ -200,7 +221,8 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                     confirmation_bars: int = 0, probe_fraction: float = 0.0,
                     allowed_event_dates: set[str] | None = None,
                     max_nav_fraction: float = 0.05,
-                    drawdown_fraction: float = 0.50) -> dict[str, Any]:
+                    drawdown_fraction: float = 0.50,
+                    throttle: CpuBudgetThrottle | None = None) -> dict[str, Any]:
     if len(rows) < MIN_ROWS:
         return {"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
                 "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
@@ -251,6 +273,8 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             active = service._active.get(run_id)
             if active is not None:
                 await service._record_equity(active)
+            if throttle is not None:
+                throttle.pause()
         clock.current = rows[-1]["event_at"]
         active = service._active.get(run_id)
         execution_diagnostics = {
@@ -352,6 +376,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         )
     progress = ProgressReporter(Path(args.progress), len(cases))
     results: list[dict[str, Any]] = []
+    throttle = CpuBudgetThrottle()
     for symbol, drawdown_fraction, hold_days, multiple in cases:
         db_path = Path(args.output_dir) / f"{symbol}-{drawdown_fraction:.2f}-{hold_days}d-{multiple:g}x-{uuid.uuid4().hex[:8]}.sqlite3"
         result = await _run_case(symbol, rows_by_symbol[symbol], hold_days=hold_days,
@@ -362,9 +387,11 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                                  max_nav_fraction=args.max_nav_fraction,
                                  drawdown_fraction=drawdown_fraction,
                                  allowed_event_dates=(quality_dates_by_symbol[symbol]
-                                                       if args.fundamental_quality_only else None))
+                                                       if args.fundamental_quality_only else None),
+                                 throttle=throttle)
         results.append(result)
         progress.complete_one(f"{symbol}:{hold_days}d:{multiple:g}x")
+        throttle.pause()
     report = {
         "schema_version": "deep-drawdown-kernel-replay-v1",
         "generated_at": datetime.now(UTC).isoformat(),
@@ -380,6 +407,10 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "case_count": len(cases),
         "fundamental_quality_only": bool(args.fundamental_quality_only),
         "max_nav_fraction": args.max_nav_fraction,
+        "resource_policy": {
+            "cpu_target": "<=45% average process share",
+            "cooperative_pause": True,
+        },
         "drawdown_fractions": args.drawdown_fractions,
         "results": results,
         "promotion": {"status": "BLOCKED", "reason": "PIT/fundamental/executable quote gates UNKNOWN"},

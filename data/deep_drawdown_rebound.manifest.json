@@ -1,6 +1,6 @@
 {
   "experiment": "deep_drawdown_rebound_v1",
-  "as_of": "2026-08-25T04:27:36.431013+00:00",
+  "as_of": "2026-08-25T09:29:13.429147+00:00",
   "params": {
     "model_revision": "deep-drawdown-quality-rebound-v1",
     "config": "config/research/deep_drawdown_rebound.yaml",
@@ -23,12 +23,12 @@
     ]
   },
   "code": {
-    "commit": "aa94e2a0efe069e0669ea9a51c2a143fb2403b24",
+    "commit": "89f9158cd2894cc7cffcf4227f7fb2be9e0bb0ce",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-25T04:27:36.454951+00:00",
+  "started_at": "2026-08-25T09:29:13.452877+00:00",
   "inputs": {
     "daily_bars:A_SHARE": {
       "symbols": 8,

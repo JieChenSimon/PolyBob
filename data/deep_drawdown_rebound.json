@@ -1,7 +1,7 @@
 {
   "schema_version": "deep-drawdown-rebound-v1",
-  "generated_at": "2026-08-25T04:27:37.469024+00:00",
-  "as_of": "2026-08-25T04:27:36.431013+00:00",
+  "generated_at": "2026-08-25T09:29:14.495986+00:00",
+  "as_of": "2026-08-25T09:29:13.429147+00:00",
   "real_data_only": true,
   "strategy_status": "UNKNOWN",
   "promotion_status": "UNKNOWN",
@@ -228,9 +228,10 @@
           "drawdown": 0.50027751,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
             "periods": 110,
-            "accepted_periods": 0
+            "accepted_periods": 0,
+            "announced_periods": 0
           },
           "outcomes": [
             {
@@ -350,9 +351,10 @@
           "drawdown": 0.50537059,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
             "periods": 110,
-            "accepted_periods": 0
+            "accepted_periods": 0,
+            "announced_periods": 0
           },
           "outcomes": [
             {
@@ -472,9 +474,10 @@
           "drawdown": 0.50701604,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
             "periods": 110,
-            "accepted_periods": 0
+            "accepted_periods": 0,
+            "announced_periods": 0
           },
           "outcomes": [
             {
@@ -3348,8 +3351,10 @@
           "drawdown": 0.50947196,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 39
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 39,
+            "accepted_periods": 0,
+            "announced_periods": 39
           },
           "outcomes": [
             {
@@ -3496,8 +3501,10 @@
           "drawdown": 0.50910565,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 39
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 39,
+            "accepted_periods": 0,
+            "announced_periods": 39
           },
           "outcomes": [
             {
@@ -3644,8 +3651,10 @@
           "drawdown": 0.50790201,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 39
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 39,
+            "accepted_periods": 0,
+            "announced_periods": 39
           },
           "outcomes": [
             {
@@ -3792,8 +3801,10 @@
           "drawdown": 0.50614891,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 40
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 40,
+            "accepted_periods": 0,
+            "announced_periods": 40
           },
           "outcomes": [
             {
@@ -3940,8 +3951,10 @@
           "drawdown": 0.52566853,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 40
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 40,
+            "accepted_periods": 0,
+            "announced_periods": 40
           },
           "outcomes": [
             {
@@ -4088,8 +4101,10 @@
           "drawdown": 0.50641058,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 40
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 40,
+            "accepted_periods": 0,
+            "announced_periods": 40
           },
           "outcomes": [
             {
@@ -4236,8 +4251,10 @@
           "drawdown": 0.50081113,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 40
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 40,
+            "accepted_periods": 0,
+            "announced_periods": 40
           },
           "outcomes": [
             {
@@ -4384,8 +4401,10 @@
           "drawdown": 0.51855146,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 40
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 40,
+            "accepted_periods": 0,
+            "announced_periods": 40
           },
           "outcomes": [
             {
@@ -4532,8 +4551,10 @@
           "drawdown": 0.52004292,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 43
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 43,
+            "accepted_periods": 0,
+            "announced_periods": 43
           },
           "outcomes": [
             {
@@ -7652,8 +7673,10 @@
           "drawdown": 0.50318367,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 57
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 57,
+            "accepted_periods": 0,
+            "announced_periods": 57
           },
           "outcomes": [
             {
@@ -7800,8 +7823,10 @@
           "drawdown": 0.50840815,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 57
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 57,
+            "accepted_periods": 0,
+            "announced_periods": 57
           },
           "outcomes": [
             {
@@ -7948,8 +7973,10 @@
           "drawdown": 0.51542857,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 58
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 58,
+            "accepted_periods": 0,
+            "announced_periods": 58
           },
           "outcomes": [
             {
@@ -8096,8 +8123,10 @@
           "drawdown": 0.50138774,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 60
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 60,
+            "accepted_periods": 0,
+            "announced_periods": 60
           },
           "outcomes": [
             {
@@ -8244,8 +8273,10 @@
           "drawdown": 0.50318367,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "required_fundamental_field_missing",
-            "periods": 60
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
+            "periods": 60,
+            "accepted_periods": 0,
+            "announced_periods": 60
           },
           "outcomes": [
             {
@@ -22438,9 +22469,10 @@
           "drawdown": 0.52252896,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
             "periods": 17,
-            "accepted_periods": 16
+            "accepted_periods": 16,
+            "announced_periods": 16
           },
           "outcomes": [
             {
@@ -22587,9 +22619,10 @@
           "drawdown": 0.50126924,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
             "periods": 18,
-            "accepted_periods": 17
+            "accepted_periods": 17,
+            "announced_periods": 17
           },
           "outcomes": [
             {
