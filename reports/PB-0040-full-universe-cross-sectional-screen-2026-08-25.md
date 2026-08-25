@@ -153,15 +153,18 @@ vol_target_10`。screen 的 OOS 结果为组合 `+94.58%`、同期等权基准 `
 ADMA `-22.17%`。这证明收益高度集中，不能把组合整体正收益解释为每个标的
 都有效。
 
-基于训练期的“逐标的中位数收益与覆盖率”预注册选择，新增候选
-`lookback=60, top_frac=0.3, rebalance=5`，随后仅在 OOS 做确认：
+基于训练期的“逐标的中位数收益与覆盖率”预注册选择，主候选为
+`lookback=20, top_frac=0.3, rebalance=5`，随后仅在 OOS 做确认。另保留
+`60/30%/5` 作为次级敏感性候选，不参与主候选晋级：
 
 | 域/候选 | 标的数 | OOS 中位数 | OOS 正收益数 | OOS 目标 PASS |
 |---|---:|---:|---:|---:|
 | 美股基线 60/20%/10 | 27 | 0.00% | 13/27 | 0/27 |
-| 美股候选 60/30%/5 | 27 | +4.66% | 17/27 | 0/27 |
+| 美股主候选 20/30%/5 | 27 | +5.17% | 18/27 | 0/27 |
+| 美股次级候选 60/30%/5 | 27 | +4.66% | 17/27 | 0/27 |
 | A 股基线 60/20%/10 | 8 | -5.46% | 2/8 | 0/8 |
-| A 股候选 60/30%/5 | 8 | -4.47% | 3/8 | 0/8 |
+| A 股主候选 20/30%/5 | 8 | -2.31% | 4/8 | 0/8 |
+| A 股次级候选 60/30%/5 | 8 | -4.47% | 3/8 | 0/8 |
 
 候选改善了中位数和正收益覆盖，但美股尾部亏损扩大、A 股整体仍为负，且
 全部标的均未同时满足年化 50% 与每月 15% 门禁；因此候选保留为
@@ -169,4 +172,6 @@ ADMA `-22.17%`。这证明收益高度集中，不能把组合整体正收益解
 `data/cross_sectional_standalone_us_oos.json`、
 `data/cross_sectional_standalone_a_oos.json`；候选产物：
 `data/cross_sectional_standalone_us_oos_candidate_60_30_5.json`、
-`data/cross_sectional_standalone_a_oos_candidate_60_30_5.json`。
+`data/cross_sectional_standalone_a_oos_candidate_60_30_5.json`；主候选产物：
+`data/cross_sectional_standalone_us_oos_candidate_20_30_5.json`、
+`data/cross_sectional_standalone_a_oos_candidate_20_30_5.json`。
