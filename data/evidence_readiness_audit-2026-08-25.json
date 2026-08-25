@@ -1,6 +1,6 @@
 {
   "schema_version": "evidence-readiness-audit-v1",
-  "generated_at": "2026-08-25T10:17:16.652787+00:00",
+  "generated_at": "2026-08-25T10:30:47.854963+00:00",
   "read_only": true,
   "promotion": "BLOCKED",
   "gates": {
@@ -14,7 +14,7 @@
     },
     "historical_executable_quotes": {
       "status": "UNKNOWN",
-      "reason": "sampled_historical_orderbook_present_but_fill_linkage_missing"
+      "reason": "sampled_historical_orderbook_has_partial_fill_linkage_but_insufficient_coverage"
     }
   },
   "contracts": {
@@ -234,6 +234,22 @@
         "snapshot_count": 1440,
         "source": "www.okx.com_historical_l2",
         "update_count": 5837084
+      }
+    ],
+    "real_execution_replay_summaries": [
+      {
+        "path": "data/okx_l2_imbalance_replay_candidate_v2.json",
+        "real_data_only": true,
+        "strategy": "okx_l2_depth_imbalance_stateful",
+        "instrument": "BTC-USDT",
+        "run_id": "sim_2dda4623e5",
+        "rows_used": 1440,
+        "linked_observations": 590,
+        "status": "diagnostic_not_promotion",
+        "total_return": -0.005351475165836006,
+        "trade_count": 590,
+        "trade_quote_observation_link_count": 590,
+        "synthetic_quote_trade_count": 0
       }
     ],
     "survivorship_like_files": []
