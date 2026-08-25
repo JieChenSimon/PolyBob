@@ -204,10 +204,17 @@ def _fundamental_quality(symbol: str, event_date: str, as_of) -> dict[str, Any]:
     frame = frame.sort_values("event_date").drop_duplicates("event_date", keep="last")
     if len(frame) < 4:
         return {"status": "UNKNOWN", "reason": "fewer_than_four_pit_periods", "periods": int(len(frame))}
-    accepted = frame["quality_flags"].map(
-        lambda value: isinstance(value, dict)
-        and _accepted_before_event(value.get("accepted_at"), event_date)
-    )
+    if "accepted_at" in frame.columns:
+        accepted = frame["accepted_at"].map(
+            lambda value: _accepted_before_event(value, event_date)
+        )
+    else:
+        # Backward-compatible read for pre-migration materializations. New
+        # rows carry accepted_at as a first-class schema field.
+        accepted = frame["quality_flags"].map(
+            lambda value: isinstance(value, dict)
+            and _accepted_before_event(value.get("accepted_at"), event_date)
+        )
     announced = frame["announcement_at"].map(
         lambda value: _accepted_before_event(value, event_date)
     )

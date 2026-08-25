@@ -52,6 +52,7 @@ def test_quality_gate_requires_announcement_timestamp_before_event(monkeypatch):
             "2025-01-02T00:00:00Z", "2025-04-02T00:00:00Z",
             "2025-07-02T00:00:00Z", "2025-10-02T00:00:00Z",
         ],
+        "accepted_at": ["2025-01-02T00:00:00Z"] * 4,
         "quality_flags": [{"accepted_at": "2025-01-02T00:00:00Z"}] * 4,
         "revenue": [100.0] * 4, "gross_profit": [30.0] * 4,
         "operating_cash_flow": [20.0] * 4, "total_debt": [10.0] * 4,
