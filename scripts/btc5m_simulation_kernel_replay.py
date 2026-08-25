@@ -281,8 +281,6 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                 existing_settlements.add(settlement_id)
             except Exception as exc:
                 settlement_failures.append({"instrument": instrument, "error": str(exc)})
-            if len(existing_trade_instruments) % EQUITY_SAMPLE_EVENTS == 0:
-                await service._record_equity(active)
             time.sleep(max(REPLAY_THROTTLE_SECONDS, REPLAY_MIN_SLEEP_SECONDS))
             throttle.pause()
         next_index = end_index
