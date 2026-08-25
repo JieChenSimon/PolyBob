@@ -9,15 +9,16 @@
 | `data/datasets` | 24,255 | 2,450,232 KiB | 规范化 Parquet、parts、归档 |
 | `data/.kernel_replay_insider` | 未单独计数 | 18,820 KiB | 回放临时/检查点物 |
 
-可重复审计工具 `scripts/audit_data_layout.py` 的当前结果为 151,921 个文件、
-约 4.18 GB；主要扩展名为 Parquet 107,498 个、BIN 17,432 个、JSON 15,052 个、
+删除旧 BTC parts 后，可重复审计工具 `scripts/audit_data_layout.py` 的当前结果为
+146,779 个文件、4,159,073,504 bytes；主要扩展名为 Parquet 102,356 个、
+BIN 17,432 个、JSON 15,052 个、
 BODY 11,911 个。`data/store`、`data/market_cache`、`data/datasets` 中小于 64 KiB
 的文件数分别为 100,679、26,624、22,639；这说明小文件问题是真实的，且主要集中在
 按 payload/响应拆分的不可变数据和缓存层。
 
-现有 `data/datasets/manifest.jsonl` 有 23,741 条路径记录，当前路径存在率为
-100%。按“类别 + 文件大小 + 扩展名”的低成本元数据分组得到 7,776 个候选组、
-140,718 个候选文件；这只是筛选线索，不是重复内容证明，当前确认的 hash 重复数
+现有 `data/datasets/manifest.jsonl` 有 18,599 条有效路径记录，当前路径存在率为
+100%。按“类别 + 文件大小 + 扩展名”的低成本元数据分组得到 7,404 个候选组、
+135,704 个候选文件；这只是筛选线索，不是重复内容证明，当前确认的 hash 重复数
 仍为 0（尚未执行全盘 hash）。
 
 ## 解释与风险
