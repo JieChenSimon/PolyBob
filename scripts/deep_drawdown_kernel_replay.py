@@ -132,6 +132,20 @@ def _event_stats(events: list[dict[str, Any]], *, oos: bool | None = None,
     }
 
 
+def _fundamental_gate_status(
+    events: list[dict[str, Any]], allowed_event_dates: set[str] | None,
+) -> str:
+    """Separate row-level event-date approval from global trade approval."""
+    if allowed_event_dates is None:
+        return "UNKNOWN_NO_TRADE"
+    event_dates = {
+        str(event.get("event_date", ""))[:10]
+        for event in events
+        if event.get("event_date")
+    }
+    return "PASS_EVENT_DATE_GATE" if event_dates & allowed_event_dates else "UNKNOWN_NO_TRADE"
+
+
 async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                     cost_multiple: float, db_path: Path, name: str,
                     confirmation_bars: int = 0, probe_fraction: float = 0.0,
@@ -205,6 +219,7 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
         trades = service.store.list_trades(run_id)
         events = _event_summaries(trades, split=split)
         metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+        fundamental_status = _fundamental_gate_status(events, allowed_event_dates)
         return {
             "symbol": symbol,
             "domain": domain,
@@ -228,9 +243,14 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                                  for multiple in COST_MULTIPLES],
             },
             "pit_status": "UNKNOWN",
-            "fundamental_status": "UNKNOWN_NO_TRADE",
+            "fundamental_status": fundamental_status,
             "executable_quote_status": "UNKNOWN_NO_TRADE",
             "promotion": "BLOCKED",
+            "promotion_reason": (
+                "global_historical_pit_or_executable_quote_unknown"
+                if fundamental_status == "PASS_EVENT_DATE_GATE"
+                else "fundamental_or_global_historical_pit_or_executable_quote_unknown"
+            ),
         }
     finally:
         await service.stop()

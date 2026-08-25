@@ -90,6 +90,18 @@ ACVA、ADTN 和 000858，但样本也不足以直接证明永久无效。下一�
 且改善高度受 AAOI 少量事件影响。因此候选状态仍为 `UNKNOWN_NO_TRADE`，
 不能晋级；下一轮需要新的独立时间段/标的事件和真实报价深度复测。
 
+### 严格基本面门禁复核
+
+对同一 13 个有 OOS 事件的标的、同一确认/探针候选重新运行
+`--fundamental-quality-only`：156 个 case 中 48 个 case 的事件日期通过了
+当前行级 SEC acceptance 与质量规则，集中在 ABX、ADMA；其余 108 个 case
+保持 `UNKNOWN_NO_TRADE`。这 48 个 case 仍全部因为全局历史 PIT 和可执行报价
+深度未知而 `BLOCKED`，不是 Promotion 候选。
+
+本轮同时修正了回放报告的状态语义：`PASS_EVENT_DATE_GATE` 只表示事件日期
+级别的基本面门通过，`promotion_reason=global_historical_pit_or_executable_quote_unknown`
+明确表示仍不能交易；不会再把局部通过事件错误显示为 `UNKNOWN_NO_TRADE`。
+
 ## 专业判断与下一步
 
 当前证据受事件稀疏、严格 PIT 基本面日期缺失、独立 OOS 样本不足限制。
@@ -110,5 +122,6 @@ ACVA、ADTN 和 000858，但样本也不足以直接证明永久无效。下一�
 - 诊断批次：`/tmp/polybob_liquid_drawdown_diagnostic.json`
 - 受控预热后全量复核：`/tmp/polybob_deep_drawdown_warmed.json`
 - 确认/探针候选：`/tmp/polybob_deep_drawdown_probe.json`
+- 确认/探针严格基本面复核：`/tmp/polybob_deep_drawdown_probe_quality_fixed.json`
 - 旧批次进度文件分别为对应的 `*_progress.json`，均完成 `492/492`；受控预热后
   新批次完成 `504/504`，进度文件为 `/tmp/polybob_deep_drawdown_warmed_progress.json`。
