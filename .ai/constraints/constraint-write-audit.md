@@ -169,3 +169,12 @@
 - operation: update
 - status: approved-by-explicit-request
 - notes: 用户明确要求所有其他数据同样执行压缩后源数据退役规则；扩展适用范围到所有数据集，并明确压缩成功本身不授予删除权限，未完成证据链的数据必须保留并标记 UNKNOWN。
+
+## 2026-08-25T00:00:00+08:00
+
+- proposal_ref: user-all-real-world-data-and-real-processes
+- approved_item_ids: all-production-evidence-real-data; all-production-processes-real; synthetic-data-test-only; unverifiable-data-fail-closed
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`, `.ai/constraints/index.md`
+- operation: update
+- status: approved-by-explicit-request
+- notes: 用户明确要求所有数据和所有过程必须使用真实现实世界数据与真实执行链路；合成数据仅可用于测试/校准/故障注入/演示，不能进入收益、策略有效性或 Promotion 结论；来源、单位、时间语义和 provenance 不完整时必须 UNKNOWN/DEGRADED/BLOCKED。

@@ -292,10 +292,13 @@ def fetch_funding_rate_daily(inst_id: str, days: int = 400) -> dict[str, float]:
 def fetch_deribit_funding_rate_daily(inst_id: str, days: int = 400) -> dict[str, float]:
     """Daily Deribit perpetual funding from the official public history API.
 
-    Deribit exposes hourly ``interest_1h`` and an 8-hour equivalent. We sum
-    the hourly rate per UTC day, which is the daily carry; missing hours remain
-    missing and are never replaced with zero. The result is mirrored to the
-    bitemporal funding dataset with an explicit source label.
+    Deribit exposes hourly ``interest_1h`` and an 8-hour settlement rate. Use
+    the three UTC settlement observations (00:00, 08:00 and 16:00) and sum
+    ``interest_8h`` per complete UTC day. Summing the rolling hourly field
+    would not reproduce the exchange's periodic funding cashflows. Missing
+    settlement observations remain missing and are never replaced with zero.
+    The result is mirrored to the bitemporal funding dataset with an explicit
+    source label.
     """
     instrument = inst_id.upper()
     if instrument not in {"BTC-PERPETUAL", "ETH-PERPETUAL"}:
@@ -345,20 +348,25 @@ def fetch_deribit_funding_rate_daily(inst_id: str, days: int = 400) -> dict[str,
     for row in rows:
         try:
             timestamp = int(row["timestamp"])
-            rate = float(row["interest_1h"])
+            rate = float(row["interest_8h"])
         except (KeyError, TypeError, ValueError):
             continue
         if timestamp < cutoff:
             continue
-        day = time.strftime("%Y-%m-%d", time.gmtime(timestamp / 1000))
+        utc = time.gmtime(timestamp / 1000)
+        if utc.tm_hour not in {0, 8, 16}:
+            continue
+        day = time.strftime("%Y-%m-%d", utc)
         by_day.setdefault(day, []).append(rate)
-    result = {day: sum(values) for day, values in sorted(by_day.items()) if values}
+    result = {
+        day: sum(values) for day, values in sorted(by_day.items()) if len(values) == 3
+    }
     if not result:
         raise DataUnavailable(f"Deribit returned no funding history for {instrument}")
     try:
         from libs.data import store
 
-        source = "deribit_interest_1h_daily_sum"
+        source = "deribit_interest_8h_settlement_daily_sum_v2"
         rows = [
             {store.EVENT_DATE: day, "rate": rate, "source": source}
             for day, rate in result.items()

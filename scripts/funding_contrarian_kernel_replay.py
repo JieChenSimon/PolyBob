@@ -24,6 +24,7 @@ from modules.simulation.sources import SimSignal
 PRICE_TO_FUNDING = {"BTC-USDT": "BTC-PERPETUAL", "ETH-USDT": "ETH-PERPETUAL"}
 PERCENTILE_THRESHOLDS = (60.0, 75.0, 90.0)
 COST_MULTIPLES = (1.0, 2.0, 3.0)
+FUNDING_SOURCE = "deribit_interest_8h_settlement_daily_sum_v2"
 
 
 class ReplayPositionSource:
@@ -63,6 +64,10 @@ def _read_series(price_symbol: str):
     funding_symbol = PRICE_TO_FUNDING[price_symbol]
     prices = store.read(store.DAILY_BARS, price_symbol)
     funding = store.read(store.FUNDING_RATES, funding_symbol)
+    # Do not silently mix the retired hourly-sum approximation with the
+    # corrected 8-hour settlement series. Missing corrected observations must
+    # reduce coverage, not fall back to a different funding definition.
+    funding = funding[funding["source"] == FUNDING_SOURCE]
     price_map = dict(zip(prices["event_date"].astype(str), prices["close"].astype(float)))
     funding_map = dict(zip(funding["event_date"].astype(str), funding["rate"].astype(float)))
     dates = sorted(set(price_map) & set(funding_map))
@@ -74,6 +79,7 @@ def _read_series(price_symbol: str):
 async def replay_symbol(
     symbol: str, dates: list[str], prices: np.ndarray, funding: np.ndarray,
     positions: np.ndarray, split_date: str, out_dir: Path, cost_multiple: float,
+    cooperative_pause_seconds: float = 0.01,
 ) -> dict:
     timestamps = [datetime.fromisoformat(day).replace(tzinfo=UTC) for day in dates]
     clock = ReplayClock(timestamps[0])
@@ -105,9 +111,15 @@ async def replay_symbol(
         clock.current = timestamp
         await service._dispatch("features.snapshots", {
             "market_id": symbol, "timestamp": timestamp, "mid_price": float(price),
-            "funding_rate": float(rate), "source": "local_daily_bars_deribit_funding",
+            "funding_rate": float(rate), "source": FUNDING_SOURCE,
         })
         await service._record_equity(service._active[run_id])
+        # The replay deliberately uses the authoritative async execution path,
+        # which performs durable ledger writes. Yield between bars so a long
+        # research run cannot monopolize the machine while preserving the same
+        # real-data and real-fill sequence.
+        if cooperative_pause_seconds > 0:
+            await asyncio.sleep(cooperative_pause_seconds)
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
     points = service.store.list_equity_points(run_id)
@@ -132,7 +144,7 @@ async def replay_symbol(
     }
 
 
-async def main_async(output: Path) -> None:
+async def main_async(output: Path, cooperative_pause_seconds: float = 0.01) -> None:
     # A funding matrix can generate thousands of fills. Keep the explicit
     # report as the evidence channel; per-fill INFO logs are disk/terminal I/O
     # noise and materially slow the research loop.
@@ -157,7 +169,7 @@ async def main_async(output: Path) -> None:
                     )
                     results.append(await replay_symbol(
                         symbol, dates, prices, funding, positions, dates[split_index],
-                        out_dir, multiple,
+                        out_dir, multiple, cooperative_pause_seconds,
                     ))
                 oos = [r["oos_return"] for r in results if r["oos_return"] is not None]
                 all_returns.extend(value for r in results for value in r["oos_returns"])
@@ -194,6 +206,7 @@ async def main_async(output: Path) -> None:
         "strategy": "funding_contrarian",
         "symbols": list(PRICE_TO_FUNDING),
         "funding_sources": list(PRICE_TO_FUNDING.values()),
+        "funding_rate_definition": FUNDING_SOURCE,
         "threshold_definition": (
             "rolling 30-day funding percentile; P means upper P and lower (100-P), "
             "not a funding-rate percentage"
@@ -208,5 +221,11 @@ async def main_async(output: Path) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, default=Path("data/funding_contrarian_kernel_replay.json"))
+    parser.add_argument(
+        "--cooperative-pause-seconds", type=float, default=0.01,
+        help="yield between real ledger bars to bound CPU (default: 0.01)",
+    )
     args = parser.parse_args()
-    asyncio.run(main_async(args.output))
+    if args.cooperative_pause_seconds < 0:
+        parser.error("--cooperative-pause-seconds must be non-negative")
+    asyncio.run(main_async(args.output, args.cooperative_pause_seconds))

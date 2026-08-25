@@ -14,15 +14,16 @@ rank，不是 funding-rate percentage”；传入 `0.75` 这类费率式数值�
 
 ## 本地真实数据核对
 
-当前回放读取 `data/store/funding_rates` 中的 `BTC-PERPETUAL` 和 `ETH-PERPETUAL`，全部 401
-条记录的 source 都是 `deribit_interest_1h_daily_sum`，覆盖 2025-07-20 至 2026-08-24。
-该数据由 Deribit 官方 `public/get_funding_rate_history` 的 hourly `interest_1h` 按 UTC 日求和，
-并以真实 `funding_rate` 快照传给 `SimulationService`；模拟盘开启 funding ledger，按日结算。
+当前回放读取 `data/store/funding_rates` 中的 `BTC-PERPETUAL` 和 `ETH-PERPETUAL`，使用
+`deribit_interest_8h_settlement_daily_sum_v2`：从 Deribit 官方
+`public/get_funding_rate_history` 的真实 hourly 响应中取 UTC 00:00/08:00/16:00 三个
+`interest_8h` 结算点求和，并以真实 `funding_rate` 快照传给 `SimulationService`。
+不完整首尾日被排除；旧的 `interest_1h` 日汇总只保留为历史 provenance，不再进入新回放。
 
 | 标的 | 最小日汇总 | 最大日汇总 | 换算后的实际范围 |
 |---|---:|---:|---:|
-| BTC-PERPETUAL | -0.0003394 | 0.0009223 | -0.03394% 至 0.09223% |
-| ETH-PERPETUAL | -0.0005548 | 0.0006089 | -0.05548% 至 0.06089% |
+| BTC-PERPETUAL | -0.0003243 | 0.0010428 | -0.03243% 至 0.10428% |
+| ETH-PERPETUAL | -0.0006096 | 0.0006282 | -0.06096% 至 0.06282% |
 
 因此用户对“没有 60% 那么高”的判断是对的：实际费率远低于 1%，此前报告字段容易造成
 误读，现已修正。历史报告里的 `threshold_pct` 字段应按分位数解释，不应按费率百分比解释。
