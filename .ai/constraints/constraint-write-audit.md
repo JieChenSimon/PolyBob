@@ -178,3 +178,12 @@
 - operation: update
 - status: approved-by-explicit-request
 - notes: 用户明确要求所有数据和所有过程必须使用真实现实世界数据与真实执行链路；合成数据仅可用于测试/校准/故障注入/演示，不能进入收益、策略有效性或 Promotion 结论；来源、单位、时间语义和 provenance 不完整时必须 UNKNOWN/DEGRADED/BLOCKED。
+
+## 2026-08-25T00:00:00+08:00
+
+- proposal_ref: user-updated-return-and-win-rate-goal
+- approved_item_ids: per-instrument-win-rate-over-80-percent
+- destinations: `.ai/constraints/constraints/product-and-research-integrity.md`
+- operation: update
+- status: approved-by-explicit-request
+- notes: 用户补充要求逐标的胜率超过 80%；与年化 50% 和完整月份 15% 同时作为 Promotion 门槛，样本不足或未达标必须保持 UNKNOWN/NO_EDGE/BLOCKED。

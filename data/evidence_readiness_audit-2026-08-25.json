@@ -1,6 +1,6 @@
 {
   "schema_version": "evidence-readiness-audit-v1",
-  "generated_at": "2026-08-25T10:30:47.854963+00:00",
+  "generated_at": "2026-08-25T10:53:00.198472+00:00",
   "read_only": true,
   "promotion": "BLOCKED",
   "gates": {
@@ -86,7 +86,11 @@
   },
   "artifacts": {
     "historical_quote_like_files": [
-      "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-01.tar.gz"
+      "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-01.tar.gz",
+      "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-02.tar.gz",
+      "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-03.tar.gz",
+      "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-04.tar.gz",
+      "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-05.tar.gz"
     ],
     "live_quote_observation_entries": [
       {
@@ -234,9 +238,74 @@
         "snapshot_count": 1440,
         "source": "www.okx.com_historical_l2",
         "update_count": 5837084
+      },
+      {
+        "dataset": "okx_historical_orderbook_sampled_1s",
+        "event_end": "2025-08-02T23:59:59.936000+00:00",
+        "event_start": "2025-08-02T00:00:00.023000+00:00",
+        "history_scope": "historical_orderbook_sampled",
+        "invalid_count": 0,
+        "kind": "normalized",
+        "line_count": 4231641,
+        "normalized_at": "2026-08-25T10:33:43.958642+00:00",
+        "path": "data/datasets/parts/okx_historical_orderbook_sampled_1s/symbol=BTC-USDT/2025-08-02.parquet",
+        "raw_archive_sha256": "e5ef7458c20c93065798f2e86b98743a00fb16c10abcc37b3b847863c433a853",
+        "rows": 86400,
+        "sampling_interval_ms": 1000,
+        "snapshot_count": 1440,
+        "source": "www.okx.com_historical_l2",
+        "update_count": 4230201
+      },
+      {
+        "dataset": "okx_historical_orderbook_sampled_1s",
+        "event_end": "2025-08-03T23:59:59.988000+00:00",
+        "event_start": "2025-08-03T00:00:00.006000+00:00",
+        "history_scope": "historical_orderbook_sampled",
+        "invalid_count": 0,
+        "kind": "normalized",
+        "line_count": 3691349,
+        "normalized_at": "2026-08-25T10:34:20.623813+00:00",
+        "path": "data/datasets/parts/okx_historical_orderbook_sampled_1s/symbol=BTC-USDT/2025-08-03.parquet",
+        "raw_archive_sha256": "ec7cebe2a5797471779a0b3124f17e08f99532e5f71738716db3e6601763b43f",
+        "rows": 86400,
+        "sampling_interval_ms": 1000,
+        "snapshot_count": 1440,
+        "source": "www.okx.com_historical_l2",
+        "update_count": 3689909
+      },
+      {
+        "dataset": "okx_historical_orderbook_sampled_1s",
+        "event_end": "2025-08-04T23:59:59.987000+00:00",
+        "event_start": "2025-08-04T00:00:00.008000+00:00",
+        "history_scope": "historical_orderbook_sampled",
+        "invalid_count": 0,
+        "kind": "normalized",
+        "line_count": 4603060,
+        "normalized_at": "2026-08-25T10:35:05.897042+00:00",
+        "path": "data/datasets/parts/okx_historical_orderbook_sampled_1s/symbol=BTC-USDT/2025-08-04.parquet",
+        "raw_archive_sha256": "10ced4bb8ebbb30f9d85cf9dc365607ef49a13843a443fbab386f7d669418375",
+        "rows": 86400,
+        "sampling_interval_ms": 1000,
+        "snapshot_count": 1440,
+        "source": "www.okx.com_historical_l2",
+        "update_count": 4601620
       }
     ],
     "real_execution_replay_summaries": [
+      {
+        "path": "data/okx_l2_imbalance_replay_4d.json",
+        "real_data_only": true,
+        "strategy": "okx_l2_depth_imbalance_stateful",
+        "instrument": "BTC-USDT",
+        "run_id": "sim_ad243ca726",
+        "rows_used": 5760,
+        "linked_observations": 2146,
+        "status": "diagnostic_not_promotion",
+        "total_return": -0.019597358239786034,
+        "trade_count": 2146,
+        "trade_quote_observation_link_count": 2146,
+        "synthetic_quote_trade_count": 0
+      },
       {
         "path": "data/okx_l2_imbalance_replay_candidate_v2.json",
         "real_data_only": true,

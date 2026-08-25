@@ -267,13 +267,40 @@ async def replay(
         await service._record_equity(active)
 
     await service.stop_run(run_id)
+    equity_points = service.store.list_equity_points(run_id)
+    independent_days = sorted({str(point.ts)[:10] for point in equity_points})
+    last_equity_by_day: dict[str, float] = {}
+    for point in equity_points:
+        last_equity_by_day[str(point.ts)[:10]] = float(point.equity)
+    daily_returns: dict[str, float] = {}
+    previous_equity = 10_000.0
+    for day in independent_days:
+        close_equity = last_equity_by_day[day]
+        daily_returns[day] = close_equity / previous_equity - 1.0
+        previous_equity = close_equity
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    blockers = [
+        "sampled 1-second L2, not venue fill-by-fill execution",
+        "no capacity/partial-fill model beyond top-20 depth snapshot",
+    ]
+    if len(independent_days) < 20:
+        blockers.append("fewer than 20 independent trading days")
+    if len(independent_days) < 20:
+        blockers.append("independent out-of-sample and 12 complete months unavailable")
+    if float(metrics.get("win_rate") or 0.0) <= 0.80:
+        blockers.append("cost-after win rate is not above 80%")
     result = {
         "real_data_only": True,
         "strategy": "okx_l2_depth_imbalance_stateful",
         "instrument": "BTC-USDT",
         "run_id": run_id,
         "rows_used": len(rows),
+        "coverage": {
+            "start": rows[0]["event_at"], "end": rows[-1]["event_at"],
+            "independent_days": len(independent_days),
+            "days": independent_days,
+            "daily_returns": daily_returns,
+        },
         "signals": signals,
         "linked_observations": linked_observations,
         "source": "www.okx.com_historical_l2",
@@ -286,12 +313,7 @@ async def replay(
         },
         "metrics": metrics,
         "status": "diagnostic_not_promotion",
-        "promotion_blockers": [
-            "one UTC day only",
-            "sampled 1-second L2, not venue fill-by-fill execution",
-            "no independent out-of-sample period",
-            "no capacity/partial-fill model beyond top-20 depth snapshot",
-        ],
+        "promotion_blockers": blockers,
         "database": str(db_path),
         "generated_at": datetime.now(UTC).isoformat(),
     }

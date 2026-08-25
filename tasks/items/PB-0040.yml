@@ -9,10 +9,11 @@ checks:
   done: true
 - text: 完成预注册事件研究与样本外模拟盘回放，至少输出50%回撤触发后的分批入场、持有期、成本/滑点、最大回撤、资金占用和破产/无法成交统计
   done: true
-- text: 每个标的都必须分别通过独立性、多重检验、样本外、逐月/年度收益目标和组合风险门禁才允许 Promotion Board 候选，否则按标的记录 UNKNOWN/NO_EDGE 与下一轮证据
+- text: 每个标的都必须分别通过独立性、多重检验、样本外、逐月/年度收益目标、成本后胜率超过 80% 和组合风险门禁才允许 Promotion Board 候选，否则按标的记录 UNKNOWN/NO_EDGE
+    与下一轮证据
   done: false
 deps:
 - PB-0039
 branch: pb-0040-autonomous-universe
 blocked: null
-updated: '2026-08-25T10:31:25+00:00'
+updated: '2026-08-25T10:53:30+00:00'

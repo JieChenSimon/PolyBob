@@ -14,4 +14,4 @@
 
 解析器保留原始 400 档归档，并对更新流重建买卖盘；规范化样本保留最佳买卖价、前 20 档深度、采样时间、更新计数和原始归档哈希。资源监控显示 CPU 约 16%–40%，中断不会留下半成品。
 
-执行门禁当前为 `UNKNOWN` 而不是 READY：后续单日深度不平衡诊断已实现按模拟盘成交时间的 quote-observation 关联（590/590），但该数据仍只有 1 秒采样历史深度，尚未完成多日期覆盖、部分成交重放和精确序列级执行审计。系统现在显示 `sampled_historical_orderbook_has_partial_fill_linkage_but_insufficient_coverage`，不会把单日样本夸大为已验证的可成交收益。
+执行门禁当前为 `UNKNOWN` 而不是 READY：四日深度不平衡诊断已实现按模拟盘成交时间的 quote-observation 关联（2,146/2,146），但该数据仍只有 1 秒采样历史深度，尚未完成 20 个以上独立日期、部分成交重放和精确序列级执行审计。系统现在显示 `sampled_historical_orderbook_has_partial_fill_linkage_but_insufficient_coverage`，不会把四日样本夸大为已验证的可成交收益。
