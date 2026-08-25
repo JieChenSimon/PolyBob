@@ -42,4 +42,11 @@ CPU 指标的范围是单进程审计；多 worker 研究回放仍通过脚本�
 
 - 资源预算和正常关闭：本审计 PASS。
 - 磁盘/SQLite 优化的受控基准对比：本轮 PASS，但仍只代表该 600 行单进程审计。
-- 异常终止、恢复和更大批量回放：仍待独立测试，当前不标记为完成。
+- 分段 checkpoint 恢复与临时库清理：`tests/test_btc5m_simulation_kernel_replay.py` 已覆盖
+  可恢复分段、完整结算和 `.checkpoint.json`/SQLite 清理；实际方向回放的 36 个场景也
+  已完成并保留 progress/ETA 证据，临时目录无残留。
+- 服务重启恢复：`tests/test_simulation.py::test_restart_recovery_resumes_runs_and_positions`
+  已覆盖持仓/运行状态恢复。
+
+这些证据覆盖了当前回放路径的异常恢复、正常关闭和大批量分段清理；更高规模的
+多域并行压测仍应作为后续容量基线，不把它混入本次策略收益结论。
