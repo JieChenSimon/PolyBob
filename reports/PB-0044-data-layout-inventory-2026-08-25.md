@@ -9,16 +9,16 @@
 | `data/datasets` | 24,255 | 2,450,232 KiB | 规范化 Parquet、parts、归档 |
 | `data/.kernel_replay_insider` | 未单独计数 | 18,820 KiB | 回放临时/检查点物 |
 
-删除旧 BTC parts 后，可重复审计工具 `scripts/audit_data_layout.py` 的当前结果为
-146,779 个文件、4,159,073,504 bytes；主要扩展名为 Parquet 102,356 个、
-BIN 17,432 个、JSON 15,052 个、
-BODY 11,911 个。`data/store`、`data/market_cache`、`data/datasets` 中小于 64 KiB
-的文件数分别为 100,679、26,624、22,639；这说明小文件问题是真实的，且主要集中在
-按 payload/响应拆分的不可变数据和缓存层。
+本轮使用元数据低负载审计重新核对，结果为 226,240 个文件、4,498,886,386
+bytes：`data/store` 100,679 个、`data/market_cache` 26,983 个、
+`data/datasets` 98,578 个（含 raw/normalized/other）。小于 64 KiB 的文件分别为
+100,679、26,624、79,983 和 16,979（normalized/raw）；这确认小文件问题真实存在，
+且主要集中在按 payload/响应拆分的 canonical store、normalized dataset、raw evidence
+和缓存层。完整机器结果来自本轮只读命令输出 `/tmp/polybob-data-layout-audit-20260825.json`。
 
-现有 `data/datasets/manifest.jsonl` 有 18,599 条有效路径记录，当前路径存在率为
-100%。按“类别 + 文件大小 + 扩展名”的低成本元数据分组得到 7,404 个候选组、
-135,704 个候选文件；这只是筛选线索，不是重复内容证明，当前确认的 hash 重复数
+现有 `data/datasets/manifest.jsonl` 有 98,064 条路径记录，当前路径存在率为
+100%。按“类别 + 文件大小 + 扩展名”的低成本元数据分组得到 9,167 个候选组、
+214,510 个候选文件；这只是筛选线索，不是重复内容证明，当前确认的 hash 重复数
 仍为 0（尚未执行全盘 hash）。
 
 ## 解释与风险
@@ -56,4 +56,6 @@ BODY 11,911 个。`data/store`、`data/market_cache`、`data/datasets` 中小于
 uv run --locked python scripts/audit_data_layout.py --output data/data_layout_audit.json
 ```
 
-本报告是只读盘点，不代表 PB-0044 的三个验收项已经完成。
+本报告完成 PB-0044 的“来源盘点、文件数/字节基线、小文件比例、manifest 完整性和
+重复候选分组”验收项；低成本审计没有把同大小文件误报为精确重复。压缩/退役和日志
+治理的已完成验收仍以各自脚本、manifest、测试和提交证据为准。

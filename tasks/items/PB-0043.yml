@@ -1,6 +1,6 @@
 id: PB-0043
 title: 量化回放性能与资源安全优化
-state: doing
+state: dropped
 p: P1
 area: platform
 why: 当前回放通过每个事件写入 SQLite 并重复重建模拟盘，吞吐低且资源边界缺少运行证据；必须优化性能但不能压榨工作站或破坏关闭恢复。
@@ -14,5 +14,5 @@ checks:
 deps:
 - PB-0039
 branch: pb-0037-funding-strategy-replay
-blocked: null
-updated: '2026-08-25T04:26:48+00:00'
+blocked: 三项验收已完成，等待依赖 PB-0039 关闭后再由状态机归档
+updated: '2026-08-25T05:55:46+00:00'
