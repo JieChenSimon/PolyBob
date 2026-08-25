@@ -47,3 +47,25 @@ def test_audit_does_not_treat_live_okx_snapshot_as_historical_execution_evidence
     assert gate["status"] == "UNKNOWN"
     assert "live_snapshots_present_but_not_historical" in gate["reason"]
     assert result["artifacts"]["live_quote_observation_entries"]
+
+
+def test_audit_keeps_sampled_history_blocked_without_fill_linkage(monkeypatch, tmp_path):
+    manifest = tmp_path / "datasets" / "manifest.jsonl"
+    manifest.parent.mkdir()
+    manifest.write_text(
+        '{"dataset":"okx_historical_orderbook_sampled_1s",'
+        '"history_scope":"historical_orderbook_sampled"}\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("scripts.evidence_readiness_audit.store.dataset_contracts", lambda: {
+        "daily_bars": {"strict_historical_pit": True},
+        "fundamentals": {"strict_historical_pit": True},
+    })
+    monkeypatch.setattr("scripts.evidence_readiness_audit.store.coverage", lambda dataset: {
+        "dataset": dataset.name, "symbols": 1, "rows": 1,
+    })
+    result = audit(data_root=tmp_path)
+    gate = result["gates"]["historical_executable_quotes"]
+    assert gate["status"] == "UNKNOWN"
+    assert "fill_linkage_missing" in gate["reason"]
+    assert result["artifacts"]["sampled_historical_quote_entries"]

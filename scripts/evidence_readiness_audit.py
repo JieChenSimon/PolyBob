@@ -50,6 +50,10 @@ def audit(*, data_root: Path = Path("data")) -> dict[str, Any]:
     manifest_entries = _manifest_entries(data_root)
     live_quote_entries = [item for item in manifest_entries if item.get("dataset") == "okx_orderbook"]
     historical_quote_entries = [item for item in manifest_entries if item.get("dataset") == "historical_orderbook"]
+    sampled_historical_quote_entries = [
+        item for item in manifest_entries
+        if item.get("dataset") == "okx_historical_orderbook_sampled_1s"
+    ]
 
     strict_pit_ready = bool(
         contracts["daily_bars"].get("strict_historical_pit")
@@ -62,6 +66,8 @@ def audit(*, data_root: Path = Path("data")) -> dict[str, Any]:
     execution_reason = None
     if not execution_ready:
         execution_reason = (
+            "sampled_historical_orderbook_present_but_fill_linkage_missing"
+            if sampled_historical_quote_entries else
             "historical_quote_dataset_missing;_live_snapshots_present_but_not_historical"
             if live_quote_entries
             else "no_local_historical_quote_depth_artifact"
@@ -96,6 +102,7 @@ def audit(*, data_root: Path = Path("data")) -> dict[str, Any]:
             "historical_quote_like_files": quote_files,
             "live_quote_observation_entries": live_quote_entries,
             "historical_quote_entries": historical_quote_entries,
+            "sampled_historical_quote_entries": sampled_historical_quote_entries,
             "survivorship_like_files": survivorship_files,
         },
     }

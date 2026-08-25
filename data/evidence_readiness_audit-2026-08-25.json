@@ -1,6 +1,6 @@
 {
   "schema_version": "evidence-readiness-audit-v1",
-  "generated_at": "2026-08-25T09:59:22.045573+00:00",
+  "generated_at": "2026-08-25T10:17:16.652787+00:00",
   "read_only": true,
   "promotion": "BLOCKED",
   "gates": {
@@ -14,7 +14,7 @@
     },
     "historical_executable_quotes": {
       "status": "UNKNOWN",
-      "reason": "historical_quote_dataset_missing;_live_snapshots_present_but_not_historical"
+      "reason": "sampled_historical_orderbook_present_but_fill_linkage_missing"
     }
   },
   "contracts": {
@@ -85,7 +85,9 @@
     }
   },
   "artifacts": {
-    "historical_quote_like_files": [],
+    "historical_quote_like_files": [
+      "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-01.tar.gz"
+    ],
     "live_quote_observation_entries": [
       {
         "dataset": "okx_orderbook",
@@ -128,9 +130,112 @@
         "rows": 1,
         "sha256": "c231bf418a499b5a59ecb174f08fee6364cb9a8d447fc151d9f109b690db6253",
         "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T10:01:01.806000+00:00",
+        "event_start": "2026-08-25T10:01:01.806000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T10:01:00.825307+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=BTC-USDT/part-2077f8ff80182ca19e65fb4eaab141c682bb2292df6adf1aa3e5fd58347ac9b2.parquet",
+        "rows": 1,
+        "sha256": "2077f8ff80182ca19e65fb4eaab141c682bb2292df6adf1aa3e5fd58347ac9b2",
+        "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T10:01:02.302000+00:00",
+        "event_start": "2026-08-25T10:01:02.302000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T10:01:00.825307+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=ETH-USDT/part-d880df7c6dd21be059d4c7b10d2e39b8a546e4c273cc04f0f24fa587da00e96a.parquet",
+        "rows": 1,
+        "sha256": "d880df7c6dd21be059d4c7b10d2e39b8a546e4c273cc04f0f24fa587da00e96a",
+        "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T10:01:02.805000+00:00",
+        "event_start": "2026-08-25T10:01:02.805000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T10:01:00.825307+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=SOL-USDT/part-e87fa5f440eefb803b24322a6f73e7d21b47fd4126746a3c3db57fe9e430069c.parquet",
+        "rows": 1,
+        "sha256": "e87fa5f440eefb803b24322a6f73e7d21b47fd4126746a3c3db57fe9e430069c",
+        "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T10:01:05.106000+00:00",
+        "event_start": "2026-08-25T10:01:05.106000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T10:01:04.835360+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=BTC-USDT/part-1d546e4ba59c5f392dd59168cc376b04a932c778fc1d77c0c4112232445b429c.parquet",
+        "rows": 1,
+        "sha256": "1d546e4ba59c5f392dd59168cc376b04a932c778fc1d77c0c4112232445b429c",
+        "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T10:01:05.652000+00:00",
+        "event_start": "2026-08-25T10:01:05.652000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T10:01:04.835360+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=ETH-USDT/part-cf49a60d4419a5399dbb2aa5147c8a7a1db6876214db3cb37e5f0aa70994078c.parquet",
+        "rows": 1,
+        "sha256": "cf49a60d4419a5399dbb2aa5147c8a7a1db6876214db3cb37e5f0aa70994078c",
+        "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T10:01:06.105000+00:00",
+        "event_start": "2026-08-25T10:01:06.105000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T10:01:04.835360+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=SOL-USDT/part-53a4bac6ece9dcb289cf5cc0d1946fc5135c2be790cdc629d54e9ec6710a0385.parquet",
+        "rows": 1,
+        "sha256": "53a4bac6ece9dcb289cf5cc0d1946fc5135c2be790cdc629d54e9ec6710a0385",
+        "source": "www.okx.com"
       }
     ],
     "historical_quote_entries": [],
+    "sampled_historical_quote_entries": [
+      {
+        "dataset": "okx_historical_orderbook_sampled_1s",
+        "event_end": "2025-08-01T23:59:59.943000+00:00",
+        "event_start": "2025-08-01T00:00:00.006000+00:00",
+        "history_scope": "historical_orderbook_sampled",
+        "invalid_count": 0,
+        "kind": "normalized",
+        "line_count": 5838524,
+        "normalized_at": "2026-08-25T10:15:45.957596+00:00",
+        "path": "data/datasets/parts/okx_historical_orderbook_sampled_1s/symbol=BTC-USDT/2025-08-01.parquet",
+        "raw_archive_sha256": "fbefa651de5b388da94ec5b0bce45f5a0fd26c1dd3c6be5ea0f88cd0c1a5f68d",
+        "rows": 86400,
+        "sampling_interval_ms": 1000,
+        "snapshot_count": 1440,
+        "source": "www.okx.com_historical_l2",
+        "update_count": 5837084
+      }
+    ],
     "survivorship_like_files": []
   }
 }
