@@ -151,3 +151,12 @@
 - operation: create
 - status: approved-by-explicit-request
 - notes: 用户要求系统自主发现 A 股、美股和加密标的，并指出低回撤核心资产不应被强行套用 50% 深回撤策略；新增训练窗口冻结、OOS 禁止反选和分层适用性约束。
+
+## 2026-08-25T00:00:00+08:00
+
+- proposal_ref: user-safe-delete-compressed-source-data
+- approved_item_ids: classify-before-delete; verified-compaction-replacement; consumer-cutover; auditable-exact-retirement; source-retention-when-needed-for-pit
+- destinations: `.ai/constraints/index.md`, `.ai/constraints/constraints/data-retirement-and-compaction-integrity.md`
+- operation: create-and-link
+- status: approved-by-explicit-request
+- notes: 用户要求所有数据在压缩后，只要不影响使用和系统运行就删除原数据；新增分类、完整替代物、消费者切换、PIT/审计保留、精确删除和删除后验证门禁。当前仅已完成验证的 BTC-1m 源树具备退役证据；其他未建立完整 manifest 的数据不得自动删除。
