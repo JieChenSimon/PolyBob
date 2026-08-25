@@ -1,6 +1,6 @@
 {
   "schema_version": "data-layout-audit-v1",
-  "generated_at": "2026-08-25T04:34:46.157430+00:00",
+  "generated_at": "2026-08-25T04:49:04.411302+00:00",
   "mode": "metadata_only_no_delete_no_full_hash",
   "roots": [
     "data/store",
@@ -9,8 +9,8 @@
     "data/.kernel_replay_insider"
   ],
   "small_file_threshold_bytes": 65536,
-  "total_files": 151921,
-  "total_bytes": 4175384428,
+  "total_files": 146779,
+  "total_bytes": 4159073504,
   "by_kind": {
     "store": {
       "files": 100679,
@@ -31,19 +31,20 @@
       }
     },
     "datasets_other": {
-      "files": 4,
-      "bytes": 40838777,
+      "files": 5,
+      "bytes": 40653991,
       "small_files_lt_64k": 0,
       "extensions": {
-        ".jsonl": 4
+        ".jsonl": 4,
+        ".parquet": 1
       }
     },
     "normalized": {
-      "files": 6819,
-      "bytes": 1392286453,
-      "small_files_lt_64k": 5660,
+      "files": 1676,
+      "bytes": 1376160315,
+      "small_files_lt_64k": 518,
       "extensions": {
-        ".parquet": 6819
+        ".parquet": 1676
       }
     },
     "raw_evidence": {
@@ -68,15 +69,15 @@
   "manifest": {
     "path": "data/datasets/manifest.jsonl",
     "exists": true,
-    "entries": 23741,
-    "path_entries": 23741,
-    "existing_paths": 23741,
+    "entries": 18599,
+    "path_entries": 18599,
+    "existing_paths": 18599,
     "missing_paths": 0
   },
   "duplicate_analysis": {
     "exact_hash_duplicates_confirmed": 0,
-    "metadata_candidate_group_count": 7776,
-    "metadata_candidate_file_count": 140718,
+    "metadata_candidate_group_count": 7404,
+    "metadata_candidate_file_count": 135704,
     "candidates": [
       {
         "kind": "cache",

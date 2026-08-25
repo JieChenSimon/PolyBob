@@ -44,10 +44,10 @@ BODY 11,911 个。`data/store`、`data/market_cache`、`data/datasets` 中小于
 ## 首个旁路压缩验证
 
 已对 `data/datasets/parts/btc_1m_bars` 执行旁路压缩：5,143 个输入 Parquet、
-346,042 行、约 16.1 MB 被压缩为 1 个 Zstandard Parquet、约 2.1 MB。源 parts
-没有删除；输出 manifest 保留输入列表、输出 SHA-256、源 manifest SHA-256 和行数
-校验，5,143/5,143 个输入路径都能在原 manifest 中找到。该结果证明工具链可用，
-但还没有切换任何生产消费者，也没有删除旧文件。
+346,042 行、16,126,138 bytes 被压缩为 1 个 Zstandard Parquet、2,252,519 bytes。
+删除前已验证输出可读、行数与字段结构一致、5,143/5,143 个输入路径存在且有血缘记录，
+运行代码没有引用该精确旧目录；随后已退役并删除这处旧源 parts。压缩输出、两个压缩
+清单和其他数据集仍保留。详细删除验收见 `PB-0044-btc-source-retirement-2026-08-25.md`。
 
 可重复入口：
 
