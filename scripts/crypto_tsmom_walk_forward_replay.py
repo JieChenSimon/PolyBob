@@ -131,7 +131,7 @@ async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
     }
 
 
-async def main_async(major_only: bool, output: str) -> int:
+async def main_async(major_only: bool, output: str, latest_only: bool = False) -> int:
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING)
     )
@@ -150,7 +150,8 @@ async def main_async(major_only: bool, output: str) -> int:
     splits = fold_dates(list(matrix.index))
     out_dir = Path("data/.kernel_replay_crypto_tsmom_walk_forward")
     out_dir.mkdir(parents=True, exist_ok=True)
-    folds = [await run_fold(split, frames, out_dir) for split in splits]
+    selected_splits = splits[-1:] if latest_only else splits
+    folds = [await run_fold(split, frames, out_dir) for split in selected_splits]
     report = {
         "generated_at": datetime.now(UTC).isoformat(),
         "real_data_only": True,
@@ -162,6 +163,7 @@ async def main_async(major_only: bool, output: str) -> int:
         "symbols": len(frames), "quality_rejected": rejected,
         "folds": folds, "selection_is_train_only": True,
         "oos_execution_capital": "fresh_initial_capital_per_symbol_and_fold",
+        "latest_fold_only": latest_only,
         "status": "replay_only_not_promoted",
     }
     Path(output).write_text(json.dumps(report, ensure_ascii=False, indent=2, default=str) + "\n")
@@ -176,6 +178,7 @@ async def main_async(major_only: bool, output: str) -> int:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--major-only", action="store_true")
+    parser.add_argument("--latest-fold-only", action="store_true")
     parser.add_argument("--output", default="data/crypto_tsmom_walk_forward_replay.json")
     args = parser.parse_args()
-    raise SystemExit(asyncio.run(main_async(args.major_only, args.output)))
+    raise SystemExit(asyncio.run(main_async(args.major_only, args.output, args.latest_fold_only)))
