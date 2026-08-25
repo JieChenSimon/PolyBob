@@ -22,7 +22,7 @@ from modules.simulation.sources import SimSignal
 
 
 PRICE_TO_FUNDING = {"BTC-USDT": "BTC-PERPETUAL", "ETH-USDT": "ETH-PERPETUAL"}
-THRESHOLDS = (60.0, 75.0, 90.0)
+PERCENTILE_THRESHOLDS = (60.0, 75.0, 90.0)
 COST_MULTIPLES = (1.0, 2.0, 3.0)
 
 
@@ -144,7 +144,7 @@ async def main_async(output: Path) -> None:
     report_candidates = []
     out_dir = Path("data/.kernel_replay_funding")
     out_dir.mkdir(parents=True, exist_ok=True)
-    for threshold in THRESHOLDS:
+    for threshold_percentile in PERCENTILE_THRESHOLDS:
         by_cost = {}
         for multiple in COST_MULTIPLES:
             fold_rows = []
@@ -152,7 +152,9 @@ async def main_async(output: Path) -> None:
             for split_index in split_indices:
                 results = []
                 for symbol, (dates, prices, funding) in series.items():
-                    positions = funding_contrarian(prices, funding, threshold_pct=threshold)
+                    positions = funding_contrarian(
+                        prices, funding, threshold_percentile=threshold_percentile
+                    )
                     results.append(await replay_symbol(
                         symbol, dates, prices, funding, positions, dates[split_index],
                         out_dir, multiple,
@@ -173,7 +175,7 @@ async def main_async(output: Path) -> None:
             (row["median_oos_return"] or 0.0) > 0 for row in base["folds"]
         ]))
         returns_by_cost = {float(k): np.asarray(v["returns"], dtype=float) for k, v in by_cost.items()}
-        gate = PromotionGate(n_trials=len(THRESHOLDS) * len(COST_MULTIPLES), min_dsr=0.90,
+        gate = PromotionGate(n_trials=len(PERCENTILE_THRESHOLDS) * len(COST_MULTIPLES), min_dsr=0.90,
                              min_observations=200, min_oos_stability_rate=0.5, cost_min_sharpe=0.3)
         decision = gate.evaluate(
             returns_by_cost[1.0],
@@ -181,7 +183,7 @@ async def main_async(output: Path) -> None:
             oos_stability_rate=stability,
         )
         report_candidates.append({
-            "threshold_pct": threshold,
+            "threshold_percentile": threshold_percentile,
             "costs": {key: {k: v for k, v in value.items() if k != "returns"} for key, value in by_cost.items()},
             "promotion": decision.to_dict(),
         })
@@ -192,6 +194,10 @@ async def main_async(output: Path) -> None:
         "strategy": "funding_contrarian",
         "symbols": list(PRICE_TO_FUNDING),
         "funding_sources": list(PRICE_TO_FUNDING.values()),
+        "threshold_definition": (
+            "rolling 30-day funding percentile; P means upper P and lower (100-P), "
+            "not a funding-rate percentage"
+        ),
         "candidates": report_candidates,
         "status": "replay_only_not_promoted",
     }

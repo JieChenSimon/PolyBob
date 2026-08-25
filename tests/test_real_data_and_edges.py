@@ -147,6 +147,15 @@ def test_funding_contrarian_buys_crowded_shorts():
     assert pos[-1] == 1.0
 
 
+def test_funding_contrarian_threshold_is_percentile_not_rate():
+    closes = np.full(80, 100.0)
+    funding = np.full(80, 0.0001)
+    funding[-1] = 0.0002
+    assert funding_contrarian(closes, funding, threshold_percentile=75.0)[-1] == -1.0
+    with pytest.raises(ValueError, match="threshold_percentile"):
+        funding_contrarian(closes, funding, threshold_percentile=0.75)
+
+
 def test_cross_sectional_momentum_is_dollar_neutral():
     rng = np.random.default_rng(5)
     matrix = 100 + np.cumsum(rng.normal(0, 1, (10, 80)), axis=1)

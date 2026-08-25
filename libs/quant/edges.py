@@ -222,15 +222,20 @@ OHLCV_EDGES = {
 
 
 def funding_contrarian(
-    closes: np.ndarray, funding: np.ndarray, threshold_pct: float = 75.0
+    closes: np.ndarray, funding: np.ndarray, threshold_percentile: float = 75.0
 ) -> np.ndarray:
     """Fade crowded perp positioning (altcoin-specific edge).
 
     Hypothesis: persistently positive funding means longs are crowded and paying
     to stay in — a documented precursor to long squeezes; negative funding is
     the mirror. ``funding`` is the per-day mean rate aligned to ``closes``.
-    Thresholds come from a *trailing* percentile so the rule is causal.
+    Thresholds come from a *trailing* percentile so the rule is causal.  This
+    parameter is a percentile rank (e.g. ``75`` means P75/P25), not a funding
+    rate of 75 percent.  Real funding rates are decimal fractions such as
+    ``0.0005`` (0.05%).
     """
+    if not 50.0 <= threshold_percentile <= 100.0:
+        raise ValueError("threshold_percentile must be between 50 and 100")
     n = len(closes)
     pos = np.zeros(n)
     window = 30
@@ -239,8 +244,8 @@ def funding_contrarian(
         hist = hist[np.isfinite(hist)]
         if len(hist) < 10 or not np.isfinite(funding[i]):
             continue
-        hi = np.percentile(hist, threshold_pct)
-        lo = np.percentile(hist, 100.0 - threshold_pct)
+        hi = np.percentile(hist, threshold_percentile)
+        lo = np.percentile(hist, 100.0 - threshold_percentile)
         if funding[i] > hi and hi > 0:
             pos[i] = -1.0      # crowded longs -> short
         elif funding[i] < lo and lo < 0:
