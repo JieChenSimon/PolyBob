@@ -1,9 +1,10 @@
+import json
 from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from scripts.dataset_file_governance import _file_inventory, compact_dataset
+from scripts.dataset_file_governance import _file_inventory, compact_dataset, retire_source, verify_retired
 
 
 def test_inventory_counts_small_files(tmp_path: Path):
@@ -30,6 +31,10 @@ def test_compaction_writes_partitioned_copy_and_manifest(tmp_path: Path):
     assert result["status"] == "written"
     assert result["source_files"] == 2
     assert result["output_files"] == 2
+    assert len(result["source_file_details"]) == 2
+    assert all(item["sha256"] and item["rows"] > 0 for item in result["source_file_details"])
+    assert len(result["output_file_details"]) == 2
+    assert result["retirement_status"] == "SOURCE_PRESERVED"
     assert (destination / "compaction_manifest.json").exists()
 
 
@@ -62,3 +67,24 @@ def test_compaction_can_keep_latest_observation_per_event_key(tmp_path: Path):
         "observed_at": "2026-08-25T02:00:00Z",
         "close": 101.0,
     }]
+
+
+def test_retirement_is_dry_run_then_deletes_only_manifested_sources(tmp_path: Path):
+    source = tmp_path / "source"
+    source.mkdir()
+    table = pa.table({"symbol": ["A"], "event_date": ["2024-01-01"], "close": [1.0]})
+    source_file = source / "one.parquet"
+    pq.write_table(table, source_file)
+    destination = tmp_path / "compact"
+    compact_dataset(source, destination, partition_by=("symbol",))
+    manifest = destination / "compaction_manifest.json"
+
+    preview = retire_source(manifest)
+    assert preview["status"] == "ready_to_retire"
+    assert source_file.exists()
+    result = retire_source(manifest, apply=True)
+    assert result["status"] == "retired"
+    assert not source_file.exists()
+    assert json.loads(manifest.read_text())["retirement_status"] == "RETIRED"
+    verified = verify_retired(manifest)
+    assert verified["status"] == "retired_verified"

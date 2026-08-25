@@ -9,7 +9,9 @@ from pathlib import Path
 import pyarrow.parquet as pq
 from libs.data.data_lake import read_manifest, write_records
 
-DATASET = "btc_1m_bars_clean_v2"
+# Rebuilds are explicitly separate from the retired replay input.  A rebuild
+# must be compacted and promoted through the governance gates before use.
+DATASET = "btc_1m_bars_rebuild"
 
 
 def main() -> None:

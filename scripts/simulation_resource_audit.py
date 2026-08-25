@@ -26,11 +26,9 @@ from modules.simulation.sources import SimSignal
 
 structlog.configure(wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING))
 
-_RAW_DATASET = Path("data/datasets/parts/btc_1m_bars_clean_v2/symbol=BTC-USDT")
-_COMPACTED_DATASET = Path(
+DATASET = Path(
     "data/datasets/compacted/btc_1m_bars_clean_v2/dataset/symbol=BTC-USDT"
 )
-DATASET = _COMPACTED_DATASET if _COMPACTED_DATASET.exists() else _RAW_DATASET
 DEFAULT_OUTPUT = Path("data/simulation_resource_audit.json")
 CPU_BUDGET = 0.60
 

@@ -26,13 +26,9 @@ from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 
 
-_RAW_DATASET = Path("data/datasets/parts/btc_1m_bars_clean_v2/symbol=BTC-USDT")
-_COMPACTED_DATASET = Path(
+DATASET = Path(
     "data/datasets/compacted/btc_1m_bars_clean_v2/dataset/symbol=BTC-USDT"
 )
-# The sidecar is selected only after the source-preserving compaction has been
-# verified. A fresh checkout without local data still has the original path.
-DATASET = _COMPACTED_DATASET if _COMPACTED_DATASET.exists() else _RAW_DATASET
 PRE_REGISTERED = ((12, 36), (36, 72), (12, 72))
 COST_MULTIPLES = (1.0, 2.0, 3.0)
 EQUITY_SAMPLE_BARS = 20

@@ -30,14 +30,14 @@ data/datasets/compacted/btc_1m_bars/symbol=BTC-USDT/part-compact-00000.parquet
 源树已精确退役，活动 manifest 的路径覆盖检查通过，且 live collector 已切换到
 `btc_1m_bars_live` 并有回归测试防止旧路径复活。相关回归测试本次通过：6 passed。
 
-这项退役不是“删除所有 BTC 数据”：`btc_1m_bars_clean_v2` 等仍被 BTC-5m 回放和资源审计
-使用的数据集未被删除。
+这项退役不是“删除所有 BTC 数据”：`btc_1m_bars_clean_v2` 后续已完成独立退役流程，详见
+`PB-0044-btc-clean-v2-retirement-2026-08-25.md`；其它仍被 BTC-5m 回放和资源审计使用的数据集未被删除。
 
 ## 其他数据的判定
 
-当前仓库只发现两份 BTC 压缩元数据：一份 `APPLIED` manifest 和一份历史 `PLAN_ONLY`
-计划；没有发现其他 dataset 同时具备“输出、逐源清单、完整校验、消费者切换和删除后回放
-证据”的退役包。因此其他目录当前均为 `RETAIN/UNKNOWN`，不能自动删除。
+当前仓库只发现两份 BTC 压缩元数据：一份已完成 `RETIRED` 的 clean_v2 manifest 和一份历史
+`PLAN_ONLY` 计划；没有发现其他 dataset 同时具备“输出、逐源清单、完整校验、消费者切换和删除后回放
+证据”的退役包。因此其它目录当前均为 `RETAIN/UNKNOWN`，不能自动删除。
 
 特别是 raw provider payload、PIT 数据、execution ledger、失败证据和仍被脚本读取的
 规范化数据，即使存在相似副本，也必须保留，除非另外完成本约束要求的 cutover。

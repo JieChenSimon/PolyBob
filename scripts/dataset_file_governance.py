@@ -11,6 +11,7 @@ partitioned files.
 from __future__ import annotations
 
 import argparse
+from datetime import UTC, datetime
 import hashlib
 import json
 import os
@@ -61,6 +62,29 @@ def _file_inventory(root: Path, *, top_level_limit: int = 50) -> dict[str, Any]:
     }
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _parquet_detail(path: Path) -> dict[str, Any]:
+    """Record per-file evidence needed before a source can be retired."""
+    import pyarrow.parquet as pq
+
+    parquet = pq.ParquetFile(path)
+    schema_hash = hashlib.sha256(str(parquet.schema_arrow).encode("utf-8")).hexdigest()
+    return {
+        "path": str(path),
+        "sha256": _sha256(path),
+        "bytes": path.stat().st_size,
+        "rows": int(parquet.metadata.num_rows),
+        "schema_sha256": schema_hash,
+    }
+
+
 def _sql_string(value: str) -> str:
     return "'" + value.replace("'", "''") + "'"
 
@@ -86,7 +110,8 @@ def compact_dataset(
     """Write a compacted copy using DuckDB; never mutates ``source``."""
     import duckdb
 
-    files = sorted(str(path) for path in source.rglob("*.parquet") if path.is_file())
+    paths = sorted(path for path in source.rglob("*.parquet") if path.is_file())
+    files = [str(path) for path in paths]
     if not files:
         return {"status": "empty", "source": str(source), "files": 0}
     if destination.exists() and any(destination.iterdir()):
@@ -130,6 +155,8 @@ def compact_dataset(
         schema_hash = hashlib.sha256(
             json.dumps(schema, ensure_ascii=False, default=str, sort_keys=True).encode()
         ).hexdigest()
+        source_details = [_parquet_detail(path) for path in paths]
+        output_details = [_parquet_detail(Path(path)) for path in output_files]
         manifest = {
             "status": "written",
             "source": str(source),
@@ -144,6 +171,9 @@ def compact_dataset(
             "latest_by": latest_by,
             "schema_sha256": schema_hash,
             "source_file_list_sha256": hashlib.sha256("\n".join(files).encode()).hexdigest(),
+            "source_file_details": source_details,
+            "output_file_details": output_details,
+            "retirement_status": "SOURCE_PRESERVED",
         }
         (destination / "compaction_manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -151,6 +181,131 @@ def compact_dataset(
         return manifest
     finally:
         connection.close()
+
+
+def _validated_retirement(manifest_path: Path) -> tuple[dict[str, Any], list[Path], list[Path]]:
+    """Validate exact source/output files before any retirement mutation."""
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    source_details = payload.get("source_file_details")
+    output_details = payload.get("output_file_details")
+    if payload.get("status") != "written" or payload.get("retirement_status") != "SOURCE_PRESERVED":
+        raise RuntimeError("manifest is not an eligible source-preserved compaction")
+    if not isinstance(source_details, list) or not source_details:
+        raise RuntimeError("manifest lacks per-source file evidence")
+    if not isinstance(output_details, list) or not output_details:
+        raise RuntimeError("manifest lacks per-output file evidence")
+    source_root = Path(payload["source"]).resolve()
+    destination_root = Path(payload["destination"]).resolve()
+    if source_root == source_root.parent or source_root in {Path.cwd().resolve(), Path("/")}:
+        raise RuntimeError("refusing broad source retirement target")
+
+    def verify(details: list[dict[str, Any]], root: Path) -> list[Path]:
+        paths: list[Path] = []
+        for item in details:
+            path = Path(str(item["path"])).resolve()
+            try:
+                path.relative_to(root)
+            except ValueError as exc:
+                raise RuntimeError(f"file outside declared dataset root: {path}") from exc
+            if not path.is_file() or path.is_symlink():
+                raise RuntimeError(f"missing or symlinked evidence file: {path}")
+            actual = _parquet_detail(path)
+            expected = {key: item.get(key) for key in ("sha256", "bytes", "rows", "schema_sha256")}
+            observed = {key: actual.get(key) for key in expected}
+            if expected != observed:
+                raise RuntimeError(f"file changed since compaction: {path}")
+            paths.append(path)
+        return paths
+
+    sources = verify(source_details, source_root)
+    outputs = verify(output_details, destination_root)
+    if sum(int(item["rows"]) for item in source_details) != int(payload["source_rows"]):
+        raise RuntimeError("source row total does not match manifest")
+    return payload, sources, outputs
+
+
+def retire_source(manifest_path: Path, *, apply: bool = False) -> dict[str, Any]:
+    """Dry-run or precisely retire a validated compacted source tree."""
+    payload, sources, _outputs = _validated_retirement(manifest_path)
+    result = {
+        "status": "ready_to_retire" if not apply else "retired",
+        "manifest": str(manifest_path),
+        "source": payload["source"],
+        "files": len(sources),
+        "bytes": sum(path.stat().st_size for path in sources),
+        "paths": [str(path) for path in sources],
+    }
+    if not apply:
+        return result
+    empty_dirs = {
+        directory
+        for path in sources
+        for directory in (path.parent, *path.parents)
+        if directory == Path(payload["source"]).resolve()
+        or Path(payload["source"]).resolve() in directory.parents
+    }
+    for path in sources:
+        path.unlink()
+    source_root = Path(payload["source"]).resolve()
+    for directory in sorted(empty_dirs, key=lambda item: len(item.parts), reverse=True):
+        if directory == Path("/") or not directory.exists():
+            continue
+        try:
+            directory.rmdir()
+        except OSError:
+            break
+    payload["retirement_status"] = "RETIRED"
+    payload["retired_at"] = datetime.now(UTC).isoformat()
+    payload["retired_files"] = result["files"]
+    payload["retired_bytes"] = result["bytes"]
+    manifest_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return result
+
+
+def verify_retired(manifest_path: Path) -> dict[str, Any]:
+    """Verify a retired tombstone has no source files and intact outputs."""
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if payload.get("retirement_status") != "RETIRED":
+        raise RuntimeError("manifest is not marked RETIRED")
+    source_paths = [Path(str(item["path"])) for item in payload.get("source_file_details", [])]
+    if any(path.exists() for path in source_paths):
+        raise RuntimeError("retired source file still exists")
+    destination = Path(payload["destination"]).resolve()
+    output_details = payload.get("output_file_details") or []
+    if not output_details:
+        raise RuntimeError("retired manifest lacks output evidence")
+    for item in output_details:
+        path = Path(str(item["path"])).resolve()
+        try:
+            path.relative_to(destination)
+        except ValueError as exc:
+            raise RuntimeError(f"output outside declared destination: {path}") from exc
+        if not path.is_file() or _parquet_detail(path)["sha256"] != item["sha256"]:
+            raise RuntimeError(f"retained output changed or is missing: {path}")
+    return {
+        "status": "retired_verified",
+        "manifest": str(manifest_path),
+        "source_files_absent": len(source_paths),
+        "output_files_verified": len(output_details),
+    }
+
+
+def refresh_compaction_manifest(manifest_path: Path) -> dict[str, Any]:
+    """Backfill per-file evidence into an older source-preserving manifest."""
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    source = Path(payload["source"])
+    destination = Path(payload["destination"])
+    sources = sorted(path for path in source.rglob("*.parquet") if path.is_file())
+    outputs = sorted(path for path in destination.rglob("*.parquet") if path.is_file())
+    if len(sources) != int(payload["source_files"]) or len(outputs) != int(payload["output_files"]):
+        raise RuntimeError("manifest file counts no longer match current source/output")
+    if sum(_parquet_detail(path)["rows"] for path in sources) != int(payload["source_rows"]):
+        raise RuntimeError("manifest source row count no longer matches current source")
+    payload["source_file_details"] = [_parquet_detail(path) for path in sources]
+    payload["output_file_details"] = [_parquet_detail(path) for path in outputs]
+    payload["retirement_status"] = "SOURCE_PRESERVED"
+    manifest_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return payload
 
 
 def main() -> int:
@@ -171,6 +326,14 @@ def main() -> int:
                          help="observation column used to keep newest row per key")
     compact.add_argument("--apply", action="store_true",
                          help="write the new dataset; without this flag only print the plan")
+    retire = sub.add_parser("retire", help="retire only the exact validated source files in a manifest")
+    retire.add_argument("--manifest", required=True)
+    retire.add_argument("--apply", action="store_true",
+                        help="delete the exact source files after all validations pass")
+    refresh = sub.add_parser("refresh", help="add per-file evidence to an older compaction manifest")
+    refresh.add_argument("--manifest", required=True)
+    verify = sub.add_parser("verify-retired", help="verify a retired manifest tombstone and its outputs")
+    verify.add_argument("--manifest", required=True)
     args = parser.parse_args()
     if args.command == "inventory":
         result = _file_inventory(Path(args.root), top_level_limit=args.top_level_limit)
@@ -179,6 +342,15 @@ def main() -> int:
             Path(args.output).write_text(payload, encoding="utf-8")
         else:
             print(payload, end="")
+        return 0
+    if args.command == "retire":
+        print(json.dumps(retire_source(Path(args.manifest), apply=args.apply), ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "refresh":
+        print(json.dumps(refresh_compaction_manifest(Path(args.manifest)), ensure_ascii=False, indent=2))
+        return 0
+    if args.command == "verify-retired":
+        print(json.dumps(verify_retired(Path(args.manifest)), ensure_ascii=False, indent=2))
         return 0
     source = Path(args.source)
     destination = Path(args.destination)

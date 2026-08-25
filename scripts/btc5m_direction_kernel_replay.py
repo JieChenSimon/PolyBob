@@ -46,11 +46,9 @@ from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import SimSignal
 
-_RAW_DATASET = Path("data/datasets/parts/btc_1m_bars_clean_v2/symbol=BTC-USDT")
-_COMPACTED_DATASET = Path(
+DATASET = Path(
     "data/datasets/compacted/btc_1m_bars_clean_v2/dataset/symbol=BTC-USDT"
 )
-DATASET = _COMPACTED_DATASET if _COMPACTED_DATASET.exists() else _RAW_DATASET
 THRESHOLDS = (0.55, 0.60, 0.65)
 SPLITS = (0.50, 0.60, 0.70, 0.80)
 COSTS = (1.0, 2.0, 3.0)
