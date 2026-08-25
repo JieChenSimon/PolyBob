@@ -2,18 +2,16 @@
   "schema_version": "btc5m-report-lineage-v1",
   "report_name": "event_kernel_replay",
   "report_path": "data/btc5m_event_kernel_replay.json",
-  "report_sha256": "dbf6100843b625c4aee81d71b7115425b21923346681b0b4b0cfc72f5db0fe3a",
-  "generated_at": "2026-08-25T01:38:52.145910+00:00",
-  "source_generated_at": "2026-08-24T17:57:42.921912+00:00",
+  "report_sha256": "145ee91f271cb750f33e9a7d02a93d353d411345f641d5b1c80246bddc934e08",
+  "generated_at": "2026-08-25T03:21:43.135675+00:00",
+  "source_generated_at": "2026-08-25T03:13:40.660790+00:00",
   "code": {
-    "commit": "19c8c68a97ec20df084b4747cd7ac3e4057a14c9",
-    "dirty": true,
-    "dirty_files": 1,
-    "dirty_sample": [
-      "scripts/btc5m_mispricing.py"
-    ]
+    "commit": "f067667a4845aade7b5e50ec39f318ea285142b1",
+    "dirty": false,
+    "dirty_files": 0,
+    "dirty_sample": []
   },
-  "reproducible": false,
+  "reproducible": true,
   "real_data_only": true,
   "pit_status": "UNKNOWN",
   "tradable_evidence": false,
