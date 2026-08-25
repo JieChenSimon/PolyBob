@@ -94,6 +94,12 @@ def test_discovery_screen_excludes_unknown_symbols(tmp_path):
     assert symbols_from_discovery_manifest(str(path)) == ["AAPL"]
 
 
+def test_drawdown_discovery_manifest_uses_frozen_candidate_symbols(tmp_path):
+    path = tmp_path / "drawdown.json"
+    path.write_text('{"candidate_symbols": ["600519", "AMD"]}')
+    assert symbols_from_discovery_manifest(str(path)) == ["600519", "AMD"]
+
+
 def test_equal_weight_benchmark_uses_window_endpoints():
     prices = np.array([[100.0, 110.0, 120.0], [100.0, 90.0, 80.0]])
     assert equal_weight_benchmark(prices, 0, 2) == 0.0

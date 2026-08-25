@@ -244,10 +244,22 @@ def symbol_domain(symbol: str) -> str:
 
 def symbols_from_discovery_manifest(path: str) -> list[str]:
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(payload.get("candidates"), list):
+        return [
+            str(row["symbol"])
+            for row in payload["candidates"]
+            if row.get("status") == "READY_FOR_RESEARCH" and row.get("symbol")
+        ]
+    # The drawdown discovery manifest has already applied its frozen training
+    # screen and records the symbols as candidate_symbols/selected. Preserve
+    # that source-native selection instead of silently falling back to the
+    # entire local store.
+    if isinstance(payload.get("candidate_symbols"), list):
+        return [str(symbol) for symbol in payload["candidate_symbols"] if str(symbol).strip()]
     return [
         str(row["symbol"])
-        for row in payload.get("candidates", [])
-        if row.get("status") == "READY_FOR_RESEARCH" and row.get("symbol")
+        for row in payload.get("selected", [])
+        if row.get("symbol")
     ]
 
 
