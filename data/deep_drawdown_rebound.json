@@ -1,7 +1,7 @@
 {
   "schema_version": "deep-drawdown-rebound-v1",
-  "generated_at": "2026-08-24T22:31:02.391208+00:00",
-  "as_of": "2026-08-24T22:31:01.413878+00:00",
+  "generated_at": "2026-08-25T04:27:37.469024+00:00",
+  "as_of": "2026-08-25T04:27:36.431013+00:00",
   "real_data_only": true,
   "strategy_status": "UNKNOWN",
   "promotion_status": "UNKNOWN",
@@ -11,9 +11,9 @@
   "survivorship_control": "UNKNOWN",
   "fundamental_quality_filter": "ROW_LEVEL_CANDIDATE_GLOBAL_BLOCKED",
   "fundamental_quality_summary": {
-    "pass_events": 26,
-    "unknown_events": 168,
-    "fail_events": 8,
+    "pass_events": 25,
+    "unknown_events": 170,
+    "fail_events": 7,
     "interpretation": "row-level acceptance and quality only; global PIT/survivorship/executable gates remain blocked"
   },
   "asset_date_cluster_floor": {
@@ -145,59 +145,75 @@
       "fundamental_coverage": [
         {
           "symbol": "600519",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 103,
+          "start": "1998-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "000001",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 123,
+          "start": "1989-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "300750",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 41,
+          "start": "2014-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "601318",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 90,
+          "start": "1997-12-31",
+          "end": "2026-06-30",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "000858",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 110,
+          "start": "1995-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "600036",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 101,
+          "start": "1999-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "000651",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 112,
+          "start": "1993-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         },
         {
           "symbol": "002594",
-          "rows": 0,
-          "start": null,
-          "end": null,
-          "source": []
+          "rows": 75,
+          "start": "2002-12-31",
+          "end": "2026-03-31",
+          "source": [
+            "akshare_sina_financial_abstract"
+          ]
         }
       ],
       "event_count": 3,
@@ -212,7 +228,9 @@
           "drawdown": 0.50027751,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "periods": 110,
+            "accepted_periods": 0
           },
           "outcomes": [
             {
@@ -332,7 +350,9 @@
           "drawdown": 0.50537059,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "periods": 110,
+            "accepted_periods": 0
           },
           "outcomes": [
             {
@@ -452,7 +472,9 @@
           "drawdown": 0.50701604,
           "fundamental_quality": {
             "status": "UNKNOWN",
-            "reason": "fundamentals_dataset_missing"
+            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "periods": 110,
+            "accepted_periods": 0
           },
           "outcomes": [
             {
@@ -791,16 +813,17 @@
       "coverage": [
         {
           "symbol": "AAPL",
-          "rows": 1265,
+          "rows": 1266,
           "start": "2021-08-09",
-          "end": "2026-08-21",
+          "end": "2026-08-24",
           "source": [
             "yahoo"
           ],
           "price_basis": [
-            "provider_quote_adjustment_unknown"
+            "provider_quote_adjustment_unknown",
+            "yahoo_split_dividend_adjusted_ohlcv"
           ],
-          "missing_price_basis_rows": 1259
+          "missing_price_basis_rows": 6
         },
         {
           "symbol": "MSFT",
@@ -22414,10 +22437,10 @@
           "event_close": 60.1899986267,
           "drawdown": 0.52252896,
           "fundamental_quality": {
-            "status": "FAIL",
-            "reason": "quality_rule_failed",
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
             "periods": 17,
-            "gross_margin": 0.5025062
+            "accepted_periods": 16
           },
           "outcomes": [
             {
@@ -22563,11 +22586,10 @@
           "event_close": 62.8699989319,
           "drawdown": 0.50126924,
           "fundamental_quality": {
-            "status": "PASS",
-            "reason": "row_level_sec_acceptance_timestamp_and_quality_rule_passed",
-            "pit_scope": "row_level_only_global_dataset_not_promotable",
+            "status": "UNKNOWN",
+            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
             "periods": 18,
-            "gross_margin": 0.50376352
+            "accepted_periods": 17
           },
           "outcomes": [
             {
@@ -22837,9 +22859,9 @@
           ]
         }
       ],
-      "quality_pass_events": 26,
-      "quality_unknown_events": 112,
-      "quality_fail_events": 8,
+      "quality_pass_events": 25,
+      "quality_unknown_events": 114,
+      "quality_fail_events": 7,
       "independent_asset_clusters": 16,
       "independent_date_clusters": 118,
       "horizons": {
@@ -22854,11 +22876,11 @@
             "cost_multiple": 1.0
           },
           "quality_pass_only": {
-            "n_complete": 26,
+            "n_complete": 25,
             "n_unresolved": 0,
-            "mean_net_return": 0.05610063,
-            "median_net_return": 0.07727525,
-            "win_rate": 0.65384615,
+            "mean_net_return": 0.04693319,
+            "median_net_return": 0.07387959,
+            "win_rate": 0.64,
             "max_drawdown": 0.27201697,
             "cost_multiple": 1.0
           },
@@ -23029,11 +23051,11 @@
             "cost_multiple": 1.0
           },
           "quality_pass_only": {
-            "n_complete": 26,
+            "n_complete": 25,
             "n_unresolved": 0,
-            "mean_net_return": 0.13145569,
-            "median_net_return": 0.10555201,
-            "win_rate": 0.69230769,
+            "mean_net_return": 0.12440539,
+            "median_net_return": 0.10421341,
+            "win_rate": 0.68,
             "max_drawdown": 0.54360347,
             "cost_multiple": 1.0
           },
@@ -23204,11 +23226,11 @@
             "cost_multiple": 1.0
           },
           "quality_pass_only": {
-            "n_complete": 26,
+            "n_complete": 25,
             "n_unresolved": 0,
-            "mean_net_return": 0.38425445,
-            "median_net_return": 0.24973321,
-            "win_rate": 0.84615385,
+            "mean_net_return": 0.38717576,
+            "median_net_return": 0.23976177,
+            "win_rate": 0.84,
             "max_drawdown": 0.19269211,
             "cost_multiple": 1.0
           },
@@ -23380,7 +23402,7 @@
           },
           "quality_pass_only": {
             "n_complete": 24,
-            "n_unresolved": 2,
+            "n_unresolved": 1,
             "mean_net_return": 1.16849382,
             "median_net_return": 1.01527543,
             "win_rate": 1.0,
