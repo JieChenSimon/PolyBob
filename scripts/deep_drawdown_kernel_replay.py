@@ -197,7 +197,8 @@ def _candidate_symbols(
 async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                     cost_multiple: float, db_path: Path, name: str,
                     confirmation_bars: int = 0, probe_fraction: float = 0.0,
-                    allowed_event_dates: set[str] | None = None) -> dict[str, Any]:
+                    allowed_event_dates: set[str] | None = None,
+                    max_nav_fraction: float = 0.05) -> dict[str, Any]:
     if len(rows) < MIN_ROWS:
         return {"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
                 "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
@@ -216,8 +217,8 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                 "drawdown_fraction": 0.50,
                 "tranche_delays_days": [0, 5, 20],
                 "hold_days": hold_days,
-                "max_nav_fraction": 0.05,
-                "position_fraction": 0.05,
+                "max_nav_fraction": max_nav_fraction,
+                "position_fraction": max_nav_fraction,
                 "confirmation_bars": confirmation_bars,
                 "probe_fraction": probe_fraction,
                 "allow_short": False,
@@ -279,6 +280,7 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             "cost_multiple": cost_multiple,
             "confirmation_bars": confirmation_bars,
             "probe_fraction": probe_fraction,
+            "max_nav_fraction": max_nav_fraction,
             "fundamental_quality_gate": allowed_event_dates is not None,
             "round_trip_cost_bps": round_trip_bps,
             "metrics": metrics,
@@ -352,6 +354,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                                  name=f"deep-drawdown:{symbol}:{hold_days}d:{multiple:g}x",
                                  confirmation_bars=args.confirmation_bars,
                                  probe_fraction=args.probe_fraction,
+                                 max_nav_fraction=args.max_nav_fraction,
                                  allowed_event_dates=(quality_dates_by_symbol[symbol]
                                                        if args.fundamental_quality_only else None))
         results.append(result)
@@ -370,6 +373,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         ),
         "case_count": len(cases),
         "fundamental_quality_only": bool(args.fundamental_quality_only),
+        "max_nav_fraction": args.max_nav_fraction,
         "results": results,
         "promotion": {"status": "BLOCKED", "reason": "PIT/fundamental/executable quote gates UNKNOWN"},
         "progress": json.loads(Path(args.progress).read_text(encoding="utf-8")),
@@ -395,6 +399,8 @@ def main() -> int:
     parser.add_argument("--output-dir", default="data/.kernel_replay_deep_drawdown")
     parser.add_argument("--confirmation-bars", type=int, default=0)
     parser.add_argument("--probe-fraction", type=float, default=0.0)
+    parser.add_argument("--max-nav-fraction", type=float, default=0.05,
+                        help="bounded per-instrument NAV target; default 0.05")
     parser.add_argument("--hold-days", type=_csv_ints, default=HORIZONS,
                         help="comma-separated holding periods; default: 21,63,126,252")
     parser.add_argument("--cost-multiples", type=_csv_floats, default=COST_MULTIPLES,
@@ -404,6 +410,8 @@ def main() -> int:
     parser.add_argument("--fundamental-quality-only", action="store_true",
                         help="trade only drawdown dates passing the row-level SEC quality audit")
     args = parser.parse_args()
+    if not 0.0 < args.max_nav_fraction <= 0.25:
+        parser.error("--max-nav-fraction must be >0 and <=0.25")
     report = asyncio.run(run(args))
     print(json.dumps({"symbols": report["universe_count"], "cases": report["case_count"],
                       "promotion": report["promotion"]}, ensure_ascii=False, indent=2))
