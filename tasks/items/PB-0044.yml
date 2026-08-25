@@ -10,9 +10,9 @@ checks:
 - text: 建立标准化数据布局与小文件合并/压缩/去重工具，保留 manifest、PIT 和 provenance
   done: true
 - text: 建立日志结构化输出、轮转/保留/采样策略，并通过回放、关闭、恢复和数据完整性测试
-  done: false
+  done: true
 deps:
 - PB-0043
 branch: null
 blocked: null
-updated: '2026-08-25T04:41:15+00:00'
+updated: '2026-08-25T04:43:55+00:00'
