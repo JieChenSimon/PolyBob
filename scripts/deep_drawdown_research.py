@@ -87,8 +87,10 @@ def _accepted_before_event(value: Any, event_date: str) -> bool:
     return accepted < decision
 
 
-def _first_drawdown_events(frame) -> list[dict[str, Any]]:
+def _first_drawdown_events(frame, *, threshold: float = 0.50) -> list[dict[str, Any]]:
     """Return one event per drawdown episode using only prior closes for peak."""
+    if not 0.0 < threshold < 1.0:
+        raise ValueError("threshold must be between 0 and 1")
     if frame.empty:
         return []
     frame = frame.sort_values("event_date").drop_duplicates("event_date", keep="last")
@@ -101,7 +103,7 @@ def _first_drawdown_events(frame) -> list[dict[str, Any]]:
         if close is None:
             continue
         drawdown = None if prior_peak is None else 1.0 - close / prior_peak
-        triggered = drawdown is not None and drawdown >= 0.50
+        triggered = drawdown is not None and drawdown >= threshold
         if triggered and not prior_triggered:
             events.append({
                 "event_index": i,

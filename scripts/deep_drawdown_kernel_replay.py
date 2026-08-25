@@ -163,6 +163,7 @@ def _fundamental_gate_status(
 def _candidate_symbols(
     symbols: list[str], rows_by_symbol: dict[str, list[dict[str, Any]]],
     quality_dates_by_symbol: dict[str, set[str]] | None = None,
+    *, drawdown_fraction: float = 0.50,
 ) -> list[str]:
     """Keep the replay matrix bounded to symbols with an eligible event.
 
@@ -185,7 +186,7 @@ def _candidate_symbols(
             if close is None:
                 continue
             drawdown = None if peak is None else 1.0 - float(close) / peak
-            current = drawdown is not None and drawdown >= 0.50
+            current = drawdown is not None and drawdown >= drawdown_fraction
             if current and not triggered:
                 candidates.append(symbol)
                 break
@@ -198,7 +199,8 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
                     cost_multiple: float, db_path: Path, name: str,
                     confirmation_bars: int = 0, probe_fraction: float = 0.0,
                     allowed_event_dates: set[str] | None = None,
-                    max_nav_fraction: float = 0.05) -> dict[str, Any]:
+                    max_nav_fraction: float = 0.05,
+                    drawdown_fraction: float = 0.50) -> dict[str, Any]:
     if len(rows) < MIN_ROWS:
         return {"symbol": symbol, "domain": _domain(symbol), "status": "BLOCKED",
                 "reason": f"rows<{MIN_ROWS}", "rows": len(rows)}
@@ -214,7 +216,7 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             universe=[symbol],
             initial_capital=INITIAL_CAPITAL,
             config={
-                "drawdown_fraction": 0.50,
+                "drawdown_fraction": drawdown_fraction,
                 "tranche_delays_days": [0, 5, 20],
                 "hold_days": hold_days,
                 "max_nav_fraction": max_nav_fraction,
@@ -277,6 +279,7 @@ async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
             "start": rows[0]["event_at"].date().isoformat(),
             "end": rows[-1]["event_at"].date().isoformat(),
             "hold_days": hold_days,
+            "drawdown_fraction": drawdown_fraction,
             "cost_multiple": cost_multiple,
             "confirmation_bars": confirmation_bars,
             "probe_fraction": probe_fraction,
@@ -329,15 +332,17 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             frame = store.read(store.DAILY_BARS, symbol, as_of=quality_as_of)
             quality_dates_by_symbol[symbol] = {
                 event["event_date"]
-                for event in _first_drawdown_events(frame)
+                for event in _first_drawdown_events(frame, threshold=min(args.drawdown_fractions))
                 if _fundamental_quality(symbol, event["event_date"], quality_as_of)["status"] == "PASS"
             }
     replay_symbols = _candidate_symbols(
         symbols, rows_by_symbol,
         quality_dates_by_symbol if args.fundamental_quality_only else None,
+        drawdown_fraction=min(args.drawdown_fractions),
     )
-    cases = [(symbol, hold_days, multiple)
+    cases = [(symbol, drawdown_fraction, hold_days, multiple)
              for symbol in replay_symbols
+             for drawdown_fraction in args.drawdown_fractions
              for hold_days in args.hold_days
              for multiple in args.cost_multiples]
     if len(cases) > args.max_cases:
@@ -347,14 +352,15 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         )
     progress = ProgressReporter(Path(args.progress), len(cases))
     results: list[dict[str, Any]] = []
-    for symbol, hold_days, multiple in cases:
-        db_path = Path(args.output_dir) / f"{symbol}-{hold_days}d-{multiple:g}x-{uuid.uuid4().hex[:8]}.sqlite3"
+    for symbol, drawdown_fraction, hold_days, multiple in cases:
+        db_path = Path(args.output_dir) / f"{symbol}-{drawdown_fraction:.2f}-{hold_days}d-{multiple:g}x-{uuid.uuid4().hex[:8]}.sqlite3"
         result = await _run_case(symbol, rows_by_symbol[symbol], hold_days=hold_days,
                                  cost_multiple=multiple, db_path=db_path,
-                                 name=f"deep-drawdown:{symbol}:{hold_days}d:{multiple:g}x",
+                                 name=f"deep-drawdown:{symbol}:{drawdown_fraction:.2f}:{hold_days}d:{multiple:g}x",
                                  confirmation_bars=args.confirmation_bars,
                                  probe_fraction=args.probe_fraction,
                                  max_nav_fraction=args.max_nav_fraction,
+                                 drawdown_fraction=drawdown_fraction,
                                  allowed_event_dates=(quality_dates_by_symbol[symbol]
                                                        if args.fundamental_quality_only else None))
         results.append(result)
@@ -374,6 +380,7 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "case_count": len(cases),
         "fundamental_quality_only": bool(args.fundamental_quality_only),
         "max_nav_fraction": args.max_nav_fraction,
+        "drawdown_fractions": args.drawdown_fractions,
         "results": results,
         "promotion": {"status": "BLOCKED", "reason": "PIT/fundamental/executable quote gates UNKNOWN"},
         "progress": json.loads(Path(args.progress).read_text(encoding="utf-8")),
@@ -401,6 +408,8 @@ def main() -> int:
     parser.add_argument("--probe-fraction", type=float, default=0.0)
     parser.add_argument("--max-nav-fraction", type=float, default=0.05,
                         help="bounded per-instrument NAV target; default 0.05")
+    parser.add_argument("--drawdown-fractions", type=_csv_floats, default=(0.30, 0.40, 0.50),
+                        help="pre-registered comma-separated drawdown thresholds; default: 0.30,0.40,0.50")
     parser.add_argument("--hold-days", type=_csv_ints, default=HORIZONS,
                         help="comma-separated holding periods; default: 21,63,126,252")
     parser.add_argument("--cost-multiples", type=_csv_floats, default=COST_MULTIPLES,
@@ -412,6 +421,8 @@ def main() -> int:
     args = parser.parse_args()
     if not 0.0 < args.max_nav_fraction <= 0.25:
         parser.error("--max-nav-fraction must be >0 and <=0.25")
+    if any(not 0.0 < value < 1.0 for value in args.drawdown_fractions):
+        parser.error("--drawdown-fractions values must be between 0 and 1")
     report = asyncio.run(run(args))
     print(json.dumps({"symbols": report["universe_count"], "cases": report["case_count"],
                       "promotion": report["promotion"]}, ensure_ascii=False, indent=2))

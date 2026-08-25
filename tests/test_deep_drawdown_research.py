@@ -38,6 +38,12 @@ def test_uses_prior_peak_and_one_event_per_episode():
     assert events[0]["drawdown"] > 0.5
 
 
+def test_drawdown_threshold_is_explicit_and_causal():
+    events = _first_drawdown_events(_bars(), threshold=0.40)
+    assert len(events) == 1
+    assert events[0]["drawdown"] >= 0.40
+
+
 def test_unresolved_long_horizon_is_fail_closed():
     events = _first_drawdown_events(_bars())
     outcomes = _event_outcomes(_bars(), events[0], 20.0)

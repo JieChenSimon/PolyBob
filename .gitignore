@@ -104,6 +104,7 @@ data/models/
 data/.kernel_replay_*/
 data/deep_drawdown_kernel_replay.json
 data/deep_drawdown_kernel_*replay.json
+data/deep_drawdown_kernel_thresholds_*.json
 data/deep_drawdown_kernel_progress.json
 data/deep_drawdown_kernel_*progress.json
 data/simulation_research_matrix_report.json
