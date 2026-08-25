@@ -6,7 +6,7 @@
 
 ## 数据修复
 
-原物化器在 SEC `accepted_at` 缺失时把 filing date 推成午夜 `announcement_at`。日历日期不是可观测公告时间，这会把未知 PIT 数据错误地变成已知。现在缺失时间保留为 `None`，质量门禁 fail closed。修复后用 SEC 缓存中的真实 Company Facts 与 Submissions 数据重新物化 12 个美股标的，12/12 可用，所有物化记录都有真实 `accepted_at`。
+原物化器在 SEC `accepted_at` 缺失时把 filing date 推成午夜 `announcement_at`。日历日期不是可观测公告时间，这会把未知 PIT 数据错误地变成已知。现在缺失时间保留为 `None`，质量门禁 fail closed。修复后用 SEC 缓存中的真实 Company Facts 与 Submissions 数据重新物化回撤候选，并进一步覆盖本地 fundamentals 集合中的全部 51 个 SEC 标的；51/51 可用，全部物化记录都有真实 `accepted_at`。
 
 ## 重放合同
 
