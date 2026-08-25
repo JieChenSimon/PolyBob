@@ -41,6 +41,14 @@ BODY 11,911 个。`data/store`、`data/market_cache`、`data/datasets` 中小于
 4. 对回放 SQLite、WAL、进度文件和日志建立轮转、TTL、关闭清理与恢复测试；任何
    UNKNOWN lineage 都不删除。
 
+## 首个旁路压缩验证
+
+已对 `data/datasets/parts/btc_1m_bars` 执行旁路压缩：5,143 个输入 Parquet、
+346,042 行、约 16.1 MB 被压缩为 1 个 Zstandard Parquet、约 2.1 MB。源 parts
+没有删除；输出 manifest 保留输入列表、输出 SHA-256、源 manifest SHA-256 和行数
+校验，5,143/5,143 个输入路径都能在原 manifest 中找到。该结果证明工具链可用，
+但还没有切换任何生产消费者，也没有删除旧文件。
+
 可重复入口：
 
 ```text

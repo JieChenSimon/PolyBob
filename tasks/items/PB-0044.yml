@@ -8,11 +8,11 @@ checks:
 - text: 完成数据/缓存/临时回放/日志文件来源盘点、重复率和保留级别报告
   done: false
 - text: 建立标准化数据布局与小文件合并/压缩/去重工具，保留 manifest、PIT 和 provenance
-  done: false
+  done: true
 - text: 建立日志结构化输出、轮转/保留/采样策略，并通过回放、关闭、恢复和数据完整性测试
   done: false
 deps:
 - PB-0043
 branch: null
 blocked: null
-updated: '2026-08-24T20:20:32+00:00'
+updated: '2026-08-25T04:41:15+00:00'
