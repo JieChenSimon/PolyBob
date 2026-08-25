@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import uuid
 from datetime import UTC, datetime
@@ -49,6 +50,45 @@ def execution_safe_fraction(fee_bps: float, mid_penalty_bps: float,
     fee_factor = 1.0 + float(fee_bps) / 10_000.0
     penalty_factor = 1.0 + float(mid_penalty_bps) / 10_000.0
     return (1.0 - cash_buffer_fraction) / (fee_factor * penalty_factor)
+
+
+def _sha256_file(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def data_snapshot_digest(frames: dict[str, object], manifest_path: str | None = None) -> dict:
+    """Create a deterministic, compact identity for the replay input.
+
+    The digest covers the actual aligned per-symbol date/value series consumed
+    by the isolated replay, not merely the source directory mtime. This makes
+    silent local refreshes visible when two strategy reports are compared.
+    """
+    digest = hashlib.sha256()
+    symbols: list[dict] = []
+    for symbol in sorted(frames):
+        series = frames[symbol]
+        rows = [(str(index), float(value)) for index, value in series.items()]
+        for event_date, close in rows:
+            digest.update(f"{symbol}\t{event_date}\t{close:.17g}\n".encode("utf-8"))
+        symbols.append({
+            "symbol": symbol,
+            "rows": len(rows),
+            "start": rows[0][0] if rows else None,
+            "end": rows[-1][0] if rows else None,
+        })
+    return {
+        "schema_version": "cross-sectional-replay-input-v1",
+        "sha256": digest.hexdigest(),
+        "manifest_path": manifest_path,
+        "manifest_sha256": _sha256_file(Path(manifest_path)) if manifest_path else None,
+        "symbols": symbols,
+    }
 
 
 def binary_target(values: list[float]) -> list[float]:
@@ -375,6 +415,7 @@ async def run(args: argparse.Namespace) -> dict:
             "rejected_stale": rejected_stale,
             "instrument_count": len(results),
         },
+        "data_snapshot": data_snapshot_digest(frames, args.discovery_manifest),
         "results": results,
         "promotion": {
             "status": "BLOCKED",

@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 import pytest
 
 from scripts.cross_sectional_kernel_replay import ReplayPositionSource
+from scripts.cross_sectional_standalone_replay import data_snapshot_digest
 from scripts.cross_sectional_multifold_replay import fold_dates as cross_sectional_fold_dates
 from scripts.crypto_tsmom_multifold_replay import signed_positions
 from scripts.mean_reversion_multifold_replay import buy_and_hold_return, fold_dates
@@ -48,6 +49,18 @@ def test_replay_source_closes_a_short_with_a_buy():
     assert first[0].side == "sell"
     assert second == []
     assert third[0].side == "buy"
+
+
+def test_standalone_snapshot_digest_changes_when_input_changes(tmp_path):
+    first = {"AAA": pd.Series([100.0, 101.0], index=["2025-01-01", "2025-01-02"])}
+    second = {"AAA": pd.Series([100.0, 102.0], index=["2025-01-01", "2025-01-02"])}
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text("{}")
+    a = data_snapshot_digest(first, str(manifest))
+    b = data_snapshot_digest(second, str(manifest))
+    assert a["sha256"] != b["sha256"]
+    assert a["manifest_sha256"] == b["manifest_sha256"]
+    assert a["symbols"] == b["symbols"]
 
 
 def test_multifold_cut_dates_are_chronological_and_date_aligned():
