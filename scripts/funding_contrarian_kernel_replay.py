@@ -78,7 +78,7 @@ def _read_series(price_symbol: str):
 
 async def replay_symbol(
     symbol: str, dates: list[str], prices: np.ndarray, funding: np.ndarray,
-    positions: np.ndarray, split_date: str, out_dir: Path, cost_multiple: float,
+    positions: np.ndarray, split_dates: list[str], out_dir: Path, cost_multiple: float,
     cooperative_pause_seconds: float = 0.01,
 ) -> dict:
     timestamps = [datetime.fromisoformat(day).replace(tzinfo=UTC) for day in dates]
@@ -123,23 +123,26 @@ async def replay_symbol(
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
     points = service.store.list_equity_points(run_id)
-    oos_points = [point for point in points if point.ts >= split_date]
-    prior = [point for point in points if point.ts < split_date]
-    start = prior[-1] if prior else (oos_points[0] if oos_points else None)
-    end = oos_points[-1] if oos_points else None
-    oos_return = end.equity / start.equity - 1.0 if start and end and start.equity > 0 else None
-    oos_returns = [
-        current.equity / previous.equity - 1.0
-        for previous, current in zip(points, points[1:])
-        if current.ts >= split_date and previous.equity > 0
-    ]
+    folds = []
+    for split_date in split_dates:
+        oos_points = [point for point in points if point.ts >= split_date]
+        prior = [point for point in points if point.ts < split_date]
+        start = prior[-1] if prior else (oos_points[0] if oos_points else None)
+        end = oos_points[-1] if oos_points else None
+        oos_return = end.equity / start.equity - 1.0 if start and end and start.equity > 0 else None
+        oos_returns = [
+            current.equity / previous.equity - 1.0
+            for previous, current in zip(points, points[1:])
+            if current.ts >= split_date and previous.equity > 0
+        ]
+        folds.append({"split_date": split_date, "oos_return": oos_return,
+                      "oos_returns": oos_returns})
     funding_pnl = metrics.get("funding_pnl", 0.0)
     await service.stop()
     for suffix in ("", "-wal", "-shm"):
         db_path.with_name(db_path.name + suffix).unlink(missing_ok=True)
     return {
-        "symbol": symbol, "split_date": split_date, "oos_return": oos_return,
-        "oos_returns": oos_returns, "funding_pnl": funding_pnl,
+        "symbol": symbol, "folds": folds, "funding_pnl": funding_pnl,
         "metrics": metrics,
     }
 
@@ -161,20 +164,22 @@ async def main_async(output: Path, cooperative_pause_seconds: float = 0.01) -> N
         for multiple in COST_MULTIPLES:
             fold_rows = []
             all_returns = []
-            for split_index in split_indices:
-                results = []
-                for symbol, (dates, prices, funding) in series.items():
-                    positions = funding_contrarian(
-                        prices, funding, threshold_percentile=threshold_percentile
-                    )
-                    results.append(await replay_symbol(
-                        symbol, dates, prices, funding, positions, dates[split_index],
-                        out_dir, multiple, cooperative_pause_seconds,
-                    ))
-                oos = [r["oos_return"] for r in results if r["oos_return"] is not None]
-                all_returns.extend(value for r in results for value in r["oos_returns"])
+            split_dates = [next(iter(series.values()))[0][index] for index in split_indices]
+            results = []
+            for symbol, (dates, prices, funding) in series.items():
+                positions = funding_contrarian(
+                    prices, funding, threshold_percentile=threshold_percentile
+                )
+                results.append(await replay_symbol(
+                    symbol, dates, prices, funding, positions, split_dates,
+                    out_dir, multiple, cooperative_pause_seconds,
+                ))
+            for fold_index, split_date in enumerate(split_dates):
+                fold_results = [r["folds"][fold_index] for r in results]
+                oos = [r["oos_return"] for r in fold_results if r["oos_return"] is not None]
+                all_returns.extend(value for r in fold_results for value in r["oos_returns"])
                 fold_rows.append({
-                    "split_date": results[0]["split_date"],
+                    "split_date": split_date,
                     "median_oos_return": float(np.median(oos)) if oos else None,
                     "positive_oos_fraction": float(np.mean(np.asarray(oos) > 0)) if oos else None,
                     "median_funding_pnl": float(np.median([r["funding_pnl"] for r in results])),
