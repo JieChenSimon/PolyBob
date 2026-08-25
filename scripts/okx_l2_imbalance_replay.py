@@ -133,6 +133,7 @@ def next_target(previous: float, imbalance: float, *, enter: float, exit: float)
 async def replay(
     rows: list[dict], output_dir: Path, *, enter: float = 0.65, exit: float = 0.15,
     position_fraction: float = 0.10, impact_coefficient: float = 0.10,
+    invert_signal: bool = False,
 ) -> dict:
     if not rows:
         raise ValueError("rows must not be empty")
@@ -182,7 +183,9 @@ async def replay(
         observed_at = datetime.fromisoformat(row["event_at"])
         clock.current = observed_at
         imbalance = _imbalance(row)
-        next_state = next_target(target, imbalance, enter=enter, exit=exit)
+        base_target = -target if invert_signal else target
+        base_state = next_target(base_target, imbalance, enter=enter, exit=exit)
+        next_state = -base_state if invert_signal else base_state
         if next_state != target:
             observation_id = f"okx-l2:{row['event_ts_ms']}"
             observation = await service.record_quote_observation(
@@ -309,6 +312,7 @@ async def replay(
             "enter": enter, "exit": exit,
             "position_fraction": position_fraction,
             "impact_coefficient": impact_coefficient,
+            "invert_signal": invert_signal,
             "sample_seconds": None,
         },
         "metrics": metrics,
@@ -322,12 +326,15 @@ async def replay(
 
 async def main_async(
     dataset: Path, output: Path, output_dir: Path, sample_seconds: int,
-    position_fraction: float, impact_coefficient: float,
+    position_fraction: float, impact_coefficient: float, enter: float, exit: float,
+    invert_signal: bool,
 ) -> None:
     rows = load_quotes(dataset, sample_seconds=sample_seconds)
     result = await replay(
         rows, output_dir, position_fraction=position_fraction,
         impact_coefficient=impact_coefficient,
+        enter=enter, exit=exit,
+        invert_signal=invert_signal,
     )
     result["dataset"] = str(dataset)
     result["parameters"]["sample_seconds"] = sample_seconds
@@ -343,8 +350,12 @@ if __name__ == "__main__":
     parser.add_argument("--sample-seconds", type=int, default=5)
     parser.add_argument("--position-fraction", type=float, default=0.10)
     parser.add_argument("--impact-coefficient", type=float, default=0.10)
+    parser.add_argument("--enter", type=float, default=0.65)
+    parser.add_argument("--exit", type=float, default=0.15)
+    parser.add_argument("--invert-signal", action="store_true")
     args = parser.parse_args()
     asyncio.run(main_async(
         args.dataset, args.output, args.output_dir, args.sample_seconds,
-        args.position_fraction, args.impact_coefficient,
+        args.position_fraction, args.impact_coefficient, args.enter, args.exit,
+        args.invert_signal,
     ))

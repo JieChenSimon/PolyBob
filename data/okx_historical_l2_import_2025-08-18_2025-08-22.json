@@ -1,0 +1,82 @@
+{
+  "schema_version": "okx-historical-l2-import-v1",
+  "generated_at": "2026-08-25T10:58:14.434859+00:00",
+  "real_data_only": true,
+  "provider": "OKX official historical market data",
+  "inst_type": "SPOT",
+  "symbols": [
+    "BTC-USDT"
+  ],
+  "begin": "2025-08-18T00:00:00Z",
+  "end": "2025-08-22T00:00:00Z",
+  "depth": 400,
+  "archives": [
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250822/BTC-USDT-L2orderbook-400lv-2025-08-22.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-22.tar.gz",
+      "size_mb": 195.51,
+      "date_ts": "1755820800000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-22.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-22.tar.gz",
+      "sha256": "fd433aea78df31015dce994453f5406fab85df920930ad1bea690ef72a2812e6",
+      "bytes": 205006223,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250821/BTC-USDT-L2orderbook-400lv-2025-08-21.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-21.tar.gz",
+      "size_mb": 164.5,
+      "date_ts": "1755734400000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-21.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-21.tar.gz",
+      "sha256": "19ea1680349fa9b35ff5116ab9fd5d6357b77b78a2e9d2243f25fdadf951f2ca",
+      "bytes": 172485625,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250820/BTC-USDT-L2orderbook-400lv-2025-08-20.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-20.tar.gz",
+      "size_mb": 172.92,
+      "date_ts": "1755648000000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-20.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-20.tar.gz",
+      "sha256": "af057bb46f481010ef402cfdb2273500895213ac6f0bf1b180621c9c3b6a6810",
+      "bytes": 181318537,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250819/BTC-USDT-L2orderbook-400lv-2025-08-19.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-19.tar.gz",
+      "size_mb": 192.47,
+      "date_ts": "1755561600000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-19.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-19.tar.gz",
+      "sha256": "7f309e1db954b39d2391bab3d167f0258554accf136455c96d6427cec90d9e5c",
+      "bytes": 201819838,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250818/BTC-USDT-L2orderbook-400lv-2025-08-18.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-18.tar.gz",
+      "size_mb": 192.03,
+      "date_ts": "1755475200000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-18.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-18.tar.gz",
+      "sha256": "660ea49e110059b47fbd30fca85cef1031cf35b35c445da584fda8500996262f",
+      "bytes": 201356310,
+      "history_scope": "historical_orderbook_raw_archive"
+    }
+  ],
+  "promotion": "BLOCKED",
+  "promotion_reason": "raw_archive_requires_book_reconstruction_and_fill_linkage"
+}

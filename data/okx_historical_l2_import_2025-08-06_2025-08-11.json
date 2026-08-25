@@ -1,0 +1,95 @@
+{
+  "schema_version": "okx-historical-l2-import-v1",
+  "generated_at": "2026-08-25T10:55:55.283704+00:00",
+  "real_data_only": true,
+  "provider": "OKX official historical market data",
+  "inst_type": "SPOT",
+  "symbols": [
+    "BTC-USDT"
+  ],
+  "begin": "2025-08-06T00:00:00Z",
+  "end": "2025-08-11T00:00:00Z",
+  "depth": 400,
+  "archives": [
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250811/BTC-USDT-L2orderbook-400lv-2025-08-11.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-11.tar.gz",
+      "size_mb": 197.03,
+      "date_ts": "1754870400000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-11.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-11.tar.gz",
+      "sha256": "6a0f522d720045ff918246e4b5de0af6b5d8d6ac495d0da9b687bd506b59488c",
+      "bytes": 206596731,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250810/BTC-USDT-L2orderbook-400lv-2025-08-10.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-10.tar.gz",
+      "size_mb": 119.76,
+      "date_ts": "1754784000000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-10.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-10.tar.gz",
+      "sha256": "a05e54f4c773d44d7c4b9ec927b0756c78e4066ae9a69f875b0aab47909d09f9",
+      "bytes": 125574532,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250809/BTC-USDT-L2orderbook-400lv-2025-08-09.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-09.tar.gz",
+      "size_mb": 94.17,
+      "date_ts": "1754697600000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-09.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-09.tar.gz",
+      "sha256": "98505153046b6d9aabb24c236e0d23b0d2834c46f2bfe19a957f61a243e70fbe",
+      "bytes": 98739667,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250808/BTC-USDT-L2orderbook-400lv-2025-08-08.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-08.tar.gz",
+      "size_mb": 135.07,
+      "date_ts": "1754611200000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-08.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-08.tar.gz",
+      "sha256": "c445425aaf71fd59b7fbcfa7df9f663176d5b20105ceb1306fbf8278e196141e",
+      "bytes": 141631603,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250807/BTC-USDT-L2orderbook-400lv-2025-08-07.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-07.tar.gz",
+      "size_mb": 140.03,
+      "date_ts": "1754524800000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-07.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-07.tar.gz",
+      "sha256": "6162b2b7e47104086126ea6cc8f65dba19f02f735d4ba64547f1a738eb56e0a8",
+      "bytes": 146832496,
+      "history_scope": "historical_orderbook_raw_archive"
+    },
+    {
+      "url": "https://static.okx.com/cdn/okx/match/orderbook/L2/400lv/daily/20250806/BTC-USDT-L2orderbook-400lv-2025-08-06.tar.gz",
+      "filename": "BTC-USDT-L2orderbook-400lv-2025-08-06.tar.gz",
+      "size_mb": 134.13,
+      "date_ts": "1754438400000",
+      "inst_id": "BTC-USDT",
+      "target": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-06.tar.gz",
+      "status": "downloaded",
+      "path": "data/datasets/raw/okx_historical_orderbook_l2/BTC-USDT-L2orderbook-400lv-2025-08-06.tar.gz",
+      "sha256": "bfb33d5a14fa2dbf2343096d4c8c462fd7448f38501c5907781fc63f9cfad7bd",
+      "bytes": 140645721,
+      "history_scope": "historical_orderbook_raw_archive"
+    }
+  ],
+  "promotion": "BLOCKED",
+  "promotion_reason": "raw_archive_requires_book_reconstruction_and_fill_linkage"
+}
