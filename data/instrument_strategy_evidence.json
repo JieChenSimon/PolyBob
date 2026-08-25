@@ -1,6 +1,6 @@
 {
   "schema_version": "instrument-strategy-evidence-v1",
-  "generated_at": "2026-08-25T03:38:41.650505+00:00",
+  "generated_at": "2026-08-25T04:03:52.031646+00:00",
   "real_data_only": true,
   "research_only": true,
   "target_contract": {
@@ -11,15 +11,16 @@
   "sources": [
     "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
     "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
-    "data/crypto_tsmom_multifold_replay.json"
+    "data/crypto_tsmom_multifold_replay.json",
+    "data/crypto_tsmom_walk_forward_replay.json"
   ],
   "missing_sources": [],
   "instrument_count": 53,
-  "evidence_row_count": 53,
+  "evidence_row_count": 71,
   "target_status_counts": {
     "PASS": 0,
     "FAIL": 35,
-    "UNKNOWN": 18
+    "UNKNOWN": 36
   },
   "instruments": {
     "A": [
@@ -1196,6 +1197,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "ADA-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.10476377279490734,
+        "max_drawdown": 0.17935958957105655,
+        "sharpe": -0.46785539420710814,
+        "closed_trade_count": 21,
+        "oos_return": -0.1034197990737189,
+        "oos_excess_return": 0.05543734378342402,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 22,
+          "quote_quality_counts": {
+            "missing_depth": 22
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 22,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "ATOM-USDT": [
@@ -1217,6 +1256,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "ATOM-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.1748186241599713,
+        "max_drawdown": 0.34979793803603576,
+        "sharpe": -1.4654701878869272,
+        "closed_trade_count": 14,
+        "oos_return": -0.1735798203106168,
+        "oos_excess_return": 0.15281667476057714,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 17,
+          "quote_quality_counts": {
+            "missing_depth": 17
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 17,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "AVAX-USDT": [
@@ -1238,6 +1315,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "AVAX-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.14390623954269421,
+        "max_drawdown": 0.07379080348359537,
+        "sharpe": 1.4593322587262365,
+        "closed_trade_count": 3,
+        "oos_return": 0.1456235292129846,
+        "oos_excess_return": 0.4969411002993298,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 5,
+          "quote_quality_counts": {
+            "missing_depth": 5
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 5,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "BCH-USDT": [
@@ -1259,6 +1374,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "BCH-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.1522483853042551,
+        "max_drawdown": 0.07889302422993237,
+        "sharpe": 1.683405066233136,
+        "closed_trade_count": 7,
+        "oos_return": 0.15397819862399253,
+        "oos_excess_return": 0.6791154104790968,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 8,
+          "quote_quality_counts": {
+            "missing_depth": 8
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 8,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "BNB-USDT": [
@@ -1280,6 +1433,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "BNB-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.09900260698348429,
+        "max_drawdown": 0.15544739932073623,
+        "sharpe": -1.1930551311269133,
+        "closed_trade_count": 10,
+        "oos_return": -0.09764998430996497,
+        "oos_excess_return": 0.012119329825350023,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "BTC-USDT": [
@@ -1301,6 +1492,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "BTC-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.009337678616356815,
+        "max_drawdown": 0.10648247036332209,
+        "sharpe": 0.2263733311296523,
+        "closed_trade_count": 12,
+        "oos_return": 0.010852947184186057,
+        "oos_excess_return": 0.10261811537476695,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 14,
+          "quote_quality_counts": {
+            "missing_depth": 14
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 14,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "DOGE-USDT": [
@@ -1322,6 +1551,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "DOGE-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.0733238502929714,
+        "max_drawdown": 0.11240890888246279,
+        "sharpe": 0.8265020620378773,
+        "closed_trade_count": 14,
+        "oos_return": 0.07493517812498074,
+        "oos_excess_return": 0.3174381552820663,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "DOT-USDT": [
@@ -1343,6 +1610,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "DOT-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.0603510472328006,
+        "max_drawdown": 0.264038755401085,
+        "sharpe": -0.39454305412798907,
+        "closed_trade_count": 12,
+        "oos_return": -0.058940398890737766,
+        "oos_excess_return": 0.436645898869473,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 13,
+          "quote_quality_counts": {
+            "missing_depth": 13
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 13,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "ETC-USDT": [
@@ -1364,6 +1669,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "ETC-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.05204287364470894,
+        "max_drawdown": 0.07918245195747238,
+        "sharpe": 0.7110328248331822,
+        "closed_trade_count": 8,
+        "oos_return": 0.05362225340255922,
+        "oos_excess_return": 0.2518617324813003,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 10,
+          "quote_quality_counts": {
+            "missing_depth": 10
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 10,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "ETH-USDT": [
@@ -1385,6 +1728,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "ETH-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.004702985271177962,
+        "max_drawdown": 0.13029226838700741,
+        "sharpe": 0.1930603234679829,
+        "closed_trade_count": 11,
+        "oos_return": 0.006211296003887812,
+        "oos_excess_return": 0.08380940336712295,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 13,
+          "quote_quality_counts": {
+            "missing_depth": 13
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 13,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "FIL-USDT": [
@@ -1406,6 +1787,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "FIL-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.05742242590577684,
+        "max_drawdown": 0.1986575992715883,
+        "sharpe": -0.2350997699402917,
+        "closed_trade_count": 10,
+        "oos_return": -0.056007380969850584,
+        "oos_excess_return": 0.12962747662688145,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "LINK-USDT": [
@@ -1427,6 +1846,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "LINK-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.27859348970123754,
+        "max_drawdown": 0.32045492498555145,
+        "sharpe": -2.418299197106455,
+        "closed_trade_count": 27,
+        "oos_return": -0.27751047790762107,
+        "oos_excess_return": -0.25005077807438036,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 29,
+          "quote_quality_counts": {
+            "missing_depth": 29
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 29,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "LTC-USDT": [
@@ -1448,6 +1905,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "LTC-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.02378072235522699,
+        "max_drawdown": 0.07125666354194476,
+        "sharpe": -0.183832023584115,
+        "closed_trade_count": 11,
+        "oos_return": -0.022315172799253102,
+        "oos_excess_return": 0.1444736835057323,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 13,
+          "quote_quality_counts": {
+            "missing_depth": 13
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 13,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "NEAR-USDT": [
@@ -1469,6 +1964,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "NEAR-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.0760987399166545,
+        "max_drawdown": 0.2954431542020889,
+        "sharpe": 0.010041624585218453,
+        "closed_trade_count": 14,
+        "oos_return": -0.0747117328041279,
+        "oos_excess_return": -0.3486314858905476,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 16,
+          "quote_quality_counts": {
+            "missing_depth": 16
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 16,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "SOL-USDT": [
@@ -1490,6 +2023,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "SOL-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.06733304969389464,
+        "max_drawdown": 0.09378123982327764,
+        "sharpe": 0.7342416033805431,
+        "closed_trade_count": 11,
+        "oos_return": 0.06893538383426212,
+        "oos_excess_return": 0.17760048922067895,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 13,
+          "quote_quality_counts": {
+            "missing_depth": 13
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 13,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "TRX-USDT": [
@@ -1511,6 +2082,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "TRX-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.0032125266116760365,
+        "max_drawdown": 0.06889614528308925,
+        "sharpe": -0.003785049789872624,
+        "closed_trade_count": 8,
+        "oos_return": -0.0032125266116760365,
+        "oos_excess_return": -0.13470267948318138,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 10,
+          "quote_quality_counts": {
+            "missing_depth": 10
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 10,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "UNI-USDT": [
@@ -1532,6 +2141,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "UNI-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": -0.04165393128735029,
+        "max_drawdown": 0.2968872182588276,
+        "sharpe": -0.09210286442139816,
+        "closed_trade_count": 11,
+        "oos_return": -0.04021521389297589,
+        "oos_excess_return": -0.16845322363906456,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 12,
+          "quote_quality_counts": {
+            "missing_depth": 12
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 12,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ],
     "XRP-USDT": [
@@ -1553,6 +2200,44 @@
         "execution_evidence": {},
         "promotion": "BLOCKED",
         "promotion_reason": "annual/monthly target and stability evidence unavailable"
+      },
+      {
+        "instrument": "XRP-USDT",
+        "domain": "crypto",
+        "strategy": "walk_forward_time_series_momentum",
+        "source": "data/crypto_tsmom_walk_forward_replay.json",
+        "fold": "2026-03-11",
+        "selected_candidate": {
+          "lookback": 60,
+          "vol_lookback": 40,
+          "threshold": 0.15
+        },
+        "total_return": 0.05838792143185567,
+        "max_drawdown": 0.06580947559037942,
+        "sharpe": 0.705950171796597,
+        "closed_trade_count": 9,
+        "oos_return": 0.05997682669507176,
+        "oos_excess_return": 0.31164059984322,
+        "annualized_return": null,
+        "monthly_target_status": "UNKNOWN",
+        "stability_status": "UNKNOWN",
+        "execution_evidence": {
+          "trade_count": 11,
+          "quote_quality_counts": {
+            "missing_depth": 11
+          },
+          "full_depth_trade_count": 0,
+          "missing_depth_trade_count": 11,
+          "synthetic_quote_trade_count": 0,
+          "quote_observation_count": 0,
+          "quote_observation_quality_counts": {},
+          "trade_quote_observation_link_count": 0,
+          "latest_observed_at": null,
+          "latest_observed_instrument": null,
+          "latest_quote_quality": "unknown"
+        },
+        "promotion": "BLOCKED",
+        "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates"
       }
     ]
   },
