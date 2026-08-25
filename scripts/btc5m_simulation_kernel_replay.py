@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import os
 import time
 import uuid
@@ -19,6 +20,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pyarrow.dataset as ds
+import structlog
 
 from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
@@ -148,6 +150,9 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
         raise ValueError(f"unsupported replay SQLite synchronous mode: {REPLAY_SQLITE_SYNCHRONOUS}")
     os.environ["POLYBOB_SQLITE_SYNCHRONOUS"] = REPLAY_SQLITE_SYNCHRONOUS
     os.environ["POLYBOB_SQLITE_WAL_AUTOCHECKPOINT"] = str(REPLAY_SQLITE_WAL_AUTOCHECKPOINT)
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING)
+    )
     first = datetime.fromtimestamp(int(rows[0]["decision_ts"]), tz=UTC)
     clock = Clock(first)
     universe = sorted({
@@ -163,6 +168,10 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
         if state.get("rows") != len(rows) or float(state.get("cost_multiple")) != float(multiple):
             raise RuntimeError(f"checkpoint does not match replay input: {checkpoint}")
     db = Path(state.get("db") or (out_dir / f"btc5m-event-{uuid.uuid4().hex[:8]}.sqlite3"))
+    # Existing checkpoint databases are already WAL databases. Avoid repeating
+    # the journal-mode negotiation on every short-lived store connection.
+    if db.exists():
+        os.environ["POLYBOB_SQLITE_SKIP_JOURNAL_PRAGMA"] = "1"
     next_index = int(state.get("next_index", 0))
     settlement_failures = list(state.get("settlement_failures", []))
     settlement_skipped = int(state.get("settlement_skipped", 0))

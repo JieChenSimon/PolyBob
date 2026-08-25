@@ -172,7 +172,8 @@ def connect(
     connection = sqlite3.connect(path, check_same_thread=check_same_thread)
     connection.row_factory = sqlite3.Row
     connection.execute("PRAGMA foreign_keys = ON")
-    connection.execute("PRAGMA journal_mode=WAL")
+    if os.environ.get("POLYBOB_SQLITE_SKIP_JOURNAL_PRAGMA", "") != "1":
+        connection.execute("PRAGMA journal_mode=WAL")
     connection.execute("PRAGMA busy_timeout=5000")
     synchronous = os.environ.get("POLYBOB_SQLITE_SYNCHRONOUS", "").strip().upper()
     if synchronous in {"OFF", "NORMAL", "FULL", "EXTRA"}:
