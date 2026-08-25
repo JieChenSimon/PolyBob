@@ -1,0 +1,136 @@
+{
+  "schema_version": "evidence-readiness-audit-v1",
+  "generated_at": "2026-08-25T09:59:22.045573+00:00",
+  "read_only": true,
+  "promotion": "BLOCKED",
+  "gates": {
+    "strict_historical_pit": {
+      "status": "UNKNOWN",
+      "reason": "declared_daily_or_fundamental_contract_is_not_strict_historical_pit"
+    },
+    "survivorship_control": {
+      "status": "UNKNOWN",
+      "reason": "no_dedicated_point_in_time_listing_delisting_contract"
+    },
+    "historical_executable_quotes": {
+      "status": "UNKNOWN",
+      "reason": "historical_quote_dataset_missing;_live_snapshots_present_but_not_historical"
+    }
+  },
+  "contracts": {
+    "daily_bars": {
+      "dataset": "daily_bars",
+      "instrument": "symbol",
+      "effective_at": "event_date",
+      "observed_at": "fetched_at",
+      "pit_level": "collected_observation_time",
+      "strict_historical_pit": false,
+      "price_basis": "row_declared",
+      "value_columns": [
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "source",
+        "price_basis"
+      ]
+    },
+    "fundamentals": {
+      "dataset": "fundamentals",
+      "instrument": "symbol",
+      "effective_at": "event_date",
+      "observed_at": "fetched_at",
+      "pit_level": "collected_observation_time",
+      "strict_historical_pit": false,
+      "price_basis": "not_applicable",
+      "value_columns": [
+        "period_end",
+        "announcement_at",
+        "accepted_at",
+        "revenue",
+        "gross_profit",
+        "operating_income",
+        "net_income",
+        "operating_cash_flow",
+        "capex",
+        "total_debt",
+        "cash",
+        "shares_outstanding",
+        "sector",
+        "filing_id",
+        "source",
+        "quality_flags"
+      ]
+    }
+  },
+  "coverage": {
+    "daily_bars": {
+      "dataset": "daily_bars",
+      "symbols": 2855,
+      "rows": 10671879,
+      "start": "2021-07-26",
+      "end": "2026-08-24",
+      "first_fetch": "2026-07-27 15:26:23.165584+08:00",
+      "last_fetch": "2026-08-25 08:09:23.475836+08:00"
+    },
+    "fundamentals": {
+      "dataset": "fundamentals",
+      "symbols": 95,
+      "rows": 11131,
+      "start": "1989-12-31",
+      "end": "2026-08-20",
+      "first_fetch": "2026-08-25 02:29:34.738885+08:00",
+      "last_fetch": "2026-08-25 17:57:59.319059+08:00"
+    }
+  },
+  "artifacts": {
+    "historical_quote_like_files": [],
+    "live_quote_observation_entries": [
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T06:54:45.054000+00:00",
+        "event_start": "2026-08-25T06:54:45.054000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T06:54:43.995315+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=BTC-USDT/part-bb648acfcde58f18e552a0818d90b7e3fd3d5f6f04023650cb13131f4601801c.parquet",
+        "rows": 1,
+        "sha256": "bb648acfcde58f18e552a0818d90b7e3fd3d5f6f04023650cb13131f4601801c",
+        "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T06:54:45.551000+00:00",
+        "event_start": "2026-08-25T06:54:45.551000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T06:54:43.995315+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=ETH-USDT/part-085e620964cc651254cc9fb665ec0c4c5d5c5bd6f2939c55a9e0232de2e88fca.parquet",
+        "rows": 1,
+        "sha256": "085e620964cc651254cc9fb665ec0c4c5d5c5bd6f2939c55a9e0232de2e88fca",
+        "source": "www.okx.com"
+      },
+      {
+        "dataset": "okx_orderbook",
+        "event_end": "2026-08-25T06:54:46.102000+00:00",
+        "event_start": "2026-08-25T06:54:46.102000+00:00",
+        "kind": "normalized",
+        "observed_at": "2026-08-25T06:54:43.995315+00:00",
+        "partition_by": [
+          "symbol"
+        ],
+        "path": "data/datasets/parts/okx_orderbook/symbol=SOL-USDT/part-c231bf418a499b5a59ecb174f08fee6364cb9a8d447fc151d9f109b690db6253.parquet",
+        "rows": 1,
+        "sha256": "c231bf418a499b5a59ecb174f08fee6364cb9a8d447fc151d9f109b690db6253",
+        "source": "www.okx.com"
+      }
+    ],
+    "historical_quote_entries": [],
+    "survivorship_like_files": []
+  }
+}
