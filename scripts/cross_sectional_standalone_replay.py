@@ -23,6 +23,7 @@ from statistics import median
 import numpy as np
 
 from libs.data import store
+from libs.data.universe import US_LIQUID
 from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from scripts.cross_sectional_local_screen import symbol_domain, symbols_from_discovery_manifest
@@ -331,14 +332,24 @@ async def _replay_one(
 
 async def run(args: argparse.Namespace) -> dict:
     as_of = datetime.now(UTC)
-    requested = (
-        symbols_from_discovery_manifest(args.discovery_manifest)
-        if args.discovery_manifest else store.symbols(store.DAILY_BARS)
-    )
+    if args.signal_universe == "us_liquid":
+        requested = list(US_LIQUID)
+    else:
+        requested = (
+            symbols_from_discovery_manifest(args.discovery_manifest)
+            if args.discovery_manifest else store.symbols(store.DAILY_BARS)
+        )
     requested = [s for s in requested if symbol_domain(s) == args.domain]
     frames, positions, dates, rejected_quality, rejected_stale = _candidate_positions(
         requested, as_of, args.lookback, args.top_frac, args.rebalance_days, args.risk_policy,
     )
+    evaluation_symbols = (
+        [symbol.strip() for symbol in args.evaluation_symbols.split(",") if symbol.strip()]
+        if args.evaluation_symbols else sorted(frames)
+    )
+    missing_evaluation = [symbol for symbol in evaluation_symbols if symbol not in frames]
+    if missing_evaluation:
+        raise RuntimeError(f"evaluation symbols missing from signal universe: {missing_evaluation}")
     dates = filter_replay_dates(dates, args.start_date, args.end_date)
     if not dates:
         raise RuntimeError("requested replay window has no dates")
@@ -347,7 +358,7 @@ async def run(args: argparse.Namespace) -> dict:
     position_fraction = execution_safe_fraction(args.fee_bps, args.mid_penalty_bps)
     max_staleness_seconds = (14 if args.domain == "a_share" else 4) * 86400
     results = []
-    for symbol in sorted(frames):
+    for symbol in evaluation_symbols:
         # Signals are generated from the full cross-sectional history, but the
         # isolated account receives only this instrument's causal target stream.
         full_targets = apply_tail_risk_guard(
@@ -388,6 +399,8 @@ async def run(args: argparse.Namespace) -> dict:
             "rebalance_days": args.rebalance_days,
             "risk_policy": args.risk_policy,
             "selection_basis": "pre_registered_cross_sectional_signal",
+            "signal_universe": args.signal_universe,
+            "evaluation_symbols": evaluation_symbols,
             "isolated_target": "binary_full_capital_when_selected",
             "tail_risk_guard": {
                 "stop_loss_pct": args.stop_loss_pct,
@@ -416,6 +429,10 @@ async def run(args: argparse.Namespace) -> dict:
             "instrument_count": len(results),
         },
         "data_snapshot": data_snapshot_digest(frames, args.discovery_manifest),
+        "evaluation_universe": {
+            "symbols": evaluation_symbols,
+            "signal_universe_symbol_count": len(frames),
+        },
         "results": results,
         "promotion": {
             "status": "BLOCKED",
@@ -442,6 +459,10 @@ def main() -> int:
     parser.add_argument("--domain", choices=("a_share", "us_equity"), required=True)
     parser.add_argument("--discovery-manifest", default=None,
                         help="only use READY_FOR_RESEARCH symbols from a discovery manifest")
+    parser.add_argument("--signal-universe", choices=("discovery", "us_liquid"), default="discovery",
+                        help="compute signals on the full discovery universe or fixed US_LIQUID")
+    parser.add_argument("--evaluation-symbols", default=None,
+                        help="comma-separated symbols to evaluate while retaining the full signal universe")
     parser.add_argument("--lookback", type=int, default=60)
     parser.add_argument("--top-frac", type=float, default=0.2)
     parser.add_argument("--rebalance-days", type=int, default=10)
