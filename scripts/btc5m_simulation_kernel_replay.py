@@ -70,6 +70,19 @@ def _write_checkpoint(path: Path, payload: dict) -> None:
     temporary.replace(path)
 
 
+def _cleanup_orphan_databases(out_dir: Path) -> None:
+    """Remove only replay databases not referenced by a live checkpoint."""
+    referenced = {
+        str(json.loads(path.read_text()).get("db"))
+        for path in out_dir.glob("*.checkpoint.json")
+        if path.is_file()
+    }
+    for database in out_dir.glob("*.sqlite3"):
+        if str(database) not in referenced:
+            for suffix in ("", "-wal", "-shm"):
+                database.with_name(database.name + suffix).unlink(missing_ok=True)
+
+
 class Clock:
     def __init__(self, value: datetime):
         self.current = value
@@ -109,16 +122,26 @@ def _quote(probability: float, multiple: float) -> tuple[float, float, float]:
     return bid, ask, mid
 
 
+def _candidate_instrument(row: dict) -> str | None:
+    edge = float(row["model_probability"]) - float(row["market_probability"])
+    if abs(edge) < EDGE_THRESHOLD:
+        return None
+    direction = "UP" if edge >= EDGE_THRESHOLD else "DOWN"
+    return f"BTC5M:{row['window_start']}:{direction}"
+
+
 async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
     """Replay one cost case in resumable chunks with idempotent event keys."""
     if not rows:
         raise ValueError("rows must not be empty")
     first = datetime.fromtimestamp(int(rows[0]["decision_ts"]), tz=UTC)
     clock = Clock(first)
-    universe = [
-        f"BTC5M:{row['window_start']}:{side}"
-        for row in rows for side in ("UP", "DOWN")
-    ]
+    universe = sorted({
+        instrument for row in rows
+        if (instrument := _candidate_instrument(row)) is not None
+    })
+    if not universe:
+        raise RuntimeError("no candidate instruments in replay rows")
     checkpoint = _checkpoint_path(out_dir, multiple)
     state: dict = {}
     if checkpoint.exists():
@@ -157,6 +180,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                 "fee_bps": 0.0, "mid_penalty_bps": 0.0, "allow_short": False,
                 "cooldown_seconds": 0.0, "max_staleness_seconds": 600.0,
                 "min_trade_notional": 0.0, "equity_interval_minutes": 1.0,
+                "record_equity_on_fill": False,
             },
         )
         run_id = str(run["run_id"])
@@ -299,6 +323,7 @@ async def main_async() -> int:
         raise RuntimeError(f"insufficient v6 rows: {len(rows)}")
     out_dir = Path("data/.kernel_replay_btc5m_event")
     out_dir.mkdir(parents=True, exist_ok=True)
+    _cleanup_orphan_databases(out_dir)
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "strategy": "btc5m_event_kernel_diagnostic",
