@@ -1,0 +1,366 @@
+{
+  "schema_version": "simulation-resource-audit-v1",
+  "generated_at": "2026-08-25T04:24:41.986722+00:00",
+  "dataset": "data/datasets/parts/btc_1m_bars_clean_v2/symbol=BTC-USDT",
+  "rows": 600,
+  "status": "PASS",
+  "scope": "single-process local real-kernel audit; not strategy evidence",
+  "resource_policy": {
+    "cpu_budget_fraction": 0.6,
+    "worker_count": 1
+  },
+  "observed": {
+    "wall_seconds": 0.8318,
+    "process_cpu_fraction": 0.3032,
+    "maxrss_delta": 5783552,
+    "throughput_rows_per_second": 721.3
+  },
+  "ledger": {
+    "run_id": "sim_6af9f882ea",
+    "trades": 60,
+    "equity_points": 25,
+    "metrics": {
+      "total_return": -0.009114834223651225,
+      "equity": 9908.851657763487,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "max_drawdown": 0.008966080032264092,
+      "equity_curve_degraded": false,
+      "sharpe": -554.2665957991143,
+      "trade_count": 60,
+      "closed_trade_count": 30,
+      "settlement_count": 0,
+      "realized_pnl": -91.14834223650668,
+      "total_fees": 59.99769871295287,
+      "total_slippage": 29.998848204679337,
+      "total_explicit_cost": 89.99654691763222,
+      "execution_evidence": {
+        "trade_count": 60,
+        "quote_quality_counts": {
+          "missing_depth": 60
+        },
+        "full_depth_trade_count": 0,
+        "missing_depth_trade_count": 60,
+        "synthetic_quote_trade_count": 0,
+        "quote_observation_count": 0,
+        "quote_observation_quality_counts": {},
+        "trade_quote_observation_link_count": 0,
+        "latest_observed_at": null,
+        "latest_observed_instrument": null,
+        "latest_quote_quality": "unknown"
+      },
+      "instrument_pnl_curve": [
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T19:34:00+00:00",
+          "pnl": -1.500999999999925,
+          "realized_pnl": 0.0,
+          "unrealized_pnl": -1.500999999999925,
+          "position_value": 500.0,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:4b58b7a07b6ee30fcc47",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T19:59:00+00:00",
+          "pnl": -6.08103424539078,
+          "realized_pnl": -3.9857456713706143,
+          "unrealized_pnl": -2.0952885740201665,
+          "position_value": 499.40571142597975,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:59440ef6a26c8fb3999a",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T20:24:00+00:00",
+          "pnl": -10.399451802360012,
+          "realized_pnl": -10.399451802360012,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T20:49:00+00:00",
+          "pnl": -13.476644607629279,
+          "realized_pnl": -13.476644607629279,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T21:14:00+00:00",
+          "pnl": -18.373867691221125,
+          "realized_pnl": -16.872867691221142,
+          "unrealized_pnl": -1.5009999999999828,
+          "position_value": 499.99999999999994,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:5f9689efa6f2ac6f9f7c",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T21:39:00+00:00",
+          "pnl": -21.420760456196923,
+          "realized_pnl": -19.933886789565825,
+          "unrealized_pnl": -1.4868736666310993,
+          "position_value": 500.0141263333689,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:d45f0f2aa7de8be3f96b",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T22:04:00+00:00",
+          "pnl": -27.365546520278464,
+          "realized_pnl": -27.365546520278464,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T22:29:00+00:00",
+          "pnl": -29.885094652456637,
+          "realized_pnl": -29.885094652456637,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T22:54:00+00:00",
+          "pnl": -34.50929524843102,
+          "realized_pnl": -33.00829524843111,
+          "unrealized_pnl": -1.5009999999999104,
+          "position_value": 500.0,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:98a63bfcf83d22bc3f74",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T23:19:00+00:00",
+          "pnl": -37.823214112100686,
+          "realized_pnl": -36.37414540542596,
+          "unrealized_pnl": -1.4490687066747199,
+          "position_value": 500.05193129332525,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:b5465811ccc14b98f61d",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-03T23:44:00+00:00",
+          "pnl": -42.38595014963165,
+          "realized_pnl": -42.38595014963165,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T00:09:00+00:00",
+          "pnl": -44.76666304796624,
+          "realized_pnl": -44.76666304796624,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T00:34:00+00:00",
+          "pnl": -49.44593247396109,
+          "realized_pnl": -47.94493247396118,
+          "unrealized_pnl": -1.5009999999999117,
+          "position_value": 500.0,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:79f8db28077f2e4e1fec",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T00:59:00+00:00",
+          "pnl": -52.68828978721999,
+          "realized_pnl": -50.852143773959305,
+          "unrealized_pnl": -1.8361460132606888,
+          "position_value": 499.6648539867393,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:303c131ad5f77a8b153f",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T01:24:00+00:00",
+          "pnl": -56.44042748083048,
+          "realized_pnl": -56.44042748083048,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T01:49:00+00:00",
+          "pnl": -58.474608746638864,
+          "realized_pnl": -58.474608746638864,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T02:14:00+00:00",
+          "pnl": -63.334722763661865,
+          "realized_pnl": -61.83372276366191,
+          "unrealized_pnl": -1.5009999999999524,
+          "position_value": 500.0,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:b47f96ffbfeec865667b",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T02:39:00+00:00",
+          "pnl": -66.3996374329884,
+          "realized_pnl": -65.22928898893124,
+          "unrealized_pnl": -1.1703484440571499,
+          "position_value": 500.3306515559428,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:198fcd17d9fa162d0442",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T03:04:00+00:00",
+          "pnl": -70.58325069778746,
+          "realized_pnl": -70.58325069778746,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T03:29:00+00:00",
+          "pnl": -73.68500236799991,
+          "realized_pnl": -73.68500236799991,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T03:54:00+00:00",
+          "pnl": -78.0922640793861,
+          "realized_pnl": -76.59126407938616,
+          "unrealized_pnl": -1.5009999999999268,
+          "position_value": 499.99999999999994,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:c6347a80a8f2af66e8fb",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T04:19:00+00:00",
+          "pnl": -80.77605582564016,
+          "realized_pnl": -79.73111578106858,
+          "unrealized_pnl": -1.0449400445715746,
+          "position_value": 500.4560599554283,
+          "attribution_id": "attr:sim_6af9f882ea:BTC-USDT:12b77a2782a6d2216a0e",
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T04:44:00+00:00",
+          "pnl": -84.00535347473463,
+          "realized_pnl": -84.00535347473463,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T05:09:00+00:00",
+          "pnl": -88.19909606702112,
+          "realized_pnl": -88.19909606702112,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        },
+        {
+          "run_id": "sim_6af9f882ea",
+          "instrument_id": "BTC-USDT",
+          "ts": "2026-08-04T05:33:00+00:00",
+          "pnl": -91.14834223650668,
+          "realized_pnl": -91.14834223650668,
+          "unrealized_pnl": 0.0,
+          "position_value": 0.0,
+          "attribution_id": null,
+          "degraded": false
+        }
+      ],
+      "funding_pnl": 0.0,
+      "return_target": {
+        "status": "UNKNOWN",
+        "annualized_return": null,
+        "monthly_returns": {
+          "2026-08": -0.008966080032264068
+        },
+        "failed_months": [],
+        "min_complete_months": 12,
+        "reason": "need 12 complete calendar months; observed 1"
+      },
+      "avg_win": null,
+      "avg_loss": -3.0382780745502225,
+      "per_instrument": {
+        "BTC-USDT": {
+          "trade_count": 60,
+          "closed_trades": 30,
+          "realized_pnl": -91.14834223650668,
+          "total_fees": 59.99769871295287,
+          "total_slippage": 29.998848204679337,
+          "win_rate": 0.0,
+          "total_explicit_cost": 89.9965469176322,
+          "funding_pnl": 0.0
+        }
+      }
+    }
+  },
+  "shutdown": {
+    "exception": null,
+    "files_before": [],
+    "files_created_before_cleanup": [
+      "resource-audit-a7f32f1e.sqlite3",
+      "resource-audit-a7f32f1e.sqlite3-shm",
+      "resource-audit-a7f32f1e.sqlite3-wal"
+    ],
+    "files_remaining": []
+  }
+}
