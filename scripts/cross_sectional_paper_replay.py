@@ -33,6 +33,41 @@ def filter_replay_dates(dates: list[str], start_date: str | None = None,
             and (end_date is None or date <= end_date)]
 
 
+def summarize_instrument_oos_pnl(
+    points: list[dict], *, start_date: str, end_date: str,
+) -> dict[str, dict]:
+    """Summarize per-instrument OOS contribution without inventing returns.
+
+    Instrument PnL points are contributions to the shared account.  Unless a
+    fixed per-instrument capital denominator is supplied, they are not
+    standalone percentage returns and cannot pass the user's annual/monthly
+    target gate.
+    """
+    grouped: dict[str, list[dict]] = {}
+    for point in points:
+        instrument = str(point.get("instrument_id", ""))
+        ts = str(point.get("ts", ""))[:10]
+        if instrument and start_date <= ts <= end_date:
+            grouped.setdefault(instrument, []).append(point)
+    result: dict[str, dict] = {}
+    for instrument, values in grouped.items():
+        values.sort(key=lambda item: str(item.get("ts", "")))
+        first = float(values[0].get("pnl", 0.0))
+        last = float(values[-1].get("pnl", 0.0))
+        result[instrument] = {
+            "oos_start": str(values[0].get("ts")),
+            "oos_end": str(values[-1].get("ts")),
+            "pnl_contribution": last - first,
+            "latest_cumulative_pnl": last,
+            "point_count": len(values),
+            "degraded": any(bool(item.get("degraded")) for item in values),
+            "standalone_return": None,
+            "return_target_status": "UNKNOWN",
+            "return_target_reason": "no_fixed_per_instrument_capital_denominator",
+        }
+    return result
+
+
 def _candidate_positions(symbols: list[str], as_of: datetime, lookback: int,
                          top_frac: float, rebalance_days: int, risk_policy: str):
     frames, rejected_quality = read_frames(symbols, as_of)
@@ -117,6 +152,10 @@ async def run(args: argparse.Namespace) -> dict:
     risk_rejections = int(active.risk_rejections) if active is not None else None
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    instrument_oos_evidence = summarize_instrument_oos_pnl(
+        metrics.get("instrument_pnl_curve", []),
+        start_date=dates[0], end_date=dates[-1],
+    )
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
@@ -132,6 +171,7 @@ async def run(args: argparse.Namespace) -> dict:
                               "mid_penalty_bps": args.mid_penalty_bps,
                               "allow_short": False},
         "metrics": metrics, "risk_rejections": risk_rejections,
+        "instrument_oos_evidence": instrument_oos_evidence,
         "status": "replay_only_not_promoted",
     }
     out = Path(args.output)

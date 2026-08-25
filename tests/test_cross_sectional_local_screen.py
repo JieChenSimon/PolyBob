@@ -2,7 +2,10 @@ import numpy as np
 
 import pandas as pd
 
-from scripts.cross_sectional_paper_replay import filter_replay_dates
+from scripts.cross_sectional_paper_replay import (
+    filter_replay_dates,
+    summarize_instrument_oos_pnl,
+)
 from scripts.cross_sectional_local_screen import (
     align_frames,
     apply_risk_policy,
@@ -86,3 +89,16 @@ def test_benchmark_uses_only_prior_stale_mark_for_exchange_calendar_gap():
 def test_paper_replay_window_is_inclusive_and_does_not_rewrite_history():
     dates = ["2024-01-01", "2024-01-02", "2024-01-03"]
     assert filter_replay_dates(dates, "2024-01-02", "2024-01-03") == dates[1:]
+
+
+def test_instrument_oos_evidence_does_not_claim_standalone_return():
+    points = [
+        {"instrument_id": "AAA", "ts": "2025-01-01T00:00:00+00:00", "pnl": 10.0},
+        {"instrument_id": "AAA", "ts": "2025-02-01T00:00:00+00:00", "pnl": 25.0},
+    ]
+    evidence = summarize_instrument_oos_pnl(
+        points, start_date="2025-01-01", end_date="2025-02-01",
+    )["AAA"]
+    assert evidence["pnl_contribution"] == 15.0
+    assert evidence["standalone_return"] is None
+    assert evidence["return_target_status"] == "UNKNOWN"
