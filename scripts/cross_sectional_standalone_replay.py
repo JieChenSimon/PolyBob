@@ -32,6 +32,7 @@ from scripts.cross_sectional_paper_replay import (
     filter_replay_dates,
 )
 from scripts.multi_asset_portfolio_replay import MultiPositionSource, ReplayClock
+from scripts.mean_reversion_research import mean_reversion_positions
 
 
 def execution_safe_fraction(fee_bps: float, mid_penalty_bps: float,
@@ -139,6 +140,41 @@ def apply_breadth_regime_filter(
             for index, target in enumerate(stream)
         ]
     return filtered, breadth_by_date
+
+
+def candidate_positions_for_signal(
+    requested: list[str],
+    as_of: datetime,
+    args: argparse.Namespace,
+) -> tuple[dict, dict, list[str], list, list]:
+    """Build one pre-registered signal family without changing its data window."""
+    if args.signal_family == "cross_sectional_momentum":
+        return _candidate_positions(
+            requested, as_of, args.lookback, args.top_frac,
+            args.rebalance_days, args.risk_policy,
+        )
+    if args.breadth_min is not None:
+        raise ValueError("breadth regime filter only applies to cross-sectional momentum")
+    from scripts.cross_sectional_local_screen import read_frames
+    from scripts.multi_asset_portfolio_replay import stable_daily_frames
+
+    frames, rejected_quality = read_frames(requested, as_of)
+    domain = symbol_domain(requested[0]) if requested else args.domain
+    frames, rejected_stale = stable_daily_frames(
+        frames, max_gap_days=14 if domain == "a_share" else 4,
+    )
+    if len(frames) < 4:
+        raise RuntimeError(f"insufficient stable symbols: {len(frames)}")
+    positions = {
+        symbol: mean_reversion_positions(
+            series.to_numpy(dtype=float),
+            lookback=args.mean_reversion_lookback,
+            entry_bps=args.mean_reversion_entry_bps,
+        ).tolist() + [0.0]
+        for symbol, series in frames.items()
+    }
+    dates = sorted({date for series in frames.values() for date in series.index})
+    return frames, positions, dates, rejected_quality, rejected_stale
 
 
 def apply_tail_risk_guard(
@@ -384,8 +420,8 @@ async def run(args: argparse.Namespace) -> dict:
             if args.discovery_manifest else store.symbols(store.DAILY_BARS)
         )
     requested = [s for s in requested if symbol_domain(s) == args.domain]
-    frames, positions, dates, rejected_quality, rejected_stale = _candidate_positions(
-        requested, as_of, args.lookback, args.top_frac, args.rebalance_days, args.risk_policy,
+    frames, positions, dates, rejected_quality, rejected_stale = candidate_positions_for_signal(
+        requested, as_of, args,
     )
     breadth_by_date = None
     if args.breadth_min is not None:
@@ -448,6 +484,12 @@ async def run(args: argparse.Namespace) -> dict:
             "rebalance_days": args.rebalance_days,
             "risk_policy": args.risk_policy,
             "selection_basis": "pre_registered_cross_sectional_signal",
+            "signal_family": args.signal_family,
+            "mean_reversion": {
+                "lookback": args.mean_reversion_lookback,
+                "entry_bps": args.mean_reversion_entry_bps,
+                "exit_bps": max(1, args.mean_reversion_entry_bps // 2),
+            } if args.signal_family == "mean_reversion" else None,
             "signal_universe": args.signal_universe,
             "evaluation_symbols": evaluation_symbols,
             "isolated_target": "binary_full_capital_when_selected",
@@ -518,6 +560,8 @@ def main() -> int:
                         help="compute signals on the full discovery universe or fixed US_LIQUID")
     parser.add_argument("--evaluation-symbols", default=None,
                         help="comma-separated symbols to evaluate while retaining the full signal universe")
+    parser.add_argument("--signal-family", choices=("cross_sectional_momentum", "mean_reversion"),
+                        default="cross_sectional_momentum")
     parser.add_argument("--lookback", type=int, default=60)
     parser.add_argument("--top-frac", type=float, default=0.2)
     parser.add_argument("--rebalance-days", type=int, default=10)
@@ -535,6 +579,8 @@ def main() -> int:
     parser.add_argument("--max-annualized-vol", type=float, default=None)
     parser.add_argument("--breadth-min", type=float, default=None,
                         help="causal full-universe positive-return breadth required for holding")
+    parser.add_argument("--mean-reversion-lookback", type=int, default=20)
+    parser.add_argument("--mean-reversion-entry-bps", type=int, default=100)
     parser.add_argument("--output", default="data/cross_sectional_standalone_replay.json")
     args = parser.parse_args()
     args.fee_bps = args.fee_bps if args.fee_bps is not None else (8.0 if args.domain == "a_share" else 5.0)

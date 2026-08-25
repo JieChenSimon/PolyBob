@@ -6,6 +6,7 @@ import pytest
 from scripts.cross_sectional_kernel_replay import ReplayPositionSource
 from scripts.cross_sectional_standalone_replay import (
     apply_breadth_regime_filter,
+    candidate_positions_for_signal,
     data_snapshot_digest,
 )
 from scripts.cross_sectional_multifold_replay import fold_dates as cross_sectional_fold_dates
@@ -76,6 +77,32 @@ def test_breadth_regime_filter_is_causal_and_preserves_terminal_zero():
     assert breadth["2025-01-02"] == pytest.approx(0.5)
     assert filtered["AAA"][-1] == 0.0
     assert filtered["AAA"][1] == 1.0
+
+
+def test_mean_reversion_candidate_is_isolated_and_appends_liquidation_zero(monkeypatch):
+    class Args:
+        signal_family = "mean_reversion"
+        breadth_min = None
+        domain = "us_equity"
+        mean_reversion_lookback = 2
+        mean_reversion_entry_bps = 100
+
+    frame = pd.Series([100.0, 100.0, 98.0, 100.0], index=[
+        "2025-01-01", "2025-01-02", "2025-01-03", "2025-01-04",
+    ])
+    monkeypatch.setattr(
+        "scripts.cross_sectional_local_screen.read_frames",
+        lambda requested, as_of: ({symbol: frame for symbol in requested}, []),
+    )
+    monkeypatch.setattr(
+        "scripts.multi_asset_portfolio_replay.stable_daily_frames",
+        lambda frames, max_gap_days: (frames, []),
+    )
+    result = candidate_positions_for_signal(
+        ["AAA", "BBB", "CCC", "DDD"], datetime.now(UTC), Args(),
+    )
+    assert result[1]["AAA"][-1] == 0.0
+    assert len(result[1]["AAA"]) == len(frame) + 1
 
 
 def test_multifold_cut_dates_are_chronological_and_date_aligned():
