@@ -7,6 +7,7 @@ from scripts.cross_sectional_paper_replay import (
     filter_replay_dates,
     summarize_instrument_oos_pnl,
 )
+from scripts.cross_sectional_standalone_replay import binary_target, slice_signal_window
 from scripts.cross_sectional_oos_inference import daily_oos_excess
 from scripts.cross_sectional_local_screen import (
     align_frames,
@@ -128,6 +129,16 @@ def test_execution_evidence_requires_quote_links_for_promotion():
     })
     assert evidence["status"] == "UNKNOWN_NO_EXECUTABLE_DEPTH"
     assert evidence["promotion_allowed"] is False
+
+
+def test_standalone_replay_uses_fixed_binary_target_and_window():
+    series = pd.Series([10.0, 11.0, 12.0], index=["2025-01-01", "2025-01-02", "2025-01-03"])
+    sliced, targets = slice_signal_window(
+        series, binary_target([0.0, 0.4, 0.0, 0.0]), "2025-01-02", "2025-01-03",
+    )
+    assert binary_target([0.0, 0.4, -1.0]) == [0.0, 1.0, 0.0]
+    assert sliced.index.tolist() == ["2025-01-02", "2025-01-03"]
+    assert targets == [1.0, 0.0, 0.0]
 
 
 def test_daily_oos_excess_charges_turnover_and_benchmark():

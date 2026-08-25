@@ -136,3 +136,37 @@ vol_target_10`。screen 的 OOS 结果为组合 `+94.58%`、同期等权基准 `
 选参的验证。
 
 推断产物：`/tmp/polybob_cross_sectional_oos_inference.json`。
+
+## 逐标的固定资本隔离回放
+
+为解决共享组合 PnL 无法对应到每个标的收益率的问题，新增
+`scripts/cross_sectional_standalone_replay.py`。它仍使用同一
+`SimulationService` 成交、费用、权益和账本内核，但为每个标的单独配置固定
+初始资金 `100,000`，将跨截面选择信号转换为该标的独立的满仓/空仓目标，并按
+每个交易日记录权益。因此这里的百分比是有明确分母的逐标的隔离结果，不再把
+共享 PnL 除以任意数字；报价深度仍按真实证据状态单独门禁。
+
+严格 OOS 区间为 `2025-02-14` 至 `2026-08-24`，共 19 个完整月份。当前已选
+基线 `lookback=60, top_frac=0.2, rebalance=10, vol_target_10` 的美股 27 个
+标的全部进入目标评估，逐标的目标全部 `FAIL`：中位数总收益约 `0.00%`，
+正收益 13/27；最佳 AEHR `+203.45%`，但 AAON `-42.30%`、ACHR `-41.61%`、
+ADMA `-22.17%`。这证明收益高度集中，不能把组合整体正收益解释为每个标的
+都有效。
+
+基于训练期的“逐标的中位数收益与覆盖率”预注册选择，新增候选
+`lookback=60, top_frac=0.3, rebalance=5`，随后仅在 OOS 做确认：
+
+| 域/候选 | 标的数 | OOS 中位数 | OOS 正收益数 | OOS 目标 PASS |
+|---|---:|---:|---:|---:|
+| 美股基线 60/20%/10 | 27 | 0.00% | 13/27 | 0/27 |
+| 美股候选 60/30%/5 | 27 | +4.66% | 17/27 | 0/27 |
+| A 股基线 60/20%/10 | 8 | -5.46% | 2/8 | 0/8 |
+| A 股候选 60/30%/5 | 8 | -4.47% | 3/8 | 0/8 |
+
+候选改善了中位数和正收益覆盖，但美股尾部亏损扩大、A 股整体仍为负，且
+全部标的均未同时满足年化 50% 与每月 15% 门禁；因此候选保留为
+`BLOCKED/RESEARCH_ONLY`，不进入真实下单。原始逐标的产物：
+`data/cross_sectional_standalone_us_oos.json`、
+`data/cross_sectional_standalone_a_oos.json`；候选产物：
+`data/cross_sectional_standalone_us_oos_candidate_60_30_5.json`、
+`data/cross_sectional_standalone_a_oos_candidate_60_30_5.json`。
