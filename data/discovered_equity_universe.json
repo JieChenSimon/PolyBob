@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T23:59:50.281949+00:00",
+  "generated_at": "2026-08-25T00:09:54.666905+00:00",
   "real_data_only": true,
   "selection_is_not_promotion": true,
   "min_bars": 200,
@@ -9,8 +9,8 @@
   "provider_errors": {},
   "counts": {
     "total": 400,
-    "ready_for_research": 33,
-    "unknown": 367
+    "ready_for_research": 36,
+    "unknown": 364
   },
   "candidates": [
     {
@@ -24,6 +24,45 @@
       "latest": "2026-08-24",
       "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
       "median_dollar_volume_60": 1063264809.8587036,
+      "reasons": []
+    },
+    {
+      "symbol": "A",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 275508500.27389526,
+      "reasons": []
+    },
+    {
+      "symbol": "AA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 302111542.7913666,
+      "reasons": []
+    },
+    {
+      "symbol": "AAAU",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 53069322.490501404,
       "reasons": []
     },
     {
@@ -481,7 +520,7 @@
       "bars": 1254,
       "start": "2021-08-02",
       "latest": "2026-07-30",
-      "price_basis": "mixed",
+      "price_basis": "unknown",
       "median_dollar_volume_60": 1303503544.9264526,
       "reasons": [
         "latest_bar_stale>14d",
@@ -513,7 +552,7 @@
       "bars": 1254,
       "start": "2021-08-02",
       "latest": "2026-07-30",
-      "price_basis": "unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 1012107176.6242981,
       "reasons": [
         "latest_bar_stale>14d",
@@ -943,6 +982,21 @@
       "median_dollar_volume_60": 901607.0004463196,
       "reasons": [
         "price_basis_unknown_or_mixed",
+        "median_dollar_volume<5e+06"
+      ]
+    },
+    {
+      "symbol": "AACB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "UNKNOWN",
+      "bars": 324,
+      "start": "2025-04-07",
+      "latest": "2026-08-21",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 5835.199935913086,
+      "reasons": [
         "median_dollar_volume<5e+06"
       ]
     },
@@ -4243,75 +4297,7 @@
       ]
     },
     {
-      "symbol": "A",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "UNKNOWN",
-      "bars": 0,
-      "start": null,
-      "latest": null,
-      "price_basis": "unknown",
-      "median_dollar_volume_60": null,
-      "reasons": [
-        "bars<200",
-        "price_basis_unknown_or_mixed",
-        "dollar_volume_unknown"
-      ]
-    },
-    {
-      "symbol": "AA",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "UNKNOWN",
-      "bars": 0,
-      "start": null,
-      "latest": null,
-      "price_basis": "unknown",
-      "median_dollar_volume_60": null,
-      "reasons": [
-        "bars<200",
-        "price_basis_unknown_or_mixed",
-        "dollar_volume_unknown"
-      ]
-    },
-    {
-      "symbol": "AAAU",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "UNKNOWN",
-      "bars": 0,
-      "start": null,
-      "latest": null,
-      "price_basis": "unknown",
-      "median_dollar_volume_60": null,
-      "reasons": [
-        "bars<200",
-        "price_basis_unknown_or_mixed",
-        "dollar_volume_unknown"
-      ]
-    },
-    {
       "symbol": "AAC",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "UNKNOWN",
-      "bars": 0,
-      "start": null,
-      "latest": null,
-      "price_basis": "unknown",
-      "median_dollar_volume_60": null,
-      "reasons": [
-        "bars<200",
-        "price_basis_unknown_or_mixed",
-        "dollar_volume_unknown"
-      ]
-    },
-    {
-      "symbol": "AACB",
       "domain": "us_equity",
       "name": null,
       "roster_source": "sec_company_tickers",

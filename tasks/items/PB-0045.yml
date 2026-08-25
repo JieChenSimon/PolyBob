@@ -6,12 +6,12 @@ area: data
 why: 当前研究宇宙主要依赖手工常量，不能从真实市场名录和本地数据质量中自主发现可研究候选；需要可重复、可审计、不过度承诺可交易性的发现清单
 checks:
 - text: 实现 SEC 与 A 股真实市场名录适配器，生成带来源、质量状态、数据覆盖和拒绝原因的候选 manifest
-  done: false
+  done: true
 - text: 发现流程只从真实名录/本地真实数据筛选，不把 UNKNOWN 当成可交易，并有单元测试覆盖降级与重复运行
-  done: false
+  done: true
 - text: 用真实缓存运行一次发现流程，输出可追溯报告并通过测试与开发控制校验
-  done: false
+  done: true
 deps: []
 branch: null
 blocked: null
-updated: '2026-08-24T22:48:03+00:00'
+updated: '2026-08-25T00:07:30+00:00'

@@ -2,6 +2,7 @@ import numpy as np
 
 import pandas as pd
 
+from scripts.cross_sectional_paper_replay import filter_replay_dates
 from scripts.cross_sectional_local_screen import (
     align_frames,
     apply_risk_policy,
@@ -80,3 +81,8 @@ def test_benchmark_uses_only_prior_stale_mark_for_exchange_calendar_gap():
     prices = np.array([[100.0, 110.0, np.nan], [100.0, 90.0, 80.0]])
     assert _endpoint_values(prices, 2).tolist() == [110.0, 80.0]
     assert np.isclose(equal_weight_benchmark(prices, 0, 2), -0.05)
+
+
+def test_paper_replay_window_is_inclusive_and_does_not_rewrite_history():
+    dates = ["2024-01-01", "2024-01-02", "2024-01-03"]
+    assert filter_replay_dates(dates, "2024-01-02", "2024-01-03") == dates[1:]

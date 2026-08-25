@@ -25,6 +25,14 @@ from scripts.cross_sectional_local_screen import (
 from scripts.multi_asset_portfolio_replay import MultiPositionSource, ReplayClock, stable_daily_frames
 
 
+def filter_replay_dates(dates: list[str], start_date: str | None = None,
+                        end_date: str | None = None) -> list[str]:
+    """Filter an inclusive replay window without changing signal history."""
+    return [date for date in dates
+            if (start_date is None or date >= start_date)
+            and (end_date is None or date <= end_date)]
+
+
 def _candidate_positions(symbols: list[str], as_of: datetime, lookback: int,
                          top_frac: float, rebalance_days: int, risk_policy: str):
     frames, rejected_quality = read_frames(symbols, as_of)
@@ -55,6 +63,9 @@ async def run(args: argparse.Namespace) -> dict:
     frames, positions, dates, rejected_quality, rejected_stale = _candidate_positions(
         symbols, as_of, args.lookback, args.top_frac, args.rebalance_days, args.risk_policy
     )
+    dates = filter_replay_dates(dates, args.start_date, args.end_date)
+    if not dates:
+        raise RuntimeError("requested replay window has no dates")
     clock = ReplayClock(datetime.fromisoformat(dates[0]).replace(tzinfo=UTC))
     db_path = Path(args.output).with_suffix(f".{uuid.uuid4().hex[:8]}.sqlite3")
     service = SimulationService(
@@ -113,6 +124,8 @@ async def run(args: argparse.Namespace) -> dict:
         "candidate": {"lookback": args.lookback, "top_frac": args.top_frac,
                        "rebalance_days": args.rebalance_days,
                        "risk_policy": args.risk_policy},
+        "replay_window": {"start_date": args.start_date, "end_date": args.end_date,
+                           "actual_start": dates[0], "actual_end": dates[-1]},
         "data_quality": {"rejected_quality": rejected_quality,
                           "rejected_stale": rejected_stale},
         "execution_config": {"fee_bps": args.fee_bps,
@@ -141,6 +154,10 @@ def main() -> int:
     parser.add_argument("--rebalance-days", type=int, default=10)
     parser.add_argument("--risk-policy", choices=("raw", "vol_target_10", "vol_target_10_dd"),
                         default="vol_target_10")
+    parser.add_argument("--start-date", default=None,
+                        help="inclusive YYYY-MM-DD replay start; signals still use prior history")
+    parser.add_argument("--end-date", default=None,
+                        help="inclusive YYYY-MM-DD replay end")
     parser.add_argument("--fee-bps", type=float, default=None)
     parser.add_argument("--mid-penalty-bps", type=float, default=10.0)
     parser.add_argument("--output", default="data/cross_sectional_paper_replay.json")
