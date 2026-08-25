@@ -5,11 +5,13 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import logging
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import numpy as np
+import structlog
 
 from libs.data import store
 from libs.quant.edges import funding_contrarian
@@ -131,6 +133,12 @@ async def replay_symbol(
 
 
 async def main_async(output: Path) -> None:
+    # A funding matrix can generate thousands of fills. Keep the explicit
+    # report as the evidence channel; per-fill INFO logs are disk/terminal I/O
+    # noise and materially slow the research loop.
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING)
+    )
     series = {symbol: _read_series(symbol) for symbol in PRICE_TO_FUNDING}
     split_indices = [int(len(next(iter(series.values()))[0]) * fraction) for fraction in (0.40, 0.55, 0.70, 0.85)]
     report_candidates = []
