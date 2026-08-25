@@ -204,6 +204,7 @@ async def replay(rows: list[dict], multiple: float, out_dir: Path) -> dict:
                 "cooldown_seconds": 0.0, "max_staleness_seconds": 600.0,
                 "min_trade_notional": 0.0, "equity_interval_minutes": 1.0,
                 "record_equity_on_fill": False,
+                "record_equity_on_settlement": False,
             },
         )
         run_id = str(run["run_id"])

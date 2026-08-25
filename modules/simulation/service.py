@@ -110,6 +110,9 @@ DEFAULT_RUN_CONFIG: dict[str, Any] = {
     # High-throughput replays can sample equity on a bounded cadence while
     # retaining the full fill/ledger path. Live paper runs keep this enabled.
     "record_equity_on_fill": True,
+    # Historical replays may settle many instruments in one run. Keep live
+    # paper runs auditable while allowing replay callers to sample at chunks.
+    "record_equity_on_settlement": True,
     # ``depth_limited`` routes signals through PaperBroker; the legacy
     # full-fill path remains available for diagnostic runs that only have BBO.
     "execution_mode": "full_fill",
@@ -629,7 +632,10 @@ class SimulationService:
             refreshed = await asyncio.to_thread(self.store.get_run, run_id)
             if refreshed is not None:
                 active.record = refreshed
-            if not settlement_replayed:
+            if (
+                not settlement_replayed
+                and bool(active.config_value("record_equity_on_settlement"))
+            ):
                 await self._record_equity(active)
 
         return {

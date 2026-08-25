@@ -157,6 +157,34 @@ async def test_service_binary_settlement_updates_both_projections_equity_and_rep
     assert service.ledger.verify_projection(f"paper:{run_id}").consistent is True
 
 
+@pytest.mark.asyncio
+async def test_binary_settlement_can_skip_equity_sampling_for_replay(tmp_path):
+    service = make_service(tmp_path)
+    run = await service.create_run(
+        name="binary-settlement-replay",
+        strategy_id="momentum_dualma_v1",
+        universe=["market-1"],
+        initial_capital=1000.0,
+        config={**RUN_CONFIG, "record_equity_on_settlement": False},
+    )
+    run_id = run["run_id"]
+    await _seed_binary_position(service, run_id)
+
+    await service.settle_binary_position(
+        run_id,
+        settlement_id="settlement-replay-1",
+        market_id="event-1",
+        instrument_id="market-1",
+        quantity=10.0,
+        payout_per_token=1.0,
+        settled_at=datetime(2026, 8, 13, 10, tzinfo=UTC),
+        metadata={"outcome": "YES"},
+    )
+
+    assert service.store.list_equity_points(run_id) == []
+    assert service.store.list_instrument_pnl_points(run_id) == []
+
+
 # ---------------------------------------------------------------------- store
 
 
