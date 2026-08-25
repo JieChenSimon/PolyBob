@@ -28,6 +28,11 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _schema_sha256(path: Path) -> str:
+    schema = pq.ParquetFile(path).schema_arrow
+    return hashlib.sha256(str(schema).encode("utf-8")).hexdigest()
+
+
 def _files(source: Path) -> list[Path]:
     return sorted(path for path in source.rglob("*.parquet") if path.is_file())
 
@@ -69,6 +74,8 @@ def plan(dataset: str, *, source_root: Path, destination_root: Path) -> dict[str
             "input_bytes": sum(path.stat().st_size for path in inputs),
             "output": str(destination_root / dataset / relative_parent / "part-compact-00000.parquet"),
             "inputs": [str(path) for path in inputs],
+            "input_sha256": [_sha256(path) for path in inputs],
+            "schema_sha256": _schema_sha256(inputs[0]),
         })
     return {
         "schema_version": "dataset-compaction-plan-v1",
@@ -89,6 +96,10 @@ def apply_plan(payload: dict[str, Any]) -> dict[str, Any]:
     outputs = []
     for group in payload["groups"]:
         inputs = [Path(path) for path in group["inputs"]]
+        if [_sha256(path) for path in inputs] != group["input_sha256"]:
+            raise RuntimeError(f"source changed after plan: {group['partition']}")
+        if any(_schema_sha256(path) != group["schema_sha256"] for path in inputs):
+            raise RuntimeError(f"source schema changed after plan: {group['partition']}")
         output = Path(group["output"])
         output.parent.mkdir(parents=True, exist_ok=True)
         temporary = output.with_suffix(output.suffix + ".pending")
@@ -103,11 +114,14 @@ def apply_plan(payload: dict[str, Any]) -> dict[str, Any]:
         output_rows = int(pq.ParquetFile(output).metadata.num_rows)
         if output_rows != int(group["input_rows"]):
             raise RuntimeError(f"output verification failed: {output}")
+        if _schema_sha256(output) != group["schema_sha256"]:
+            raise RuntimeError(f"output schema verification failed: {output}")
         outputs.append({
             "partition": group["partition"], "input_files": group["input_files"],
             "input_rows": group["input_rows"], "output": str(output),
             "output_rows": output_rows, "output_bytes": output.stat().st_size,
             "output_sha256": _sha256(output),
+            "output_schema_sha256": _schema_sha256(output),
         })
     return {**payload, "status": "APPLIED", "outputs": outputs,
             "source_preserved": True, "verified": True}
