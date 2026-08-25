@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import argparse
+import resource
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -11,6 +13,30 @@ import numpy as np
 import pandas as pd
 
 from libs.data import run_manifest, store
+
+
+class CpuBudgetThrottle:
+    """Throttle per-symbol materialization so large universes stay cooperative."""
+
+    def __init__(self, target: float = 0.30):
+        self.target = min(0.50, max(0.05, float(target)))
+        self._wall = time.monotonic()
+        self._cpu = self._cpu_seconds()
+
+    @staticmethod
+    def _cpu_seconds() -> float:
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return float(usage.ru_utime + usage.ru_stime)
+
+    def pause(self) -> None:
+        wall = time.monotonic() - self._wall
+        cpu = self._cpu_seconds() - self._cpu
+        if wall >= 0.05 and cpu > 0:
+            desired_wall = cpu / self.target
+            if desired_wall > wall:
+                time.sleep(min(desired_wall - wall, 2.0))
+        self._wall = time.monotonic()
+        self._cpu = self._cpu_seconds()
 
 COST_BPS = {"a_share": 8.0, "us_equity": 5.0, "crypto": 10.0}
 MAX_MULTIPLE = {"a_share": 1.5, "us_equity": 1.5, "crypto": 5.0}
@@ -206,6 +232,7 @@ def read_frames(symbols: list[str], as_of: datetime) -> tuple[dict[str, pd.Serie
     frames = {}
     rejected_quality = 0
     domain = symbol_domain(symbols[0]) if symbols else "us_equity"
+    throttle = CpuBudgetThrottle()
     for symbol in symbols:
         try:
             frame = store.read(store.DAILY_BARS, symbol, as_of=as_of)
@@ -218,6 +245,8 @@ def read_frames(symbols: list[str], as_of: datetime) -> tuple[dict[str, pd.Serie
             frames[symbol] = pd.Series(finite, index=dates, dtype=float)
         except Exception:
             continue
+        finally:
+            throttle.pause()
     return frames, rejected_quality
 
 

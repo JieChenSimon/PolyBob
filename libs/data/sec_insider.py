@@ -37,6 +37,10 @@ _CURRENT_BASE = "https://www.sec.gov/files/datastandardsinnovation/data/insider-
 # The SEC requires a User-Agent naming the requester with contact details, and
 # caps requests at 10/second; anything vaguer is rejected with HTTP 403.
 _UA = "PolyBob Research idiotprofessorchen@gmail.com"
+_MONTHS = {
+    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6,
+    "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
+}
 
 
 class SecDataUnavailable(RuntimeError):
@@ -69,8 +73,12 @@ class InsiderTrade:
 def _parse_date(value: str) -> str:
     """SEC uses ``31-MAR-2026``; normalise to ISO so it sorts and joins."""
     try:
-        return datetime.strptime(value.strip(), "%d-%b-%Y").strftime("%Y-%m-%d")
-    except (ValueError, AttributeError):
+        day, month, year = value.strip().upper().split("-", 2)
+        month_number = _MONTHS.get(month)
+        if month_number is None:
+            raise ValueError("unknown month")
+        return f"{int(year):04d}-{month_number:02d}-{int(day):02d}"
+    except (ValueError, AttributeError, TypeError):
         return ""
 
 

@@ -11,6 +11,9 @@ import argparse
 import asyncio
 import bisect
 import json
+import os
+import resource
+import time
 import uuid
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -18,6 +21,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
 
 from libs.data import store
 from libs.data.sec_insider import cluster_buys, fetch_insider_trades
@@ -27,6 +33,31 @@ from modules.simulation.sources import SimSignal
 from scripts.cross_sectional_local_screen import read_frames, symbol_domain
 from scripts.crypto_tsmom_multifold_replay import signed_positions
 from scripts.insider_kernel_replay import QUARTERS, build_event_positions, filter_events_by_market_return
+
+
+class CpuBudgetThrottle:
+    """Bound this SQLite-heavy replay to a conservative CPU share."""
+
+    def __init__(self, target: float = 0.30):
+        self.target = min(0.50, max(0.05, float(target)))
+        self._wall = time.monotonic()
+        self._cpu = self._cpu_seconds()
+
+    @staticmethod
+    def _cpu_seconds() -> float:
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return float(usage.ru_utime + usage.ru_stime)
+
+    def pause(self) -> None:
+        wall = time.monotonic() - self._wall
+        cpu = self._cpu_seconds() - self._cpu
+        if wall < 0.05 or cpu <= 0:
+            return
+        desired_wall = cpu / self.target
+        if desired_wall > wall:
+            time.sleep(min(desired_wall - wall, 2.0))
+        self._wall = time.monotonic()
+        self._cpu = self._cpu_seconds()
 
 
 class MultiPositionSource:
@@ -101,9 +132,34 @@ def _series_frames(symbols: list[str], as_of: datetime) -> dict[str, pd.Series]:
 
 
 def _insider_leg(as_of: datetime, frames: dict[str, pd.Series]) -> tuple[dict[str, list[float]], set[str], int, int]:
-    trades = [trade for year, quarter in QUARTERS
-              for trade in fetch_insider_trades(year, quarter)]
-    events = sorted(cluster_buys(trades, min_insiders=2, min_value_usd=50_000.0))
+    stored = store.read(store.INSIDER_FILINGS, as_of=as_of)
+    if stored.empty:
+        # A fresh checkout may not have materialized the official SEC dataset;
+        # retain the real provider path as a fallback, but never synthesize it.
+        throttle = CpuBudgetThrottle()
+        trades = []
+        for year, quarter in QUARTERS:
+            trades.extend(fetch_insider_trades(year, quarter))
+            throttle.pause()
+        events = sorted(cluster_buys(trades, min_insiders=2, min_value_usd=50_000.0))
+        symbols = sorted({symbol for symbol, _ in events})
+    else:
+        # Reuse the local PIT-normalized SEC lake. Re-parsing ZIP archives and
+        # rewriting every normalized row on each replay was the dominant CPU and
+        # disk cost, and did not add evidence once the source hash was stored.
+        grouped: dict[tuple[str, str], list[float]] = defaultdict(list)
+        symbols_seen: set[str] = set()
+        for row in stored.to_dict("records"):
+            symbol = str(row.get("symbol") or "").upper()
+            event_date = str(row.get(store.EVENT_DATE) or "")[:10]
+            value = float(row.get("value_usd") or 0.0)
+            if not symbol or not event_date or not bool(row.get("is_open_market_buy")):
+                continue
+            symbols_seen.add(symbol)
+            if value >= 50_000.0:
+                grouped[(symbol, event_date)].append(value)
+        events = sorted(key for key, values in grouped.items() if len(values) >= 2)
+        symbols = sorted(symbols_seen)
     symbols = sorted({symbol for symbol, _ in events})
     market = store.read(store.DAILY_BARS, "SPY", as_of=as_of).sort_values(store.EVENT_DATE)
     market_frame = pd.Series(
@@ -167,6 +223,7 @@ async def run(args: argparse.Namespace) -> dict:
     )
     run_id = str(run["run_id"])
     await service.start_run(run_id)
+    throttle = CpuBudgetThrottle()
     for date in dates:
         timestamp = datetime.fromisoformat(date).replace(tzinfo=UTC)
         for symbol, series in frames.items():
@@ -190,6 +247,7 @@ async def run(args: argparse.Namespace) -> dict:
                 "price_basis": "unadjusted",
             })
         await service._record_equity(service._active[run_id])
+        throttle.pause()
     active = service._active.get(run_id)
     risk_rejections = int(active.risk_rejections) if active is not None else None
     await service.stop_run(run_id)
