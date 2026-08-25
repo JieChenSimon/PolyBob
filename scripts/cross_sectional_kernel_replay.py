@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
 import pandas as pd
+import structlog
 
 from libs.data import store
 from libs.data.universe import US_LIQUID
@@ -65,7 +67,8 @@ class ReplayClock:
 async def replay_symbol(symbol: str, timestamps: list, prices: list[float], positions: list[float],
                         split_date: str, out_dir: Path, position_fraction: float | None = None,
                         allow_short: bool = False, fee_bps: float = 20.0,
-                        mid_penalty_bps: float = 10.0) -> dict:
+                        mid_penalty_bps: float = 10.0,
+                        event_sleep_seconds: float = 0.0) -> dict:
     timestamps = [datetime.fromisoformat(value) if isinstance(value, str) else value
                   for value in timestamps]
     timestamps = [value if value.tzinfo else value.replace(tzinfo=UTC) for value in timestamps]
@@ -102,6 +105,8 @@ async def replay_symbol(symbol: str, timestamps: list, prices: list[float], posi
             "source": "local_daily_bars", "price_basis": "unadjusted",
         })
         await service._record_equity(service._active[run_id])
+        if event_sleep_seconds > 0:
+            await asyncio.sleep(float(event_sleep_seconds))
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
     points = service.store.list_equity_points(run_id)

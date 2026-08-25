@@ -10,10 +10,12 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import logging
 from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
+import structlog
 
 from libs.data import store
 from scripts.cross_sectional_kernel_replay import replay_symbol
@@ -30,6 +32,7 @@ CANDIDATES = tuple(
 )
 POSITION_FRACTION = 0.50
 FEE_BPS = 20.0
+EVENT_SLEEP_SECONDS = 0.02
 
 
 def candidate_positions(prices: np.ndarray, candidate: dict[str, float]) -> np.ndarray:
@@ -91,6 +94,7 @@ async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
         replay = await replay_symbol(
             symbol, timestamps, prices.tolist(), positions.tolist(), split_date, out_dir,
             position_fraction=POSITION_FRACTION, allow_short=True, fee_bps=FEE_BPS,
+            event_sleep_seconds=EVENT_SLEEP_SECONDS,
         )
         benchmark = buy_and_hold_return(series, split_date)
         replay["benchmark_oos_return"] = benchmark
@@ -119,6 +123,9 @@ async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
 
 
 async def main_async(major_only: bool, output: str) -> int:
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING)
+    )
     as_of = datetime.now(UTC)
     major = {
         "BTC-USDT", "ETH-USDT", "BNB-USDT", "SOL-USDT", "XRP-USDT", "ADA-USDT",

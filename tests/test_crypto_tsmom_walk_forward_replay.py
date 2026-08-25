@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
+import inspect
 
 from scripts.crypto_tsmom_walk_forward_replay import CANDIDATES, select_candidate, train_score
+from scripts.cross_sectional_kernel_replay import replay_symbol
 
 
 def test_candidate_grid_is_fixed_and_train_score_is_causal():
@@ -17,3 +19,7 @@ def test_candidate_grid_is_fixed_and_train_score_is_causal():
     assert selected in CANDIDATES
     assert len(audit) == 8
     assert all(row["symbols_scored"] == 1 for row in audit)
+
+
+def test_replay_kernel_exposes_opt_in_event_pacing():
+    assert "event_sleep_seconds" in inspect.signature(replay_symbol).parameters
