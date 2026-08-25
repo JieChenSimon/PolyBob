@@ -97,6 +97,50 @@ def binary_target(values: list[float]) -> list[float]:
     return [1.0 if float(value) > 0 else 0.0 for value in values]
 
 
+def apply_breadth_regime_filter(
+    frames: dict[str, object],
+    positions: dict[str, list[float]],
+    lookback: int,
+    breadth_min: float,
+) -> tuple[dict[str, list[float]], dict[str, float]]:
+    """Gate existing positions using causal cross-sectional market breadth.
+
+    At date ``t`` a symbol is counted as positive only when its close at ``t``
+    exceeds its close ``lookback`` observations earlier. No future value or
+    evaluation-universe result is used. The terminal zero in each position
+    stream is preserved so the replay still liquidates at the end.
+    """
+    if lookback <= 0:
+        raise ValueError("breadth lookback must be positive")
+    if not 0.0 <= breadth_min <= 1.0:
+        raise ValueError("breadth_min must be between 0 and 1")
+    breadth_by_date: dict[str, float] = {}
+    for date in sorted({str(value) for series in frames.values() for value in series.index}):
+        positive = 0
+        eligible = 0
+        for series in frames.values():
+            dates = [str(value) for value in series.index]
+            try:
+                index = dates.index(date)
+            except ValueError:
+                continue
+            if index < lookback:
+                continue
+            eligible += 1
+            if float(series.iloc[index]) > float(series.iloc[index - lookback]):
+                positive += 1
+        breadth_by_date[date] = positive / eligible if eligible else 0.0
+    filtered: dict[str, list[float]] = {}
+    for symbol, series in frames.items():
+        dates = [str(value) for value in series.index]
+        stream = positions[symbol]
+        filtered[symbol] = [
+            float(target) if index < len(dates) and breadth_by_date.get(dates[index], 0.0) >= breadth_min else 0.0
+            for index, target in enumerate(stream)
+        ]
+    return filtered, breadth_by_date
+
+
 def apply_tail_risk_guard(
     series,
     targets: list[float],
@@ -343,6 +387,11 @@ async def run(args: argparse.Namespace) -> dict:
     frames, positions, dates, rejected_quality, rejected_stale = _candidate_positions(
         requested, as_of, args.lookback, args.top_frac, args.rebalance_days, args.risk_policy,
     )
+    breadth_by_date = None
+    if args.breadth_min is not None:
+        positions, breadth_by_date = apply_breadth_regime_filter(
+            frames, positions, args.lookback, args.breadth_min,
+        )
     evaluation_symbols = (
         [symbol.strip() for symbol in args.evaluation_symbols.split(",") if symbol.strip()]
         if args.evaluation_symbols else sorted(frames)
@@ -402,6 +451,12 @@ async def run(args: argparse.Namespace) -> dict:
             "signal_universe": args.signal_universe,
             "evaluation_symbols": evaluation_symbols,
             "isolated_target": "binary_full_capital_when_selected",
+            "breadth_regime_filter": {
+                "enabled": args.breadth_min is not None,
+                "lookback": args.lookback,
+                "min_positive_fraction": args.breadth_min,
+                "available_dates": len(breadth_by_date or {}),
+            },
             "tail_risk_guard": {
                 "stop_loss_pct": args.stop_loss_pct,
                 "trailing_drawdown_pct": args.trailing_drawdown_pct,
@@ -478,6 +533,8 @@ def main() -> int:
     parser.add_argument("--trailing-drawdown-pct", type=float, default=None)
     parser.add_argument("--cooldown-bars", type=int, default=0)
     parser.add_argument("--max-annualized-vol", type=float, default=None)
+    parser.add_argument("--breadth-min", type=float, default=None,
+                        help="causal full-universe positive-return breadth required for holding")
     parser.add_argument("--output", default="data/cross_sectional_standalone_replay.json")
     args = parser.parse_args()
     args.fee_bps = args.fee_bps if args.fee_bps is not None else (8.0 if args.domain == "a_share" else 5.0)

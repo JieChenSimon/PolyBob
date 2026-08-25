@@ -4,7 +4,10 @@ from datetime import UTC, datetime
 import pytest
 
 from scripts.cross_sectional_kernel_replay import ReplayPositionSource
-from scripts.cross_sectional_standalone_replay import data_snapshot_digest
+from scripts.cross_sectional_standalone_replay import (
+    apply_breadth_regime_filter,
+    data_snapshot_digest,
+)
 from scripts.cross_sectional_multifold_replay import fold_dates as cross_sectional_fold_dates
 from scripts.crypto_tsmom_multifold_replay import signed_positions
 from scripts.mean_reversion_multifold_replay import buy_and_hold_return, fold_dates
@@ -61,6 +64,18 @@ def test_standalone_snapshot_digest_changes_when_input_changes(tmp_path):
     assert a["sha256"] != b["sha256"]
     assert a["manifest_sha256"] == b["manifest_sha256"]
     assert a["symbols"] == b["symbols"]
+
+
+def test_breadth_regime_filter_is_causal_and_preserves_terminal_zero():
+    frames = {
+        "AAA": pd.Series([1.0, 2.0, 3.0], index=["2025-01-01", "2025-01-02", "2025-01-03"]),
+        "BBB": pd.Series([3.0, 2.0, 1.0], index=["2025-01-01", "2025-01-02", "2025-01-03"]),
+    }
+    positions = {"AAA": [0.0, 1.0, 1.0, 0.0], "BBB": [0.0, 1.0, 1.0, 0.0]}
+    filtered, breadth = apply_breadth_regime_filter(frames, positions, lookback=1, breadth_min=0.5)
+    assert breadth["2025-01-02"] == pytest.approx(0.5)
+    assert filtered["AAA"][-1] == 0.0
+    assert filtered["AAA"][1] == 1.0
 
 
 def test_multifold_cut_dates_are_chronological_and_date_aligned():
