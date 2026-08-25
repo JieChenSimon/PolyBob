@@ -93,11 +93,46 @@ def _crypto_multifold(path: Path) -> list[dict[str, Any]]:
     return output
 
 
+def _crypto_walk_forward(path: Path) -> list[dict[str, Any]]:
+    report = _read(path)
+    folds = [fold for fold in report.get("folds", []) if isinstance(fold, dict)]
+    if not folds:
+        return []
+    latest = folds[-1]
+    output = []
+    for result in latest.get("results", []):
+        if not isinstance(result, dict) or not result.get("symbol"):
+            continue
+        metrics = result.get("metrics") if isinstance(result.get("metrics"), dict) else {}
+        output.append({
+            "instrument": str(result["symbol"]),
+            "domain": "crypto",
+            "strategy": "walk_forward_time_series_momentum",
+            "source": str(path),
+            "fold": str(latest.get("split_date")),
+            "selected_candidate": latest.get("selected_candidate"),
+            "total_return": metrics.get("total_return"),
+            "max_drawdown": metrics.get("max_drawdown"),
+            "sharpe": metrics.get("sharpe"),
+            "closed_trade_count": result.get("oos_closed_trades"),
+            "oos_return": result.get("oos_return"),
+            "oos_excess_return": result.get("excess_oos_return"),
+            "annualized_return": None,
+            "monthly_target_status": "UNKNOWN",
+            "stability_status": "UNKNOWN",
+            "execution_evidence": metrics.get("execution_evidence", {}),
+            "promotion": "BLOCKED",
+            "promotion_reason": "walk-forward increment lacks full monthly/stability/depth gates",
+        })
+    return output
+
+
 def build_evidence(root: Path) -> dict[str, Any]:
     sources = [
         root / "data/cross_sectional_standalone_us_oos_candidate_20_30_5.json",
         root / "data/cross_sectional_standalone_a_oos_candidate_20_30_5.json",
         root / "data/crypto_tsmom_multifold_replay.json",
+        root / "data/crypto_tsmom_walk_forward_replay.json",
     ]
     missing = [str(path) for path in sources if not path.exists()]
     rows: list[dict[str, Any]] = []
@@ -105,6 +140,7 @@ def build_evidence(root: Path) -> dict[str, Any]:
         rows.extend(_standalone(sources[0]))
         rows.extend(_standalone(sources[1]))
         rows.extend(_crypto_multifold(sources[2]))
+        rows.extend(_crypto_walk_forward(sources[3]))
 
     by_instrument: dict[str, list[dict[str, Any]]] = {}
     for row in rows:

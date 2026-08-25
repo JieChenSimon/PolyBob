@@ -30,6 +30,7 @@ def test_aggregator_preserves_unknown_and_never_promotes(tmp_path):
     _standalone(data / "cross_sectional_standalone_us_oos_candidate_20_30_5.json", "AAA", "FAIL")
     _standalone(data / "cross_sectional_standalone_a_oos_candidate_20_30_5.json", "000001", "UNKNOWN")
     (data / "crypto_tsmom_multifold_replay.json").write_text(json.dumps({"folds": []}))
+    (data / "crypto_tsmom_walk_forward_replay.json").write_text(json.dumps({"folds": []}))
 
     report = build_evidence(tmp_path)
 
