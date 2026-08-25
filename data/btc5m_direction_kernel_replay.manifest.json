@@ -3,10 +3,10 @@
   "report_name": "direction_kernel_replay",
   "report_path": "data/btc5m_direction_kernel_replay.json",
   "report_sha256": "f6b4e486402a7d020358ee534ff6d1750faa55ebb9431b29a906c67fa5165e8a",
-  "generated_at": "2026-08-25T03:21:43.001332+00:00",
+  "generated_at": "2026-08-25T03:34:51.283277+00:00",
   "source_generated_at": "2026-08-24T19:56:32.359488+00:00",
   "code": {
-    "commit": "f067667a4845aade7b5e50ec39f318ea285142b1",
+    "commit": "c688b77883c82f2b4ebcf4141e3cd7cb8654c9d6",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []

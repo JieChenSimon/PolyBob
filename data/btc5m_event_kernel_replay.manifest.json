@@ -2,11 +2,11 @@
   "schema_version": "btc5m-report-lineage-v1",
   "report_name": "event_kernel_replay",
   "report_path": "data/btc5m_event_kernel_replay.json",
-  "report_sha256": "145ee91f271cb750f33e9a7d02a93d353d411345f641d5b1c80246bddc934e08",
-  "generated_at": "2026-08-25T03:21:43.135675+00:00",
-  "source_generated_at": "2026-08-25T03:13:40.660790+00:00",
+  "report_sha256": "73057b4fe7395578ac7e17a168d4e970562653558766b89b079eab45b38ec03c",
+  "generated_at": "2026-08-25T03:34:51.417993+00:00",
+  "source_generated_at": "2026-08-25T03:26:49.005055+00:00",
   "code": {
-    "commit": "f067667a4845aade7b5e50ec39f318ea285142b1",
+    "commit": "c688b77883c82f2b4ebcf4141e3cd7cb8654c9d6",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
