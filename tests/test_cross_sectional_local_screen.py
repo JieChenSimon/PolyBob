@@ -6,6 +6,7 @@ from scripts.cross_sectional_paper_replay import (
     filter_replay_dates,
     summarize_instrument_oos_pnl,
 )
+from scripts.cross_sectional_oos_inference import daily_oos_excess
 from scripts.cross_sectional_local_screen import (
     align_frames,
     apply_risk_policy,
@@ -102,3 +103,14 @@ def test_instrument_oos_evidence_does_not_claim_standalone_return():
     assert evidence["pnl_contribution"] == 15.0
     assert evidence["standalone_return"] is None
     assert evidence["return_target_status"] == "UNKNOWN"
+
+
+def test_daily_oos_excess_charges_turnover_and_benchmark():
+    matrix = np.array([[100.0, 110.0, 121.0], [100.0, 100.0, 100.0]])
+    positions = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+    returns, dates = daily_oos_excess(
+        matrix, positions, ["2025-01-01", "2025-01-02", "2025-01-03"],
+        cut=0, cost_bps=0,
+    )
+    assert dates == ["2025-01-02"]
+    assert returns[0] > 0

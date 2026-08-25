@@ -116,3 +116,18 @@ vol_target_10`。screen 的 OOS 结果为组合 `+94.58%`、同期等权基准 `
 执行同口径目标门禁。
 
 逐标的证据产物：`/tmp/polybob_warmed_us_paper_oos_instrument.json`。
+
+### 多重检验与独立性门禁
+
+同一 OOS 候选进一步接入项目的聚类推断层，按月聚类并登记 54 个预注册参数
+试验：381 个日度超额观测对应 19 个独立月份，低于 20 个月的最低门槛；
+聚类 t=`0.93`，54-trial deflated t hurdle=`3.87`，wild-bootstrap p=`0.364`，
+符号检验 p=`0.6085`，95% bootstrap 区间为 `[-0.142%, +0.354%]`。均值
+`+0.119%` 且中位数仅 `+0.028%`，均值/中位数比约 `4.19`，说明尾部收益
+主导结果。
+
+因此多重检验状态为 `UNKNOWN`，不是 PASS；当前候选仍不能称为稳定 alpha。
+必须延长真实 OOS 日历覆盖到至少 20 个独立月份，并重新进行不依赖当前 OOS
+选参的验证。
+
+推断产物：`/tmp/polybob_cross_sectional_oos_inference.json`。
