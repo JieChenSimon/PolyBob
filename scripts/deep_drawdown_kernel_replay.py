@@ -62,6 +62,20 @@ def _symbols_from_file(path: str) -> list[str]:
     return [str(item).strip() for item in payload if str(item).strip()]
 
 
+def _csv_ints(value: str) -> tuple[int, ...]:
+    values = tuple(int(item.strip()) for item in value.split(",") if item.strip())
+    if not values or any(item <= 0 for item in values):
+        raise argparse.ArgumentTypeError("expected comma-separated positive integers")
+    return values
+
+
+def _csv_floats(value: str) -> tuple[float, ...]:
+    values = tuple(float(item.strip()) for item in value.split(",") if item.strip())
+    if not values or any(item <= 0 for item in values):
+        raise argparse.ArgumentTypeError("expected comma-separated positive numbers")
+    return values
+
+
 def _event_summaries(trades: list[Any], *, split: datetime) -> list[dict[str, Any]]:
     grouped: dict[str, dict[str, Any]] = {}
     for trade in trades:
@@ -144,6 +158,40 @@ def _fundamental_gate_status(
         if event.get("event_date")
     }
     return "PASS_EVENT_DATE_GATE" if event_dates & allowed_event_dates else "UNKNOWN_NO_TRADE"
+
+
+def _candidate_symbols(
+    symbols: list[str], rows_by_symbol: dict[str, list[dict[str, Any]]],
+    quality_dates_by_symbol: dict[str, set[str]] | None = None,
+) -> list[str]:
+    """Keep the replay matrix bounded to symbols with an eligible event.
+
+    The daily-bar store contains a much larger discovery universe than the
+    deep-drawdown strategy's event universe. Replaying every stored symbol
+    creates thousands of empty SimulationService cases and can saturate a CPU
+    for hours. Quality-only runs additionally require at least one row-level
+    quality-approved event; symbols with only UNKNOWN/FAIL dates are correctly
+    excluded from trading and remain represented by the quality summary.
+    """
+    if quality_dates_by_symbol is not None:
+        return [symbol for symbol in symbols if quality_dates_by_symbol.get(symbol)]
+    candidates: list[str] = []
+    for symbol in symbols:
+        rows = rows_by_symbol[symbol]
+        peak = None
+        triggered = False
+        for row in rows:
+            close = row.get("close")
+            if close is None:
+                continue
+            drawdown = None if peak is None else 1.0 - float(close) / peak
+            current = drawdown is not None and drawdown >= 0.50
+            if current and not triggered:
+                candidates.append(symbol)
+                break
+            triggered = current
+            peak = max(peak or float(close), float(close))
+    return candidates
 
 
 async def _run_case(symbol: str, rows: list[dict[str, Any]], *, hold_days: int,
@@ -282,10 +330,19 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
                 for event in _first_drawdown_events(frame)
                 if _fundamental_quality(symbol, event["event_date"], quality_as_of)["status"] == "PASS"
             }
+    replay_symbols = _candidate_symbols(
+        symbols, rows_by_symbol,
+        quality_dates_by_symbol if args.fundamental_quality_only else None,
+    )
     cases = [(symbol, hold_days, multiple)
-             for symbol in symbols
-             for hold_days in HORIZONS
-             for multiple in COST_MULTIPLES]
+             for symbol in replay_symbols
+             for hold_days in args.hold_days
+             for multiple in args.cost_multiples]
+    if len(cases) > args.max_cases:
+        raise ValueError(
+            f"replay case count {len(cases)} exceeds --max-cases={args.max_cases}; "
+            "narrow --hold-days/--cost-multiples or raise the limit explicitly"
+        )
     progress = ProgressReporter(Path(args.progress), len(cases))
     results: list[dict[str, Any]] = []
     for symbol, hold_days, multiple in cases:
@@ -305,7 +362,12 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "real_data_only": True,
         "requested_symbols": requested,
         "missing_symbols": missing,
-        "universe_count": len(symbols),
+        "universe_count": len(replay_symbols),
+        "available_symbol_count": len(symbols),
+        "candidate_filter": (
+            "drawdown_event_and_row_level_quality_pass"
+            if args.fundamental_quality_only else "drawdown_event"
+        ),
         "case_count": len(cases),
         "fundamental_quality_only": bool(args.fundamental_quality_only),
         "results": results,
@@ -333,6 +395,12 @@ def main() -> int:
     parser.add_argument("--output-dir", default="data/.kernel_replay_deep_drawdown")
     parser.add_argument("--confirmation-bars", type=int, default=0)
     parser.add_argument("--probe-fraction", type=float, default=0.0)
+    parser.add_argument("--hold-days", type=_csv_ints, default=HORIZONS,
+                        help="comma-separated holding periods; default: 21,63,126,252")
+    parser.add_argument("--cost-multiples", type=_csv_floats, default=COST_MULTIPLES,
+                        help="comma-separated cost stress multiples; default: 1,2,3")
+    parser.add_argument("--max-cases", type=int, default=120,
+                        help="fail closed before an oversized SimulationService matrix")
     parser.add_argument("--fundamental-quality-only", action="store_true",
                         help="trade only drawdown dates passing the row-level SEC quality audit")
     args = parser.parse_args()
