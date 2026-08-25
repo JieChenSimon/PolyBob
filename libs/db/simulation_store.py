@@ -24,6 +24,7 @@ from __future__ import annotations
 import json
 import math
 import sqlite3
+import threading
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -459,13 +460,14 @@ class SimulationStore:
 
     def __init__(self, db_path: str | Path | None = None):
         self._db_path = fact_store._resolve_db_path(db_path)
+        self._schema_ready = False
+        self._schema_lock = threading.Lock()
 
     @property
     def db_path(self) -> Path:
         return self._db_path
 
-    def _connect(self) -> sqlite3.Connection:
-        connection = fact_store.connect(self._db_path)
+    def _initialize_schema(self, connection: sqlite3.Connection) -> None:
         for statement in _SCHEMA_STATEMENTS:
             connection.execute(statement)
         columns = {
@@ -505,6 +507,15 @@ class SimulationStore:
             connection.execute(
                 "ALTER TABLE sim_equity_points ADD COLUMN degraded INTEGER NOT NULL DEFAULT 0"
             )
+        connection.commit()
+        self._schema_ready = True
+
+    def _connect(self) -> sqlite3.Connection:
+        connection = fact_store.connect(self._db_path)
+        if not self._schema_ready:
+            with self._schema_lock:
+                if not self._schema_ready:
+                    self._initialize_schema(connection)
         return connection
 
     # ------------------------------------------------------------------ runs
