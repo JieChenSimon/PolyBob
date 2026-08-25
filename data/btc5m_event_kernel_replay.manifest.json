@@ -3,22 +3,24 @@
   "report_name": "event_kernel_replay",
   "report_path": "data/btc5m_event_kernel_replay.json",
   "report_sha256": "dbf6100843b625c4aee81d71b7115425b21923346681b0b4b0cfc72f5db0fe3a",
-  "generated_at": "2026-08-24T23:44:30.264464+00:00",
+  "generated_at": "2026-08-25T01:38:52.145910+00:00",
   "source_generated_at": "2026-08-24T17:57:42.921912+00:00",
   "code": {
-    "commit": "da95a3fa2fef595adbc7e9603783d0c253bb71a0",
-    "dirty": false,
-    "dirty_files": 0,
-    "dirty_sample": []
+    "commit": "19c8c68a97ec20df084b4747cd7ac3e4057a14c9",
+    "dirty": true,
+    "dirty_files": 1,
+    "dirty_sample": [
+      "scripts/btc5m_mispricing.py"
+    ]
   },
-  "reproducible": true,
+  "reproducible": false,
   "real_data_only": true,
   "pit_status": "UNKNOWN",
   "tradable_evidence": false,
   "dataset_paths": [
-    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-4ab64c7a9f608381ba17b2bffe3da40a0ceb06e67fbf03e293030810e8392bc5.parquet"
+    "data/datasets/parts/btc5m_settled_windows_v6/symbol=BTC-USDT/part-dc1a044dc8c5a2864544c43c9e8e87ab5860a4bb775522169b98471d8c0dbc0a.parquet"
   ],
-  "dataset_sha256": "bc3de45a47cf723f008abc40afb3d6532e07027ea53ab8d166683fd2a120b7e0",
+  "dataset_sha256": "34a5dc829c5c17a9667d0a8c2fc8c5587c8c8236d49d32f981796a38472d1df3",
   "date_range": {
     "first": null,
     "last": null

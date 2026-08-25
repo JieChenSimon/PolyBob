@@ -1,8 +1,8 @@
 {
   "experiment": "btc5m_model_vs_market",
-  "as_of": "2026-08-24T18:18:49.612512+00:00",
+  "as_of": "2026-08-25T01:28:32.388363+00:00",
   "params": {
-    "n_windows": 5760,
+    "n_windows": 2000,
     "edge_threshold": 0.1,
     "fee": 0.02,
     "model_revision": "realized-volatility-normal-cdf-v3",
@@ -10,32 +10,32 @@
     "time_split": "fixed_chronological"
   },
   "code": {
-    "commit": "ad2e8c9fe587cfcb2c9f5b4918e1dc5c0fef0570",
+    "commit": "19c8c68a97ec20df084b4747cd7ac3e4057a14c9",
     "dirty": false,
     "dirty_files": 0,
     "dirty_sample": []
   },
-  "started_at": "2026-08-24T18:18:49.638756+00:00",
+  "started_at": "2026-08-25T01:28:32.413061+00:00",
   "inputs": {
     "polymarket_windows": {
-      "settled": 3545,
-      "qualifying_trades": 2506,
+      "settled": 3632,
+      "qualifying_trades": 2567,
       "snapshot": {
         "status": "consistent",
-        "sample_rows": 3545,
-        "normalized_rows": 3545,
-        "unique_windows": 3545,
-        "normalized_parts": 1,
-        "checkpoint_sha256": "0b5f07ecfe2ec3a4fcc149b34aaf8069b6502392ff038f90536a591fd774d6ca",
-        "sample_set_sha256": "1b5c5e653aa4d4ac259bd9dbcb03957128a7c16bc5a36fe537d666e5f2341ef1",
-        "normalized_rows_sha256": "4ab64c7a9f608381ba17b2bffe3da40a0ceb06e67fbf03e293030810e8392bc5",
-        "raw_sha_set_sha256": "e13cf99b8903356e3ae9b4fb4cf0472bd2f58964bfccdc6a27a65829d9c14090",
-        "normalized_manifest_sha256": "861cd2b9eb94b8d3d1f5e2a2a2e23f6564c8e2eb080a2c1bfb7954b5e03a121f"
+        "sample_rows": 3632,
+        "normalized_rows": 3632,
+        "unique_windows": 3632,
+        "normalized_parts": 2,
+        "checkpoint_sha256": "70afa2f5e4222b7b446b74c118caf3c0d106303a021a3734bc581df3d9e1d7d7",
+        "sample_set_sha256": "d05faf13ea660ccb4f2ceca5f289f861dbbcb4d255fb84c267c75cb92547d8d3",
+        "normalized_rows_sha256": "c23551aec9faaa657de969e3020d32769af6d04ea143488b5fbb185a3bf4237e",
+        "raw_sha_set_sha256": "d10261cb68be1a495d1a987ae3a570667fd46d09cad4704f74d40e7a14f7d470",
+        "normalized_manifest_sha256": "d49fc2e5d1de6651e46180b92508776c07ec90c68250046ef7fa28bd896cec6d"
       }
     }
   },
   "lineage": {
-    "input_hash": "063e677763514ae573982d8d502ab3f352f39675d30aaf4ce5e9e39026a495df",
+    "input_hash": "b012c81e3df4f3df40f59666785a3f18b634ba6ff8ed1b162fd888b39ab4adcd",
     "model_hash": "0fbe5231d55d51ee0b9e9003d89e4e15c27febc360096e4b09bd26d4f6e1f3fc",
     "has_lineage": true
   },

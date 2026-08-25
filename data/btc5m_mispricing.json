@@ -1,72 +1,72 @@
 {
-  "generated_at": "2026-08-24T18:18:50.367310+00:00",
+  "generated_at": "2026-08-25T01:30:30.351042+00:00",
   "real_data_only": true,
-  "n_windows": 3545,
+  "n_windows": 3632,
   "edge_threshold": 0.1,
   "fee": 0.02,
   "normalized_dataset": "btc5m_settled_windows_v6",
   "per_window_provenance": true,
   "snapshot": {
     "status": "consistent",
-    "sample_rows": 3545,
-    "normalized_rows": 3545,
-    "unique_windows": 3545,
-    "normalized_parts": 1,
-    "checkpoint_sha256": "0b5f07ecfe2ec3a4fcc149b34aaf8069b6502392ff038f90536a591fd774d6ca",
-    "sample_set_sha256": "1b5c5e653aa4d4ac259bd9dbcb03957128a7c16bc5a36fe537d666e5f2341ef1",
-    "normalized_rows_sha256": "4ab64c7a9f608381ba17b2bffe3da40a0ceb06e67fbf03e293030810e8392bc5",
-    "raw_sha_set_sha256": "e13cf99b8903356e3ae9b4fb4cf0472bd2f58964bfccdc6a27a65829d9c14090",
-    "normalized_manifest_sha256": "861cd2b9eb94b8d3d1f5e2a2a2e23f6564c8e2eb080a2c1bfb7954b5e03a121f"
+    "sample_rows": 3632,
+    "normalized_rows": 3632,
+    "unique_windows": 3632,
+    "normalized_parts": 2,
+    "checkpoint_sha256": "70afa2f5e4222b7b446b74c118caf3c0d106303a021a3734bc581df3d9e1d7d7",
+    "sample_set_sha256": "d05faf13ea660ccb4f2ceca5f289f861dbbcb4d255fb84c267c75cb92547d8d3",
+    "normalized_rows_sha256": "c23551aec9faaa657de969e3020d32769af6d04ea143488b5fbb185a3bf4237e",
+    "raw_sha_set_sha256": "d10261cb68be1a495d1a987ae3a570667fd46d09cad4704f74d40e7a14f7d470",
+    "normalized_manifest_sha256": "d49fc2e5d1de6651e46180b92508776c07ec90c68250046ef7fa28bd896cec6d"
   },
-  "collection_status": "partial",
-  "new_attempts": 0,
-  "budget_exhausted": true,
+  "collection_status": "complete",
+  "new_attempts": 107,
+  "budget_exhausted": false,
   "provider_failures": 0,
   "hold_days": 1,
   "inference": "cluster_robust",
   "oos_start": "2026-08-20",
   "snapshot_lineage": {
     "status": "consistent",
-    "sample_rows": 3545,
-    "normalized_rows": 3545,
-    "unique_windows": 3545,
-    "normalized_parts": 1,
-    "checkpoint_sha256": "0b5f07ecfe2ec3a4fcc149b34aaf8069b6502392ff038f90536a591fd774d6ca",
-    "sample_set_sha256": "1b5c5e653aa4d4ac259bd9dbcb03957128a7c16bc5a36fe537d666e5f2341ef1",
-    "normalized_rows_sha256": "4ab64c7a9f608381ba17b2bffe3da40a0ceb06e67fbf03e293030810e8392bc5",
-    "raw_sha_set_sha256": "e13cf99b8903356e3ae9b4fb4cf0472bd2f58964bfccdc6a27a65829d9c14090",
-    "normalized_manifest_sha256": "861cd2b9eb94b8d3d1f5e2a2a2e23f6564c8e2eb080a2c1bfb7954b5e03a121f"
+    "sample_rows": 3632,
+    "normalized_rows": 3632,
+    "unique_windows": 3632,
+    "normalized_parts": 2,
+    "checkpoint_sha256": "70afa2f5e4222b7b446b74c118caf3c0d106303a021a3734bc581df3d9e1d7d7",
+    "sample_set_sha256": "d05faf13ea660ccb4f2ceca5f289f861dbbcb4d255fb84c267c75cb92547d8d3",
+    "normalized_rows_sha256": "c23551aec9faaa657de969e3020d32769af6d04ea143488b5fbb185a3bf4237e",
+    "raw_sha_set_sha256": "d10261cb68be1a495d1a987ae3a570667fd46d09cad4704f74d40e7a14f7d470",
+    "normalized_manifest_sha256": "d49fc2e5d1de6651e46180b92508776c07ec90c68250046ef7fa28bd896cec6d"
   },
   "result": {
     "strategy": "btc5m_mispricing",
-    "n": 2506,
-    "n_clusters": 13,
-    "mean_excess_pct": 25.075,
+    "n": 2567,
+    "n_clusters": 14,
+    "mean_excess_pct": 24.976,
     "median_excess_pct": 47.5,
-    "win_rate": 0.7546,
-    "t_stat": 34.66,
-    "t_stat_iid": 30.01,
-    "t_hurdle": 4.2,
+    "win_rate": 0.753,
+    "t_stat": 34.39,
+    "t_stat_iid": 30.21,
+    "t_hurdle": 4.22,
     "significant": false,
     "bootstrap_ci_pct": [
-      23.809,
-      26.549
+      23.68,
+      26.424
     ],
     "sign_test_p": 0.0,
-    "wild_p": 0.001,
-    "p_floor": 0.000244,
+    "wild_p": 0.0005,
+    "p_floor": 0.000122,
     "resolvable": false,
     "status": "unknown",
     "skew_ratio": 0.53,
     "cluster_by": "day",
     "inference": "cluster_robust",
     "warnings": [
-      "only 13 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-      "13 个独立单元最细只能表达 p=2.4e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+      "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+      "14 个独立单元最细只能表达 p=1.2e-04,而门槛 t=4.22 要求 p≤2.5e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
     ],
-    "mean_pnl_per_contract": 0.2508,
-    "brier_model": 0.1842,
-    "brier_market": 0.2447,
+    "mean_pnl_per_contract": 0.2498,
+    "brier_model": 0.1843,
+    "brier_market": 0.2446,
     "events": [
       {
         "date": "2026-08-12",
@@ -15103,6 +15103,372 @@
         "excess": -0.525,
         "entry_price": 0.505,
         "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.455,
+        "entry_price": 0.435,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.435,
+        "entry_price": 0.415,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.325,
+        "entry_price": 0.655,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.475,
+        "entry_price": 0.455,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.445,
+        "entry_price": 0.425,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.515,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.425,
+        "entry_price": 0.405,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.245,
+        "entry_price": 0.225,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.455,
+        "entry_price": 0.525,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.375,
+        "entry_price": 0.355,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.235,
+        "entry_price": 0.215,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.385,
+        "entry_price": 0.365,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.805,
+        "entry_price": 0.175,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.615,
+        "entry_price": 0.365,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.425,
+        "entry_price": 0.555,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.355,
+        "entry_price": 0.335,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.455,
+        "entry_price": 0.525,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.425,
+        "entry_price": 0.405,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.405,
+        "entry_price": 0.385,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.775,
+        "entry_price": 0.205,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.705,
+        "entry_price": 0.275,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.495,
+        "entry_price": 0.485,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.315,
+        "entry_price": 0.665,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.435,
+        "entry_price": 0.415,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.655,
+        "entry_price": 0.325,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.515,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.495,
+        "entry_price": 0.485,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.255,
+        "entry_price": 0.725,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": -0.525,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.555,
+        "entry_price": 0.425,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-24",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": -0.515,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.525,
+        "entry_price": 0.455,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": -0.515,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.615,
+        "entry_price": 0.365,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.475,
+        "entry_price": 0.505,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.505,
+        "entry_price": 0.475,
+        "side": "UP"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.485,
+        "entry_price": 0.495,
+        "side": "DOWN"
+      },
+      {
+        "date": "2026-08-25",
+        "excess": 0.435,
+        "entry_price": 0.545,
+        "side": "DOWN"
       }
     ],
     "period_audit": {
@@ -15208,23 +15574,31 @@
         },
         {
           "date": "2026-08-24",
-          "events": 148,
-          "pnl": 75025.604181,
-          "return": 7.50256042,
-          "equity": 1318800.043464,
+          "events": 199,
+          "pnl": 98184.125811,
+          "return": 9.81841258,
+          "equity": 1341958.565095,
+          "drawdown": 0.0
+        },
+        {
+          "date": "2026-08-25",
+          "events": 10,
+          "pnl": 6460.076691,
+          "return": 0.64600767,
+          "equity": 1348418.641786,
           "drawdown": 0.0
         }
       ],
       "monthly": [
         {
           "month": "2026-08",
-          "events": 2506,
-          "pnl": 1308800.043465,
-          "return": 130.88000435
+          "events": 2567,
+          "pnl": 1338418.641786,
+          "return": 133.84186418
         }
       ],
       "max_drawdown": 0.0,
-      "total_return": 130.88000435,
+      "total_return": 133.84186418,
       "return_target": {
         "status": "UNKNOWN",
         "annual_min": 0.5,
@@ -15246,12 +15620,12 @@
         "status": "UNKNOWN"
       },
       "oos": {
-        "n_trades": 1029,
-        "independent_days": 5,
+        "n_trades": 1090,
+        "independent_days": 6,
         "first_date": "2026-08-20",
-        "last_date": "2026-08-24",
-        "mean_pnl_per_contract": 0.23651603,
-        "win_rate": 0.73955296,
+        "last_date": "2026-08-25",
+        "mean_pnl_per_contract": 0.2349633,
+        "win_rate": 0.73669725,
         "status": "UNKNOWN"
       },
       "status": "UNKNOWN"

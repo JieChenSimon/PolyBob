@@ -467,38 +467,40 @@
         "cost_bps": 200.0,
         "min_sharpe": 0.5,
         "n_configs": 1,
+        "trial_family": "",
+        "search_space": {},
         "registered_at": "2026-07-29T02:28:44.106860+00:00"
       },
       "result": {
         "strategy": "btc5m_mispricing",
-        "n": 2506,
-        "n_clusters": 13,
-        "mean_excess_pct": 25.075,
+        "n": 2567,
+        "n_clusters": 14,
+        "mean_excess_pct": 24.976,
         "median_excess_pct": 47.5,
-        "win_rate": 0.7546,
-        "t_stat": 34.66,
-        "t_stat_iid": 30.01,
-        "t_hurdle": 4.2,
+        "win_rate": 0.753,
+        "t_stat": 34.39,
+        "t_stat_iid": 30.21,
+        "t_hurdle": 4.22,
         "significant": false,
         "bootstrap_ci_pct": [
-          23.809,
-          26.549
+          23.68,
+          26.424
         ],
         "sign_test_p": 0.0,
-        "wild_p": 0.001,
-        "p_floor": 0.000244,
+        "wild_p": 0.0005,
+        "p_floor": 0.000122,
         "resolvable": false,
         "status": "unknown",
         "skew_ratio": 0.53,
         "cluster_by": "day",
         "inference": "cluster_robust",
         "warnings": [
-          "only 13 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
-          "13 个独立单元最细只能表达 p=2.4e-04,而门槛 t=4.20 要求 p≤2.6e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
+          "only 14 independence clusters (<20); the clustered t-statistic is itself imprecise — extend the sample period, not the event count",
+          "14 个独立单元最细只能表达 p=1.2e-04,而门槛 t=4.22 要求 p≤2.5e-05 —— 在这个样本量上'显著'无法被表示,这不是差一点,是信息量不够。唯一的出路是更长的样本期。"
         ],
-        "mean_pnl_per_contract": 0.2508,
-        "brier_model": 0.1842,
-        "brier_market": 0.2447,
+        "mean_pnl_per_contract": 0.2498,
+        "brier_model": 0.1843,
+        "brier_market": 0.2446,
         "period_audit": {
           "basis": "fixed_initial_capital_per_event",
           "initial_capital": 10000.0,
@@ -602,23 +604,31 @@
             },
             {
               "date": "2026-08-24",
-              "events": 148,
-              "pnl": 75025.604181,
-              "return": 7.50256042,
-              "equity": 1318800.043464,
+              "events": 199,
+              "pnl": 98184.125811,
+              "return": 9.81841258,
+              "equity": 1341958.565095,
+              "drawdown": 0.0
+            },
+            {
+              "date": "2026-08-25",
+              "events": 10,
+              "pnl": 6460.076691,
+              "return": 0.64600767,
+              "equity": 1348418.641786,
               "drawdown": 0.0
             }
           ],
           "monthly": [
             {
               "month": "2026-08",
-              "events": 2506,
-              "pnl": 1308800.043465,
-              "return": 130.88000435
+              "events": 2567,
+              "pnl": 1338418.641786,
+              "return": 133.84186418
             }
           ],
           "max_drawdown": 0.0,
-          "total_return": 130.88000435,
+          "total_return": 133.84186418,
           "return_target": {
             "status": "UNKNOWN",
             "annual_min": 0.5,
@@ -640,12 +650,12 @@
             "status": "UNKNOWN"
           },
           "oos": {
-            "n_trades": 1029,
-            "independent_days": 5,
+            "n_trades": 1090,
+            "independent_days": 6,
             "first_date": "2026-08-20",
-            "last_date": "2026-08-24",
-            "mean_pnl_per_contract": 0.23651603,
-            "win_rate": 0.73955296,
+            "last_date": "2026-08-25",
+            "mean_pnl_per_contract": 0.2349633,
+            "win_rate": 0.73669725,
             "status": "UNKNOWN"
           },
           "status": "UNKNOWN"

@@ -87,3 +87,22 @@ checkpoint；成功结果由真实 provider fetcher 镜像到 PIT daily-bar stor
 ## 约束与下一步
 
 发现器当前按 SEC/A 股名录和本地已落盘数据筛选，尚未把所有名录成员自动下载成历史数据；这是有意的资源安全边界，避免一次扫描造成大量网络请求、磁盘写入和不可控供应端压力。下一轮应以限速、断点、重试和每日预算把 `UNKNOWN` 分批预热，再逐标的进入完整样本外模拟盘与 Promotion 门禁。
+
+## 可重复入口
+
+新增 `scripts/autonomous_equity_pipeline.py`，将“真实名录发现 → 可选的限速
+UNKNOWN 批次预热 → 重新发现并覆盖 manifest”收敛为一个可计划执行的入口。默认
+不预热，只刷新真实名录和本地质量状态；只有显式设置
+`--warm-symbols-per-domain` 才会触发有请求间隔、重试和总时限的真实数据获取。
+最终输出继续保留 `UNKNOWN`、provider 错误和“selection is not promotion”标记，
+不会把发现结果直接当成交易标的。
+
+示例：
+
+```text
+uv run --locked python scripts/autonomous_equity_pipeline.py \
+  --warm-symbols-per-domain 5 --warm-budget-seconds 120 \
+  --output data/discovered_equity_universe.json
+```
+
+该入口已增加单元测试，覆盖“预热后重新生成最终 manifest”路径。
