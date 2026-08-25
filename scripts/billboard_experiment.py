@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import json
 import re
-import urllib.request
 from collections import defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
@@ -37,6 +36,7 @@ import numpy as np
 
 from libs.data.a_share_flow import BillboardEvent, capturable_return, fetch_billboard_events
 from libs.data import run_manifest
+from libs.data.http_client import http_get_json
 from libs.quant.hypothesis import Hypothesis, HypothesisRegistry, Rationale
 from libs.quant import clustered_inference
 from libs.quant.pbo import deflated_t_stat_threshold, probability_of_backtest_overfitting
@@ -81,9 +81,7 @@ def csi300_horizon_returns() -> dict[str, float]:
     """Real CSI 300 closes -> {date: forward HOLD_DAYS return} for benchmarking."""
     url = ("https://web.ifzq.gtimg.cn/appstock/app/fqkline/get"
            f"?param=sh000300,day,,,{BENCH_DAYS},qfq")
-    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(request, timeout=25) as response:
-        payload = json.loads(response.read())
+    payload = http_get_json(url, timeout=25.0, headers={"User-Agent": "Mozilla/5.0"})
     node = payload["data"]["sh000300"]
     rows = node.get("qfqday") or node.get("day") or []
     dates = [r[0] for r in rows]

@@ -28,7 +28,6 @@ import pathlib
 import re
 import time
 import urllib.parse
-import urllib.request
 from dataclasses import dataclass
 
 from libs.data.http_client import HttpFetchError, http_get_json

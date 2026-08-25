@@ -19,13 +19,13 @@ import json
 import math
 import os
 import time
-import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 
 from libs.data.data_lake import record_raw
+from libs.data.http_client import HttpFetchError, http_get_bytes
 
 
 # ---- current model (replica of _win_probability_up price part) --------------
@@ -69,13 +69,16 @@ def fetch_1m(symbol: str, minutes: int = 2000) -> np.ndarray | None:
             url = f"https://www.okx.com/api/v5/market/history-candles?instId={inst_id}&bar=1m&limit=100"
             if after:
                 url += f"&after={after}"
-            req = urllib.request.Request(url, headers={"User-Agent": "PolyBobCal/0.1"})
             raw = None
             for attempt in range(4):
                 try:
-                    raw = urllib.request.urlopen(req, timeout=60).read()
+                    raw = http_get_bytes(
+                        url,
+                        timeout=60.0,
+                        headers={"User-Agent": "PolyBobCal/0.1"},
+                    )
                     break
-                except Exception as exc:
+                except HttpFetchError as exc:
                     if attempt == 3:
                         print(f"page failed after retries: {exc}", flush=True)
                     else:

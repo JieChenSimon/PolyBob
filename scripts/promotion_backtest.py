@@ -16,12 +16,12 @@ clear the bar on real data, per the "backtest is a filter" principle.
 from __future__ import annotations
 
 import json
-import urllib.request
 from pathlib import Path
 from typing import Callable
 
 import numpy as np
 
+from libs.data.http_client import HttpFetchError, http_get_bytes, http_get_json
 from libs.quant.promotion import PromotionGate, annualized_sharpe
 from strategies.dual_ma_strategy import DualMAStrategy
 from strategies.proven_signals import short_term_reversal, time_series_momentum
@@ -43,8 +43,9 @@ def fetch_binance_daily(symbol: str, days: int = 1500) -> np.ndarray | None:
             url = f"https://api.binance.com/api/v3/klines?symbol={symbol}&interval=1d&limit=1000"
             if end:
                 url += f"&endTime={end}"
-            req = urllib.request.Request(url, headers={"User-Agent": "PolyBobBT/0.1"})
-            rows = json.loads(urllib.request.urlopen(req, timeout=20).read())
+            rows = http_get_json(
+                url, timeout=20.0, headers={"User-Agent": "PolyBobBT/0.1"}
+            )
             if not rows:
                 break
             closes = [float(r[4]) for r in rows]
@@ -61,12 +62,13 @@ def fetch_binance_daily(symbol: str, days: int = 1500) -> np.ndarray | None:
 def fetch_stooq_daily(symbol: str) -> np.ndarray | None:
     try:
         url = f"https://stooq.com/q/d/l/?s={symbol}&i=d"
-        req = urllib.request.Request(url, headers={"User-Agent": "PolyBobBT/0.1"})
-        text = urllib.request.urlopen(req, timeout=20).read().decode()
+        text = http_get_bytes(
+            url, timeout=20.0, headers={"User-Agent": "PolyBobBT/0.1"}
+        ).decode()
         lines = text.strip().splitlines()[1:]
         closes = [float(ln.split(",")[4]) for ln in lines if len(ln.split(",")) >= 5 and ln.split(",")[4] != "N/D"]
         return np.array(closes[-2500:], dtype=float) if len(closes) > 300 else None
-    except Exception as exc:
+    except (HttpFetchError, ValueError, IndexError, KeyError) as exc:
         print(f"  ! {symbol} fetch failed: {exc}")
         return None
 
