@@ -85,8 +85,12 @@ def _coverage(member: RosterMember, min_bars: int, min_dollar_volume: float,
         str(value) for value in basis_values
         if value is not None and str(value) not in {"", "nan", "None"}
     }
-    price_basis = next(iter(bases)) if len(bases) == 1 else ("mixed" if bases else "unknown")
-    if price_basis in {"unknown", "mixed"}:
+    unknown_bases = {value for value in bases if "unknown" in value.lower()}
+    known_bases = bases - unknown_bases
+    price_basis = next(iter(known_bases)) if len(known_bases) == 1 and not unknown_bases else (
+        "mixed" if bases else "unknown"
+    )
+    if price_basis in {"unknown", "mixed"} or "unknown" in price_basis.lower():
         reasons.append("price_basis_unknown_or_mixed")
     avg_dollar_volume = None
     if rows and "volume" in frame.columns:

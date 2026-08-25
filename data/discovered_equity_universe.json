@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T23:54:43.520829+00:00",
+  "generated_at": "2026-08-24T23:59:50.281949+00:00",
   "real_data_only": true,
   "selection_is_not_promotion": true,
   "min_bars": 200,
@@ -9,8 +9,8 @@
   "provider_errors": {},
   "counts": {
     "total": 400,
-    "ready_for_research": 35,
-    "unknown": 365
+    "ready_for_research": 33,
+    "unknown": 367
   },
   "candidates": [
     {
@@ -19,37 +19,401 @@
       "name": null,
       "roster_source": "sec_company_tickers",
       "status": "READY_FOR_RESEARCH",
-      "bars": 1270,
+      "bars": 1271,
       "start": "2021-08-02",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
       "median_dollar_volume_60": 1063264809.8587036,
       "reasons": []
     },
     {
-      "symbol": "AAPL",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 1265,
-      "start": "2021-08-09",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 15262368341.923523,
-      "reasons": []
-    },
-    {
-      "symbol": "ADP",
+      "symbol": "AAOI",
       "domain": "us_equity",
       "name": null,
       "roster_source": "sec_company_tickers",
       "status": "READY_FOR_RESEARCH",
       "bars": 1254,
-      "start": "2021-08-13",
-      "latest": "2026-08-12",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 577813645.7611084,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 1581895748.74115,
+      "reasons": []
+    },
+    {
+      "symbol": "AAON",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 117623000.5947113,
+      "reasons": []
+    },
+    {
+      "symbol": "AAP",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 88129371.7868805,
+      "reasons": []
+    },
+    {
+      "symbol": "AAT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 9588139.934158325,
+      "reasons": []
+    },
+    {
+      "symbol": "AB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 9836267.92793274,
+      "reasons": []
+    },
+    {
+      "symbol": "ABCB",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 38112107.052993774,
+      "reasons": []
+    },
+    {
+      "symbol": "ABCL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 44809949.81131554,
+      "reasons": []
+    },
+    {
+      "symbol": "ABEO",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 7366724.923467636,
+      "reasons": []
+    },
+    {
+      "symbol": "ABG",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 43994981.88171387,
+      "reasons": []
+    },
+    {
+      "symbol": "ABR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 18371392.228627205,
+      "reasons": []
+    },
+    {
+      "symbol": "ABSI",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 30402512.57252693,
+      "reasons": []
+    },
+    {
+      "symbol": "ABTC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 9382864.216975689,
+      "reasons": []
+    },
+    {
+      "symbol": "ABX",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 5499309.619283676,
+      "reasons": []
+    },
+    {
+      "symbol": "ACA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 84170433.19396973,
+      "reasons": []
+    },
+    {
+      "symbol": "ACGL",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 183700820.37353516,
+      "reasons": []
+    },
+    {
+      "symbol": "ACHR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 192583236.3025427,
+      "reasons": []
+    },
+    {
+      "symbol": "ACIW",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 50026807.19833374,
+      "reasons": []
+    },
+    {
+      "symbol": "ACLS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 65184153.75518799,
+      "reasons": []
+    },
+    {
+      "symbol": "ACM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 114403827.97279358,
+      "reasons": []
+    },
+    {
+      "symbol": "ACRS",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 7517238.150715828,
+      "reasons": []
+    },
+    {
+      "symbol": "ACVA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 21662383.088350296,
+      "reasons": []
+    },
+    {
+      "symbol": "ADC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 85836685.2470398,
+      "reasons": []
+    },
+    {
+      "symbol": "ADM",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 275422555.027771,
+      "reasons": []
+    },
+    {
+      "symbol": "ADMA",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 23995889.145326614,
+      "reasons": []
+    },
+    {
+      "symbol": "ADSK",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 468588523.2269287,
+      "reasons": []
+    },
+    {
+      "symbol": "ADT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 54894718.94676685,
+      "reasons": []
+    },
+    {
+      "symbol": "ADTN",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 21441167.368507385,
+      "reasons": []
+    },
+    {
+      "symbol": "AEHR",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1254,
+      "start": "2021-08-25",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 195874352.9132843,
+      "reasons": []
+    },
+    {
+      "symbol": "ACT",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1239,
+      "start": "2021-09-16",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 14008589.64767456,
+      "reasons": []
+    },
+    {
+      "symbol": "ACDC",
+      "domain": "us_equity",
+      "name": null,
+      "roster_source": "sec_company_tickers",
+      "status": "READY_FOR_RESEARCH",
+      "bars": 1073,
+      "start": "2022-05-13",
+      "latest": "2026-08-24",
+      "price_basis": "yahoo_split_dividend_adjusted_ohlcv",
+      "median_dollar_volume_60": 8530431.042909622,
       "reasons": []
     },
     {
@@ -79,394 +443,34 @@
       "reasons": []
     },
     {
-      "symbol": "AAOI",
+      "symbol": "AAPL",
       "domain": "us_equity",
       "name": null,
       "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 513,
-      "start": "2024-08-06",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 1581895748.74115,
-      "reasons": []
+      "status": "UNKNOWN",
+      "bars": 1266,
+      "start": "2021-08-09",
+      "latest": "2026-08-24",
+      "price_basis": "mixed",
+      "median_dollar_volume_60": 15262368341.923523,
+      "reasons": [
+        "price_basis_unknown_or_mixed"
+      ]
     },
     {
-      "symbol": "AAT",
+      "symbol": "ADP",
       "domain": "us_equity",
       "name": null,
       "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 513,
-      "start": "2024-08-06",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 9588139.934158325,
-      "reasons": []
-    },
-    {
-      "symbol": "ACDC",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 513,
-      "start": "2024-08-06",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 8530431.042909622,
-      "reasons": []
-    },
-    {
-      "symbol": "ABSI",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 512,
-      "start": "2024-08-07",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 30641644.788455963,
-      "reasons": []
-    },
-    {
-      "symbol": "ABTC",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 512,
-      "start": "2024-08-07",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 9204494.257164001,
-      "reasons": []
-    },
-    {
-      "symbol": "ACVA",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 512,
-      "start": "2024-08-07",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 21995810.05370617,
-      "reasons": []
-    },
-    {
-      "symbol": "ADC",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 512,
-      "start": "2024-08-07",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 86462927.9373169,
-      "reasons": []
-    },
-    {
-      "symbol": "AAON",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 117623000.5947113,
-      "reasons": []
-    },
-    {
-      "symbol": "ABCL",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 43552747.460365295,
-      "reasons": []
-    },
-    {
-      "symbol": "ABG",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 43994981.88171387,
-      "reasons": []
-    },
-    {
-      "symbol": "ABR",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 18546318.95427704,
-      "reasons": []
-    },
-    {
-      "symbol": "ABX",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 5499309.619283676,
-      "reasons": []
-    },
-    {
-      "symbol": "ACIW",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 50026807.19833374,
-      "reasons": []
-    },
-    {
-      "symbol": "ADM",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 279413661.9174957,
-      "reasons": []
-    },
-    {
-      "symbol": "ADMA",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 23995889.145326614,
-      "reasons": []
-    },
-    {
-      "symbol": "ADTN",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 511,
-      "start": "2024-08-08",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 22084473.43454361,
-      "reasons": []
-    },
-    {
-      "symbol": "AAP",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 88129371.7868805,
-      "reasons": []
-    },
-    {
-      "symbol": "AB",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 9845270.023345947,
-      "reasons": []
-    },
-    {
-      "symbol": "ABCB",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 38112107.052993774,
-      "reasons": []
-    },
-    {
-      "symbol": "ABEO",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 7366724.923467636,
-      "reasons": []
-    },
-    {
-      "symbol": "ACA",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 84170433.19396973,
-      "reasons": []
-    },
-    {
-      "symbol": "ACGL",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 184211458.94241333,
-      "reasons": []
-    },
-    {
-      "symbol": "ACHR",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 192583236.3025427,
-      "reasons": []
-    },
-    {
-      "symbol": "ACLS",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 65184153.75518799,
-      "reasons": []
-    },
-    {
-      "symbol": "ACM",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 114403827.97279358,
-      "reasons": []
-    },
-    {
-      "symbol": "ACRS",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 7235078.158020973,
-      "reasons": []
-    },
-    {
-      "symbol": "ACT",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 13797429.737091064,
-      "reasons": []
-    },
-    {
-      "symbol": "ADSK",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 471014818.49823,
-      "reasons": []
-    },
-    {
-      "symbol": "ADT",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 55136707.06937313,
-      "reasons": []
-    },
-    {
-      "symbol": "AEHR",
-      "domain": "us_equity",
-      "name": null,
-      "roster_source": "sec_company_tickers",
-      "status": "READY_FOR_RESEARCH",
-      "bars": 501,
-      "start": "2024-08-22",
-      "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
-      "median_dollar_volume_60": 195874352.9132843,
-      "reasons": []
+      "status": "UNKNOWN",
+      "bars": 1262,
+      "start": "2021-08-13",
+      "latest": "2026-08-24",
+      "price_basis": "mixed",
+      "median_dollar_volume_60": 596400173.286438,
+      "reasons": [
+        "price_basis_unknown_or_mixed"
+      ]
     },
     {
       "symbol": "ABBV",
@@ -477,7 +481,7 @@
       "bars": 1254,
       "start": "2021-08-02",
       "latest": "2026-07-30",
-      "price_basis": "unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 1303503544.9264526,
       "reasons": [
         "latest_bar_stale>14d",
@@ -647,9 +651,10 @@
       "bars": 511,
       "start": "2024-08-08",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 3460472.0952033997,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -662,9 +667,10 @@
       "bars": 511,
       "start": "2024-08-08",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 696075.98528862,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -677,9 +683,10 @@
       "bars": 511,
       "start": "2024-08-08",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 728389.4979000092,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -692,9 +699,10 @@
       "bars": 511,
       "start": "2024-08-08",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 528605.0067663193,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -707,9 +715,10 @@
       "bars": 511,
       "start": "2024-08-08",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 47576.7984777689,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -722,9 +731,10 @@
       "bars": 511,
       "start": "2024-08-08",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 813.8600125908852,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -737,9 +747,10 @@
       "bars": 511,
       "start": "2024-08-08",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 4175967.9260253906,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -752,9 +763,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 2480.0000190734863,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -767,9 +779,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 858.9500188827515,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -782,9 +795,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 105094.00253295898,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -797,9 +811,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 2707899.0471839905,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -812,9 +827,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 1808929.4388771057,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -827,9 +843,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 1036046.9640254974,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -842,9 +859,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 207441.4956688881,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -857,9 +875,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 131115.99922180176,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -872,9 +891,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 1432685.5098843575,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -887,9 +907,10 @@
       "bars": 501,
       "start": "2024-08-22",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 205468.80975924432,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -902,9 +923,10 @@
       "bars": 444,
       "start": "2024-11-12",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 382566.24636650085,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -917,9 +939,10 @@
       "bars": 382,
       "start": "2025-02-13",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 901607.0004463196,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -932,9 +955,10 @@
       "bars": 287,
       "start": "2025-07-02",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 3177594.928073883,
       "reasons": [
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -947,10 +971,11 @@
       "bars": 128,
       "start": "2026-02-19",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 0.0,
       "reasons": [
         "bars<200",
+        "price_basis_unknown_or_mixed",
         "median_dollar_volume<5e+06"
       ]
     },
@@ -963,10 +988,11 @@
       "bars": 56,
       "start": "2026-06-03",
       "latest": "2026-08-21",
-      "price_basis": "provider_quote_adjustment_unknown",
+      "price_basis": "mixed",
       "median_dollar_volume_60": 21972678.52306366,
       "reasons": [
-        "bars<200"
+        "bars<200",
+        "price_basis_unknown_or_mixed"
       ]
     },
     {

@@ -2,12 +2,12 @@
 
 ## 范围
 
-本轮使用完整自主发现 manifest，而不是此前限额的 41 个标的：
+本轮使用完整自主发现 manifest，并在 Yahoo 复权 OHLCV 刷新后重新验证：
 
 - A 股：freshness 门禁后的 8 个 READY 标的进入 screen；其余历史数据已 stale
   或缺少本地覆盖，不再视为当前可研究成员。
-- 美股：1,364 个 READY 标的中 202 个因本地价格序列存在未解析跳变被拒绝，
-  1,162 个进入 screen。
+- 美股：31 个 READY 标的中 7 个因本地价格序列质量门禁被拒绝，24 个进入
+  screen 和 Paper Lab。
 - 加密资产：完整 manifest 不包含加密标的，保持独立 crypto 数据管线，未混入
   股票横截面。
 
@@ -37,16 +37,22 @@ OOS 没有参与选参。
 
 ### 美股
 
-允许 5 行向后取价后，1162 个标的可参与同期基准，OOS 等权基准约为
-`+33.96%`；但 54 个组合没有一个训练期超额为正，最好的训练期超额仍为
-`-6.97%`，因此没有候选进入 Paper Lab。该结果也不构成 50% 年化证据。
+允许 5 行向后取价后，24 个标的可参与同期基准。训练期选出的组合为
+`lookback=60, top_frac=0.2, rebalance=5, vol_target_10`；训练期超额
+`+169.61%`，但严格 OOS 组合收益 `+38.90%`，同期等权基准 `+49.48%`，
+OOS 超额 `-10.57%`。因此候选被标记 `tested_no_edge`，没有 Promotion。
+
+随后把同一训练期候选接入真实本地数据 Paper Lab：组合回放总收益 `+90.91%`、
+最大回撤 `14.95%`，但年化目标门禁 FAIL（约 `14.62%`），且 1,424 笔交易的
+盘口深度全部 UNKNOWN。绝对收益为正不等于跑赢基准，也不等于可执行的真实交易
+优势，所以最终状态仍是 `replay_only_not_promoted`。
 
 ## 决策
 
-全量自主发现扩大了覆盖面；美股的基准时间对齐问题已修复，但策略仍没有
-训练期优势。A 股仍缺少至少 20 个同期可比较标的，继续 UNKNOWN。本轮不启动
-全量 Paper Lab，也不 Promotion。下一步优先修复美股价格基准/拆并股、A 股
-历史覆盖和 survivorship 审计，再做固定样本外 screen。
+全量自主发现扩大了覆盖面；美股的价格基准、交易日对齐和 Paper Lab 链路已重新
+验证，但策略样本外仍落后基准且执行深度证据缺失。A 股仍缺少至少 20 个同期可
+比较标的，继续 UNKNOWN。本轮不 Promotion。下一步优先扩充有质量门禁的历史
+覆盖、补齐真实盘口/报价观测，并对负贡献标的做逐标的归因后再提出受约束候选。
 
 ## 可复现产物
 
@@ -57,3 +63,5 @@ OOS 没有参与选参。
 - freshness 门禁后重跑的权威输出：`/tmp/polybob_full_cross_sectional_screen_fresh.json`
 - 运行器：`scripts/cross_sectional_local_screen.py`
 - 真实数据、成本后、训练选择与滚动折叠结果均保存在运行输出中。
+- 复权数据 Paper Lab：`/tmp/polybob_adjusted_us_paper.json`
+- 复权数据 screen：`/tmp/polybob_cross_sectional_adjusted.json`

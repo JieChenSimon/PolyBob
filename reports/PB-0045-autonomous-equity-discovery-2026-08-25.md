@@ -24,7 +24,7 @@ uv run --locked python scripts/discover_equity_universe.py \
   --output data/discovered_equity_universe.json
 ```
 
-结果：扫描美股 200 个、A 股 200 个，共 400 个名录成员；其中 41 个同时具有至少 200 根本地真实日线、价格基准明确且达到成交额门槛（美股 33、A 股 8），359 个为 `UNKNOWN`。这不是收益结论，也不是交易批准；它是下一阶段逐标的研究的候选入口。
+结果：扫描美股 200 个、A 股 200 个，共 400 个名录成员；其中 33 个同时具有至少 200 根本地真实日线、价格基准明确且达到成交额门槛（美股 31、A 股 2），367 个为 `UNKNOWN`。这不是收益结论，也不是交易批准；它是下一阶段逐标的研究的候选入口。
 
 本次清单中 A 股已有本地覆盖的候选使用 `forward_adjusted`；美股若没有本地历史不会被补成可研究。供应端异常写入 `provider_errors`，不会回退到手工常量。
 
@@ -34,16 +34,35 @@ uv run --locked python scripts/discover_equity_universe.py \
 `data/discovered_equity_universe_full.json`：
 
 - SEC + A 股名录共 15,410 个成员；美股 9,860 个，A 股 5,550 个。
-- 通过本地历史、价格基准、最近 60 日中位成交额和 14 天 freshness 门禁：
-  1,372 个（美股 1,364、A 股 8）。
-- 其余 14,038 个保持 `UNKNOWN`；除 `no_local_daily_bars` 外，明确记录了
-  130 个 `latest_bar_stale>14d`，不会把停更数据混入研究。
+- 通过本地历史、明确价格基准、最近 60 日中位成交额和 14 天 freshness 门禁：
+  39 个（美股 31、A 股 8）。
+- 其余 15,371 个保持 `UNKNOWN`。本轮还将含 `unknown` 的价格基准标签拒绝，
+  并把 Yahoo 的复权 OHLCV 明确标记为 `yahoo_split_dividend_adjusted_ohlcv`。
 - 全量发现耗时约 14 秒，没有对 12,751 个缺少本地分区的名录成员执行逐个
   Parquet 读取。
 
 完整 manifest 与研究用限额 manifest 分离：完整清单用于自主发现和分批预热；
-`data/discovered_equity_universe.json` 仍作为当前 35 个标的的可控研究输入，
+`data/discovered_equity_universe.json` 作为当前 33 个标的的可控研究输入，
 避免未经筛选地启动数万 case 回放。
+
+## 复权数据与全量 Paper Lab 验证
+
+为避免拆股/分红跳变污染长期研究，Yahoo 日线缓存要求完整的 `adjclose` 序列，
+并以 `adjclose/raw_close` 同比例调整 OHLC、反向调整成交量。该序列适合总收益
+研究，但不等同于真实可成交的原始报价，模拟盘仍必须把报价深度和执行质量标为
+UNKNOWN/DEGRADED。
+
+全量 manifest 刷新后，24 个美股标的通过稳定性/质量筛选并进入 Paper Lab：
+
+- 纸面执行回放：总收益 `+90.91%`，最大回撤 `14.95%`，Sharpe `0.87`，
+  1,424 笔交易，显式费用与滑点合计 `6,803.78`。
+- 年化/每月收益目标门禁：`FAIL`，年化约 `14.62%`。
+- 所有成交均缺少盘口深度证据，不能把该回放升级为真实执行可行性结论。
+- 训练期选择的组合在严格样本外相对等权基准为 `-10.57%`，所以状态仍为
+  `replay_only_not_promoted`。
+
+这组结果说明“自主发现和真实数据回放链路已跑通”，但没有证明策略具备稳定
+超额收益；下一轮必须先解决同期样本外落后和报价深度缺失，再讨论参数优化。
 
 ## 约束与下一步
 

@@ -84,3 +84,20 @@ def test_discovery_rejects_stale_latest_bar(monkeypatch):
     )
     assert result["candidates"][0]["status"] == "UNKNOWN"
     assert "latest_bar_stale>14d" in result["candidates"][0]["reasons"]
+
+
+def test_discovery_rejects_price_basis_label_containing_unknown(monkeypatch):
+    monkeypatch.setattr(discovery, "discover_us_roster", lambda: [
+        discovery.RosterMember("UNKNOWN_BASIS", "us_equity", None, "test"),
+    ])
+    monkeypatch.setattr(discovery.store, "symbols", lambda *_args: ["UNKNOWN_BASIS"])
+    frame = pd.DataFrame({
+        "event_date": ["2026-08-25"] * 250,
+        "price_basis": ["provider_quote_adjustment_unknown"] * 250,
+        "close": [100.0] * 250,
+        "volume": [100_000.0] * 250,
+    })
+    monkeypatch.setattr(discovery.store, "read", lambda *args, **kwargs: frame)
+    result = discovery.discover_equity_candidates(domains=("us_equity",))
+    assert result["candidates"][0]["status"] == "UNKNOWN"
+    assert "price_basis_unknown_or_mixed" in result["candidates"][0]["reasons"]

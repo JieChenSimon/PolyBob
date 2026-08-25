@@ -401,6 +401,9 @@ def fetch_us_equity_daily(symbol: str, years: int = 5) -> DailyBars:
         raise DataUnavailable(f"Yahoo payload unusable for {symbol}: {exc}") from exc
 
     quote = result["indicators"]["quote"][0]
+    adjusted = result.get("indicators", {}).get("adjclose", [{}])[0].get("adjclose")
+    if not adjusted or len(adjusted) != len(stamps):
+        raise DataUnavailable(f"Yahoo returned no complete adjusted close series for {symbol}")
     dates: list[str] = []
     closes: list[float] = []
     opens: list[float] = []
@@ -426,21 +429,31 @@ def fetch_us_equity_daily(symbol: str, years: int = 5) -> DailyBars:
         except (TypeError, ValueError):
             return None
 
-    for i, (stamp, close) in enumerate(zip(stamps, quote_closes)):
+    for i, (stamp, raw_close) in enumerate(zip(stamps, quote_closes)):
         o = quote.get("open", [None])[i] if i < len(quote.get("open", [])) else None
-        if close is None or o is None:   # unfinished/halted session — never fabricate
+        adj_close = adjusted[i]
+        if raw_close is None or adj_close is None or o is None:   # unfinished/halted session — never fabricate
+            continue
+        try:
+            factor = float(adj_close) / float(raw_close)
+        except (TypeError, ValueError, ZeroDivisionError):
+            continue
+        if factor <= 0 or factor != factor:
             continue
         dates.append(time.strftime("%Y-%m-%d", time.gmtime(stamp)))
-        closes.append(float(close))
-        opens.append(float(o))
-        highs.append(_optional("high", i))
-        lows.append(_optional("low", i))
-        volumes.append(_optional("volume", i))
+        closes.append(float(adj_close))
+        opens.append(float(o) * factor)
+        raw_high = _optional("high", i)
+        raw_low = _optional("low", i)
+        raw_volume = _optional("volume", i)
+        highs.append(raw_high * factor if raw_high is not None else None)
+        lows.append(raw_low * factor if raw_low is not None else None)
+        volumes.append(raw_volume / factor if raw_volume is not None else None)
     if not closes:
         raise DataUnavailable(f"Yahoo returned no usable closes for {symbol}")
     return _mirror(DailyBars(symbol.upper(), "us_equity", dates, closes, "yahoo",
                              opens=opens, highs=highs, lows=lows, volumes=volumes,
-                             price_basis="provider_quote_adjustment_unknown"))
+                             price_basis="yahoo_split_dividend_adjusted_ohlcv"))
 
 
 # --------------------------------------------------------------------- a-share
