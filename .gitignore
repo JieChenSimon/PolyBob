@@ -120,4 +120,8 @@ data/cross_sectional_standalone_*_fixed.json
 data/cross_sectional_standalone_*_dd.json
 data/cross_sectional_standalone_*_dd_all_local.json
 data/insider_kernel_replay_candidate_*.json
+# Multi-asset replay payloads contain full per-instrument equity curves and
+# trade ledgers; keep them in the local evidence lake and commit only reports
+# plus small progress checkpoints.
+data/multi_asset_portfolio_*2026-08-25.json
 output/

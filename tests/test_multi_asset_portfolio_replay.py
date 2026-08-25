@@ -32,3 +32,15 @@ async def test_multi_position_source_preserves_weight_in_signal():
     })
     assert first[0].signal_meta["position_fraction"] == 0.25
     assert second[0].signal_meta["position_fraction"] == 0.0
+
+
+@pytest.mark.asyncio
+async def test_sparse_cursor_can_seek_to_terminal_zero_without_price_index_alias():
+    source = MultiPositionSource({"positions_by_symbol": {"A": [1.0, 0.0]}})
+    source.seek_to("A", 1, 1.0)
+    signals = await source.on_snapshot("features.snapshots", {
+        "market_id": "A", "mid_price": 11.0,
+        "timestamp": "2026-01-02T00:00:00+00:00",
+    })
+    assert signals[0].side == "sell"
+    assert signals[0].signal_meta["target"] == 0.0
