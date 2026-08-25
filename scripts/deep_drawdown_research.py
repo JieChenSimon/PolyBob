@@ -208,12 +208,16 @@ def _fundamental_quality(symbol: str, event_date: str, as_of) -> dict[str, Any]:
         lambda value: isinstance(value, dict)
         and _accepted_before_event(value.get("accepted_at"), event_date)
     )
-    if not bool(accepted.all()):
+    announced = frame["announcement_at"].map(
+        lambda value: _accepted_before_event(value, event_date)
+    )
+    if not bool(accepted.all()) or not bool(announced.all()):
         return {
             "status": "UNKNOWN",
-            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
+            "reason": "accepted_at_or_announcement_at_missing_or_after_event_decision",
             "periods": int(len(frame)),
             "accepted_periods": int(accepted.sum()),
+            "announced_periods": int(announced.sum()),
         }
     latest = frame.iloc[-1]
     required = ("revenue", "gross_profit", "operating_cash_flow", "total_debt", "cash")

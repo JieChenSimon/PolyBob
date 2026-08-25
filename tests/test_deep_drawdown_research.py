@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 import pandas as pd
 
 from scripts.deep_drawdown_research import (
     _accepted_before_event,
     _event_outcomes,
+    _fundamental_quality,
     _first_drawdown_events,
 )
 
@@ -40,3 +43,25 @@ def test_unresolved_long_horizon_is_fail_closed():
     outcomes = _event_outcomes(_bars(), events[0], 20.0)
     assert outcomes[0]["status"] == "UNKNOWN"
     assert outcomes[0]["net_return"] is None
+
+
+def test_quality_gate_requires_announcement_timestamp_before_event(monkeypatch):
+    frame = pd.DataFrame({
+        "event_date": ["2025-01-01", "2025-04-01", "2025-07-01", "2025-10-01"],
+        "announcement_at": [
+            "2025-01-02T00:00:00Z", "2025-04-02T00:00:00Z",
+            "2025-07-02T00:00:00Z", "2025-10-02T00:00:00Z",
+        ],
+        "quality_flags": [{"accepted_at": "2025-01-02T00:00:00Z"}] * 4,
+        "revenue": [100.0] * 4, "gross_profit": [30.0] * 4,
+        "operating_cash_flow": [20.0] * 4, "total_debt": [10.0] * 4,
+        "cash": [5.0] * 4,
+    })
+    monkeypatch.setattr("scripts.deep_drawdown_research.store.read", lambda *args, **kwargs: frame)
+    result = _fundamental_quality("AMD", "2025-10-03", datetime.now(UTC))
+    assert result["status"] == "PASS"
+
+    frame.loc[3, "announcement_at"] = "2025-10-04T00:00:00Z"
+    result = _fundamental_quality("AMD", "2025-10-03", datetime.now(UTC))
+    assert result["status"] == "UNKNOWN"
+    assert result["reason"] == "accepted_at_or_announcement_at_missing_or_after_event_decision"

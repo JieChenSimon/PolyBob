@@ -18,6 +18,8 @@ insufficient and the only symbol with a completed OOS event produced low single-
 - Capital cap: 5% NAV, real fill/position/equity/ledger path
 - Historical quote depth, global PIT survivorship and delisting exits: `UNKNOWN`
 - Artifacts: `data/deep_drawdown_kernel_quality_confirm5.json` and its progress file
+- The quality implementation now requires both SEC `accepted_at` and stored `announcement_at`
+  to precede the event decision date; this remains a row-level check, not strict historical PIT.
 
 ## OOS results
 
@@ -31,6 +33,10 @@ insufficient and the only symbol with a completed OOS event produced low single-
 The displayed AMD figures are at 1x cost. Cost stress was monotonic and reduced each AMD
 estimate at 2x and 3x. One OOS event cannot support an annual or monthly claim, and none of the
 four instruments approaches the 50% annual / 15% complete-month target gate.
+
+The complete 48-case matrix was rerun after the dual-timestamp gate change. Its result signature
+(symbol, horizon, cost, quality status, OOS event count, and OOS mean return) was identical to the
+original run; progress completed at 48/48.
 
 ## Attribution
 
