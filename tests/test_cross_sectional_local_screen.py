@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import pandas as pd
 
@@ -8,6 +9,7 @@ from scripts.cross_sectional_paper_replay import (
     summarize_instrument_oos_pnl,
 )
 from scripts.cross_sectional_standalone_replay import (
+    apply_tail_risk_guard,
     binary_target,
     rolling_equity_folds,
     slice_signal_window,
@@ -153,6 +155,20 @@ def test_rolling_equity_folds_expose_tail_concentration():
     assert result["fold_count"] == 3
     assert result["positive_fold_count"] == 1
     assert result["folds"][0]["return"] > 0
+
+
+def test_tail_risk_guard_exits_and_cools_down_causally():
+    series = pd.Series([100.0, 90.0, 85.0, 100.0], index=["a", "b", "c", "d"])
+    guarded = apply_tail_risk_guard(
+        series, [1.0, 1.0, 1.0, 1.0, 0.0], stop_loss_pct=0.10, cooldown_bars=1,
+    )
+    assert guarded == [1.0, 0.0, 0.0, 1.0, 0.0]
+
+
+def test_tail_risk_guard_rejects_invalid_parameters():
+    series = pd.Series([100.0, 101.0], index=["a", "b"])
+    with pytest.raises(ValueError):
+        apply_tail_risk_guard(series, [1.0, 1.0], stop_loss_pct=1.0)
 
 
 def test_daily_oos_excess_charges_turnover_and_benchmark():

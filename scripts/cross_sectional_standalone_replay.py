@@ -19,6 +19,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from statistics import median
 
+import numpy as np
+
 from libs.data import store
 from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
@@ -33,6 +35,80 @@ from scripts.multi_asset_portfolio_replay import MultiPositionSource, ReplayCloc
 def binary_target(values: list[float]) -> list[float]:
     """Convert a portfolio weight signal into an isolated long-only target."""
     return [1.0 if float(value) > 0 else 0.0 for value in values]
+
+
+def apply_tail_risk_guard(
+    series,
+    targets: list[float],
+    *,
+    stop_loss_pct: float | None = None,
+    trailing_drawdown_pct: float | None = None,
+    cooldown_bars: int = 0,
+    max_annualized_vol: float | None = None,
+    volatility_window: int = 20,
+) -> list[float]:
+    """Apply causal per-instrument loss and volatility guards to targets.
+
+    Decisions at bar ``i`` use the current bar and returns strictly before it.
+    A guard can flatten a selected position, but never creates a long position
+    that the original signal did not request.  ``None`` disables each guard.
+    """
+    prices = np.asarray(series.to_numpy(dtype=float), dtype=float)
+    if len(targets) < len(prices):
+        raise ValueError("targets must cover every price bar")
+    if stop_loss_pct is not None and not 0 < stop_loss_pct < 1:
+        raise ValueError("stop_loss_pct must be between 0 and 1")
+    if trailing_drawdown_pct is not None and not 0 < trailing_drawdown_pct < 1:
+        raise ValueError("trailing_drawdown_pct must be between 0 and 1")
+    if max_annualized_vol is not None and max_annualized_vol <= 0:
+        raise ValueError("max_annualized_vol must be positive")
+    guarded: list[float] = []
+    held = False
+    entry = None
+    peak = None
+    cooldown = 0
+    for index, price in enumerate(prices):
+        desired = float(targets[index]) > 0
+        previous_returns = prices[max(0, index - volatility_window):index + 1]
+        valid_returns = previous_returns[:-1] > 0
+        if len(previous_returns) >= 2:
+            returns = previous_returns[1:][valid_returns] / previous_returns[:-1][valid_returns] - 1.0
+            annualized_vol = float(np.std(returns, ddof=1) * np.sqrt(252.0)) if len(returns) >= 2 else 0.0
+        else:
+            annualized_vol = 0.0
+        volatility_block = (
+            max_annualized_vol is not None
+            and annualized_vol > max_annualized_vol
+        )
+        should_exit = False
+        if held and price > 0 and entry is not None and peak is not None:
+            peak = max(peak, float(price))
+            if stop_loss_pct is not None and price <= entry * (1.0 - stop_loss_pct):
+                should_exit = True
+            if trailing_drawdown_pct is not None and price <= peak * (1.0 - trailing_drawdown_pct):
+                should_exit = True
+            if volatility_block:
+                should_exit = True
+        exited_this_bar = False
+        if held and (not desired or should_exit):
+            held = False
+            entry = None
+            peak = None
+            cooldown = max(0, int(cooldown_bars)) if should_exit else 0
+            exited_this_bar = True
+        if exited_this_bar:
+            guarded.append(0.0)
+            continue
+        if not held and cooldown > 0:
+            cooldown -= 1
+            guarded.append(0.0)
+            continue
+        if not held and desired and not volatility_block and price > 0:
+            held = True
+            entry = float(price)
+            peak = float(price)
+        guarded.append(1.0 if held else 0.0)
+    return guarded + [0.0]
 
 
 def slice_signal_window(series, targets: list[float], start_date: str | None,
@@ -210,8 +286,16 @@ async def run(args: argparse.Namespace) -> dict:
     for symbol in sorted(frames):
         # Signals are generated from the full cross-sectional history, but the
         # isolated account receives only this instrument's causal target stream.
+        full_targets = apply_tail_risk_guard(
+            frames[symbol],
+            binary_target(positions[symbol]),
+            stop_loss_pct=args.stop_loss_pct,
+            trailing_drawdown_pct=args.trailing_drawdown_pct,
+            cooldown_bars=args.cooldown_bars,
+            max_annualized_vol=args.max_annualized_vol,
+        )
         replay_series, replay_targets = slice_signal_window(
-            frames[symbol], binary_target(positions[symbol]), args.start_date, args.end_date,
+            frames[symbol], full_targets, args.start_date, args.end_date,
         )
         if replay_series.empty:
             continue
@@ -240,6 +324,13 @@ async def run(args: argparse.Namespace) -> dict:
             "risk_policy": args.risk_policy,
             "selection_basis": "pre_registered_cross_sectional_signal",
             "isolated_target": "binary_full_capital_when_selected",
+            "tail_risk_guard": {
+                "stop_loss_pct": args.stop_loss_pct,
+                "trailing_drawdown_pct": args.trailing_drawdown_pct,
+                "cooldown_bars": args.cooldown_bars,
+                "max_annualized_vol": args.max_annualized_vol,
+                "volatility_window": 20,
+            },
         },
         "replay_window": {
             "requested_start": args.start_date,
@@ -292,6 +383,10 @@ def main() -> int:
     parser.add_argument("--initial-capital", type=float, default=100_000.0)
     parser.add_argument("--fee-bps", type=float, default=None)
     parser.add_argument("--mid-penalty-bps", type=float, default=10.0)
+    parser.add_argument("--stop-loss-pct", type=float, default=None)
+    parser.add_argument("--trailing-drawdown-pct", type=float, default=None)
+    parser.add_argument("--cooldown-bars", type=int, default=0)
+    parser.add_argument("--max-annualized-vol", type=float, default=None)
     parser.add_argument("--output", default="data/cross_sectional_standalone_replay.json")
     args = parser.parse_args()
     args.fee_bps = args.fee_bps if args.fee_bps is not None else (8.0 if args.domain == "a_share" else 5.0)
