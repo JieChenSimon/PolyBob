@@ -7,6 +7,7 @@ from scripts.insider_kernel_replay import (
     EventReplaySource,
     build_event_positions,
     build_risk_fractions,
+    cash_safe_position_fraction,
     concentration,
     filter_events_by_pre_event_vol,
     filter_events_by_market_return,
@@ -20,6 +21,20 @@ def test_insider_event_enters_next_bar_and_holds_fixed_sessions():
     frames = {"ABC": pd.Series([100.0] * len(dates), index=dates)}
     positions = build_event_positions(frames, [("ABC", "2025-01-02")], hold_sessions=3)
     assert positions["ABC"] == [0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0]
+
+
+def test_cash_safe_fraction_caps_overlapping_portfolio_targets():
+    positions = {
+        "A": [0.0, 1.0, 1.0, 0.0],
+        "B": [0.0, 1.0, 1.0, 0.0],
+    }
+    fraction, concurrent = cash_safe_position_fraction(
+        positions, 0.8, fee_bps=20.0, mid_penalty_bps=10.0,
+        cash_buffer_fraction=0.01,
+    )
+    assert concurrent == 2
+    assert fraction < 0.8
+    assert fraction * concurrent * 1.003 <= 0.99
 
 
 def test_event_source_closes_an_active_long_with_sell():

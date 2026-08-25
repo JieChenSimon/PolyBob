@@ -13,6 +13,8 @@ import asyncio
 import argparse
 import bisect
 import json
+import logging
+import sys
 import uuid
 from collections import defaultdict
 from datetime import UTC, datetime
@@ -20,12 +22,21 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import structlog
 
 from libs.data import store
 from libs.data.sec_insider import cluster_buys, fetch_insider_trades
 from modules.simulation import SimulationService
 from modules.simulation import metrics as sim_metrics
 from modules.simulation.sources import SimSignal
+
+# Historical replays can execute thousands of fills. Per-fill INFO logs are
+# not evidence and turn a bounded replay into a logging/IO benchmark.
+structlog.configure(
+    wrapper_class=structlog.make_filtering_bound_logger(logging.WARNING),
+    logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+    cache_logger_on_first_use=True,
+)
 
 QUARTERS = [(year, quarter) for year in (2021, 2022, 2023, 2024, 2025, 2026)
             for quarter in (1, 2, 3, 4)
@@ -100,6 +111,56 @@ def build_event_positions(frames: dict, events: list[tuple[str, str]],
             1.0
         ] * (min(exit_index, len(dates)) - entry)
     return positions
+
+
+def max_concurrent_positions(
+    positions: dict[str, list[float]],
+    date_indexes: dict[str, list[str]] | None = None,
+) -> int:
+    """Return the largest number of simultaneous non-zero targets.
+
+    When date indexes are provided, overlap is calculated on calendar dates;
+    positional indexes are not interchangeable because symbols can have
+    different missing-history boundaries.
+    """
+    if date_indexes is not None:
+        counts: dict[str, int] = defaultdict(int)
+        for symbol, values in positions.items():
+            for date, value in zip(date_indexes.get(symbol, []), values):
+                if abs(value) > 1e-12:
+                    counts[date] += 1
+        return max(counts.values(), default=0)
+    width = max((len(values) for values in positions.values()), default=0)
+    return max(
+        (sum(abs(values[index]) > 1e-12 for values in positions.values()
+             if index < len(values)) for index in range(width)),
+        default=0,
+    )
+
+
+def cash_safe_position_fraction(
+    positions: dict[str, list[float]],
+    requested_fraction: float,
+    *,
+    fee_bps: float,
+    mid_penalty_bps: float,
+    cash_buffer_fraction: float = 0.01,
+    date_indexes: dict[str, list[str]] | None = None,
+) -> tuple[float, int]:
+    """Cap per-instrument sizing so a portfolio cannot create cash debt.
+
+    Requesting 1% of equity for every instrument makes the result depend on
+    event arrival order when hundreds of positions overlap. This cap reserves
+    a cash buffer and the modeled entry cost for the worst overlap.
+    """
+    if requested_fraction < 0 or not 0 <= cash_buffer_fraction < 1:
+        raise ValueError("fractions must be non-negative and cash buffer < 1")
+    concurrent = max_concurrent_positions(positions, date_indexes)
+    if concurrent == 0:
+        return 0.0, 0
+    entry_cost_multiplier = 1.0 + (fee_bps + mid_penalty_bps) / 10_000.0
+    safe = (1.0 - cash_buffer_fraction) / (concurrent * entry_cost_multiplier)
+    return min(float(requested_fraction), float(safe)), concurrent
 
 
 def build_risk_fractions(frames: dict, events: list[tuple[str, str]],
@@ -271,8 +332,20 @@ async def main_async(args: argparse.Namespace) -> int:
         )
 
     positions = build_event_positions(frames, events, args.hold_sessions)
+    effective_fraction = args.position_fraction
+    date_indexes = {symbol: list(series.index) for symbol, series in frames.items()}
+    concurrent_positions = max_concurrent_positions(positions, date_indexes)
+    if not args.disable_cash_safe_sizing:
+        effective_fraction, concurrent_positions = cash_safe_position_fraction(
+            positions,
+            args.position_fraction,
+            fee_bps=args.fee_bps,
+            mid_penalty_bps=args.mid_penalty_bps,
+            cash_buffer_fraction=args.cash_buffer_fraction,
+            date_indexes=date_indexes,
+        )
     fraction_by_instrument = (
-        build_risk_fractions(frames, events, args.position_fraction)
+        build_risk_fractions(frames, events, effective_fraction)
         if args.risk_weighted else None
     )
     all_dates = sorted({date for series in frames.values() for date in series.index})
@@ -291,7 +364,7 @@ async def main_async(args: argparse.Namespace) -> int:
         initial_capital=100_000.0,
         config={
             "event_positions": positions,
-            "position_fraction": args.position_fraction,
+            "position_fraction": effective_fraction,
             "position_fraction_by_instrument": fraction_by_instrument,
             "fee_bps": args.fee_bps,
             "mid_penalty_bps": args.mid_penalty_bps,
@@ -299,27 +372,42 @@ async def main_async(args: argparse.Namespace) -> int:
             "cooldown_seconds": 0.0,
             "max_staleness_seconds": 172800.0,
             "equity_interval_minutes": 1440.0,
+            "record_equity_on_fill": False,
+            "record_equity_on_settlement": False,
         },
     )
     run_id = str(run["run_id"])
     await service.start_run(run_id)
-    for date in all_dates:
-        timestamp = datetime.fromisoformat(date).replace(tzinfo=UTC)
-        clock.current = timestamp
-        for symbol, series in frames.items():
-            if date not in series.index:
-                continue
-            index = series.index.get_loc(date)
-            await service._dispatch("features.snapshots", {
-                "market_id": symbol, "timestamp": timestamp,
-                "mid_price": float(series.to_numpy()[index]),
-                "source": "local_daily_bars", "price_basis": "unadjusted",
-            })
-        await service._record_equity(service._active[run_id])
+    observations_by_date: dict[str, list[tuple[str, float]]] = defaultdict(list)
+    for symbol, series in frames.items():
+        values = series.to_numpy(dtype=float)
+        for date, value in zip(series.index, values):
+            observations_by_date[str(date)].append((symbol, float(value)))
+    try:
+        progress_step = max(1, len(all_dates) // 20)
+        for date_index, date in enumerate(all_dates):
+            timestamp = datetime.fromisoformat(date).replace(tzinfo=UTC)
+            clock.current = timestamp
+            for symbol, value in observations_by_date.get(date, []):
+                await service._dispatch("features.snapshots", {
+                    "market_id": symbol, "timestamp": timestamp,
+                    "mid_price": value,
+                    "source": "local_daily_bars", "price_basis": "unadjusted",
+                })
+            await service._record_equity(service._active[run_id])
+            if date_index % progress_step == 0 or date_index == len(all_dates) - 1:
+                print(f"replay_progress={date_index + 1}/{len(all_dates)}", file=sys.stderr)
+    except BaseException:
+        await service.stop()
+        for suffix in ("", "-wal", "-shm"):
+            db_path.with_name(db_path.name + suffix).unlink(missing_ok=True)
+        raise
     active_before_stop = service._active.get(run_id)
     risk_rejections = int(active_before_stop.risk_rejections) if active_before_stop is not None else None
     await service.stop_run(run_id)
     metrics = sim_metrics.compute_run_metrics(service.store, run_id)
+    instrument_curve_points = metrics.pop("instrument_pnl_curve", [])
+    metrics["instrument_pnl_curve_points"] = len(instrument_curve_points)
     points = service.store.list_equity_points(run_id)
     trades_out = service.store.list_trades(run_id)
     max_gross = max((float(point.gross_exposure) for point in points), default=0.0)
@@ -363,7 +451,12 @@ async def main_async(args: argparse.Namespace) -> int:
                       "min_market_return": args.min_market_return,
                       "max_market_return": args.max_market_return},
         "execution_config": {"fee_bps": args.fee_bps, "mid_penalty_bps": args.mid_penalty_bps,
-                              "allow_short": False, "position_fraction": args.position_fraction,
+                              "allow_short": False,
+                              "requested_position_fraction": args.position_fraction,
+                              "position_fraction": effective_fraction,
+                              "cash_safe_sizing": not args.disable_cash_safe_sizing,
+                              "cash_buffer_fraction": args.cash_buffer_fraction,
+                              "max_concurrent_positions": concurrent_positions,
                               "risk_weighted": args.risk_weighted},
         "events": len(events), "events_before_filter": original_event_count,
         "trade_quality": {"trades_before_delay_filter": trades_before_delay_filter,
@@ -400,6 +493,9 @@ if __name__ == "__main__":
     parser.add_argument("--fee-bps", type=float, default=20.0)
     parser.add_argument("--mid-penalty-bps", type=float, default=10.0)
     parser.add_argument("--position-fraction", type=float, default=POSITION_FRACTION)
+    parser.add_argument("--cash-buffer-fraction", type=float, default=0.01)
+    parser.add_argument("--disable-cash-safe-sizing", action="store_true",
+                        help="diagnostic only: preserve order-dependent cash rejection behavior")
     parser.add_argument("--risk-weighted", action="store_true")
     parser.add_argument("--max-pre-event-volatility", type=float, default=None,
                         help="causal annualized volatility ceiling for event entry")

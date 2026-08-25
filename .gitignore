@@ -118,4 +118,5 @@ data/drawdown_universe_*progress.json
 data/cross_sectional_standalone_*_fixed.json
 data/cross_sectional_standalone_*_dd.json
 data/cross_sectional_standalone_*_dd_all_local.json
+data/insider_kernel_replay_candidate_*.json
 output/
