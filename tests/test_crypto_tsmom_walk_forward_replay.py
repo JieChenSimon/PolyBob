@@ -7,7 +7,7 @@ from scripts.cross_sectional_kernel_replay import replay_symbol
 
 
 def test_candidate_grid_is_fixed_and_train_score_is_causal():
-    assert len(CANDIDATES) == 8
+    assert len(CANDIDATES) == 16
     prices = np.linspace(100.0, 200.0, 400)
     series = pd.Series(prices, index=[f"2025-{(i // 28) + 1:02d}-{(i % 28) + 1:02d}" for i in range(400)])
     candidate = CANDIDATES[0]
@@ -17,7 +17,7 @@ def test_candidate_grid_is_fixed_and_train_score_is_causal():
     assert np.isfinite(early) and np.isfinite(late)
     selected, audit = select_candidate({"X": series}, series.index[300])
     assert selected in CANDIDATES
-    assert len(audit) == 8
+    assert len(audit) == 16
     assert all(row["symbols_scored"] == 1 for row in audit)
 
 

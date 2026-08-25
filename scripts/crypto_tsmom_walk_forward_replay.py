@@ -25,10 +25,12 @@ from strategies.proven_signals import time_series_momentum
 
 
 CANDIDATES = tuple(
-    {"lookback": lookback, "vol_lookback": vol_lookback, "threshold": threshold}
+    {"lookback": lookback, "vol_lookback": vol_lookback,
+     "threshold": threshold, "allow_short": allow_short}
     for lookback in (60, 120)
     for vol_lookback in (20, 40)
     for threshold in (0.15, 0.25)
+    for allow_short in (True, False)
 )
 POSITION_FRACTION = 0.50
 FEE_BPS = 20.0
@@ -44,7 +46,9 @@ def candidate_positions(prices: np.ndarray, candidate: dict[str, float]) -> np.n
     ), dtype=float)
     threshold = float(candidate["threshold"])
     return np.where(signal >= threshold, 1.0,
-                    np.where(signal <= -threshold, -1.0, 0.0))
+                    np.where(signal <= -threshold,
+                             -1.0 if bool(candidate["allow_short"]) else 0.0,
+                             0.0))
 
 
 def train_score(series, split_date: str, candidate: dict[str, float]) -> float | None:
@@ -101,7 +105,8 @@ async def run_fold(split_date: str, frames: dict, out_dir: Path) -> dict:
         timestamps = [datetime.fromisoformat(date) for date in oos_dates]
         replay = await replay_symbol(
             symbol, timestamps, oos_prices.tolist(), oos_positions.tolist(), split_date, out_dir,
-            position_fraction=POSITION_FRACTION, allow_short=True, fee_bps=FEE_BPS,
+            position_fraction=POSITION_FRACTION,
+            allow_short=bool(candidate["allow_short"]), fee_bps=FEE_BPS,
             event_sleep_seconds=EVENT_SLEEP_SECONDS,
             equity_sample_every=EQUITY_SAMPLE_EVERY,
         )
