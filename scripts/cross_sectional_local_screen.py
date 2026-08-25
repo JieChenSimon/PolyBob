@@ -20,8 +20,12 @@ CANDIDATES = tuple(
     for top_frac in (0.2, 0.3)
     for rebalance_days in (1, 5, 10)
 )
-RISK_POLICIES = ("raw", "vol_target_10", "vol_target_10_dd")
+RISK_POLICIES = (
+    "raw", "vol_target_10", "vol_target_10_dd", "vol_target_10_dd_recovery",
+)
 MIN_BENCHMARK_ASSETS = 20
+DD_RECOVERY_COOLDOWN_BARS = 20
+DD_RECOVERY_SCALE = 0.25
 
 
 def select_long_only(prices: np.ndarray, lookback: int, top_frac: float,
@@ -59,17 +63,34 @@ def apply_risk_policy(prices: np.ndarray, positions: np.ndarray, policy: str) ->
     realized: list[float] = []
     equity = 1.0
     peak = 1.0
+    risk_off_remaining = 0
+    recovering = False
     target_daily_vol = 0.10 / np.sqrt(252.0)
     for day in range(positions.shape[1] - 1):
         prior = np.asarray(realized[-60:], dtype=float)
         vol = float(np.std(prior, ddof=1)) if len(prior) >= 20 else 0.0
         scale = min(1.0, target_daily_vol / vol) if vol > 0 else 1.0
         drawdown = 1.0 - equity / peak if peak > 0 else 0.0
-        if policy == "vol_target_10_dd":
+        if policy in {"vol_target_10_dd", "vol_target_10_dd_recovery"}:
             if drawdown >= 0.20:
-                scale = 0.0
+                if policy == "vol_target_10_dd":
+                    scale = 0.0
+                elif risk_off_remaining == 0 and not recovering:
+                    risk_off_remaining = DD_RECOVERY_COOLDOWN_BARS
+                    recovering = True
+                if risk_off_remaining > 0:
+                    scale = 0.0
+                    risk_off_remaining -= 1
+                else:
+                    scale = min(scale, DD_RECOVERY_SCALE)
             elif drawdown >= 0.10:
-                scale = min(scale, 0.5)
+                scale = min(scale, DD_RECOVERY_SCALE if recovering else 0.5)
+            elif recovering:
+                scale = min(scale, DD_RECOVERY_SCALE)
+                # Recovery is complete only after the high-water drawdown is
+                # below 10%; this prevents an immediate full-risk jump.
+                if drawdown < 0.10:
+                    recovering = False
         scaled[:, day] = positions[:, day] * scale
         current = scaled[:, day]
         valid = (current > 0) & np.isfinite(prices[:, day]) & np.isfinite(prices[:, day + 1])

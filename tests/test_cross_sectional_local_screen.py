@@ -66,6 +66,16 @@ def test_risk_policy_never_increases_long_exposure():
     assert np.all(scaled <= base + 1e-12)
 
 
+def test_drawdown_recovery_policy_does_not_lock_out_forever():
+    prices = np.ones((1, 60), dtype=float) * 100.0
+    prices[0, 20:] = 70.0
+    positions = np.ones_like(prices)
+    scaled = apply_risk_policy(prices, positions, "vol_target_10_dd_recovery")
+    assert scaled[0, 20] == 0.0
+    assert np.any(scaled[0, 41:] > 0.0)
+    assert np.all(scaled <= positions + 1e-12)
+
+
 def test_cross_sectional_frames_align_on_event_date_not_row_number():
     frames = {
         "A": pd.Series([10.0, 11.0], index=["2024-01-02", "2024-01-03"]),

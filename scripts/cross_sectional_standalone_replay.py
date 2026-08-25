@@ -404,7 +404,8 @@ def main() -> int:
     parser.add_argument("--lookback", type=int, default=60)
     parser.add_argument("--top-frac", type=float, default=0.2)
     parser.add_argument("--rebalance-days", type=int, default=10)
-    parser.add_argument("--risk-policy", choices=("raw", "vol_target_10", "vol_target_10_dd"),
+    parser.add_argument("--risk-policy", choices=("raw", "vol_target_10", "vol_target_10_dd",
+                                                   "vol_target_10_dd_recovery"),
                         default="vol_target_10")
     parser.add_argument("--start-date", default=None)
     parser.add_argument("--end-date", default=None)
