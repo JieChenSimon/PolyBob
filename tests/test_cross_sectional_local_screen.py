@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 from scripts.cross_sectional_paper_replay import (
+    execution_evidence_status,
     filter_replay_dates,
     summarize_instrument_oos_pnl,
 )
@@ -103,6 +104,30 @@ def test_instrument_oos_evidence_does_not_claim_standalone_return():
     assert evidence["pnl_contribution"] == 15.0
     assert evidence["standalone_return"] is None
     assert evidence["return_target_status"] == "UNKNOWN"
+
+
+def test_execution_evidence_fails_closed_without_historical_depth():
+    evidence = execution_evidence_status({
+        "trade_count": 3,
+        "full_depth_trade_count": 0,
+        "missing_depth_trade_count": 3,
+        "quote_observation_count": 0,
+        "trade_quote_observation_link_count": 0,
+    })
+    assert evidence["status"] == "UNKNOWN_NO_EXECUTABLE_DEPTH"
+    assert evidence["promotion_allowed"] is False
+
+
+def test_execution_evidence_requires_quote_links_for_promotion():
+    evidence = execution_evidence_status({
+        "trade_count": 2,
+        "full_depth_trade_count": 2,
+        "missing_depth_trade_count": 0,
+        "quote_observation_count": 2,
+        "trade_quote_observation_link_count": 1,
+    })
+    assert evidence["status"] == "UNKNOWN_NO_EXECUTABLE_DEPTH"
+    assert evidence["promotion_allowed"] is False
 
 
 def test_daily_oos_excess_charges_turnover_and_benchmark():

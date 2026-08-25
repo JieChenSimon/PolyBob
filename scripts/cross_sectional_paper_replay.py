@@ -68,6 +68,37 @@ def summarize_instrument_oos_pnl(
     return result
 
 
+def execution_evidence_status(metrics: dict) -> dict[str, object]:
+    """Classify whether replay fills have executable quote evidence.
+
+    A daily midpoint replay can be useful for signal diagnostics, but it is not
+    equivalent to a historical order-book replay.  Keep this classification
+    explicit and fail closed when any trade lacks depth or a quote observation.
+    """
+    trades = int(metrics.get("trade_count", 0) or 0)
+    full_depth = int(metrics.get("full_depth_trade_count", 0) or 0)
+    missing_depth = int(metrics.get("missing_depth_trade_count", 0) or 0)
+    observations = int(metrics.get("quote_observation_count", 0) or 0)
+    linked = int(metrics.get("trade_quote_observation_link_count", 0) or 0)
+    if trades == 0:
+        status = "UNKNOWN_NO_TRADES"
+    elif full_depth == trades and observations >= trades and linked == trades:
+        status = "FULL_DEPTH_EXECUTABLE_EVIDENCE"
+    elif missing_depth or full_depth < trades or observations < trades or linked < trades:
+        status = "UNKNOWN_NO_EXECUTABLE_DEPTH"
+    else:
+        status = "UNKNOWN_PARTIAL_EXECUTABLE_EVIDENCE"
+    return {
+        "status": status,
+        "trade_count": trades,
+        "full_depth_trade_count": full_depth,
+        "missing_depth_trade_count": missing_depth,
+        "quote_observation_count": observations,
+        "trade_quote_observation_link_count": linked,
+        "promotion_allowed": status == "FULL_DEPTH_EXECUTABLE_EVIDENCE",
+    }
+
+
 def _candidate_positions(symbols: list[str], as_of: datetime, lookback: int,
                          top_frac: float, rebalance_days: int, risk_policy: str):
     frames, rejected_quality = read_frames(symbols, as_of)
@@ -156,6 +187,7 @@ async def run(args: argparse.Namespace) -> dict:
         metrics.get("instrument_pnl_curve", []),
         start_date=dates[0], end_date=dates[-1],
     )
+    execution_evidence = execution_evidence_status(metrics)
     report = {
         "generated_at": datetime.now(UTC).isoformat(), "real_data_only": True,
         "execution_kernel": "modules.simulation.SimulationService",
@@ -172,6 +204,7 @@ async def run(args: argparse.Namespace) -> dict:
                               "allow_short": False},
         "metrics": metrics, "risk_rejections": risk_rejections,
         "instrument_oos_evidence": instrument_oos_evidence,
+        "execution_evidence": execution_evidence,
         "status": "replay_only_not_promoted",
     }
     out = Path(args.output)

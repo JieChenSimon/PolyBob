@@ -65,6 +65,28 @@ def _numeric(value: Any) -> float | None:
     return parsed if np.isfinite(parsed) else None
 
 
+def _accepted_before_event(value: Any, event_date: str) -> bool:
+    """Return whether a filing was accepted before the event decision date.
+
+    The daily drawdown trigger is observed at the event session.  A filing
+    accepted later on that same calendar day is therefore not admissible for a
+    conservative pre-event quality gate.  Missing or malformed SEC timestamps
+    remain UNKNOWN rather than being treated as midnight on the filing date.
+    """
+    if value in (None, "", "missing"):
+        return False
+    try:
+        accepted = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if accepted.tzinfo is None:
+            accepted = accepted.replace(tzinfo=UTC)
+        else:
+            accepted = accepted.astimezone(UTC)
+        decision = datetime.fromisoformat(str(event_date)[:10]).replace(tzinfo=UTC)
+    except (TypeError, ValueError):
+        return False
+    return accepted < decision
+
+
 def _first_drawdown_events(frame) -> list[dict[str, Any]]:
     """Return one event per drawdown episode using only prior closes for peak."""
     if frame.empty:
@@ -183,12 +205,13 @@ def _fundamental_quality(symbol: str, event_date: str, as_of) -> dict[str, Any]:
     if len(frame) < 4:
         return {"status": "UNKNOWN", "reason": "fewer_than_four_pit_periods", "periods": int(len(frame))}
     accepted = frame["quality_flags"].map(
-        lambda value: isinstance(value, dict) and value.get("accepted_at") not in (None, "missing", "")
+        lambda value: isinstance(value, dict)
+        and _accepted_before_event(value.get("accepted_at"), event_date)
     )
     if not bool(accepted.all()):
         return {
             "status": "UNKNOWN",
-            "reason": "accepted_at_missing_for_historical_period",
+            "reason": "accepted_at_missing_or_after_event_decision_for_historical_period",
             "periods": int(len(frame)),
             "accepted_periods": int(accepted.sum()),
         }

@@ -102,6 +102,11 @@ vol_target_10`。screen 的 OOS 结果为组合 `+94.58%`、同期等权基准 `
 因此当前候选对显式手续费较稳健，但盘口深度和真实成交冲击仍完全未知；在
 获得报价观测前，不能据此批准真实交易。
 
+回放器现将该限制写入 `execution_evidence` 门禁：只有每笔成交都有真实历史
+报价观测、双边深度和成交链接时，才允许 `FULL_DEPTH_EXECUTABLE_EVIDENCE`；
+当前这种日线中间价回放统一为 `UNKNOWN_NO_EXECUTABLE_DEPTH`，并保持
+`promotion_allowed=false`。
+
 ### 逐标的 OOS 证据
 
 严格 OOS Paper Lab 重新运行后，24 个实际进入成交内核的标的都有逐标的 PnL

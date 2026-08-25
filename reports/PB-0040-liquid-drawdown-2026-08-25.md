@@ -102,6 +102,25 @@ ACVA、ADTN 和 000858，但样本也不足以直接证明永久无效。下一�
 级别的基本面门通过，`promotion_reason=global_historical_pit_or_executable_quote_unknown`
 明确表示仍不能交易；不会再把局部通过事件错误显示为 `UNKNOWN_NO_TRADE`。
 
+### 事件日前 SEC 接受时间复核（2026-08-25）
+
+本轮修复了一个实际的时间合同缺口：此前行级质量审计虽然要求存在 SEC
+`accepted_at`，但没有验证该时间早于回撤事件的决策日。现在任何缺失、格式错误
+或在事件日当日/之后接受的申报都会保持 `UNKNOWN`；只允许严格早于事件日
+00:00 UTC 的接受记录进入事件日前质量门禁。对同一 13 个标的、同一确认/探针
+候选重新运行 156 个 Paper Lab case 后，结果为 48 个 `PASS_EVENT_DATE_GATE`
+和 108 个 `UNKNOWN_NO_TRADE`，与修复前数量一致，说明本批样本没有被放宽，且
+通过日期没有因时间合同修复而虚增。全部 case 仍因全局 PIT 覆盖与历史可执行
+报价深度未知而 `BLOCKED`。
+
+### 可执行报价证据门禁
+
+跨截面日线回放现在额外输出 `execution_evidence`：只有每笔成交都关联真实
+历史报价观测、双边盘口深度和成交链接时，状态才可能为
+`FULL_DEPTH_EXECUTABLE_EVIDENCE`；中间价、固定点差和缺少深度的成交统一为
+`UNKNOWN_NO_EXECUTABLE_DEPTH`，`promotion_allowed=false`。这保留了诊断回放
+的研究价值，但不会把缺少真实成交冲击证据的收益当成可直接赚钱的交易结果。
+
 ## 专业判断与下一步
 
 当前证据受事件稀疏、严格 PIT 基本面日期缺失、独立 OOS 样本不足限制。

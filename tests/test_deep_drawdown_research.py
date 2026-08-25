@@ -2,7 +2,21 @@ from __future__ import annotations
 
 import pandas as pd
 
-from scripts.deep_drawdown_research import _event_outcomes, _first_drawdown_events
+from scripts.deep_drawdown_research import (
+    _accepted_before_event,
+    _event_outcomes,
+    _first_drawdown_events,
+)
+
+
+def test_sec_acceptance_must_precede_event_decision_date():
+    assert _accepted_before_event("2026-01-03T23:59:59Z", "2026-01-04") is True
+    assert _accepted_before_event("2026-01-04T00:00:01Z", "2026-01-04") is False
+    assert _accepted_before_event("missing", "2026-01-04") is False
+
+
+def test_sec_acceptance_with_timezone_is_compared_in_utc():
+    assert _accepted_before_event("2026-01-04T00:30:00+01:00", "2026-01-04") is True
 
 
 def _bars() -> pd.DataFrame:
