@@ -53,5 +53,9 @@ run_guard_require_free_port "$DASHBOARD_PORT" "Dashboard"
 
 echo "Starting PolyBob dashboard at http://localhost:$DASHBOARD_PORT"
 POLYBOB_DASHBOARD_PORT="$DASHBOARD_PORT" npm run dev &
-run_guard_write_pid dashboard "$!"
+DASHBOARD_PID=$!
+run_guard_write_pid dashboard "$DASHBOARD_PID"
+if ! run_guard_wait_http "http://127.0.0.1:$DASHBOARD_PORT/" "Dashboard" "$DASHBOARD_PID"; then
+    exit 1
+fi
 wait

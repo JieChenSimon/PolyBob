@@ -121,8 +121,8 @@ export default function MarketDetail({ market }: MarketDetailProps) {
       <div className="border-b border-stone-200 px-6 py-6 md:px-8">
         <span className="eyebrow">{zh ? '已选市场' : 'Selected Market'}</span>
         <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="max-w-3xl">
-            <h2 className="text-2xl font-bold text-stone-900 md:text-3xl">
+          <div className="max-w-3xl min-w-0">
+            <h2 title={market.question} className="line-clamp-4 text-xl font-bold leading-tight text-stone-900 md:text-2xl">
               {market.question}
             </h2>
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
@@ -138,7 +138,7 @@ export default function MarketDetail({ market }: MarketDetailProps) {
             </div>
           </div>
 
-          <div className="grid gap-2 text-xs text-stone-500 md:justify-items-end md:text-right">
+          <div className="grid shrink-0 gap-2 text-xs text-stone-500 md:justify-items-end md:text-right">
             {features ? (
               <FreshnessBadge
                 source="Polymarket"
@@ -148,9 +148,16 @@ export default function MarketDetail({ market }: MarketDetailProps) {
                 language={zh ? 'zh' : 'en'}
               />
             ) : null}
-            <div className="mono">{zh ? '市场 ID' : 'Market ID'}: {market.market_id}</div>
-            <div className="mono">{zh ? '资产 ID' : 'Asset ID'}: {market.primary_asset_id || '--'}</div>
             <div>{zh ? '结束' : 'Ends'}: {formatTime(market.end_time)}</div>
+            <details className="max-w-52 text-left md:text-right">
+              <summary className="cursor-pointer text-[11px] text-stone-400 hover:text-sky-600">
+                {zh ? '技术标识（排障用）' : 'Technical IDs'}
+              </summary>
+              <div className="mt-1 break-all font-mono text-[10px] leading-4 text-stone-400">
+                <div>{zh ? '市场' : 'Market'}: {market.market_id}</div>
+                <div>{zh ? '资产' : 'Asset'}: {market.primary_asset_id || '--'}</div>
+              </div>
+            </details>
           </div>
         </div>
         <div className="mt-4">

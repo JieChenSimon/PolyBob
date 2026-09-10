@@ -128,6 +128,10 @@ cd ../..
 run_guard_write_pid dashboard "$DASHBOARD_PID"
 echo "   Dashboard PID: $DASHBOARD_PID"
 
+if ! run_guard_wait_http "http://127.0.0.1:$DASHBOARD_PORT/" "Dashboard" "$DASHBOARD_PID"; then
+    exit 1
+fi
+
 echo ""
 echo "╔═══════════════════════════════════════╗"
 echo "║         ALL SERVICES STARTED          ║"

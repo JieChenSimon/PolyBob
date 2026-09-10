@@ -29,6 +29,28 @@ interface CapabilityRow {
   missing?: string[];
 }
 
+interface PromotionEvidenceRecord {
+  strategy: string;
+  instrument: string;
+  approved: boolean;
+  role: 'trade' | 'avoid';
+  failed: string[];
+  t_stat: number | null;
+  t_hurdle: number | null;
+  n: number | null;
+  n_clusters: number | null;
+  cluster_by: string;
+  evidence_end: string | null;
+  evidence_age_days: number | null;
+  max_evidence_age_days: number | null;
+  evidence_expired: boolean;
+  pit_status: string;
+}
+
+interface PromotionBoardPayload {
+  records?: PromotionEvidenceRecord[];
+}
+
 const STRATEGY_QUERY_PREFIX = ['strategies', 'catalog-workspace'] as const;
 const STRATEGY_REFETCH_MS = 15_000;
 const STRATEGY_STALE_MS = 12_000;
@@ -72,12 +94,23 @@ export default function StrategyCatalog() {
     staleTime: 20_000,
     refetchInterval: 30_000,
   });
+  const promotionBoardQuery = useQuery<PromotionBoardPayload>({
+    queryKey: ['promotion-board'],
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`${API_BASE}/api/strategies/promotion-board`, { signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    },
+    staleTime: 240_000,
+    refetchInterval: 300_000,
+  });
   const strategies = catalogQuery.data ?? [];
   const instances = instancesQuery.data ?? [];
   const intents = intentsQuery.data ?? [];
   const pairSnapshots = pairSnapshotsQuery.data ?? [];
   const pairUniverse = pairUniverseQuery.data ?? [];
   const capabilities = capabilityQuery.data?.rows ?? [];
+  const promotionByStrategy = new Map((promotionBoardQuery.data?.records ?? []).map((record) => [record.strategy, record]));
   const strategyRuntime = capabilities.find((row) => row.capability_id === 'strategy_runtime');
   const paperExecution = capabilities.find((row) => row.capability_id === 'paper_execution');
   const strategyActionsBlocked = capabilityQuery.isError || !capabilityQuery.data || strategyRuntime?.state !== 'available';
@@ -202,14 +235,21 @@ export default function StrategyCatalog() {
       <div className="space-y-6">
         <div className="grid gap-3 md:grid-cols-2">
           <DataTrustBar
-            source="Capability Matrix"
+            source={zh ? '能力矩阵' : 'Capability Matrix'}
             state={strategyRuntime?.state ?? (capabilityQuery.isError ? 'unknown' : 'unknown')}
             reason={capabilityReason}
           />
           <DataTrustBar
-            source="Paper Execution"
+            source={zh ? '模拟执行能力' : 'Paper Execution'}
             state={paperExecution?.state ?? (capabilityQuery.isError ? 'unknown' : 'unknown')}
             reason={paperExecution?.truth ?? (zh ? '执行能力状态未知。' : 'Execution capability state is unknown.')}
+          />
+          <DataTrustBar
+            source={zh ? '权威晋级板' : 'Promotion Board'}
+            state={promotionBoardQuery.isError ? 'unknown' : promotionBoardQuery.data ? 'available' : 'unknown'}
+            reason={promotionBoardQuery.isError
+              ? (zh ? '无法读取权威晋级板；策略配置中的收益自述不会被当作证据。' : 'The authoritative promotion board is unavailable; configuration claims are not treated as evidence.')
+              : (zh ? '以真实历史研究、聚类推断、样本外与 PIT 门禁作为策略有效性的唯一依据。' : 'Real-history research, clustered inference, out-of-sample checks, and PIT gates are the sole evidence of strategy validity.')}
           />
         </div>
         <div className="panel overflow-hidden">
@@ -230,15 +270,17 @@ export default function StrategyCatalog() {
           ) : null}
 
           <div className="space-y-4 px-4 py-4 md:px-6">
-            {strategies.map((strategy) => (
+            {strategies.map((strategy) => {
+              const promotion = promotionByStrategy.get(strategy.strategy_id);
+              return (
               <div
                 key={strategy.strategy_id}
                 className="rounded-lg border border-stone-200 bg-white p-5"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <div className="text-lg font-semibold text-stone-900">{strategy.name}</div>
-                    <div className="mt-1 text-sm text-stone-500">{strategy.description}</div>
+                    <div className="text-lg font-semibold text-stone-900">{displayStrategyName(strategy, zh)}</div>
+                    <div className="mt-1 text-sm text-stone-500">{displayStrategyDescription(strategy, zh, promotion, Boolean(promotionBoardQuery.data))}</div>
                   </div>
                   <span className="rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-600">
                     {strategy.family}
@@ -246,11 +288,13 @@ export default function StrategyCatalog() {
                 </div>
 
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <InfoBlock label={zh ? '状态' : 'Status'} value={strategy.status} />
-                  <InfoBlock label={zh ? '运行模式' : 'Runtime Mode'} value={strategy.runtime_mode} />
-                  <InfoBlock label={zh ? '产品状态' : 'Product Status'} value={strategy.product_status ?? 'research'} />
-                  <InfoBlock label={zh ? '基本面/证据/PIT' : 'Fundamental / Evidence / PIT'} value={`${strategy.fundamental_evidence ?? 'UNKNOWN'} / ${strategy.evidence_status ?? 'UNKNOWN'} / ${strategy.pit_status ?? 'UNKNOWN'}`} />
+                  <InfoBlock label={zh ? '状态' : 'Status'} value={displayStrategyState(strategy.status, zh)} />
+                  <InfoBlock label={zh ? '运行模式' : 'Runtime Mode'} value={displayStrategyState(strategy.runtime_mode, zh)} />
+                  <InfoBlock label={zh ? '产品状态' : 'Product Status'} value={displayStrategyState(strategy.product_status ?? 'research', zh)} />
+                  <InfoBlock label={zh ? '基本面/证据/PIT' : 'Fundamental / Evidence / PIT'} value={promotion ? promotionEvidenceState(promotion, zh) : `${strategy.fundamental_evidence ?? 'UNKNOWN'} / ${strategy.evidence_status ?? 'UNKNOWN'} / ${strategy.pit_status ?? 'UNKNOWN'}`} />
                 </div>
+
+                {promotion ? <PromotionEvidencePanel record={promotion} zh={zh} /> : null}
 
                 {strategy.basic_evidence ? (
                   <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
@@ -266,18 +310,23 @@ export default function StrategyCatalog() {
                   <KeyValuePanel title={zh ? '风险限制' : 'Risk Limits'} values={strategy.risk_limits} />
                 </div>
 
-                <div className="mt-5 flex justify-end">
+                {strategyActionsBlocked ? (
+                  <div className="mt-5 border-l-2 border-amber-400 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
+                    {zh ? '当前仅展示研究模板。策略运行能力尚未获准，因此不会提供创建实例操作。' : 'This research template is view-only. Strategy runtime is not approved, so instance creation is unavailable.'}
+                  </div>
+                ) : <div className="mt-5 flex justify-end">
                   <button
                     onClick={() => createInstance(strategy.strategy_id)}
-                    disabled={strategyActionsBlocked || strategy.runtime_mode !== 'paper_ready' || strategy.trade_permission !== true || busyId === strategy.strategy_id}
-                    title={strategyActionsBlocked ? capabilityReason : (zh ? '未通过 Promotion/PIT 门禁，禁止创建运行实例。' : 'Promotion/PIT gates are not passed; instance creation is disabled.')}
+                    disabled={strategy.runtime_mode !== 'paper_ready' || strategy.trade_permission !== true || busyId === strategy.strategy_id}
+                    title={zh ? '未通过 Promotion/PIT 门禁，禁止创建运行实例。' : 'Promotion/PIT gates are not passed; instance creation is disabled.'}
                     className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-stone-700 disabled:opacity-50"
                   >
                     {zh ? '创建 Paper 实例' : 'Create Paper Instance'}
                   </button>
-                </div>
+                </div>}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -290,7 +339,7 @@ export default function StrategyCatalog() {
             </div>
             <p className="mt-1 text-sm text-stone-500">
               {zh
-                ? '这里是策略运行控制面：实例能启动、停止、删除，并与 intent 队列衔接。'
+                ? (strategyActionsBlocked ? '当前只读展示策略实例与证据边界；运行控制将在能力获准后提供。' : '这里是策略运行控制面：实例能启动、停止、删除，并与 intent 队列衔接。')
                 : 'This is the strategy runtime control plane: instances can start, stop, delete, and feed the intent queue.'}
             </p>
           </div>
@@ -303,53 +352,54 @@ export default function StrategyCatalog() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="text-sm font-semibold text-stone-900">{instance.name}</div>
+                    <div className="text-sm font-semibold text-stone-900">{displayInstanceName(instance, zh)}</div>
                     <div className="mt-1 text-xs text-stone-500">
-                      {instance.strategy_id} / {instance.environment}
+                      {zh ? `策略：${displayStrategyId(instance.strategy_id)} · 环境：${displayEnvironment(instance.environment)}` : `${instance.strategy_id} / ${instance.environment}`}
                     </div>
                   </div>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-stone-700">
-                    {instance.status}
+                    {displayInstanceStatus(instance.status, zh)}
                   </span>
                 </div>
 
                 <div className="mt-4 grid gap-2 text-sm text-stone-600">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="mono text-stone-500">instance_id</span>
-                    <span className="mono text-right text-stone-800">{instance.instance_id}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
                     <span>{zh ? '更新时间' : 'Updated'}</span>
                     <span>{new Date(instance.updated_at).toLocaleString()}</span>
                   </div>
+                  <details className="text-xs text-stone-500">
+                    <summary className="cursor-pointer hover:text-sky-700">{zh ? '技术标识（排障用）' : 'Technical ID'}</summary>
+                    <div className="mono mt-1 break-all text-[11px]">{instance.instance_id}</div>
+                  </details>
                 </div>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                {strategyActionsBlocked ? (
+                  <div className="mt-4 border-l-2 border-amber-400 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
+                    {zh ? '当前为只读研究实例；策略运行能力未获准，不能启动、停止或删除。' : 'This is a read-only research instance; strategy runtime is not approved, so controls are unavailable.'}
+                  </div>
+                ) : <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'start')}
-                    disabled={strategyActionsBlocked || instance.status === 'running' || busyId === instance.instance_id}
-                    title={strategyActionsBlocked ? capabilityReason : undefined}
+                    disabled={instance.status === 'running' || busyId === instance.instance_id}
                     className="rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
                     {zh ? '启动' : 'Start'}
                   </button>
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'stop')}
-                    disabled={strategyActionsBlocked || instance.status !== 'running' || busyId === instance.instance_id}
-                    title={strategyActionsBlocked ? capabilityReason : undefined}
+                    disabled={instance.status !== 'running' || busyId === instance.instance_id}
                     className="rounded-full bg-amber-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
                     {zh ? '停止' : 'Stop'}
                   </button>
                   <button
                     onClick={() => operateInstance(instance.instance_id, 'delete')}
-                    disabled={strategyActionsBlocked || busyId === instance.instance_id}
-                    title={strategyActionsBlocked ? capabilityReason : undefined}
+                    disabled={busyId === instance.instance_id}
                     className="rounded-full bg-rose-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
                   >
                     {zh ? '删除' : 'Delete'}
                   </button>
-                </div>
+                </div>}
               </div>
             ))}
           </div>
@@ -529,6 +579,116 @@ export default function StrategyCatalog() {
     </div>
     </>
   );
+}
+
+function displayInstanceStatus(value: string, zh: boolean) {
+  if (!zh) return value;
+  return ({
+    running: '运行中',
+    stopped: '已停止',
+    paused: '已暂停',
+    created: '已创建',
+    failed: '失败',
+  } as Record<string, string>)[value.toLowerCase()] || value;
+}
+
+function displayStrategyState(value: string | null | undefined, zh: boolean) {
+  if (!zh) return value || 'UNKNOWN';
+  return ({
+    template: '模板',
+    research: '研究中',
+    paper_ready: '可进行模拟盘验证',
+    blocked: '已阻断',
+    disabled: '已关闭',
+    unknown: '未知',
+  } as Record<string, string>)[(value || 'unknown').toLowerCase()] || value || '未知';
+}
+
+function displayStrategyName(strategy: StrategyTemplate, zh: boolean) {
+  if (!zh) return strategy.name;
+  return ({
+    ai_enhanced_prediction_v1: 'AI 增强预测策略 V1',
+    altcoin_retail_crowding: '山寨币散户拥挤度策略',
+    spread_arbitrage_v1: '跨市场价差策略 V1',
+  } as Record<string, string>)[strategy.strategy_id] || strategy.name;
+}
+
+function displayStrategyDescription(
+  strategy: StrategyTemplate,
+  zh: boolean,
+  promotion: PromotionEvidenceRecord | undefined,
+  promotionBoardLoaded: boolean,
+) {
+  if (promotion) {
+    return zh
+      ? '此策略的有效性以权威晋级板为准；配置中的历史收益描述不作为当前可交易证据。'
+      : 'The authoritative promotion board determines this strategy’s validity; historical returns in configuration are not current trade evidence.';
+  }
+  if (!promotionBoardLoaded) {
+    return zh
+      ? '权威晋级板当前不可读取；任何配置中的历史收益或胜率均未被验证，不能作为策略有效性或交易依据。'
+      : 'The authoritative promotion board is unavailable; historical returns or win rates in configuration are unverified and cannot support a strategy or trade decision.';
+  }
+  if (!zh) return strategy.description;
+  return ({
+    ai_enhanced_prediction_v1: '研究型预测策略模板；尚未获得真实交易或模拟盘运行授权。',
+    altcoin_retail_crowding: '研究型拥挤度策略模板；尚未获得真实交易或模拟盘运行授权。',
+    spread_arbitrage_v1: '研究型跨市场价差模板；尚未获得真实交易或模拟盘运行授权。',
+  } as Record<string, string>)[strategy.strategy_id] || strategy.description;
+}
+
+function promotionEvidenceState(record: PromotionEvidenceRecord, zh: boolean) {
+  if (record.approved && record.role === 'trade' && !record.evidence_expired) {
+    return zh ? '已通过 / PIT 已验证 / 可开仓' : 'passed / PIT verified / tradable';
+  }
+  if (record.approved && record.role === 'avoid' && !record.evidence_expired) {
+    return zh ? '回避过滤器 / 不开仓' : 'avoidance filter / no trade';
+  }
+  return zh ? `未通过 / PIT ${record.pit_status || 'UNKNOWN'} / 禁止交易` : `not promoted / PIT ${record.pit_status || 'UNKNOWN'} / no trade`;
+}
+
+function PromotionEvidencePanel({ record, zh }: { record: PromotionEvidenceRecord; zh: boolean }) {
+  const permitted = record.approved && record.role === 'trade' && !record.evidence_expired;
+  const avoidOnly = record.approved && record.role === 'avoid' && !record.evidence_expired;
+  const tone = permitted ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : avoidOnly ? 'border-sky-200 bg-sky-50 text-sky-900' : 'border-rose-200 bg-rose-50 text-rose-900';
+  return (
+    <div className={`mt-4 rounded-md border px-3 py-3 text-xs leading-5 ${tone}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <strong>{zh ? '权威研究结论' : 'Authoritative research verdict'}</strong>
+        <span>{permitted ? (zh ? '可开仓' : 'TRADE PERMITTED') : avoidOnly ? (zh ? '仅回避' : 'AVOID ONLY') : (zh ? '禁止交易' : 'NO TRADE')}</span>
+      </div>
+      <div className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-2">
+        <span>{zh ? '聚类 t 值' : 'Clustered t'}: <b>{formatEvidenceNumber(record.t_stat)}{record.t_hurdle !== null ? ` / ${record.t_hurdle.toFixed(2)}` : ''}</b></span>
+        <span>{zh ? '独立单元' : 'Independent units'}: <b>{record.n_clusters ?? '—'}{record.cluster_by ? ` (${record.cluster_by})` : ''}</b></span>
+        <span>{zh ? '原始样本' : 'Raw observations'}: <b>{record.n?.toLocaleString() ?? '—'}</b></span>
+        <span>{zh ? 'PIT 状态' : 'PIT status'}: <b>{record.pit_status || 'UNKNOWN'}</b></span>
+      </div>
+      {record.evidence_end ? <div className="mt-1.5">{zh ? '证据截至' : 'Evidence through'}: <b>{record.evidence_end}</b>{record.evidence_age_days !== null && record.max_evidence_age_days ? ` · ${record.evidence_age_days}/${record.max_evidence_age_days} ${zh ? '天' : 'days'}` : ''}{record.evidence_expired ? (zh ? '（已过期）' : ' (expired)') : ''}</div> : null}
+      {record.failed.length ? <div className="mt-1.5">{zh ? '未通过原因' : 'Gate failures'}: {record.failed.join(' · ')}</div> : null}
+    </div>
+  );
+}
+
+function formatEvidenceNumber(value: number | null) {
+  return value === null || value === undefined || !Number.isFinite(value) ? '—' : value.toFixed(2);
+}
+
+function displayStrategyId(strategyId: string) {
+  return ({
+    ai_enhanced_prediction_v1: 'AI 增强预测 V1',
+    altcoin_retail_crowding: '山寨币散户拥挤度',
+    spread_arbitrage_v1: '跨市场价差 V1',
+  } as Record<string, string>)[strategyId] || strategyId;
+}
+
+function displayInstanceName(instance: StrategyInstance, zh: boolean) {
+  if (!zh) return instance.name;
+  const suffix = instance.name.split('/').slice(1).join('/').trim();
+  return `${displayStrategyId(instance.strategy_id)}${suffix ? ` / ${suffix}` : ''}`;
+}
+
+function displayEnvironment(value: string) {
+  return value === 'paper' ? '模拟盘' : value;
 }
 
 function InfoBlock({ label, value }: { label: string; value: string }) {

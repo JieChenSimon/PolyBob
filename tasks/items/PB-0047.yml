@@ -1,0 +1,17 @@
+id: PB-0047
+title: 修复模拟盘审计一致性与关键用户路径
+state: doing
+p: P0
+area: platform
+why: 独立审计确认事件订阅泄漏、成交账本与投影非原子、美股/A股真实报价不可重放、资产页到模拟盘上下文断裂；这些会使长期模拟盘审计失真或创建错误标的运行。
+checks:
+- text: 事件订阅可稳定取消；重复启停后订阅、消费者任务和服务实例不泄漏，并有回归测试。
+  done: true
+- text: 模拟成交、总账、持仓、现金、归因和报价观测具备可检测的一致性边界；故障注入与重启对账不允许静默分叉。
+  done: true
+- text: 资产页按 domain/instrument 正确预填并阻止不可运行域创建；美/A 真实报价与 BTC/配对的 BLOCKED/UNKNOWN 状态在前端一致呈现并经浏览器测试。
+  done: true
+deps: []
+branch: pb-0047-dashboard-reliability
+blocked: null
+updated: '2026-09-10T05:20:59+00:00'

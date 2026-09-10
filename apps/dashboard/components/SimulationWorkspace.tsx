@@ -25,12 +25,10 @@ import {
   allowedRunActions,
   formatSignedRatioPercent,
   hasReliableSample,
-  parseUniverseInput,
   runStatusTone,
   signedMetricTone,
   toEpochMs,
 } from '@/domain/simulation/metrics';
-import type { StrategyTemplate } from '@/lib/types';
 
 const SimulationEquityChart = dynamic(() => import('./SimulationEquityChart'), {
   ssr: false,
@@ -146,15 +144,27 @@ interface FeedbackResult {
   weight_changes?: Array<{ signal: string; before: number; after: number }>;
 }
 
-interface SimulationPreset {
+interface SimulationDomain {
   id: string;
-  name: { zh: string; en: string };
-  description: { zh: string; en: string };
-  strategy_id: string;
-  config: Record<string, unknown>;
-  suggested_universe: string[];
-  recommended_days: number;
-  focus: string;
+  label: { zh: string; en: string };
+  source: string;
+  status: 'AVAILABLE' | 'UNKNOWN' | 'BLOCKED';
+  reason: string | null;
+  strategy_ids: string[];
+  data_state?: {
+    status: 'AVAILABLE' | 'UNKNOWN' | 'BLOCKED';
+    source: string;
+    observed_at: string | null;
+    quote_quality: string;
+    reason: string | null;
+  };
+  candidates: Array<{ symbol: string; status: string; reason: string | null }>;
+}
+
+interface SimulationCatalog {
+  domains: SimulationDomain[];
+  truth: string;
+  trade_permission: false;
 }
 
 interface SimulationRuntimeStatus {
@@ -184,6 +194,7 @@ export default function SimulationWorkspace() {
   const zh = language === 'zh';
   const queryClient = useQueryClient();
   const [initialSymbol, setInitialSymbol] = useState('');
+  const [initialDomain, setInitialDomain] = useState('');
 
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
@@ -200,8 +211,11 @@ export default function SimulationWorkspace() {
   const runtime = runtimeQuery.data;
 
   useEffect(() => {
-    const symbol = new URLSearchParams(window.location.search).get('symbol');
+    const params = new URLSearchParams(window.location.search);
+    const symbol = params.get('instrument') || params.get('symbol');
+    const domain = params.get('domain');
     if (symbol) setInitialSymbol(symbol.trim().toUpperCase());
+    if (domain) setInitialDomain(domain.trim());
   }, []);
 
   const runsQuery = useQuery<SimulationRun[]>({
@@ -295,21 +309,21 @@ export default function SimulationWorkspace() {
             <div className="flex items-center gap-2">
               <span className={`h-2.5 w-2.5 rounded-full ${runtime?.enabled ? 'bg-emerald-500' : 'bg-stone-300'}`} />
               <strong className="text-sm text-stone-900">
-                {runtime?.enabled ? (zh ? '模拟盘已启用' : 'Paper Lab enabled') : (zh ? '模拟盘未启用' : 'Paper Lab disabled')}
+                {runtimeQuery.isError ? (zh ? '无法连接模拟盘服务' : 'Paper service unavailable') : runtimeQuery.isPending ? (zh ? '正在连接模拟盘…' : 'Connecting to paper service…') : runtime?.enabled ? (zh ? '模拟盘服务运行中' : 'Paper service running') : (zh ? '模拟盘服务已停用' : 'Paper service disabled')}
               </strong>
               <StatusBadge tone="neutral">PAPER ONLY</StatusBadge>
             </div>
             <p className="mt-1 text-xs text-stone-500">
               {zh
-                ? '真实行情驱动、虚拟资金、真实费用与滑点；不会提交真实订单。自动反馈只在达到样本门槛后调整策略权重。'
-                : 'Real-market driven with paper capital, fees and slippage; no live orders. Feedback only adjusts weights after sample guardrails pass.'}
+                ? '服务运行不等于资产域可启动；请在新建区查看每个域的真实行情、成本与研究门禁。不会提交真实订单。'
+                : 'A running service does not mean an asset domain is runnable. Check each domain for real-data, cost, and research gates. No live orders are sent.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => void setRuntime({ enabled: !runtime?.enabled })}
-              disabled={busyAction === 'runtime' || runtimeQuery.isLoading}
+              disabled={busyAction === 'runtime' || !runtime || runtimeQuery.isError}
               className={`rounded-lg px-3 py-2 text-xs font-semibold text-white transition disabled:opacity-50 ${runtime?.enabled ? 'bg-stone-700 hover:bg-stone-900' : 'bg-emerald-600 hover:bg-emerald-700'}`}
             >
               {runtime?.enabled ? (zh ? '停用并暂停运行' : 'Disable & pause') : (zh ? '启用模拟盘' : 'Enable Paper Lab')}
@@ -325,6 +339,7 @@ export default function SimulationWorkspace() {
             </label>
           </div>
         </div>
+        {runtimeQuery.isError ? <ErrorState className="mt-3" title={zh ? '服务状态未知' : 'Service status unknown'} message={zh ? '无法读取服务状态，请检查后端连接后重试。已有模拟盘数据是否存在尚未核实。' : 'Check the backend connection and retry. Existing run data has not been verified.'} onRetry={() => void runtimeQuery.refetch()} retryLabel={zh ? '重新连接' : 'Reconnect'} /> : null}
         {mutationError ? <div className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">{mutationError}</div> : null}
       </Card>
       {runsQuery.isError ? (
@@ -339,7 +354,7 @@ export default function SimulationWorkspace() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr),minmax(0,1.15fr)]">
         <div className="space-y-6">
-          <CreateRunCard zh={zh} enabled={runtime?.enabled === true} initialSymbol={initialSymbol} onCreated={(runId) => {
+          <CreateRunCard zh={zh} enabled={runtime?.enabled === true} initialSymbol={initialSymbol} initialDomain={initialDomain} onCreated={(runId) => {
             if (runId) {
               setSelectedRunId(runId);
             }
@@ -426,6 +441,7 @@ function RunListItem({
   onSelect: () => void;
 }) {
   const metrics = run.metrics ?? null;
+  const researchFixture = isResearchFixture(run);
   return (
     <button
       type="button"
@@ -439,7 +455,9 @@ function RunListItem({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold text-stone-900">{run.name}</div>
+          <div className="truncate text-sm font-semibold text-stone-900">
+            {researchFixture && zh ? '研究验收样例 · ' : ''}{run.name}
+          </div>
           <div className="mt-0.5 truncate text-xs text-stone-500">
             {run.strategy_id} · {run.universe?.length ?? 0} {zh ? '个标的' : 'instruments'}
           </div>
@@ -448,6 +466,11 @@ function RunListItem({
           {statusLabel(run.status, zh)}
         </StatusBadge>
       </div>
+      {researchFixture ? (
+        <div className="mt-2 text-xs leading-5 text-amber-800">
+          {zh ? '界面验收样例：没有可用交易证据，不代表策略表现或可启动的模拟盘。' : 'UI acceptance fixture: no usable trade evidence; it is not strategy performance or a runnable paper simulation.'}
+        </div>
+      ) : null}
       <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
         <div>
           <div className="text-stone-500">{zh ? '总收益' : 'Return'}</div>
@@ -476,70 +499,100 @@ function CreateRunCard({
   zh,
   enabled,
   initialSymbol,
+  initialDomain,
   onCreated,
 }: {
   zh: boolean;
   enabled: boolean;
   initialSymbol: string;
+  initialDomain: string;
   onCreated: (runId: string | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
-  const [strategyId, setStrategyId] = useState('');
-  const [universeRaw, setUniverseRaw] = useState(initialSymbol);
+  const [domainId, setDomainId] = useState(initialDomain || 'us_equity');
+  const [strategyId, setStrategyId] = useState('momentum_dualma_v1');
+  const [universe, setUniverse] = useState<string[]>(initialSymbol ? [initialSymbol] : []);
+  const [symbolDraft, setSymbolDraft] = useState('');
   const [capitalRaw, setCapitalRaw] = useState('10000');
-  const [presetId, setPresetId] = useState('');
-  const [presetConfig, setPresetConfig] = useState<Record<string, unknown> | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [autoStart, setAutoStart] = useState(false);
   const [autoFeedback, setAutoFeedback] = useState(false);
 
-  const catalogQuery = useQuery<StrategyTemplate[]>({
-    queryKey: [...SIMULATION_QUERY_PREFIX, 'strategy-catalog'],
+  const catalogQuery = useQuery<SimulationCatalog>({
+    queryKey: [...SIMULATION_QUERY_PREFIX, 'runnable-catalog'],
     queryFn: async ({ signal }) => {
-      const payload = await fetchJson<{ strategies?: StrategyTemplate[] }>('/api/strategies/catalog', signal);
-      return Array.isArray(payload.strategies) ? payload.strategies : [];
+      return fetchJson<SimulationCatalog>('/api/simulation/catalog', signal);
     },
-    refetchInterval: SIMULATION_REFETCH_MS,
-    staleTime: SIMULATION_STALE_MS,
-    enabled: open,
-  });
-  const strategies = catalogQuery.data ?? [];
-
-  const presetsQuery = useQuery<SimulationPreset[]>({
-    queryKey: [...SIMULATION_QUERY_PREFIX, 'presets'],
-    queryFn: async ({ signal }) => {
-      const payload = await fetchJson<{ presets?: SimulationPreset[] }>('/api/simulation/presets', signal);
-      return Array.isArray(payload.presets) ? payload.presets : [];
-    },
-    staleTime: 5 * 60_000,
-    // The API intentionally returns 403 while Paper Lab is disabled. Avoid
-    // polling a known-blocked capability so the disabled state stays quiet in
-    // the browser console and the form can explain the required next action.
+    staleTime: 60_000,
     enabled: open && enabled,
   });
-  const presets = presetsQuery.data ?? [];
-  const activePreset = presets.find((p) => p.id === presetId) ?? null;
+  const domains = catalogQuery.data?.domains ?? [];
+  const activeDomain = domains.find((domain) => domain.id === domainId) ?? null;
+  const domainUsable = Boolean(
+    activeDomain
+      && activeDomain.status === 'AVAILABLE'
+      && activeDomain.strategy_ids.length,
+  );
+  const domainBlocked = activeDomain?.status === 'BLOCKED' || activeDomain?.data_state?.status === 'BLOCKED';
+  const domainReason = domainBlocked && zh
+    ? '该资产域缺少可验证的实时执行数据或必要研究门禁，当前不能创建模拟盘。'
+    : activeDomain?.data_state?.reason || activeDomain?.reason || (zh ? '启动前核验所选标的行情。' : 'Selected instruments are checked before start.');
+  const strategyLabels: Record<string, { zh: string; en: string; note: string }> = {
+    momentum_dualma_v1: { zh: '双均线动量', en: 'Dual-MA momentum', note: 'strictly causal rolling prices' },
+    deep_drawdown_rebound_v1: { zh: '深度回撤反弹', en: 'Deep-drawdown rebound', note: 'research candidate; fundamentals remain separate' },
+    signal_fusion: { zh: '信号融合', en: 'Signal fusion', note: 'prediction-market features only' },
+    spread_reversion_v1: { zh: '价差回归', en: 'Spread reversion', note: 'real order-book features only' },
+    spread_arbitrage_v1: { zh: '配对价差套利', en: 'Pair spread', note: 'paired snapshot feed only' },
+  };
 
-  const applyPreset = (id: string) => {
-    setPresetId(id);
-    const preset = presets.find((p) => p.id === id);
-    if (!preset) {
-      setPresetConfig(null);
-      return;
+  useEffect(() => {
+    if (initialDomain) setDomainId(initialDomain);
+    if (initialSymbol) setUniverse([initialSymbol]);
+    if (initialDomain || initialSymbol) setOpen(true);
+  }, [initialDomain, initialSymbol]);
+
+  useEffect(() => {
+    if (strategyId !== 'signal_fusion') setAutoFeedback(false);
+  }, [strategyId]);
+
+  useEffect(() => {
+    if (!activeDomain) return;
+    if (!activeDomain.strategy_ids.includes(strategyId)) {
+      setStrategyId(activeDomain.strategy_ids[0] ?? '');
     }
-    setStrategyId(preset.strategy_id);
-    setUniverseRaw((preset.suggested_universe ?? []).join(', '));
-    setPresetConfig(preset.config ?? {});
-    setName((current) => current.trim() || (zh ? preset.name.zh : preset.name.en));
+  }, [activeDomain, strategyId]);
+
+  const chooseDomain = (nextDomain: SimulationDomain) => {
+    setDomainId(nextDomain.id);
+    setUniverse([]);
+    setSymbolDraft('');
+    setStrategyId(nextDomain.strategy_ids[0] ?? '');
+    setFormError(null);
+  };
+
+  const toggleInstrument = (symbol: string) => {
+    setUniverse((current) => current.includes(symbol)
+      ? current.filter((value) => value !== symbol)
+      : [...current, symbol]);
+  };
+
+  const addDraft = () => {
+    const symbol = symbolDraft.trim().toUpperCase();
+    if (!symbol) return;
+    setUniverse((current) => current.includes(symbol) ? current : [...current, symbol]);
+    setSymbolDraft('');
   };
 
   const submit = async () => {
-    const universe = parseUniverseInput(universeRaw);
     const initialCapital = Number(capitalRaw);
-    if (!name.trim()) {
-      setFormError(zh ? '请填写运行名称。' : 'A run name is required.');
+    if (!activeDomain) {
+      setFormError(zh ? '模拟盘能力目录尚未加载。' : 'Paper Lab capability catalog has not loaded.');
+      return;
+    }
+    if (!domainUsable) {
+      setFormError(zh ? '该资产域当前不可运行，系统不会创建空模拟盘。' : 'This asset domain is not runnable now; an empty paper run will not be created.');
       return;
     }
     if (!strategyId) {
@@ -562,16 +615,14 @@ function CreateRunCard({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: name.trim(),
+          name: name.trim() || `${zh ? activeDomain.label.zh : activeDomain.label.en} · ${strategyId}`,
           strategy_id: strategyId,
           universe,
           initial_capital: initialCapital,
-          // A preset supplies tuned config (position size, slippage penalty…);
-          // the visible fields above override strategy/universe/name as edited.
           config: {
-            ...(presetConfig ?? {}),
-            auto_run: autoStart,
-            auto_feedback: autoFeedback,
+            asset_domain: activeDomain.id,
+            auto_run: false,
+            auto_feedback: strategyId === 'signal_fusion' && autoFeedback,
           },
         }),
       }));
@@ -579,13 +630,19 @@ function CreateRunCard({
         | { run_id?: string; run?: { run_id?: string } }
         | null;
       const createdId = payload?.run?.run_id ?? payload?.run_id ?? null;
+      if (!createdId) throw new Error(zh ? '创建响应缺少运行编号，请刷新列表核对。' : 'Creation response has no run id; refresh the run list to verify.');
+      onCreated(createdId);
       if (createdId && autoStart) {
-        await requireSuccessfulMutation(fetch(`${API_BASE}/api/simulation/runs/${createdId}/start`, { method: 'POST' }));
+        try {
+          await requireSuccessfulMutation(fetch(`${API_BASE}/api/simulation/runs/${createdId}/start`, { method: 'POST' }));
+        } catch (error) {
+          setFormError(`${zh ? '任务已创建，启动未通过。请在运行详情重试启动，无需重复创建。' : 'Run created; start failed. Retry start from the run details without creating another run.'} ${error instanceof Error ? error.message : ''}`);
+          setOpen(false);
+          return;
+        }
       }
       setName('');
-      setUniverseRaw(initialSymbol);
-      setPresetId('');
-      setPresetConfig(null);
+      setUniverse(initialSymbol ? [initialSymbol] : []);
       setAutoStart(false);
       setAutoFeedback(false);
       setOpen(false);
@@ -603,8 +660,8 @@ function CreateRunCard({
         <SectionHeader
           title={zh ? '新建模拟盘' : 'New Simulation Run'}
           caption={zh
-            ? '选择策略和标的，用 paper 资金在真实行情上运行。'
-            : 'Pick a strategy and universe; runs on live prices with paper capital.'}
+            ? '真实数据、虚拟资金、可审计成交；先选资产，再选兼容策略和标的。'
+            : 'Real data, paper capital, auditable fills. Choose asset, compatible strategy, then instruments.'}
         />
         <button
           type="button"
@@ -615,111 +672,135 @@ function CreateRunCard({
         </button>
       </div>
 
+      {!open && formError ? <p role="alert" className="px-5 pb-4 text-sm text-amber-700">{formError}</p> : null}
       {open ? (
         <div className="space-y-4 border-t border-stone-200 px-5 py-4">
-          <label className="block">
-            <span className="text-xs font-medium uppercase tracking-[0.12em] text-stone-500">
-              {zh ? '预设测试类型' : 'Preset Test Type'}
-            </span>
-            <select
-              value={presetId}
-              onChange={(event) => applyPreset(event.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-sky-500"
-            >
-              <option value="">
-                {presetsQuery.isLoading
-                  ? (zh ? '加载预设中…' : 'Loading presets…')
-                  : (zh ? '自定义（不使用预设）' : 'Custom (no preset)')}
-              </option>
-              {presets.map((preset) => (
-                <option key={preset.id} value={preset.id}>
-                  {zh ? preset.name.zh : preset.name.en}
-                </option>
+          <div>
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+              {zh ? '1 · 资产类别' : '1 · Asset class'}
+            </div>
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+              {domains.map((domain) => (
+                <button
+                  key={domain.id}
+                  type="button"
+                  onClick={() => chooseDomain(domain)}
+                  className={`rounded-md border px-3 py-2 text-left text-xs transition ${domain.id === activeDomain?.id
+                    ? 'border-sky-500 bg-sky-50 text-sky-950'
+                    : 'border-stone-200 bg-white text-stone-700 hover:border-stone-400'}`}
+                >
+                  <span className="block font-semibold">{zh ? domain.label.zh : domain.label.en}</span>
+                  <span className="mt-0.5 block truncate text-[10px] text-stone-500">{domain.data_state?.status ?? domain.status}</span>
+                </button>
               ))}
-            </select>
-            {activePreset ? (
-              <div className="mt-2 rounded-lg border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-stone-600">
-                <p>{zh ? activePreset.description.zh : activePreset.description.en}</p>
-                <p className="mt-1 text-stone-500">
-                  {zh ? '策略' : 'Strategy'}: <span className="font-medium text-stone-700">{activePreset.strategy_id}</span>
-                  {' · '}
-                  {zh ? '建议时长' : 'Suggested'}: <span className="font-medium text-stone-700">{activePreset.recommended_days} {zh ? '天' : 'days'}</span>
-                </p>
-                <p className="mt-1 text-amber-700">
-                  {zh
-                    ? '下方标的为示例占位，请替换为你自己的真实标的 ID。'
-                    : 'The universe below is example placeholders — replace with your real instrument ids.'}
-                </p>
+            </div>
+          </div>
+
+          {activeDomain ? (
+            <div className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-xs text-stone-600">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge tone={(activeDomain.data_state?.status ?? activeDomain.status) === 'AVAILABLE' ? 'ok' : (activeDomain.data_state?.status ?? activeDomain.status) === 'BLOCKED' ? 'warn' : 'neutral'}>{activeDomain.data_state?.status ?? activeDomain.status}</StatusBadge>
+                <span className="font-medium text-stone-800">{activeDomain.data_state?.source ?? activeDomain.source}</span>
               </div>
-            ) : null}
-          </label>
+              <p className="mt-1">{domainReason}</p>
+              {activeDomain.data_state?.observed_at ? <p className="mt-1 text-[10px] text-stone-500">{zh ? '来源时间' : 'Provider time'}: {new Date(activeDomain.data_state.observed_at).toLocaleString()} · {activeDomain.data_state.quote_quality}</p> : null}
+            </div>
+          ) : null}
+
+          {!catalogQuery.isPending && !activeDomain && domains.length > 0 ? <p role="alert" className="text-sm text-amber-700">{zh ? '链接中的资产类别无法识别，请在上方选择资产类别。' : 'The linked asset class is not recognized. Choose an asset class above.'}</p> : null}
+          {!domainBlocked ? <div>
+            <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+              {zh ? '2 · 兼容策略' : '2 · Compatible strategy'}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {(activeDomain?.strategy_ids ?? []).map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setStrategyId(id)}
+                  className={`rounded-md border px-3 py-2 text-left text-xs ${strategyId === id
+                    ? 'border-stone-900 bg-stone-900 text-white'
+                    : 'border-stone-200 bg-white text-stone-700 hover:border-stone-400'}`}
+                >
+                  <span className="block font-semibold">{zh ? strategyLabels[id]?.zh ?? id : strategyLabels[id]?.en ?? id}</span>
+                  <span className={`block text-[10px] ${strategyId === id ? 'text-stone-300' : 'text-stone-500'}`}>{id}</span>
+                </button>
+              ))}
+            </div>
+          </div> : <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+            {zh ? '完成该域的实时数据、成本和研究门禁后，这里才会显示可运行策略与创建操作。' : 'Runnable strategies and creation controls appear after this domain has real data, cost, and research gates.'}
+          </div>}
+
+          {!domainBlocked ? <>
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+                {zh ? '3 · 标的' : '3 · Instruments'}
+              </span>
+              <span className="text-xs text-stone-500">{universe.length} {zh ? '已选' : 'selected'}</span>
+            </div>
+            {universe.length > 0 ? <div className="mb-2 flex flex-wrap gap-1.5" aria-label={zh ? '已选标的' : 'Selected instruments'}>
+              {universe.map((symbol) => <button key={symbol} type="button" onClick={() => toggleInstrument(symbol)} aria-label={`${zh ? '移除' : 'Remove'} ${symbol}`} className="mono rounded border border-sky-400 px-2 py-1 text-xs">{symbol} ×</button>)}
+            </div> : null}
+            {activeDomain?.candidates.length ? (
+              <div className="flex max-h-32 flex-wrap content-start gap-1.5 overflow-y-auto rounded-md border border-stone-200 bg-white p-2">
+                {activeDomain.candidates.map((candidate) => {
+                  const selected = universe.includes(candidate.symbol);
+                  return (
+                    <button
+                      key={candidate.symbol}
+                      type="button"
+                      onClick={() => toggleInstrument(candidate.symbol)}
+                      title={candidate.reason || undefined}
+                      className={`mono rounded px-2 py-1 text-xs transition ${selected
+                        ? 'bg-sky-600 text-white'
+                        : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
+                    >
+                      {candidate.symbol}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed border-stone-300 bg-stone-50 px-3 py-2 text-xs text-stone-500">
+                {zh ? '此数据源需要在下方手工输入真实标的 ID。' : 'This feed needs real instrument ids entered below.'}
+              </div>
+            )}
+            <div className="mt-2 flex gap-2">
+              <input
+                value={symbolDraft}
+                onChange={(event) => setSymbolDraft(event.target.value)}
+                onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); addDraft(); } }}
+                placeholder={activeDomain?.id === 'a_share' ? (zh ? '例如 600519.SH' : 'e.g. 600519.SH') : (zh ? '加入范围内标的' : 'Add an in-scope symbol')}
+                className="mono min-w-0 flex-1 rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none focus:border-sky-500"
+              />
+              <button type="button" onClick={addDraft} className="rounded-md border border-stone-300 px-3 text-xs font-medium text-stone-700 hover:bg-stone-50">
+                {zh ? '加入' : 'Add'}
+              </button>
+            </div>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <label className={`flex items-start gap-2 rounded-lg border p-3 text-xs ${enabled ? 'border-stone-200 text-stone-700' : 'border-stone-100 text-stone-400'}`}>
               <input type="checkbox" checked={autoStart} disabled={!enabled} onChange={(event) => setAutoStart(event.target.checked)} />
-              <span><strong className="block">{zh ? '自动启动' : 'Auto-start'}</strong>{zh ? '服务开启后自动进入 running。' : 'Start this run when the Paper Lab runner is enabled.'}</span>
+              <span><strong className="block">{zh ? '创建后立即启动' : 'Start after creation'}</strong>{zh ? '核验所选标的行情后启动；核验失败时保留待运行任务。' : 'Start after quote checks; failed checks leave the run paused.'}</span>
             </label>
             <label className={`flex items-start gap-2 rounded-lg border p-3 text-xs ${enabled ? 'border-sky-200 text-stone-700' : 'border-stone-100 text-stone-400'}`}>
-              <input type="checkbox" checked={autoFeedback} disabled={!enabled} onChange={(event) => setAutoFeedback(event.target.checked)} />
-              <span><strong className="block">{zh ? '受限自适应反馈' : 'Guarded adaptive feedback'}</strong>{zh ? '达到最小平仓样本后才调整融合权重。' : 'Adjust fusion weights only after the minimum closed-trade sample.'}</span>
+              <input type="checkbox" checked={autoFeedback} disabled={!enabled || strategyId !== 'signal_fusion'} onChange={(event) => setAutoFeedback(event.target.checked)} />
+              <span><strong className="block">{zh ? '受限自适应反馈' : 'Guarded adaptive feedback'}</strong>{strategyId !== 'signal_fusion' ? (zh ? '当前策略不支持自动调权。' : 'This strategy does not support weight adaptation.') : (zh ? '达到最小平仓样本后才调整融合权重。' : 'Adjust fusion weights only after the minimum closed-trade sample.')}</span>
             </label>
           </div>
 
           <label className="block">
             <span className="text-xs font-medium uppercase tracking-[0.12em] text-stone-500">
-              {zh ? '名称' : 'Name'}
+              {zh ? '运行名称（可选）' : 'Run name (optional)'}
             </span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder={zh ? '例如：BTC 价差长期检验' : 'e.g. BTC spread long-run check'}
+              placeholder={zh ? '例如：美股动量长期验证' : 'e.g. US momentum long-run validation'}
               className="mt-1.5 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-sky-500"
             />
-          </label>
-
-          <label className="block">
-            <span className="text-xs font-medium uppercase tracking-[0.12em] text-stone-500">
-              {zh ? '策略' : 'Strategy'}
-            </span>
-            <select
-              value={strategyId}
-              onChange={(event) => setStrategyId(event.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-sky-500"
-            >
-              <option value="">
-                {catalogQuery.isLoading
-                  ? (zh ? '加载策略中…' : 'Loading strategies…')
-                  : (zh ? '选择策略' : 'Select a strategy')}
-              </option>
-              {strategyId && !strategies.some((s) => s.strategy_id === strategyId) ? (
-                <option value={strategyId}>{strategyId}</option>
-              ) : null}
-              {strategies.map((strategy) => (
-                <option key={strategy.strategy_id} value={strategy.strategy_id}>
-                  {strategy.name} ({strategy.strategy_id})
-                </option>
-              ))}
-            </select>
-            {catalogQuery.isError ? (
-              <span className="mt-1 block text-xs text-rose-600">
-                {zh ? '策略目录加载失败，稍后重试。' : 'Failed to load the strategy catalog; try again later.'}
-              </span>
-            ) : null}
-          </label>
-
-          <label className="block">
-            <span className="text-xs font-medium uppercase tracking-[0.12em] text-stone-500">
-              {zh ? '标的列表' : 'Universe'}
-            </span>
-            <input
-              value={universeRaw}
-              onChange={(event) => setUniverseRaw(event.target.value)}
-              placeholder="BTCUSDT, ETHUSDT"
-              className="mono mt-1.5 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-sky-500"
-            />
-            <span className="mt-1 block text-xs text-stone-500">
-              {zh ? '用逗号分隔多个标的 ID。' : 'Separate multiple instrument ids with commas.'}
-            </span>
           </label>
 
           <label className="block">
@@ -738,16 +819,29 @@ function CreateRunCard({
             <div className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">{formError}</div>
           ) : null}
 
+          {catalogQuery.isError ? (
+            <div className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {zh ? '可运行策略目录加载失败；请检查 API 后重试。' : 'Runnable strategy catalog failed to load; check the API and retry.'}
+            </div>
+          ) : null}
+
+          <p className="text-xs text-stone-500">
+            {zh
+              ? '启动时将重新验证真实来源、交易时段和数据新鲜度；不通过即 BLOCKED，不会以旧价或模拟报价成交。'
+              : 'Start rechecks real source, session, and freshness. A failed check is BLOCKED; it never fills against stale or invented quotes.'}
+          </p>
+
           <div className="flex justify-end">
             <button
               type="button"
               onClick={() => void submit()}
-              disabled={submitting || !enabled}
+              disabled={submitting || !enabled || !domainUsable}
               className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-sky-700 disabled:opacity-50"
             >
-              {!enabled ? (zh ? '先启用模拟盘' : 'Enable Paper Lab first') : submitting ? (zh ? '创建中…' : 'Creating…') : (zh ? '创建运行' : 'Create Run')}
+              {!enabled ? (zh ? '先启用模拟盘' : 'Enable Paper Lab first') : !domainUsable ? (zh ? '当前不可运行' : 'Currently blocked') : submitting ? (zh ? '创建中…' : 'Creating…') : (zh ? '创建运行' : 'Create Run')}
             </button>
           </div>
+          </> : null}
         </div>
       ) : null}
     </Card>
@@ -786,6 +880,7 @@ function RunDetailPanel({
   onApplyFeedback: (runId: string) => void;
 }) {
   const run = detail?.run ?? fallbackRun;
+  const researchFixture = run ? isResearchFixture(run) : false;
   const metrics = detail?.metrics ?? run?.metrics ?? null;
   const [selectedInstrument, setSelectedInstrument] = useState<string>('ALL');
   const actions = allowedRunActions(run?.status);
@@ -812,9 +907,7 @@ function RunDetailPanel({
       .sort((a, b) => a.ts - b.ts);
   }, [detail?.equity_curve]);
 
-  const selectedCurveInstrument = selectedInstrument === 'ALL'
-    ? (run?.universe ?? [])[0]
-    : selectedInstrument;
+  const selectedCurveInstrument = selectedInstrument === 'ALL' ? null : selectedInstrument;
   const instrumentChartPoints = useMemo(() => {
     const curve = selectedCurveInstrument
       ? detail?.instrument_pnl_curves?.[selectedCurveInstrument] ?? []
@@ -859,12 +952,21 @@ function RunDetailPanel({
       : freshnessAge <= 300_000
         ? (zh ? '延迟' : 'Delayed')
         : (zh ? '过期' : 'Stale');
+  const hasExecutionEvidence = Boolean(
+    chartPoints.length
+    || instrumentChartPoints.length
+    || detail?.trades?.length
+    || detail?.positions?.length
+    || Object.keys(metrics?.per_instrument ?? {}).length
+    || detail?.feature_attribution?.features?.length,
+  );
+  const awaitingEvidence = !isLoading && !isError && !hasExecutionEvidence;
 
   return (
     <>
       <Card>
         <SectionHeader
-          title={run ? run.name : runId}
+          title={run ? `${researchFixture && zh ? '研究验收样例 · ' : ''}${run.name}` : runId}
           caption={run
             ? `${run.strategy_id} · ${zh ? '初始资金' : 'initial'} ${formatUsd(run.initial_capital)} · ${zh ? '现金' : 'cash'} ${formatUsd(run.cash, 2)}`
             : null}
@@ -883,11 +985,17 @@ function RunDetailPanel({
           />
         ) : null}
 
+        {researchFixture ? (
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
+            {zh ? '这是历史界面验收样例，不是可用于检验策略收益的真实模拟盘运行。它没有交易、持仓、净值或归因证据，不能启动或应用策略反馈。' : 'This is a historical UI acceptance fixture, not a real paper run for evaluating strategy returns. It has no trade, position, equity, or attribution evidence and cannot be started or used for strategy feedback.'}
+          </div>
+        ) : null}
+
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => onAction(runId, 'start')}
-            disabled={!actions.start || busyAction === `${runId}:start`}
+            disabled={researchFixture || !actions.start || busyAction === `${runId}:start`}
             className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-700 disabled:opacity-40"
           >
             {zh ? '启动' : 'Start'}
@@ -895,7 +1003,7 @@ function RunDetailPanel({
           <button
             type="button"
             onClick={() => onAction(runId, 'pause')}
-            disabled={!actions.pause || busyAction === `${runId}:pause`}
+            disabled={researchFixture || !actions.pause || busyAction === `${runId}:pause`}
             className="rounded-full bg-amber-600 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-amber-700 disabled:opacity-40"
           >
             {zh ? '暂停' : 'Pause'}
@@ -903,7 +1011,7 @@ function RunDetailPanel({
           <button
             type="button"
             onClick={() => onAction(runId, 'stop')}
-            disabled={!actions.stop || busyAction === `${runId}:stop`}
+            disabled={researchFixture || !actions.stop || busyAction === `${runId}:stop`}
             className="rounded-full bg-stone-600 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-stone-700 disabled:opacity-40"
           >
             {zh ? '停止' : 'Stop'}
@@ -913,7 +1021,7 @@ function RunDetailPanel({
             <button
               type="button"
               onClick={() => setFeedbackConfirming(!feedbackConfirming)}
-              disabled={busyAction === `${runId}:feedback`}
+              disabled={researchFixture || busyAction === `${runId}:feedback` || run?.strategy_id !== 'signal_fusion' || run?.status === 'stopped'}
               className="rounded-full border border-sky-300 bg-sky-50 px-4 py-1.5 text-xs font-medium text-sky-700 transition hover:bg-sky-100 disabled:opacity-40"
             >
               {zh ? '应用策略反馈' : 'Apply Strategy Feedback'}
@@ -996,15 +1104,38 @@ function RunDetailPanel({
         ) : null}
       </Card>
 
+      {awaitingEvidence ? (
+        <Card>
+          <SectionHeader
+            title={zh ? '等待可审计交易证据' : 'Awaiting auditable trading evidence'}
+            caption={zh
+              ? '该运行尚未产生报价观测、成交、持仓或净值点；收益、归因和策略反馈均保持 UNKNOWN。'
+              : 'This run has no quote observation, fill, position, or equity point yet; return, attribution, and strategy feedback remain UNKNOWN.'}
+          />
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <EvidenceTile label={zh ? '运行状态' : 'Run status'} value={statusLabel(run?.status, zh)} />
+            <EvidenceTile label={zh ? '数据观测' : 'Quote observations'} value={String(metrics?.execution_evidence?.quote_observation_count ?? 0)} />
+            <EvidenceTile label={zh ? '已审计成交' : 'Audited fills'} value={String(metrics?.trade_count ?? 0)} />
+          </div>
+          <p className="mt-4 border-t border-stone-200 pt-3 text-xs leading-5 text-stone-500">
+            {zh
+              ? '这不是零收益结论，也不是策略失败结论。请先让该资产域通过真实行情、成本和研究门禁并累积可复核成交；届时完整的逐标的曲线、归因、风险与交易明细会自动出现。'
+              : 'This is neither a zero-return result nor a strategy-failure conclusion. Once this asset domain passes real-data, cost, and research gates and accumulates reviewable fills, the per-instrument curves, attribution, risk, and trade details appear automatically.'}
+          </p>
+        </Card>
+      ) : (
+        <>
       <Card>
         <SectionHeader
           title={zh ? '逐标的收益与解释' : 'Per-instrument performance & explanation'}
-          caption={zh
+          caption={selectedInstrument === 'ALL' ? (zh ? '组合账户净值：现金与所有持仓按行情估值之和。' : 'Portfolio equity: cash plus the marked value of all positions.') : zh
             ? `当前曲线：${selectedCurveInstrument || 'UNKNOWN'}。这是标的净 PnL 贡献，不是重复分配后的账户 equity。`
             : `Curve: ${selectedCurveInstrument || 'UNKNOWN'}. This is instrument PnL contribution, not duplicated account equity.`}
         />
         <div className="mt-4 h-72">
-          {instrumentChartPoints.length ? (
+          {selectedInstrument === 'ALL' && chartPoints.length ? (
+            <SimulationEquityChart points={chartPoints} equityLabel={zh ? '账户净值' : 'Account equity'} />
+          ) : instrumentChartPoints.length ? (
             <SimulationInstrumentPnlChart points={instrumentChartPoints} zh={zh} />
           ) : (
             <EmptyState
@@ -1284,7 +1415,18 @@ function RunDetailPanel({
           )}
         </div>
       </Card>
+        </>
+      )}
     </>
+  );
+}
+
+function EvidenceTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2">
+      <div className="text-[11px] uppercase tracking-[0.08em] text-stone-500">{label}</div>
+      <div className="mt-1 text-sm font-semibold text-stone-900">{value}</div>
+    </div>
   );
 }
 
@@ -1299,6 +1441,13 @@ function statusLabel(status: string | null | undefined, zh: boolean) {
     default:
       return zh ? '未知' : 'unknown';
   }
+}
+
+function isResearchFixture(run: SimulationRun) {
+  const config = run.config as Record<string, unknown> | undefined;
+  return config?.purpose === 'ui_acceptance_fixture'
+    || config?.research_fixture === true
+    || /^attribution smoke$/i.test(run.name.trim());
 }
 
 function tradeSideLabel(side: string, zh: boolean) {

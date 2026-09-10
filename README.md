@@ -76,9 +76,7 @@ uv run --locked python -m apps.api.main
 启动 dashboard：
 
 ```bash
-cd apps/dashboard
-npm install
-npm run dev
+./start-dashboard.sh
 ```
 
 或者在项目根目录一行启动 dashboard：

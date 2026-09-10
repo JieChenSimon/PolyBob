@@ -146,6 +146,26 @@ run_guard_require_free_port() {
     exit 1
 }
 
+# 端口监听不等于服务可用：Next 的 next-server 可能已经 bind 端口，却卡在首轮
+# 编译或请求处理里。启动入口必须等到一个真实 HTTP 响应后才能向操作者报告成功。
+# 失败时交给现有 EXIT trap 回收整组子进程，不能遗留“端口在、页面死”的孤儿。
+run_guard_wait_http() {
+    local url="$1" service="$2" pid="$3" attempts="${4:-30}" attempt
+    for ((attempt = 1; attempt <= attempts; attempt++)); do
+        if curl -fsS --max-time 2 "$url" >/dev/null 2>&1; then
+            echo "   ✅ $service 已就绪: $url"
+            return 0
+        fi
+        if ! kill -0 "$pid" 2>/dev/null; then
+            echo "   ❌ $service 进程在就绪前退出。"
+            return 1
+        fi
+        sleep 1
+    done
+    echo "   ❌ $service 在 ${attempts}s 内没有返回 HTTP 响应。"
+    return 1
+}
+
 # 扫掉本次会话端口上还活着的自己人。端口是抓住 next-server 孙进程最可靠的把手。
 run_guard_sweep_ports() {
     local signal="${1:--TERM}" port pid

@@ -86,7 +86,7 @@ export default function RiskOpsOverview() {
             {zh ? '风险快照' : 'Risk Snapshot'}
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <Metric label={zh ? '告警级别' : 'Alert Level'} value={summary?.alert_level || (zh ? '未知' : 'unknown')} />
+            <Metric label={zh ? '告警级别' : 'Alert Level'} value={formatAlertLevel(summary?.alert_level, zh)} />
             <Metric label={zh ? '组合账本' : 'Portfolio'} value={formatPortfolioStatus(summary?.portfolio_status, zh)} />
             <Metric label={zh ? '净敞口' : 'Net Exposure'} value={formatOptionalNumber(summary?.net_exposure, 4)} />
             <Metric label={zh ? '估算杠杆' : 'Estimated Leverage'} value={formatOptionalNumber(summary?.estimated_leverage, 2)} />
@@ -280,6 +280,20 @@ function formatPortfolioStatus(value: RiskSummary['portfolio_status'] | undefine
     return zh ? '错误' : 'error';
   }
   return zh ? '未配置' : 'not configured';
+}
+
+function formatAlertLevel(value: string | undefined, zh: boolean) {
+  const normalized = value?.toLowerCase() || 'unknown';
+  if (!zh) return normalized.replaceAll('_', ' ');
+  return ({
+    clear: '无告警',
+    normal: '正常',
+    warning: '需关注',
+    elevated: '风险升高',
+    critical: '严重',
+    not_configured: '未配置',
+    unknown: '未知',
+  } as Record<string, string>)[normalized] || normalized.replaceAll('_', ' ');
 }
 
 function serviceStatusClass(status: string) {
